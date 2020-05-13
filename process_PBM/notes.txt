@@ -1,0 +1,14 @@
+- Probably wrong annotation of sample:
+13957	CHAMP1	RawData/R_2018-08-30_13565_1M-ME_Standard_pTH13957.1_CHAMP1.DBD.txt	Results/13957.*score
+Mismatch of id in the first column and id just after date. It was checked using pattern (compare to a variant w/o -v option):
+grep -vPe '^(\d+)\t(\S+)\tRawData/R_2018-\d\d-\d\d_\1\S+_\2\S*.txt\tResults/\1\.\*score$' list_pbm.txt 
+
+- `control` column is always FALSE
+for FN in $(find RawData -xtype f); do echo $FN; cat $FN | tail -n+2 | cuttab -f 4 | sort | countuniq; done
+
+- What is `flag` column? Probes marked as bad?
+
+- different chip types: 1M-ME (40524 probes) and 1M-HK (40329 probes).
+Note that `R_2018-11-28_13975_1M-HK_Standard_pTH13931.3_ZBED4`
+has probe enumeration different from other 1M-HK probes:
+For cells with the same `id_probe`, `row` differ by +1 or -1 and `id_spot` differ by +85 or -85.
