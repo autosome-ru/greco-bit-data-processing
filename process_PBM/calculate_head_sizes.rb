@@ -24,10 +24,10 @@ chip_infos = Dir.glob('results/seq_zscore/*.tsv').map{|fn|
 File.open('results/head_sizes.html', 'w'){|fw|
   fw.puts <<-EOS
     <html><head>
-    <link rel="stylesheet" href="../websrc/tablesorter-master/css/theme.default.css">
+    <link rel="stylesheet" href="../websrc/theme.default.css">
     <script type="text/javascript" src="../websrc/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="../websrc/tablesorter-master/js/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="../websrc/tablesorter-master/js/jquery.tablesorter.widgets.js"></script>
+    <script type="text/javascript" src="../websrc/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="../websrc/jquery.tablesorter.widgets.js"></script>
     </head><body>
   EOS
 
