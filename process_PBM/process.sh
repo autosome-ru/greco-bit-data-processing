@@ -14,20 +14,11 @@ mkdir -p results/factors
 
 # Generates files in ./seq_score folder
 ruby normalize_pbm.rb
-ruby calculate_head_sizes.rb
-
-for FN in $( find results/seq_zscore/ -xtype f ); do
-  BN=$(basename -s .tsv ${FN})
-  cat $FN \
-    | head -1000 \
-    | awk -F $'\t' -e '{print "> " $3 "\n" $2}' \
-    > results/top_seqs/${BN}.fa
-done
-
+ruby extract_top_seqs.rb
 
 for FN in $( find results/top_seqs/ -xtype f ); do
   BN=$(basename -s .fa ${FN})
-  java -cp chipmunk.jar ru.autosome.di.ChIPMunk 20 6 y 1.0 s:${FN} 100 10 1 ${NUM_THREADS} random auto single > results/chipmunk_results/${BN}.chipmunk.txt 2> results/chipmunk_logs/${BN}.chipmunk.log
+  java -cp chipmunk.jar ru.autosome.di.ChIPMunk 8 15 y 1.0 s:${FN} 100 10 1 ${NUM_THREADS} random auto single > results/chipmunk_results/${BN}.chipmunk.txt 2> results/chipmunk_logs/${BN}.chipmunk.log
 
   # cat results/chipmunk_results/${BN}.chipmunk.txt  \
   #   | grep -Pe '^[ACGT]\|'  \

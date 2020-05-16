@@ -8,6 +8,21 @@ quantiles_header = quantiles_order.map{|quantile, z_score_thr|
 }
 header = ['TF', *quantiles_header, 'dataset']
 
+Dir.glob('results/seq_zscore/*.tsv').each{|fn|
+  basename = File.basename(fn, ".tsv")
+  # tf = basename.split("_").last
+  File.open("results/top_seqs/#{basename}.fa", 'w') {|fw|
+    File.readlines(fn).each{|l|
+      probe_id, seq, zscore = l.chomp.split("\t")
+      zscore = Float(zscore)
+      if zscore >= quantiles[0.01]
+        fw.puts ">#{zscore}"
+        fw.puts seq
+      end
+    }
+  }
+}
+
 chip_infos = Dir.glob('results/seq_zscore/*.tsv').map{|fn|
   basename = File.basename(fn, ".tsv")
   tf = basename.split("_").last
