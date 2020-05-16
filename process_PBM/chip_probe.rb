@@ -32,16 +32,28 @@ ChipProbe = Struct.new(:id_spot, :row, :col, :control, :id_probe, :pbm_sequence,
     }
   end
 
+  def with_signal(new_signal)
+    ChipProbe.new(id_spot, row, col, control, id_probe, pbm_sequence, linker_sequence, new_signal, background, flag)
+  end
+
+  def with_background(new_background)
+    ChipProbe.new(id_spot, row, col, control, id_probe, pbm_sequence, linker_sequence, signal, new_background, flag)
+  end
+
   def scaled(factor)
-    ChipProbe.new(id_spot, row, col, control, id_probe, pbm_sequence, linker_sequence, factor * signal, factor * background, flag)
+    with_signal(factor * signal).with_background(factor * background)
   end
 
   def background_subtracted
-    ChipProbe.new(id_spot, row, col, control, id_probe, pbm_sequence, linker_sequence, signal - background, 0.0, flag)
+    with_signal(signal - background).with_background(0.0)
   end
 
   def background_normalized
-    ChipProbe.new(id_spot, row, col, control, id_probe, pbm_sequence, linker_sequence, Math.log2(signal / background), nil, flag)
+    with_signal(Math.log2(signal / background)).with_background(nil)
+  end
+
+  def log10_scaled
+    with_signal(Math.log10(signal)).with_background(Math.log10(background))
   end
 end
 
@@ -94,4 +106,25 @@ class Chip
     Chip.new(probes.map{|probe| probe.background_normalized }, info)
   end
 
+  def log10_scaled
+    Chip.new(probes.map{|probe| probe.log10_scaled }, info)
+  end
+end
+
+def quantile_normalized_chips(chips)
+  probe_ids_variants = chips.map{|chip| chip.probes.map{|chip_probe| chip_probe.id_probe }.sort }
+  raise 'Probe ids are different'  if probe_ids_variants.uniq.size != 1
+  probe_ids = probe_ids_variants.first
+  samples_sorted_probes = chips.map{|chip|
+    chip.probes.map{|probe| [probe.id_probe, probe] }.to_h.values_at(*probe_ids)
+  }
+
+  qn_signals     = quantile_normalization(samples_sorted_probes.map{|chip_probes| chip_probes.map{|probe| probe.signal } })
+  qn_backgrounds = quantile_normalization(samples_sorted_probes.map{|chip_probes| chip_probes.map{|probe| probe.background } })
+  chips.zip(samples_sorted_probes, qn_signals, qn_backgrounds).map{|chip, chip_sorted_probes, chip_qn_signals, chip_qn_backgrounds|
+    normalized_probes = chip_sorted_probes.zip(chip_qn_signals, chip_qn_backgrounds).map{|probe, qn_signal, qn_background|
+      probe.with_signal(qn_signal).with_background(qn_background)
+    }
+    Chip.new(normalized_probes, chip.info)
+  }
 end
