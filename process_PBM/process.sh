@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NUM_THREADS=4
+NUM_THREADS=20
 
 mkdir -p results/chip_scores_for_benchmark
 mkdir -p results/chip_scores_for_benchmark_zscored
@@ -25,8 +25,9 @@ CHIPMUNK_MODE=flat
 # NORMALIZATION_MODE='--log10'
 NORMALIZATION_MODE='--log10-bg'
 
-TOP_MODE='--max-head-size 1000'
+# TOP_MODE='--max-head-size 1000'
 # TOP_MODE='--quantile 0.01'
+TOP_MODE='--quantile 0.05'
 
 ruby normalize_pbm.rb ${NORMALIZATION_MODE}
 ruby extract_top_seqs.rb ${TOP_MODE}
@@ -37,10 +38,15 @@ echo -e "chip\tcorrelation" > results/motif_qualities_zscored.tsv
 for FN in $( find results/top_seqs/ -xtype f ); do
   BN=$(basename -s .fa ${FN})
 
-  java -cp chipmunk.jar ru.autosome.di.ChIPMunk \
-      ${CHIPMUNK_LENGTH_RANGE} y 1.0 s:${FN} 100 10 1 ${NUM_THREADS} random auto ${CHIPMUNK_MODE} \
-      > results/chipmunk_results/${BN}.chipmunk.txt \
-      2> results/chipmunk_logs/${BN}.chipmunk.log
+  # It's better not to use more than 2 threads in chipmunk
+  echo "java -cp chipmunk.jar ru.autosome.di.ChIPMunk" \
+      "${CHIPMUNK_LENGTH_RANGE} y 1.0 w:${FN} 400 40 1 1 random auto ${CHIPMUNK_MODE}" \
+      "> results/chipmunk_results/${BN}.chipmunk.txt" \
+      "2> results/chipmunk_logs/${BN}.chipmunk.log"
+done | parallel -j ${NUM_THREADS}
+
+for FN in $( find results/top_seqs/ -xtype f ); do
+  BN=$(basename -s .fa ${FN})
 
   # cat results/chipmunk_results/${BN}.chipmunk.txt  \
   #   | grep -Pe '^[ACGT]\|'  \
@@ -63,20 +69,25 @@ for FN in $( find results/top_seqs/ -xtype f ); do
 
   sequence_logo --logo-folder results/logo results/pcms/${BN}.pcm
   ruby ./pmflogo/dpmflogo3.rb results/dpcms/${BN}.dpcm results/dilogo/${BN}.png
+done
 
+for FN in $( find results/top_seqs/ -xtype f ); do
+  BN=$(basename -s .fa ${FN})
   cat data/RawData/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > results/chip_scores_for_benchmark/${BN}.txt
   cat results/zscored_chips/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > results/chip_scores_for_benchmark_zscored/${BN}.txt
   CORRELATION=$(docker run --rm \
+      --security-opt apparmor=unconfined \
       --mount type=bind,src=$(pwd)/results/chip_scores_for_benchmark/${BN}.txt,dst=/pbm_data.txt,readonly \
       --mount type=bind,src=$(pwd)/results/pcms/${BN}.pcm,dst=/motif.pcm,readonly \
-      vorontsovie/pwmbench_pbm \
+      vorontsovie/pwmbench_pbm:1.1.0 \
       LOG /pbm_data.txt /motif.pcm)
   echo -e "${BN}\t${CORRELATION}" >> results/motif_qualities.tsv
 
   CORRELATION_zscored=$(docker run --rm \
+      --security-opt apparmor=unconfined \
       --mount type=bind,src=$(pwd)/results/chip_scores_for_benchmark_zscored/${BN}.txt,dst=/pbm_data.txt,readonly \
       --mount type=bind,src=$(pwd)/results/pcms/${BN}.pcm,dst=/motif.pcm,readonly \
-      vorontsovie/pwmbench_pbm \
+      vorontsovie/pwmbench_pbm:1.1.0 \
       EXP /pbm_data.txt /motif.pcm)
   echo -e "${BN}\t${CORRELATION_zscored}" >> results/motif_qualities_zscored.tsv
 done
