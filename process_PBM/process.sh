@@ -40,7 +40,7 @@ for FN in $( find results/top_seqs/ -xtype f ); do
 
   # It's better not to use more than 2 threads in chipmunk
   echo "java -cp chipmunk.jar ru.autosome.di.ChIPMunk" \
-      "${CHIPMUNK_LENGTH_RANGE} y 1.0 w:${FN} 400 40 1 1 random auto ${CHIPMUNK_MODE}" \
+      "${CHIPMUNK_LENGTH_RANGE} y 1.0 w:${FN} 400 40 1 1 random auto ${CHIPMUNK_MODE} disable_log_weighting" \
       "> results/chipmunk_results/${BN}.chipmunk.txt" \
       "2> results/chipmunk_logs/${BN}.chipmunk.log"
 done | parallel -j ${NUM_THREADS}
