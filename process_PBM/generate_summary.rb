@@ -8,7 +8,7 @@ quantiles_header = quantiles_order.map{|quantile, z_score_thr|
 }
 header = ['TF', *quantiles_header, 'dataset', 'correlation', 'correlation_zscored']
 
-motif_qualities = {}
+motif_qualities_zscored = {}
 if File.exist?('results/motif_qualities_zscored.tsv')
   motif_qualities_zscored = File.readlines('results/motif_qualities_zscored.tsv').drop(1).map{|l|
     chip, correlation = l.chomp.split("\t")
