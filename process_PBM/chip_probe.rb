@@ -22,6 +22,10 @@ ChipProbe = Struct.new(:id_spot, :row, :col, :control, :id_probe, :pbm_sequence,
       flag)
   end
 
+  def to_s
+    [id_spot, row, col, control ? 'TRUE' : 'FALSE', id_probe, pbm_sequence, linker_sequence, signal, background, flag ? '1' : '0'].join("\t")
+  end
+
   def self.each_in_file(filename, &block)
     return enum_for(:each_in_file, filename)  unless block_given?
     File.open(filename){|f|
@@ -55,6 +59,10 @@ ChipProbe = Struct.new(:id_spot, :row, :col, :control, :id_probe, :pbm_sequence,
   def log10_scaled
     with_signal(Math.log10(signal)).with_background(Math.log10(background))
   end
+
+  def log10_scaled_bg_normalized
+    with_signal(Math.log10(signal / background)).with_background(0)
+  end
 end
 
 class Chip
@@ -74,6 +82,17 @@ class Chip
     probes = ChipProbe.each_in_file(filename).to_a
     info = self.parse_filename(filename)
     self.new(probes, info)
+  end
+
+  def store_to_file(filename)
+    File.open(filename, 'w'){|fw|
+      header = ['id_spot', 'row', 'col', 'control', 'id_probe', 'pbm_sequence', 'linker_sequence', 'mean_signal_intensity', 'mean_background_intensity', 'flag']
+      fw.puts '#' + header.join("\t")
+
+      @probes.each{|probe|
+        fw.puts probe
+      }
+    }
   end
 
   # 'R_2018-10-24_13709_1M-HK_Standard_pTH13929.2_ZBED2.FL.txt'
@@ -109,6 +128,10 @@ class Chip
   def log10_scaled
     Chip.new(probes.map{|probe| probe.log10_scaled }, info)
   end
+
+  def log10_scaled_bg_normalized
+    Chip.new(probes.map{|probe| probe.log10_scaled_bg_normalized }, info)
+  end
 end
 
 def quantile_normalized_chips(chips)
@@ -119,11 +142,10 @@ def quantile_normalized_chips(chips)
     chip.probes.map{|probe| [probe.id_probe, probe] }.to_h.values_at(*probe_ids)
   }
 
-  qn_signals     = quantile_normalization(samples_sorted_probes.map{|chip_probes| chip_probes.map{|probe| probe.signal } })
-  qn_backgrounds = quantile_normalization(samples_sorted_probes.map{|chip_probes| chip_probes.map{|probe| probe.background } })
-  chips.zip(samples_sorted_probes, qn_signals, qn_backgrounds).map{|chip, chip_sorted_probes, chip_qn_signals, chip_qn_backgrounds|
-    normalized_probes = chip_sorted_probes.zip(chip_qn_signals, chip_qn_backgrounds).map{|probe, qn_signal, qn_background|
-      probe.with_signal(qn_signal).with_background(qn_background)
+  qn_signals = quantile_normalization(samples_sorted_probes.map{|chip_probes| chip_probes.map{|probe| probe.signal } })
+  chips.zip(samples_sorted_probes, qn_signals).map{|chip, chip_sorted_probes, chip_qn_signals|
+    normalized_probes = chip_sorted_probes.zip(chip_qn_signals).map{|probe, qn_signal|
+      probe.with_signal(qn_signal)
     }
     Chip.new(normalized_probes, chip.info)
   }

@@ -11,14 +11,30 @@ mkdir -p results/words
 mkdir -p results/dilogo
 mkdir -p results/logo
 mkdir -p results/factors
+ln -s "$(readlink -e websrc)" results/websrc
 
 # Generates files in ./seq_score folder
-ruby normalize_pbm.rb
-ruby extract_top_seqs.rb
+
+CHIPMUNK_LENGTH_RANGE='8 15'
+
+CHIPMUNK_MODE=flat
+# CHIPMUNK_MODE=single
+
+# NORMALIZATION_MODE='--log10'
+NORMALIZATION_MODE='--log10-bg'
+
+TOP_MODE='--max-head-size 1000'
+# TOP_MODE='--quantile 0.01'
+
+ruby normalize_pbm.rb ${NORMALIZATION_MODE}
+ruby extract_top_seqs.rb ${TOP_MODE}
 
 for FN in $( find results/top_seqs/ -xtype f ); do
   BN=$(basename -s .fa ${FN})
-  java -cp chipmunk.jar ru.autosome.di.ChIPMunk 8 15 y 1.0 s:${FN} 100 10 1 ${NUM_THREADS} random auto single > results/chipmunk_results/${BN}.chipmunk.txt 2> results/chipmunk_logs/${BN}.chipmunk.log
+  java -cp chipmunk.jar ru.autosome.di.ChIPMunk \
+      ${CHIPMUNK_LENGTH_RANGE} y 1.0 s:${FN} 100 10 1 ${NUM_THREADS} random auto ${CHIPMUNK_MODE} \
+      > results/chipmunk_results/${BN}.chipmunk.txt \
+      2> results/chipmunk_logs/${BN}.chipmunk.log
 
   # cat results/chipmunk_results/${BN}.chipmunk.txt  \
   #   | grep -Pe '^[ACGT]\|'  \
