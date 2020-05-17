@@ -3,7 +3,7 @@ require_relative 'statistics'
 ChipProbe = Struct.new(:id_spot, :row, :col, :control, :id_probe, :pbm_sequence, :linker_sequence, :signal, :background, :flag) do
   def self.from_string(str)
     id_spot, row, col, control, id_probe, pbm_sequence, linker_sequence, signal, background, flag = str.chomp.split("\t")
-    
+
     case control
     when 'TRUE'; control = true
     when 'FALSE'; control = false
@@ -77,7 +77,7 @@ class Chip
   def sample_id; info[:sample_id]; end
   def filename; info[:filename]; end
   def basename; info[:basename]; end
-  
+
   def self.from_file(filename, &block)
     probes = ChipProbe.each_in_file(filename).to_a
     info = self.parse_filename(filename)
@@ -148,5 +148,26 @@ def quantile_normalized_chips(chips)
       probe.with_signal(qn_signal)
     }
     Chip.new(normalized_probes, chip.info)
+  }
+end
+
+def convert_to_zscores(chips)
+  probe_values = Hash.new{|h,k| h[k] = [] }
+  chips.each{|chip|
+    chip.probes
+        .reject(&:flag)
+        .each{|probe|
+          probe_values[probe.id_probe] << probe.signal
+        }
+  }
+  probe_means = probe_values.map{|id, vs| [id, vs.mean] }.to_h
+  probe_stdevs = probe_values.map{|id, vs| [id, vs.stddev] }.to_h
+
+  chips.map{|chip|
+    zscored_probes = chip.probes.map{|probe|
+      zscore_val = zscore(probe.signal, probe_means[probe.id_probe], probe_stdevs[probe.id_probe])
+      probe.with_signal(zscore_val).with_background(nil)
+    }
+    Chip.new(zscored_probes, chip.info)
   }
 end

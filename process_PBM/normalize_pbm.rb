@@ -54,6 +54,7 @@ option_parser = OptionParser.new{|opts|
 
 FileUtils.mkdir_p('results/seq_zscore')
 FileUtils.mkdir_p('results/normalized_chips')
+FileUtils.mkdir_p('results/zscored_chips')
 
 chips_by_type = Dir.glob('data/RawData/*.txt').group_by{|fn|
   Chip.parse_filename(fn)[:chip_type]
@@ -63,40 +64,16 @@ chips_by_type.each{|chip_type, fns|
   chips = fns.map{|fn| Chip.from_file(fn) }
   
   normed_chips = quantile_normalized_chips(chips.map(&normalization_mode))
-  normed_chips.each{|chip|
-    chip.store_to_file("results/normalized_chips/#{chip.basename}.txt")
-  }
-  
-  # normed_chips = chips.map{|chip|
-  #   # chip.scaled(1.0 / chip.mean_background).background_subtracted
-  #   chip.scaled(1.0 / chip.mean_background).background_normalized
-  # }
-  
-  probe_values = Hash.new{|h,k| h[k] = [] }
-  normed_chips.each{|chip|
-    chip.probes
-        .reject(&:flag)
-        .each{|probe|
-          probe_values[probe.id_probe] << probe.signal
-        }
-  }
-  probe_means = probe_values.map{|id, vs| [id, vs.mean] }.to_h
-  probe_stdevs = probe_values.map{|id, vs| [id, vs.stddev] }.to_h
+  normed_chips.each{|chip|  chip.store_to_file("results/normalized_chips/#{chip.basename}.txt") }
 
-  normed_chips.each{|chip|
-    probe_scores = chip.probes.map{|probe|
-      zscore_val = zscore(probe.signal, probe_means[probe.id_probe], probe_stdevs[probe.id_probe])
-      [probe, zscore_val]
-    }.sort_by{|probe, zscore_val| zscore_val }
+  zscored_chips = convert_to_zscores(normed_chips)
+  zscored_chips.each{|chip|  chip.store_to_file("results/zscored_chips/#{chip.basename}.txt") }
 
+  zscored_chips.each{|chip|
     File.open("results/seq_zscore/#{chip.basename}.tsv", 'w') {|fw|
-      chip.probes.map{|probe|
-        zscore_val = zscore(probe.signal, probe_means[probe.id_probe], probe_stdevs[probe.id_probe])
-        # [probe.id_probe, probe.linker_sequence[-3..-1] + probe.pbm_sequence, zscore_val]
-        [probe.id_probe, probe.pbm_sequence, zscore_val]
-      }.sort_by{|probe, seq, zscore|
-        zscore
-      }.reverse.each{|info|
+      chip.probes.sort_by(&:signal).reverse.each{|probe|
+        # info = [probe.id_probe, probe.linker_sequence[-3..-1] + probe.pbm_sequence, probe.signal]
+        info = [probe.id_probe, probe.pbm_sequence, probe.signal]
         fw.puts(info.join("\t"))
       }
     }

@@ -3,6 +3,7 @@
 NUM_THREADS=4
 
 mkdir -p results/chip_scores_for_benchmark
+mkdir -p results/chip_scores_for_benchmark_zscored
 mkdir -p results/top_seqs
 mkdir -p results/chipmunk_results
 mkdir -p results/chipmunk_logs
@@ -32,6 +33,7 @@ ruby extract_top_seqs.rb ${TOP_MODE}
 ruby generate_summary.rb
 
 echo -e "chip\tcorrelation" > results/motif_qualities.tsv
+echo -e "chip\tcorrelation" > results/motif_qualities_zscored.tsv
 for FN in $( find results/top_seqs/ -xtype f ); do
   BN=$(basename -s .fa ${FN})
 
@@ -63,12 +65,20 @@ for FN in $( find results/top_seqs/ -xtype f ); do
   ruby ./pmflogo/dpmflogo3.rb results/dpcms/${BN}.dpcm results/dilogo/${BN}.png
 
   cat data/RawData/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > results/chip_scores_for_benchmark/${BN}.txt
+  cat results/zscored_chips/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > results/chip_scores_for_benchmark_zscored/${BN}.txt
   CORRELATION=$(docker run --rm \
       --mount type=bind,src=$(pwd)/results/chip_scores_for_benchmark/${BN}.txt,dst=/pbm_data.txt,readonly \
       --mount type=bind,src=$(pwd)/results/pcms/${BN}.pcm,dst=/motif.pcm,readonly \
       vorontsovie/pwmbench_pbm \
-      /pbm_data.txt /motif.pcm)
+      LOG /pbm_data.txt /motif.pcm)
   echo -e "${BN}\t${CORRELATION}" >> results/motif_qualities.tsv
+
+  CORRELATION_zscored=$(docker run --rm \
+      --mount type=bind,src=$(pwd)/results/chip_scores_for_benchmark_zscored/${BN}.txt,dst=/pbm_data.txt,readonly \
+      --mount type=bind,src=$(pwd)/results/pcms/${BN}.pcm,dst=/motif.pcm,readonly \
+      vorontsovie/pwmbench_pbm \
+      EXP /pbm_data.txt /motif.pcm)
+  echo -e "${BN}\t${CORRELATION_zscored}" >> results/motif_qualities_zscored.tsv
 done
 
 ruby generate_summary.rb # It will recreate existing docs with correlations appended
