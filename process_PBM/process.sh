@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-NUM_THREADS=24
+NUM_THREADS=12
+NUM_CHIPMUNK_THREADS=2
 
 mkdir -p results/chip_scores_for_benchmark
 mkdir -p results/chip_scores_for_benchmark_zscored
@@ -42,7 +43,7 @@ for FN in $( find results/top_seqs/ -xtype f ); do
 
   # It's better not to use more than 2 threads in chipmunk
   echo "java -cp chipmunk.jar ru.autosome.di.ChIPMunk" \
-      "${CHIPMUNK_LENGTH_RANGE} y 1.0 ${CHIPMUNK_WEIGHTING_MODE}:${FN} 400 40 1 1 random auto ${CHIPMUNK_MODE} ${ADDITIONAL_CHIPMUNK_OPTIONS}" \
+      "${CHIPMUNK_LENGTH_RANGE} y 1.0 ${CHIPMUNK_WEIGHTING_MODE}:${FN} 400 40 1 ${NUM_CHIPMUNK_THREADS} random auto ${CHIPMUNK_MODE} ${ADDITIONAL_CHIPMUNK_OPTIONS}" \
       "> results/chipmunk_results/${BN}.chipmunk.txt" \
       "2> results/chipmunk_logs/${BN}.chipmunk.log"
 done | parallel -j ${NUM_THREADS}
