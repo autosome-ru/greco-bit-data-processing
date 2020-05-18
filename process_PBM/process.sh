@@ -19,13 +19,15 @@ ln -ns "$(readlink -e websrc)" results/websrc
 
 CHIPMUNK_LENGTH_RANGE='8 15'
 
-CHIPMUNK_WEIGHTING_MODE='w'
+CHIPMUNK_WEIGHTING_MODE='s'
+#ADDITIONAL_CHIPMUNK_OPTIONS='disable_log_weighting'
+ADDITIONAL_CHIPMUNK_OPTIONS=''
 
 #CHIPMUNK_MODE=flat
 CHIPMUNK_MODE=single
 
-# NORMALIZATION_MODE='--log10'
-NORMALIZATION_MODE='--log10-bg'
+NORMALIZATION_MODE='--log10'
+#NORMALIZATION_MODE='--log10-bg'
 
 # TOP_MODE='--max-head-size 1000'
 # TOP_MODE='--quantile 0.01'
@@ -40,7 +42,7 @@ for FN in $( find results/top_seqs/ -xtype f ); do
 
   # It's better not to use more than 2 threads in chipmunk
   echo "java -cp chipmunk.jar ru.autosome.di.ChIPMunk" \
-      "${CHIPMUNK_LENGTH_RANGE} y 1.0 ${CHIPMUNK_WEIGHTING_MODE}:${FN} 400 40 1 1 random auto ${CHIPMUNK_MODE}" \
+      "${CHIPMUNK_LENGTH_RANGE} y 1.0 ${CHIPMUNK_WEIGHTING_MODE}:${FN} 400 40 1 1 random auto ${CHIPMUNK_MODE} ${ADDITIONAL_CHIPMUNK_OPTIONS}" \
       "> results/chipmunk_results/${BN}.chipmunk.txt" \
       "2> results/chipmunk_logs/${BN}.chipmunk.log"
 done | parallel -j ${NUM_THREADS}
