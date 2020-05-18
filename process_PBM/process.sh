@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NUM_THREADS=20
+NUM_THREADS=24
 
 mkdir -p results/chip_scores_for_benchmark
 mkdir -p results/chip_scores_for_benchmark_zscored
@@ -35,8 +35,6 @@ ruby normalize_pbm.rb ${NORMALIZATION_MODE}
 ruby extract_top_seqs.rb ${TOP_MODE}
 ruby generate_summary.rb
 
-echo -e "chip\tcorrelation" > results/motif_qualities.tsv
-echo -e "chip\tcorrelation" > results/motif_qualities_zscored.tsv
 for FN in $( find results/top_seqs/ -xtype f ); do
   BN=$(basename -s .fa ${FN})
 
@@ -66,13 +64,15 @@ for FN in $( find results/top_seqs/ -xtype f ); do
     | sed -re 's/^WORD\|//' \
     | ruby -e 'readlines.each{|l| word, weight = l.chomp.split("\t").values_at(2, 5); puts(">#{weight}"); puts(word) }' \
     > results/words/${BN}.fa
-  
+
   cat results/words/${BN}.fa | ruby fasta2pcm.rb --weighted > results/pcms/${BN}.pcm
 
   sequence_logo --logo-folder results/logo results/pcms/${BN}.pcm
   ruby ./pmflogo/dpmflogo3.rb results/dpcms/${BN}.dpcm results/dilogo/${BN}.png
 done
 
+echo -e "chip\tcorrelation" > results/motif_qualities.tsv
+echo -e "chip\tcorrelation" > results/motif_qualities_zscored.tsv
 for FN in $( find results/top_seqs/ -xtype f ); do
   BN=$(basename -s .fa ${FN})
   cat data/RawData/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > results/chip_scores_for_benchmark/${BN}.txt
