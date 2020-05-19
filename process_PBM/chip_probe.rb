@@ -151,7 +151,7 @@ def quantile_normalized_chips(chips)
   }
 end
 
-def convert_to_zscores(chips)
+def zscore_transformed_chips(chips)
   probe_values = Hash.new{|h,k| h[k] = [] }
   chips.each{|chip|
     chip.probes

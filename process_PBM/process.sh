@@ -75,12 +75,20 @@ ln -Tfs "$(readlink -e websrc)" ${RESULTS_FOLDER}/websrc
 
 
 
-ruby normalize_pbm.rb ${NORMALIZATION_OPTS} \
-                      --source ${CHIPS_SOURCE_FOLDER} \
-                      --sequences-destination ${RESULTS_FOLDER}/seq_zscore \
-                      --norm-chips-destination ${RESULTS_FOLDER}/normalized_chips \
-                      --zscored-chips-destination ${RESULTS_FOLDER}/zscored_chips \
-                      --linker-length 0
+ruby quantile_normalize_chips.rb \
+        ${NORMALIZATION_OPTS} \
+        --source ${CHIPS_SOURCE_FOLDER} \
+        --destination ${RESULTS_FOLDER}/normalized_chips
+
+ruby zscore_transform_chips.rb \
+        --source ${RESULTS_FOLDER}/normalized_chips \
+        --destination ${RESULTS_FOLDER}/zscored_chips
+
+ruby extract_weighted_sequences.rb \
+        --source ${RESULTS_FOLDER}/zscored_chips \
+        --destination ${RESULTS_FOLDER}/seq_zscore \
+        --linker-length 0
+
 
 ruby extract_top_seqs.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/seq_zscore --destination ${RESULTS_FOLDER}/top_seqs
 
