@@ -4,7 +4,7 @@ set -euo pipefail
 CORRELATION_MODE="LOG"
 WITH_LINKER="0"
 while true; do
-    case "$1" in
+    case "${1-}" in
         --motifs-source)
             MOTIFS_SOURCE_FOLDER="$2"
             shift

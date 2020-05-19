@@ -2,7 +2,7 @@
 set -euo pipefail
 
 while true; do
-    case "$1" in
+    case "${1-}" in
         --source)
             SOURCE_FOLDER="$(readlink -m "$2")"
             shift

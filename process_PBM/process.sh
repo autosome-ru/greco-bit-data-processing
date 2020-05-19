@@ -19,7 +19,7 @@ CHIPMUNK_WEIGHTING_MODE="s"
 CHIPMUNK_ADDITIONAL_OPTIONS=""
 
 while true; do
-    case "$1" in
+    case "${1-}" in
         --source)
             CHIPS_SOURCE_FOLDER="$2"
             shift
