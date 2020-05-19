@@ -70,29 +70,28 @@ while true; do
 done
 
 
-mkdir -p ${RESULTS_FOLDER}/factors
-ln -Tfs "$(readlink -e websrc)" ${RESULTS_FOLDER}/websrc
+# ln -Tfs "$(readlink -e websrc)" ${RESULTS_FOLDER}/websrc
 
 
 
 ruby quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
         --source ${CHIPS_SOURCE_FOLDER} \
-        --destination ${RESULTS_FOLDER}/normalized_chips
+        --destination ${RESULTS_FOLDER}/quantile_normalized_chips
 
 ruby zscore_transform_chips.rb \
-        --source ${RESULTS_FOLDER}/normalized_chips \
+        --source ${RESULTS_FOLDER}/quantile_normalized_chips \
         --destination ${RESULTS_FOLDER}/zscored_chips
 
-ruby extract_weighted_sequences.rb \
+ruby chip_sequences.rb \
         --source ${RESULTS_FOLDER}/zscored_chips \
-        --destination ${RESULTS_FOLDER}/seq_zscore \
+        --destination ${RESULTS_FOLDER}/zscored_seqs \
         --linker-length 0
 
 
-ruby extract_top_seqs.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/seq_zscore --destination ${RESULTS_FOLDER}/top_seqs
+ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --destination ${RESULTS_FOLDER}/top_seqs_fasta
 
-./calculate_motifs.sh --source ${RESULTS_FOLDER}/top_seqs \
+./calculate_motifs.sh --source ${RESULTS_FOLDER}/top_seqs_fasta \
                       --results-destination ${RESULTS_FOLDER}/chipmunk_results \
                       --logs-destination ${RESULTS_FOLDER}/chipmunk_logs \
                       --num-inner-threads ${CHIPMUNK_NUM_INNER_THREADS} \
@@ -116,11 +115,10 @@ ruby extract_top_seqs.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/seq_zscore --des
                             > ${RESULTS_FOLDER}/motif_qualities.tsv
 
 # It will recreate existing docs with correlations appended
-ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/seq_zscore \
+ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/zscored_seqs \
                           --motif_qualities ${RESULTS_FOLDER}/motif_qualities.tsv \
                           --html-destination ${RESULTS_FOLDER}/head_sizes.html \
                           --tsv-destination ${RESULTS_FOLDER}/head_sizes.tsv \
                           --web-sources-url ../websrc
 
-# # Moves files from ./results/pcms ./results/logo ./results/seq_zscore ./results/top_seqs ./results/chipmunk_results ./results/chipmunk_logs etc --> into ./results/factors/{TF}
-# ruby move_files.rb
+ruby organize_results.rb --chips-source ${CHIPS_SOURCE_FOLDER} --results-source ${RESULTS_FOLDER} --destination ${RESULTS_FOLDER}/factors
