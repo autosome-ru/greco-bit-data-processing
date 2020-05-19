@@ -24,6 +24,6 @@ chips_by_type = Dir.glob(File.join(src_folder, '*.txt')).group_by{|fn|
 
 chips_by_type.each{|chip_type, fns|
   chips = fns.map{|fn| Chip.from_file(fn) }
-  zscored_chips = zscore_transformed_chips(normed_chips)
+  zscored_chips = zscore_transformed_chips(chips)
   zscored_chips.each{|chip|  chip.store_to_file(File.join(dst_folder, "#{chip.basename}.txt")) }
 }
