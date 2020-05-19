@@ -1,4 +1,5 @@
 require_relative 'statistics'
+require_relative 'quantile_normalization'
 
 ChipProbe = Struct.new(:id_spot, :row, :col, :control, :id_probe, :pbm_sequence, :linker_sequence, :signal, :background, :flag) do
   def self.from_string(str)
