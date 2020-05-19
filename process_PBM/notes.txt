@@ -1,3 +1,5 @@
+./process.sh --source ./data/RawData/ --destination results_q0.05_15-8_flat_log_simple --normalization-opts '--log10' --extract-top-opts '--quantile 0.05' --chipmunk-length-range 15 8 --chipmunk-shape flat --chipmunk-weighting-mode s --chipmunk-additional-options '' --chipmunk-num-processes 12 --chipmunk-num-inner-threads 2
+
 - Probably wrong annotation of sample:
 13957	CHAMP1	RawData/R_2018-08-30_13565_1M-ME_Standard_pTH13957.1_CHAMP1.DBD.txt	Results/13957.*score
 Mismatch of id in the first column and id just after date. It was checked using pattern (compare to a variant w/o -v option):
