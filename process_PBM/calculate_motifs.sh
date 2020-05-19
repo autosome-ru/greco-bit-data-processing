@@ -21,7 +21,7 @@ while true; do
             RESULTS_DESTINATION_FOLDER="$(readlink -m "$2")"
             shift
             ;;
-        --log-destination)
+        --logs-destination)
             LOGS_DESTINATION_FOLDER="$(readlink -m "$2")"
             shift
             ;;
