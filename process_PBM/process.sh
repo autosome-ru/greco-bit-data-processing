@@ -106,12 +106,15 @@ ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --des
                   --dpcms-destination ${RESULTS_FOLDER}/dpcms \
                   --words-destination ${RESULTS_FOLDER}/words
 
+
 ./generate_logo.sh --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/logo
 ./generate_dilogo.sh --source ${RESULTS_FOLDER}/dpcms --destination ${RESULTS_FOLDER}/dilogo
 
+./convert_pcm2pfm.sh  --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/pfms
+
 ./calculate_correlations.sh --mode LOG \
                             --chips-source ${CHIPS_SOURCE_FOLDER} \
-                            --motifs-source ${RESULTS_FOLDER}/pcms \
+                            --motifs-source ${RESULTS_FOLDER}/pfms \
                             > ${RESULTS_FOLDER}/motif_qualities.tsv
 
 # It will recreate existing docs with correlations appended
