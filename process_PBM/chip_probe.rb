@@ -18,7 +18,7 @@ ChipProbe = Struct.new(:id_spot, :row, :col, :control, :id_probe, :pbm_sequence,
 
     self.new(id_spot, Integer(row), Integer(col), control, id_probe,
       pbm_sequence, linker_sequence,
-      Float(signal), Float(background),
+      Float(signal), (background.empty? ? nil : Float(background)),
       flag)
   end
 
