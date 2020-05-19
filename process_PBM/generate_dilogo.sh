@@ -24,6 +24,6 @@ done
 mkdir -p "${DESTINATION_FOLDER}"
 
 for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
-  BN=$(basename -s .pcm ${FN})
-  sequence_logo --logo-folder ${DESTINATION_FOLDER} ${SOURCE_FOLDER}/${BN}.pcm
+  BN=$(basename -s .dpcm ${FN})
+  ruby ./pmflogo/dpmflogo3.rb ${SOURCE_FOLDER}/${BN}.dpcm ${DESTINATION_FOLDER}/${BN}.png
 done

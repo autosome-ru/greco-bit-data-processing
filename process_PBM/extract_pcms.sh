@@ -1,29 +1,58 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-mkdir -p results/pcms
-mkdir -p results/dpcms
-mkdir -p results/words
+while true; do
+    case "$1" in
+        --source)
+            SOURCE_FOLDER="$(readlink -m "$2")"
+            shift
+            ;;
+        --pcms-destination)
+            PCMS_DESTINATION_FOLDER="$(readlink -m "$2")"
+            shift
+            ;;
+        --dpcms-destination)
+            DPCMS_DESTINATION_FOLDER="$(readlink -m "$2")"
+            shift
+            ;;
+        --words-destination)
+            WORDS_DESTINATION_FOLDER="$(readlink -m "$2")"
+            shift
+            ;;
+        -?*)
+            echo -e "WARN: Unknown option (ignored): $1\n" >&2
+            ;;
+        *)
+            break
+    esac
+    shift
+done
 
-for FN in $( find results/top_seqs/ -xtype f ); do
-  BN=$(basename -s .fa ${FN})
+
+mkdir -p "${PCMS_DESTINATION_FOLDER}"
+mkdir -p "${DPCMS_DESTINATION_FOLDER}"
+mkdir -p "${WORDS_DESTINATION_FOLDER}"
+
+for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
+  BN=$(basename -s .txt ${FN})
 
   # # It's reserved for mono-chipmunk results
-  # cat results/chipmunk_results/${BN}.chipmunk.txt  \
+  # cat "${SOURCE_FOLDER}/${BN}.txt"  \
   #   | grep -Pe '^[ACGT]\|'  \
   #   | sed -re 's/^[ACGT]\|//' \
-  #   > results/pcms/${BN}.pcm
+  #   > "${PCMS_DESTINATION_FOLDER}/${BN}.pcm"
 
-  cat results/chipmunk_results/${BN}.chipmunk.txt  \
+  cat "${SOURCE_FOLDER}/${BN}.txt"  \
     | grep -Pe '^[ACGT][ACGT]\|'  \
     | sed -re 's/^[ACGT][ACGT]\|//' \
     | ruby -e 'readlines.map{|l| l.chomp.split }.transpose.each{|r| puts r.join("\t") }' \
-    > results/dpcms/${BN}.dpcm
+    > "${DPCMS_DESTINATION_FOLDER}/${BN}.dpcm"
 
-  cat results/chipmunk_results/${BN}.chipmunk.txt  \
+  cat "${SOURCE_FOLDER}/${BN}.txt"  \
     | grep -Pe '^WORD\|'  \
     | sed -re 's/^WORD\|//' \
     | ruby -e 'readlines.each{|l| word, weight = l.chomp.split("\t").values_at(2, 5); puts(">#{weight}"); puts(word) }' \
-    > results/words/${BN}.fa
+    > "${WORDS_DESTINATION_FOLDER}/${BN}.fa"
 
-  cat results/words/${BN}.fa | ruby fasta2pcm.rb --weighted > results/pcms/${BN}.pcm
+  cat "${WORDS_DESTINATION_FOLDER}/${BN}.fa" | ruby fasta2pcm.rb --weighted > "${PCMS_DESTINATION_FOLDER}/${BN}.pcm"
 done

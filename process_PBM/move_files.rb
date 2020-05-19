@@ -16,6 +16,6 @@ chips.each{|chip|
   FileUtils.cp "results/logo/#{chip.basename}.png", "results/factors/#{chip.tf}/mono.#{chip.basename}.png"
   FileUtils.cp "results/seq_zscore/#{chip.basename}.tsv", "results/factors/#{chip.tf}/#{chip.basename}.zscore.tsv"
   FileUtils.cp "results/top_seqs/#{chip.basename}.fa", "results/factors/#{chip.tf}/"
-  FileUtils.cp "results/chipmunk_results/#{chip.basename}.chipmunk.txt", "results/factors/#{chip.tf}/"
-  FileUtils.cp "results/chipmunk_logs/#{chip.basename}.chipmunk.log", "results/factors/#{chip.tf}/"
+  FileUtils.cp "results/chipmunk_results/#{chip.basename}.txt", "results/factors/#{chip.tf}/#{chip.basename}.chipmunk.txt"
+  FileUtils.cp "results/chipmunk_logs/#{chip.basename}.log", "results/factors/#{chip.tf}/#{chip.basename}.chipmunk.log"
 }

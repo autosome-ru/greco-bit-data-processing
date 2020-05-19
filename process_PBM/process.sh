@@ -1,24 +1,118 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-mkdir -p results/top_seqs
-mkdir -p results/factors
-ln -ns "$(readlink -e websrc)" results/websrc
+# CHIPS_SOURCE_FOLDER=./data/RawData
+# RESULTS_FOLDER=./results
 
-NORMALIZATION_MODE='--log10'
-#NORMALIZATION_MODE='--log10-bg'
+# TOP_OPTS='--max-head-size 1000'
+# TOP_OPTS='--quantile 0.01'
+TOP_OPTS='--quantile 0.05'
 
-# TOP_MODE='--max-head-size 1000'
-# TOP_MODE='--quantile 0.01'
-TOP_MODE='--quantile 0.05'
+#NORMALIZATION_OPTS='--log10-bg'
+NORMALIZATION_OPTS='--log10'
 
-ruby normalize_pbm.rb ${NORMALIZATION_MODE}
-ruby extract_top_seqs.rb ${TOP_MODE}
+CHIPMUNK_NUM_PROCESSES=1
+CHIPMUNK_NUM_INNER_THREADS=2
+CHIPMUNK_LENGTH_RANGE="8 15"
+CHIPMUNK_SHAPE="shape"
+CHIPMUNK_WEIGHTING_MODE="w"
+CHIPMUNK_ADDITIONAL_OPTIONS=""
 
-./calculate_motifs.sh
+while true; do
+    case "$1" in
+        --source)
+            CHIPS_SOURCE_FOLDER="$2"
+            shift
+            ;;
+        --destination)
+            RESULTS_FOLDER="$2"
+            shift
+            ;;
+        --normalization-opts)
+            NORMALIZATION_OPTS="$2"
+            shift
+            ;;
+        --extract-top-opts)
+            TOP_OPTS="$2"
+            shift
+            ;;
+        --chipmunk-num-processes)
+            CHIPMUNK_NUM_PROCESSES="$2"
+            shift
+            ;;
+        --chipmunk-num-inner-threads)
+            CHIPMUNK_NUM_INNER_THREADS="$2"
+            shift
+            ;;
+        --chipmunk-length-range)
+            CHIPMUNK_LENGTH_RANGE="$2 $3"
+            shift 2
+            ;;
+        --chipmunk-shape)
+            CHIPMUNK_SHAPE="$2"
+            shift
+            ;;
+        --chipmunk-weighting-mode)
+            CHIPMUNK_WEIGHTING_MODE="$2"
+            shift
+            ;;
+        --chipmunk-additional-options)
+            CHIPMUNK_ADDITIONAL_OPTIONS="$2"
+            shift
+            ;;
+        -?*)
+            echo -e "WARN: Unknown option (ignored): $1\n" >&2
+            ;;
+        *)
+            break
+    esac
+    shift
+done
 
-./extract_pcms.sh
-./generate_logo.sh
-ruby generate_summary.rb # It will recreate existing docs with correlations appended
 
-# Moves files from ./results/pcms ./results/logo ./results/seq_zscore ./results/top_seqs ./results/chipmunk_results ./results/chipmunk_logs etc --> into ./results/factors/{TF}
-ruby move_files.rb
+mkdir -p ${RESULTS_FOLDER}/factors
+ln -Tfs "$(readlink -e websrc)" ${RESULTS_FOLDER}/websrc
+
+
+
+ruby normalize_pbm.rb ${NORMALIZATION_OPTS} \
+                      --source ${CHIPS_SOURCE_FOLDER} \
+                      --sequences-destination ${RESULTS_FOLDER}/seq_zscore \
+                      --norm-chips-destination ${RESULTS_FOLDER}/normalized_chips \
+                      --zscored-chips-destination ${RESULTS_FOLDER}/zscored_chips \
+                      --linker-length 0
+
+ruby extract_top_seqs.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/seq_zscore --destination ${RESULTS_FOLDER}/top_seqs
+
+./calculate_motifs.sh --source ${RESULTS_FOLDER}/top_seqs \
+                      --results-destination ${RESULTS_FOLDER}/chipmunk_results \
+                      --logs-destination ${RESULTS_FOLDER}/chipmunk_logs \
+                      --num-inner-threads ${CHIPMUNK_NUM_INNER_THREADS} \
+                      --num-processes ${CHIPMUNK_NUM_PROCESSES} \
+                      --length-range ${CHIPMUNK_LENGTH_RANGE} \
+                      --shape ${CHIPMUNK_SHAPE} \
+                      --weighting-mode ${CHIPMUNK_WEIGHTING_MODE} \
+                      --additional-options ${CHIPMUNK_ADDITIONAL_OPTIONS}
+
+./extract_pcms.sh --source ${RESULTS_FOLDER}/chipmunk_results \
+                  --pcms-destination ${RESULTS_FOLDER}/pcms \
+                  --dpcms-destination ${RESULTS_FOLDER}/dpcms \
+                  --words-destination ${RESULTS_FOLDER}/words
+
+./generate_logo.sh --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/logo
+./generate_dilogo.sh --source ${RESULTS_FOLDER}/dpcms --destination ${RESULTS_FOLDER}/dilogo
+
+./calculate_correlations.sh --mode LOG \
+                            --chips-source ${CHIPS_SOURCE_FOLDER} \
+                            --motifs-source ${RESULTS_FOLDER}/pcms \
+                            > ${RESULTS_FOLDER}/motif_qualities.tsv
+
+# It will recreate existing docs with correlations appended
+ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/seq_zscore \
+                          --motif_qualities ${RESULTS_FOLDER}/motif_qualities.tsv \
+                          --html-destination ${RESULTS_FOLDER}/head_sizes.html \
+                          --tsv-destination ${RESULTS_FOLDER}/head_sizes.tsv \
+                          --web-sources-url ../websrc
+
+# # Moves files from ./results/pcms ./results/logo ./results/seq_zscore ./results/top_seqs ./results/chipmunk_results ./results/chipmunk_logs etc --> into ./results/factors/{TF}
+# ruby move_files.rb

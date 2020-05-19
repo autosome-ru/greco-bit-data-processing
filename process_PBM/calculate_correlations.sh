@@ -1,35 +1,56 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-mkdir -p results/chip_scores_for_benchmark
-mkdir -p results/chip_scores_for_benchmark_zscored
+CORRELATION_MODE="LOG"
+WITH_LINKER="0"
+while true; do
+    case "$1" in
+        --motifs-source)
+            MOTIFS_SOURCE_FOLDER="$2"
+            shift
+            ;;
+        --chips-source)
+            CHIPS_SOURCE_FOLDER="$2"
+            shift
+            ;;
+        --correlation-mode)
+            CORRELATION_MODE="$2"
+            shift
+            ;;
+        --with-linker)
+            WITH_LINKER="1"
+            ;;
+        -?*)
+            echo -e "WARN: Unknown option (ignored): $1\n" >&2
+            ;;
+        *)
+            break
+    esac
+    shift
+done
 
-echo -e "chip\tcorrelation" > results/motif_qualities.tsv
-echo -e "chip\tcorrelation" > results/motif_qualities_zscored.tsv
-for FN in $( find results/top_seqs/ -xtype f ); do
-  BN=$(basename -s .fa ${FN})
+MOTIFS_SOURCE_FOLDER="$(readlink -m "${MOTIFS_SOURCE_FOLDER}")"
+CHIPS_SOURCE_FOLDER="$(readlink -m "${CHIPS_SOURCE_FOLDER}")"
+
+echo -e "chip\tcorrelation"
+
+for FN in $( find "${CHIPS_SOURCE_FOLDER}" -xtype f ); do
+  BN=$(basename -s .txt ${FN})
   
-  # append linker sequence
-  cat data/RawData/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $7$6}' | tail -n+2 > results/chip_scores_for_benchmark/${BN}.txt
-  cat results/zscored_chips/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $7$6}' | tail -n+2 > results/chip_scores_for_benchmark_zscored/${BN}.txt
-  
-  # # don't append linker sequence
-  # cat data/RawData/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > results/chip_scores_for_benchmark/${BN}.txt
-  # cat results/zscored_chips/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > results/chip_scores_for_benchmark_zscored/${BN}.txt
-  
+  PBM_TEMP_FN="$(tempfile)"
+  if [[ "${WITH_LINKER}" -eq "1" ]]; then
+    cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $7$6}' | tail -n+2 > "${PBM_TEMP_FN}"
+  else
+    cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > "${PBM_TEMP_FN}"
+  fi
 
   CORRELATION=$(docker run --rm \
       --security-opt apparmor=unconfined \
-      --mount type=bind,src=$(pwd)/results/chip_scores_for_benchmark/${BN}.txt,dst=/pbm_data.txt,readonly \
-      --mount type=bind,src=$(pwd)/results/pcms/${BN}.pcm,dst=/motif.pcm,readonly \
+      --mount "type=bind,src=${PBM_TEMP_FN},dst=/pbm_data.txt,readonly" \
+      --mount "type=bind,src=${MOTIFS_SOURCE_FOLDER}/${BN}.pcm,dst=/motif.pcm,readonly" \
       vorontsovie/pwmbench_pbm:1.1.0 \
-      LOG /pbm_data.txt /motif.pcm)
-  echo -e "${BN}\t${CORRELATION}" >> results/motif_qualities.tsv
+      ${CORRELATION_MODE} /pbm_data.txt /motif.pcm)
+  rm "${PBM_TEMP_FN}"
 
-  CORRELATION_zscored=$(docker run --rm \
-      --security-opt apparmor=unconfined \
-      --mount type=bind,src=$(pwd)/results/chip_scores_for_benchmark_zscored/${BN}.txt,dst=/pbm_data.txt,readonly \
-      --mount type=bind,src=$(pwd)/results/pcms/${BN}.pcm,dst=/motif.pcm,readonly \
-      vorontsovie/pwmbench_pbm:1.1.0 \
-      EXP /pbm_data.txt /motif.pcm)
-  echo -e "${BN}\t${CORRELATION_zscored}" >> results/motif_qualities_zscored.tsv
+  echo -e "${BN}\t${CORRELATION}"
 done
