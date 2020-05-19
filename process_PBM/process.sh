@@ -99,7 +99,7 @@ ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --des
                       --length-range ${CHIPMUNK_LENGTH_RANGE} \
                       --shape ${CHIPMUNK_SHAPE} \
                       --weighting-mode ${CHIPMUNK_WEIGHTING_MODE} \
-                      --additional-options ${CHIPMUNK_ADDITIONAL_OPTIONS}
+                      --additional-options "${CHIPMUNK_ADDITIONAL_OPTIONS}"
 
 ./extract_pcms.sh --source ${RESULTS_FOLDER}/chipmunk_results \
                   --pcms-destination ${RESULTS_FOLDER}/pcms \
