@@ -72,7 +72,7 @@ File.open(html_dest, 'w'){|fw|
   fw.puts <<-EOS
     <script>
     $(function() {
-      $(".tablesorter").tablesorter({ sortList: [[0,0]] })
+      $(".tablesorter").tablesorter({ sortList: [[0,0], [5,0]] })
     });
     </script>
     </body></html>
