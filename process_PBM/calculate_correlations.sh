@@ -46,8 +46,8 @@ for FN in $( find "${CHIPS_SOURCE_FOLDER}" -xtype f ); do
 
   CORRELATION=$(docker run --rm \
       --security-opt apparmor=unconfined \
-      --volume "${PBM_TEMP_FN}:/pbm_data.txt:readonly" \
-      --volume "${MOTIFS_SOURCE_FOLDER}/${BN}.pfm:/motif.pfm:readonly" \
+      --volume "${PBM_TEMP_FN}:/pbm_data.txt:ro" \
+      --volume "${MOTIFS_SOURCE_FOLDER}/${BN}.pfm:/motif.pfm:ro" \
       vorontsovie/pwmbench_pbm:1.1.0 \
       ${CORRELATION_MODE} /pbm_data.txt /motif.pfm)
   rm "${PBM_TEMP_FN}"
