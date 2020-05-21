@@ -36,8 +36,8 @@ echo -e "chip\tcorrelation"
 
 for FN in $( find "${CHIPS_SOURCE_FOLDER}" -xtype f ); do
   BN=$(basename -s .txt ${FN})
-  
-  PBM_TEMP_FN="$(tempfile)"
+
+  PBM_TEMP_FN="$(mktemp)"
   if [[ "${WITH_LINKER}" -eq "1" ]]; then
     cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '($10 != "1"){print $8 "\t" $7$6}' | tail -n+2 > "${PBM_TEMP_FN}"
   else
