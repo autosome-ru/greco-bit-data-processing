@@ -39,9 +39,9 @@ for FN in $( find "${CHIPS_SOURCE_FOLDER}" -xtype f ); do
   
   PBM_TEMP_FN="$(tempfile)"
   if [[ "${WITH_LINKER}" -eq "1" ]]; then
-    cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $7$6}' | tail -n+2 > "${PBM_TEMP_FN}"
+    cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '($10 != "1"){print $8 "\t" $7$6}' | tail -n+2 > "${PBM_TEMP_FN}"
   else
-    cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '{print $8 "\t" $6}' | tail -n+2 > "${PBM_TEMP_FN}"
+    cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '($10 != "1"){print $8 "\t" $6}' | tail -n+2 > "${PBM_TEMP_FN}"
   fi
 
   CORRELATION=$(docker run --rm \
