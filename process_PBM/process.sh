@@ -70,10 +70,6 @@ while true; do
 done
 
 
-# ln -Tfs "$(readlink -e websrc)" ${RESULTS_FOLDER}/websrc
-
-
-
 ruby quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
         --source ${CHIPS_SOURCE_FOLDER} \
