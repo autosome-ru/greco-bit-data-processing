@@ -1,0 +1,41 @@
+The protocol of the PBM analysis
+
+1. We transformed original signal intensity into log10 scale, ignoring background signal intensity. This log-transformed intensity is referred to as the ‘signal’ below. Our experiments with normalizing signal intensity to the background intensity showed slightly worse results.
+
+There were two types of PBMs: 19 chips labeled with '1M-HK' (40329 probes) and 19 chips labeled with '1M-ME' (40524 probes).
+Separately for both types of chips we performed quantile normalization (across all experiments) of the signal log-intensity values.
+
+2. For each probe we took 19 values of quantile-normalized probe signals across all  PBMs of the same type. For each probe we then estimated mean and stddev across 19 probe measurements (excluding flagged probes) and transformed signal values to Z-scores (independently for each probe).
+
+Flagged probes were discarded. Probes with the highest Z-scores were taken for motif discovery using ChIPMunk (accounting for dinucleotide background). 
+We ran ChIPMunk twice (using different settings and different slices of the top-scoring sequences), and the results were mostly consistent.
+
+Two modes of motif discovery show good and mostly consistent results: 
+- Flat prior with motif length range from 8 to 15. Sequences with z-score >= 1.64 (0.05-quantile of standard normal distribution) were taken into motif discovery.
+./process.sh --source ./data/RawData/  \
+             --destination ./results_q0.05_8-15_flat_log_simple_discard-flagged  \
+             --normalization-opts '--log10'  \
+             --extract-top-opts '--quantile 0.05'  \
+             --chipmunk-length-range 8 15  \
+             --chipmunk-shape flat  \
+             --chipmunk-weighting-mode s  \
+             --chipmunk-additional-options ''  \
+             --chipmunk-num-processes 20  \
+             --chipmunk-num-inner-threads 2
+
+
+- Single box prior with motif length range from 15 to 8. Top 1000 sequences were taken into motif discovery.
+./process.sh --source ./data/RawData/  \
+             --destination ./results_top1000_15-8_single_log_simple_discard-flagged  \
+             --normalization-opts '--log10'  \
+             --extract-top-opts '--max-head-size 1000'  \
+             --chipmunk-length-range 15 8  \
+             --chipmunk-shape single  \
+             --chipmunk-weighting-mode s  \
+             --chipmunk-additional-options ''  \
+             --chipmunk-num-processes 12  \
+             --chipmunk-num-inner-threads 2
+
+Yet, there are several PBMs for which a reasonable motif was unstable, for some TFs no meaningful alignment was found, e.g. GLYR1 (too short), PHF21A (inconsistent), SP140 and SP140L (too short), CHAMP1 (inconsistent).
+
+We tried to find a formal criterion for quality control and calculated a number of high-intensity probes on each chip as a number of z-scores above a certain threshold (normal distribution quantiles 0.05, 0.01, 0.005, and 0.001). We also calculated correlation of log-intensities and PWM scores (including linker) as in PWMBench-PBM of Jan Grau.
