@@ -4,10 +4,12 @@ The protocol of the PBM analysis
 
 There were two types of PBMs: 19 chips labeled with '1M-HK' (40329 probes) and 19 chips labeled with '1M-ME' (40524 probes).
 Separately for both types of chips we performed quantile normalization (across all experiments) of the signal log-intensity values.
+See `quantile_normalized_chips` subfolder.
 
-2. For each probe we took 19 values of quantile-normalized probe signals across all  PBMs of the same type. For each probe we then estimated mean and stddev across 19 probe measurements (excluding flagged probes) and transformed signal values to Z-scores (independently for each probe).
+2. For each probe we took 19 values of quantile-normalized probe signals across all PBMs of the same type. For each probe we then estimated mean and stddev across 19 probe measurements (excluding flagged probes) and transformed signal values to Z-scores (independently for each probe).
+See `zscored_chips` subfolder.
 
-Flagged probes were discarded. Probes with the highest Z-scores were taken for motif discovery using ChIPMunk (accounting for dinucleotide background). 
+3. Flagged probes were discarded. Probes with the highest Z-scores were taken for motif discovery using ChIPMunk (accounting for dinucleotide background). 
 We ran ChIPMunk twice (using different settings and different slices of the top-scoring sequences), and the results were mostly consistent.
 
 Two modes of motif discovery show good and mostly consistent results: 

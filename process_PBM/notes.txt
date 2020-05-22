@@ -13,3 +13,10 @@ Two non-identical IDS are listed in annotation: 13957 (incorrect) and 13565 (cor
 
 (2) `R_2018-11-28_13975_1M-HK_Standard_pTH13931.3_ZBED4` has probe indexing different from that of the other 1M-HK probes:
 cells with the same `id_probe` have `row` numbers either +1 or -1, `id_spot` differ by +85 or -85. Is it OK?
+
+## Questions
+
+There were some fields in PBM chip data which we cannot interpret undoubtedly. Can use please describe them?
+1) `Flag` field. We treat it as an indicator that some quality check for source data failed, is it correct?
+2) `Id_probe` field contains names like `MEforward06526`. Does that name mean how the sequence was joined to a linker? 
+We didn't consider this orientation in our pipeline (it could influence numbers in PWMBench-PBM correlation estimates), should we?
