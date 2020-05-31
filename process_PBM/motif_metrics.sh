@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CORRELATION_MODE="LOG"
+METRICS="LOG"
 WITH_LINKER="0"
 while true; do
     case "${1-}" in
@@ -13,8 +13,8 @@ while true; do
             CHIPS_SOURCE_FOLDER="$2"
             shift
             ;;
-        --correlation-mode)
-            CORRELATION_MODE="$2"
+        --metrics)
+            METRICS="$2"
             shift
             ;;
         --linker-opts)
@@ -45,8 +45,8 @@ for FN in $( find "${CHIPS_SOURCE_FOLDER}" -xtype f | sort ); do
       --security-opt apparmor=unconfined \
       --volume "${PBM_TEMP_FN}:/pbm_data.txt:ro" \
       --volume "${MOTIFS_SOURCE_FOLDER}/${BN}.pfm:/motif.pfm:ro" \
-      vorontsovie/pwmbench_pbm:1.1.0 \
-      ${CORRELATION_MODE} /pbm_data.txt /motif.pfm)
+      vorontsovie/pwmbench_pbm:1.2.0 \
+      ${METRICS} /pbm_data.txt /motif.pfm)
   rm "${PBM_TEMP_FN}"
 
   echo -e "${BN}\t${CORRELATION}"

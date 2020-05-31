@@ -110,15 +110,20 @@ ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --des
 
 ./convert_pcm2pfm.sh  --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/pfms
 
-./calculate_correlations.sh --correlation-mode LOG \
+for CHIP_STAGE in raw_chips quantile_normalized_chips zscored_chips; do
+    for METRICS in ASIS EXP LOG ROC PR ROCLOG PRLOG ; do
+        mkdir -p ${RESULTS_FOLDER}/motif_metrics/${CHIP_STAGE}
+        ./motif_metrics.sh  --correlation-mode ${METRICS} \
                             --linker-opts '--linker-length 6' \
-                            --chips-source ${RESULTS_FOLDER}/raw_chips/ \
+                            --chips-source ${RESULTS_FOLDER}/${CHIP_STAGE}/ \
                             --motifs-source ${RESULTS_FOLDER}/pfms \
-                            > ${RESULTS_FOLDER}/motif_qualities.tsv
+            > ${RESULTS_FOLDER}/motif_metrics/${CHIP_STAGE}/motif_qualities_${METRICS}.tsv
+    done
+done
 
 # It will recreate existing docs with correlations appended
 ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/zscored_seqs \
-                          --motif_qualities ${RESULTS_FOLDER}/motif_qualities.tsv \
+                          --motif_metrics ${RESULTS_FOLDER}/motif_metrics.tsv \
                           --html-destination ${RESULTS_FOLDER}/head_sizes.html \
                           --tsv-destination ${RESULTS_FOLDER}/head_sizes.tsv \
                           --web-sources-url ../websrc
