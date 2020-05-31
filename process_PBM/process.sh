@@ -111,7 +111,7 @@ ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --des
 ./convert_pcm2pfm.sh  --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/pfms
 
 ./calculate_correlations.sh --correlation-mode LOG \
-                            --with-linker \
+                            --linker-opts '--linker-length 6' \
                             --chips-source ${RESULTS_FOLDER}/raw_chips/ \
                             --motifs-source ${RESULTS_FOLDER}/pfms \
                             > ${RESULTS_FOLDER}/motif_qualities.tsv

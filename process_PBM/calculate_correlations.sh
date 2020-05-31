@@ -17,8 +17,9 @@ while true; do
             CORRELATION_MODE="$2"
             shift
             ;;
-        --with-linker)
-            WITH_LINKER="1"
+        --linker-opts)
+            LINKER_OPTS="$2"
+            shift
             ;;
         -?*)
             echo -e "WARN: Unknown option (ignored): $1\n" >&2
@@ -34,15 +35,11 @@ CHIPS_SOURCE_FOLDER="$(readlink -m "${CHIPS_SOURCE_FOLDER}")"
 
 echo -e "chip\tcorrelation"
 
-for FN in $( find "${CHIPS_SOURCE_FOLDER}" -xtype f ); do
+for FN in $( find "${CHIPS_SOURCE_FOLDER}" -xtype f | sort ); do
   BN=$(basename -s .txt ${FN})
 
   PBM_TEMP_FN="$(mktemp)"
-  if [[ "${WITH_LINKER}" -eq "1" ]]; then
-    cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '($10 != "1"){print $8 "\t" $7$6}' | tail -n+2 > "${PBM_TEMP_FN}"
-  else
-    cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | awk -F $'\t' -e '($10 != "1"){print $8 "\t" $6}' | tail -n+2 > "${PBM_TEMP_FN}"
-  fi
+  cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | ruby extract_chip_sequences.rb $LINKER_OPTS > "${PBM_TEMP_FN}"
 
   CORRELATION=$(docker run --rm \
       --security-opt apparmor=unconfined \
