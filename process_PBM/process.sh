@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# # Where to install R packages
+# mkdir -p ~/.R_libs
+# export R_LIBS_USER=~/.R_libs
+#
+# # Install requirements
+# # For R
+# ./requirements.R
+#
+# # For ruby
+# bundle install
+#
+
 # CHIPS_SOURCE_FOLDER=./data/RawData
 # RESULTS_FOLDER=./results
 
