@@ -11,6 +11,7 @@ TOP_OPTS='--quantile 0.05'
 #NORMALIZATION_OPTS='--log10-bg'
 NORMALIZATION_OPTS='--log10'
 
+NUM_THREADS=1
 CHIPMUNK_NUM_PROCESSES=1
 CHIPMUNK_NUM_INNER_THREADS=2
 CHIPMUNK_LENGTH_RANGE="8 15"
@@ -34,6 +35,10 @@ while true; do
             ;;
         --extract-top-opts)
             TOP_OPTS="$2"
+            shift
+            ;;
+        --num-threads)
+            NUM_THREADS="$2"
             shift
             ;;
         --chipmunk-num-processes)
@@ -71,6 +76,11 @@ done
 
 mkdir -p ${RESULTS_FOLDER}/raw_chips/
 cp ${CHIPS_SOURCE_FOLDER}/*.txt ${RESULTS_FOLDER}/raw_chips/
+
+./spatial_detrending.sh --source ${RESULTS_FOLDER}/raw_chips/ \
+                        --destination ${RESULTS_FOLDER}/spatial_detrended_chips/ \
+                        --window-size 5 \
+                        --num-threads ${NUM_THREADS}
 
 ruby quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
@@ -110,7 +120,7 @@ ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --des
 
 ./convert_pcm2pfm.sh  --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/pfms
 
-for CHIP_STAGE in raw_chips quantile_normalized_chips zscored_chips; do
+for CHIP_STAGE in raw_chips quantile_normalized_chips zscored_chips spatial_detrended_chips; do
     for METRICS in ASIS EXP LOG ROC PR ROCLOG PRLOG ; do
         mkdir -p ${RESULTS_FOLDER}/motif_metrics/${CHIP_STAGE}
         ./motif_metrics.sh  --correlation-mode ${METRICS} \
