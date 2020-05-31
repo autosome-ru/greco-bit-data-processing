@@ -3,13 +3,11 @@ require 'optparse'
 seq_zscore_folder = nil
 html_dest = nil
 tsv_dest  = nil
-motif_metrics_fn = nil
 web_sources_url = nil
 option_parser = OptionParser.new{|opts|
   opts.on('--sequences-source FOLDER'){|folder| seq_zscore_folder = folder }
   opts.on('--html-destination FILE'){|file| html_dest = file }
   opts.on('--tsv-destination FILE'){|file| tsv_dest = file }
-  opts.on('--motif-metrics FILE'){|file| motif_metrics_fn = file }
   opts.on('--web-sources-url URL') {|url| web_sources_url = url}
 }
 option_parser.parse!(ARGV)
@@ -27,15 +25,7 @@ quantiles_header = quantiles_order.map{|quantile, z_score_thr|
   z_score_thr = quantiles[quantile]
   "q=#{quantile}(z>#{z_score_thr})"
 }
-header = ['TF', *quantiles_header, 'dataset', 'correlation']
-
-motif_metrics = {}
-if motif_metrics_fn
-  motif_metrics = File.readlines(motif_metrics_fn).drop(1).map{|l|
-    chip, correlation = l.chomp.split("\t")
-    [chip, Float(correlation)]
-  }.to_h
-end
+header = ['TF', *quantiles_header, 'dataset']
 
 chip_infos = Dir.glob(File.join(seq_zscore_folder, '*.tsv')).map{|fn|
   basename = File.basename(fn, ".tsv")
@@ -47,7 +37,7 @@ chip_infos = Dir.glob(File.join(seq_zscore_folder, '*.tsv')).map{|fn|
     z_score_thr = quantiles[quantile]
     zscores.count{|zscore| zscore >= z_score_thr }
   }
-  {tf:tf, head_sizes: head_sizes, basename: basename, logo: "<img src='logo/#{basename}.png' />", correlation: motif_metrics[basename]}
+  {tf:tf, head_sizes: head_sizes, basename: basename, logo: "<img src='logo/#{basename}.png' />"}
 }
 
 File.open(html_dest, 'w'){|fw|
@@ -65,7 +55,7 @@ File.open(html_dest, 'w'){|fw|
   fw.puts '</tr></thead><tbody>'
   chip_infos.each{|info|
     fw.puts '<tr>'
-    fw.puts info.values_at(:tf, :head_sizes, :basename, :correlation, :logo).flatten.map{|hdr| "<td>#{hdr}</td>" }.join
+    fw.puts info.values_at(:tf, :head_sizes, :basename, :logo).flatten.map{|hdr| "<td>#{hdr}</td>" }.join
     fw.puts '</tr>'
   }
   fw.puts '</tbody></table>'
@@ -82,6 +72,6 @@ File.open(html_dest, 'w'){|fw|
 File.open(tsv_dest, 'w'){|fw|
   fw.puts header.join("\t")
   chip_infos.each{|info|
-    fw.puts info.values_at(:tf, :head_sizes, :basename, :correlation).flatten.join("\t")
+    fw.puts info.values_at(:tf, :head_sizes, :basename).flatten.join("\t")
   }
 }
