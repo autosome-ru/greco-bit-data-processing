@@ -35,11 +35,12 @@ CHIPS_SOURCE_FOLDER="$(readlink -m "${CHIPS_SOURCE_FOLDER}")"
 
 echo -e "chip\tcorrelation"
 
-for FN in $( find "${CHIPS_SOURCE_FOLDER}" -xtype f | sort ); do
-  BN=$(basename -s .txt ${FN})
+for FN in $( find "${MOTIFS_SOURCE_FOLDER}" -xtype f | sort ); do
+  BN=$(basename -s .pfm ${FN})
+  CHIP_BN=$(echo $BN | sed -re 's/_q0\.05_[0-9]+$//')
 
   PBM_TEMP_FN="$(mktemp)"
-  cat ${CHIPS_SOURCE_FOLDER}/${BN}.txt | ruby extract_chip_sequences.rb $LINKER_OPTS > "${PBM_TEMP_FN}"
+  cat ${CHIPS_SOURCE_FOLDER}/${CHIP_BN}.txt | ruby extract_chip_sequences.rb $LINKER_OPTS > "${PBM_TEMP_FN}"
 
   CORRELATION=$(docker run --rm \
       --security-opt apparmor=unconfined \
