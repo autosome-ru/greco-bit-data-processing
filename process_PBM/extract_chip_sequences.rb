@@ -1,4 +1,5 @@
 require 'optparse'
+require_relative 'chip_probe'
 
 linker_length = nil
 option_parser = OptionParser.new{|opts|
@@ -7,20 +8,13 @@ option_parser = OptionParser.new{|opts|
 
 option_parser.parse!(ARGV)
 
-$stdin.each_line.lazy.drop(1).map{|l|
-  l.chomp.split("\t")
-}.reject{|row|
-  flag = row[9]
-  flag == "1"
-}.each{|row|
-  probe_seq = row[5]
-  linker_seq = row[6]
-  signal = row[7]
+ChipProbe.each_in_stream($stdin, has_header: true).lazy.reject(&:flag).each{|probe|
   if linker_length
-    seq = linker_seq[-linker_length..-1] + probe_seq
+    seq = probe.linker_sequence[-linker_length..-1] + probe.pbm_sequence
   else
-    seq = probe_seq
+    seq = probe.pbm_sequence
   end
 
-  puts [signal, seq].join("\t")
+  info = [probe.signal, seq]
+  puts info.join("\t")
 }

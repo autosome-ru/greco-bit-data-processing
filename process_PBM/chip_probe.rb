@@ -27,13 +27,18 @@ ChipProbe = Struct.new(:id_spot, :row, :col, :control, :id_probe, :pbm_sequence,
     [id_spot, row, col, control ? 'TRUE' : 'FALSE', id_probe, pbm_sequence, linker_sequence, signal, background, flag ? '1' : '0'].join("\t")
   end
 
+  def self.each_in_stream(stream, has_header: true, &block)
+    return enum_for(:each_in_stream, stream)  unless block_given?
+    stream.readline   if has_header  # skip header
+    stream.each_line{|l|
+      yield self.from_string(l)
+    }
+  end
+
   def self.each_in_file(filename, &block)
     return enum_for(:each_in_file, filename)  unless block_given?
     File.open(filename){|f|
-      f.readline # skip header
-      f.each_line{|l|
-        yield self.from_string(l)
-      }
+      self.each_in_stream(f, has_header: true, &block)
     }
   end
 
