@@ -135,13 +135,14 @@ ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --des
 for CHIP_STAGE in raw_chips quantile_normalized_chips zscored_chips spatial_detrended_chips; do
     for METRICS in ASIS EXP LOG ROC PR ROCLOG PRLOG ; do
         mkdir -p ${RESULTS_FOLDER}/motif_metrics/${CHIP_STAGE}
-        ./motif_metrics.sh  --correlation-mode ${METRICS} \
-                            --linker-opts '--linker-length 6' \
-                            --chips-source ${RESULTS_FOLDER}/${CHIP_STAGE}/ \
-                            --motifs-source ${RESULTS_FOLDER}/pfms \
-            > ${RESULTS_FOLDER}/motif_metrics/${CHIP_STAGE}/motif_qualities_${METRICS}.tsv
+        echo "./motif_metrics.sh  " \
+                    "--metrics ${METRICS}" \
+                    "--linker-opts '--linker-length 6'" \
+                    "--chips-source ${RESULTS_FOLDER}/${CHIP_STAGE}/" \
+                    "--motifs-source ${RESULTS_FOLDER}/pfms" \
+            "> ${RESULTS_FOLDER}/motif_metrics/${CHIP_STAGE}/motif_metrics_${METRICS}.tsv"
     done
-done
+done | parallel -j ${NUM_THREADS}
 
 # It will recreate existing docs with correlations appended
 ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/zscored_seqs \
