@@ -69,10 +69,12 @@ while true; do
     shift
 done
 
+mkdir -p ${RESULTS_FOLDER}/raw_chips/
+cp ${CHIPS_SOURCE_FOLDER}/*.txt ${RESULTS_FOLDER}/raw_chips/
 
 ruby quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
-        --source ${CHIPS_SOURCE_FOLDER} \
+        --source ${RESULTS_FOLDER}/raw_chips/ \
         --destination ${RESULTS_FOLDER}/quantile_normalized_chips
 
 ruby zscore_transform_chips.rb \
@@ -110,7 +112,7 @@ ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --des
 
 ./calculate_correlations.sh --correlation-mode LOG \
                             --with-linker \
-                            --chips-source ${CHIPS_SOURCE_FOLDER} \
+                            --chips-source ${RESULTS_FOLDER}/raw_chips/ \
                             --motifs-source ${RESULTS_FOLDER}/pfms \
                             > ${RESULTS_FOLDER}/motif_qualities.tsv
 
@@ -121,4 +123,4 @@ ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/zscored_seqs \
                           --tsv-destination ${RESULTS_FOLDER}/head_sizes.tsv \
                           --web-sources-url ../websrc
 
-ruby organize_results.rb --chips-source ${CHIPS_SOURCE_FOLDER} --results-source ${RESULTS_FOLDER} --destination ${RESULTS_FOLDER}/factors
+ruby organize_results.rb --chips-source ${RESULTS_FOLDER}/raw_chips/ --results-source ${RESULTS_FOLDER} --destination ${RESULTS_FOLDER}/factors
