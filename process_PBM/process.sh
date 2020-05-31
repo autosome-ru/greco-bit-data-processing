@@ -144,11 +144,15 @@ for CHIP_STAGE in raw_chips quantile_normalized_chips zscored_chips spatial_detr
     done
 done | parallel -j ${NUM_THREADS}
 
-# It will recreate existing docs with correlations appended
-ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/zscored_seqs \
-                          --motif_metrics ${RESULTS_FOLDER}/motif_metrics.tsv \
-                          --html-destination ${RESULTS_FOLDER}/head_sizes.html \
-                          --tsv-destination ${RESULTS_FOLDER}/head_sizes.tsv \
-                          --web-sources-url ../websrc
+for CHIP_STAGE in raw_chips quantile_normalized_chips zscored_chips spatial_detrended_chips; do
+    for METRICS in ASIS EXP LOG ROC PR ROCLOG PRLOG ; do
+        # It will recreate existing docs with correlations appended
+        ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/zscored_seqs \
+                                  --motif_metrics ${RESULTS_FOLDER}/motif_metrics/${CHIP_STAGE}/motif_metrics_${METRICS}.tsv \
+                                  --html-destination ${RESULTS_FOLDER}/summary_${METRICS}_${CHIP_STAGE}.html \
+                                  --tsv-destination ${RESULTS_FOLDER}/summary_${METRICS}_${CHIP_STAGE}.tsv \
+                                  --web-sources-url ../websrc
+    done
+done
 
 ruby organize_results.rb --chips-source ${RESULTS_FOLDER}/raw_chips/ --results-source ${RESULTS_FOLDER} --destination ${RESULTS_FOLDER}/factors
