@@ -21,7 +21,7 @@ datasets = quantile_infos.map{|x| x[:dataset] }
 tf_by_dataset = quantile_infos.map{|info| info.values_at(:dataset, :tf) }.to_h
 quantiles_by_dataset = quantile_infos.map{|info| info.values_at(:dataset, :quantiles) }.to_h
 
-chip_stages = ['raw_chips', 'quantile_normalized_chips', 'spatial_detrended_chips', 'zscored_chips',]
+chip_stages = ['raw_chips', 'quantile_normalized_chips', 'spatial_detrended_chips', 'sd_qn_chips', 'zscored_chips',]
 metrics_names = ['ROC', 'PR', 'ROCLOG', 'PRLOG', 'ASIS', 'EXP', 'LOG',]
 metrics = [
   'results_q0.05_8-15_flat_log_simple_discard-flagged',

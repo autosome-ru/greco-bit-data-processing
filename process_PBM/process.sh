@@ -99,6 +99,12 @@ ruby quantile_normalize_chips.rb \
         --source ${RESULTS_FOLDER}/raw_chips/ \
         --destination ${RESULTS_FOLDER}/quantile_normalized_chips
 
+ruby quantile_normalize_chips.rb \
+        ${NORMALIZATION_OPTS} \
+        --source ${RESULTS_FOLDER}/spatial_detrended_chips/ \
+        --destination ${RESULTS_FOLDER}/sd_qn_chips
+
+
 ruby zscore_transform_chips.rb \
         --source ${RESULTS_FOLDER}/quantile_normalized_chips \
         --destination ${RESULTS_FOLDER}/zscored_chips
@@ -132,7 +138,7 @@ ruby top_seqs_fasta.rb ${TOP_OPTS} --source ${RESULTS_FOLDER}/zscored_seqs --des
 
 ./convert_pcm2pfm.sh  --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/pfms
 
-for CHIP_STAGE in raw_chips quantile_normalized_chips zscored_chips spatial_detrended_chips; do
+for CHIP_STAGE in raw_chips quantile_normalized_chips zscored_chips spatial_detrended_chips sd_qn_chips; do
     for METRICS in ASIS EXP LOG ROC PR ROCLOG PRLOG ; do
         mkdir -p ${RESULTS_FOLDER}/motif_metrics/${CHIP_STAGE}
         echo "./motif_metrics.sh  " \
