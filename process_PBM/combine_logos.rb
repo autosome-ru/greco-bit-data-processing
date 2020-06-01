@@ -21,7 +21,8 @@ datasets = quantile_infos.map{|x| x[:dataset] }
 tf_by_dataset = quantile_infos.map{|info| info.values_at(:dataset, :tf) }.to_h
 quantiles_by_dataset = quantile_infos.map{|info| info.values_at(:dataset, :quantiles) }.to_h
 
-chip_stages = ['raw_chips', 'quantile_normalized_chips', 'spatial_detrended_chips', 'sd_qn_chips', 'zscored_chips',]
+# chip_stages = ['raw_chips', 'quantile_normalized_chips', 'spatial_detrended_chips', 'sd_qn_chips', 'zscored_chips',]
+chip_stages = ['sd_qn_chips', 'zscored_chips',]
 metrics_names = ['ROC', 'PR', 'ROCLOG', 'PRLOG', 'ASIS', 'EXP', 'LOG',]
 metrics = [
   {folder: 'results_q0.05_8-15_flat_log_simple_discard-flagged', suffix: 'flat'},
@@ -126,7 +127,7 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
     {name:'dataset', class: 'group-text', rowspan: 2},
     {name:'logo_type', class: 'group-text', rowspan: 2},
     {name:'logo', class: 'group-false sorter-false group-false', rowspan:2},
-    {name:'motif', class: 'group-text', rowspan: 2},
+    # {name:'motif', class: 'group-text', rowspan: 2},
     *chip_stages.flat_map{|stage| {name: stage, class: 'group-false metrics-group', colspan: metrics_names.size} },
     *quantiles_header.map{|col_name| {name: col_name, class: 'group-false', rowspan: 2} },
   ]
@@ -158,7 +159,7 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
         dataset,
         logo_info[:logo_type],
         "<img src='#{logo_info[:src]}' />",
-        motif_name,
+        # motif_name,
         *chip_stages.flat_map{|stage|
           metrics_names.map{|metrics_name|
             metrics[stage][metrics_name][motif_name].round(3)
