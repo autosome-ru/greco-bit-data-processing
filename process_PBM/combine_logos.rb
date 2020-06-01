@@ -24,16 +24,17 @@ quantiles_by_dataset = quantile_infos.map{|info| info.values_at(:dataset, :quant
 chip_stages = ['raw_chips', 'quantile_normalized_chips', 'spatial_detrended_chips', 'sd_qn_chips', 'zscored_chips',]
 metrics_names = ['ROC', 'PR', 'ROCLOG', 'PRLOG', 'ASIS', 'EXP', 'LOG',]
 metrics = [
-  'results_q0.05_8-15_flat_log_simple_discard-flagged',
-  'results_top1000_15-8_single_log_simple_discard-flagged',
-  'Dimont_results/basic',
-  'Dimont_results/detrended',
-].flat_map{|results_folder|
+  {folder: 'results_q0.05_8-15_flat_log_simple_discard-flagged', suffix: 'flat'},
+  {folder: 'results_top1000_15-8_single_log_simple_discard-flagged', suffix: 'single'},
+  {folder: 'Dimont_results/basic', suffix: 'dimont_basic'},
+  {folder: 'Dimont_results/detrended', suffix: 'dimont_detrended'},
+].flat_map{|folder_info|
+  results_folder = folder_info[:folder]
   chip_stages.flat_map{|chip_stage|
     metrics_names.flat_map{|metrics_name|
       File.readlines("#{results_folder}/motif_metrics/#{chip_stage}/motif_metrics_#{metrics_name}.tsv").drop(1).map{|l|
         motif, val = l.chomp.split("\t")
-        {chip_stage: chip_stage, metrics: metrics_name, motif: motif, value: Float(val)}
+        {chip_stage: chip_stage, metrics: metrics_name, motif: "#{motif}_#{folder_info[:suffix]}", value: Float(val)}
       }
     }
   }
@@ -124,7 +125,8 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
     {name:'chip_type', class: 'group-text', rowspan: 2},
     {name:'dataset', class: 'group-text', rowspan: 2},
     {name:'logo_type', class: 'group-text', rowspan: 2},
-    {name:'logo', class: 'group-false sorter-false', rowspan:2},
+    {name:'logo', class: 'group-false sorter-false group-false', rowspan:2},
+    {name:'motif', class: 'group-text', rowspan: 2},
     *chip_stages.flat_map{|stage| {name: stage, class: 'group-false metrics-group', colspan: metrics_names.size} },
     *quantiles_header.map{|col_name| {name: col_name, class: 'group-false', rowspan: 2} },
   ]
@@ -138,17 +140,17 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
     tf = tf_by_dataset[dataset]
     quantiles = quantiles_by_dataset[dataset]
     motif_infos = [
-      {logo_type: 'flat', src: "../results_q0.05_8-15_flat_log_simple_discard-flagged/logo/#{dataset}.png"},
-      {logo_type: 'single', src: "../results_top1000_15-8_single_log_simple_discard-flagged/logo/#{dataset}.png"}
+      {logo_type: 'flat', src: "../results_q0.05_8-15_flat_log_simple_discard-flagged/logo/#{dataset}.png", motif_name: "#{dataset}_flat"},
+      {logo_type: 'single', src: "../results_top1000_15-8_single_log_simple_discard-flagged/logo/#{dataset}.png", motif_name: "#{dataset}_single"}
     ]
     motif_infos += Dir.glob("Dimont_results/basic/logo/#{dataset}*.png").map{|img_fn|
-      {logo_type: 'dimont_basic', src: '../Dimont_results/basic/logo/' + File.basename(img_fn) }
+      {logo_type: 'dimont_basic', src: '../Dimont_results/basic/logo/' + File.basename(img_fn), motif_name: File.basename(img_fn, '.png') + "_dimont_basic"}
     }
     motif_infos += Dir.glob("Dimont_results/detrended/logo/#{dataset}*.png").map{|img_fn|
-      {logo_type: 'dimont_detrended', src: '../Dimont_results/detrended/logo/' + File.basename(img_fn)}
+      {logo_type: 'dimont_detrended', src: '../Dimont_results/detrended/logo/' + File.basename(img_fn), motif_name: File.basename(img_fn, '.png') + "_dimont_detrended"}
     }
     motif_infos.each{|logo_info|
-      motif_name = File.basename(logo_info[:src], '.png')
+      motif_name = logo_info[:motif_name]
       fw.puts "<tr class='logo-#{logo_info[:logo_type]}'>"
       row = [
         tf,
@@ -156,6 +158,7 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
         dataset,
         logo_info[:logo_type],
         "<img src='#{logo_info[:src]}' />",
+        motif_name,
         *chip_stages.flat_map{|stage|
           metrics_names.map{|metrics_name|
             metrics[stage][metrics_name][motif_name].round(3)
