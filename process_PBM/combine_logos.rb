@@ -1,16 +1,49 @@
 def read_table(fn)
   lines = File.readlines(fn).drop(1).map{|l|
-    tf,*quantiles, dataset, correlation = l.chomp.split("\t")
-    {tf: tf, quantiles: quantiles, dataset: dataset, correlation: correlation}
+    tf, *quantiles, dataset = l.chomp.split("\t")
+    {tf: tf, quantiles: quantiles, dataset: dataset}
   }
 end
 
-infos_flat = read_table('results/head_sizes_flat.tsv')
-infos_single = read_table('results/head_sizes_single.tsv')
+def subfolder_names(folder)
+  Dir.glob(File.join(folder,'*')).select{|fn| File.directory?(fn) }.map{|fn| File.basename(fn) }
+end
 
-datasets = infos_flat.map{|x| x[:dataset] }
-tf_by_dataset = infos_flat.map{|info| info.values_at(:dataset, :tf) }.to_h
+def file_names(folder)
+  Dir.glob(File.join(folder,'*')).select{|fn| File.file?(fn) }.map{|fn| File.basename(fn) }
+end
 
+
+quantile_infos = read_table('results_q0.05_8-15_flat_log_simple_discard-flagged/zscore_quantiles.tsv')
+quantiles_header = File.readlines('results_q0.05_8-15_flat_log_simple_discard-flagged/zscore_quantiles.tsv').first.chomp.split("\t")[1...-1]
+
+datasets = quantile_infos.map{|x| x[:dataset] }
+tf_by_dataset = quantile_infos.map{|info| info.values_at(:dataset, :tf) }.to_h
+quantiles_by_dataset = quantile_infos.map{|info| info.values_at(:dataset, :quantiles) }.to_h
+
+chip_stages = ['raw_chips', 'quantile_normalized_chips', 'spatial_detrended_chips', 'zscored_chips',]
+metrics_names = ['ROC', 'PR', 'ROCLOG', 'PRLOG', 'ASIS', 'EXP', 'LOG',]
+metrics = [
+  'results_q0.05_8-15_flat_log_simple_discard-flagged',
+  'results_top1000_15-8_single_log_simple_discard-flagged',
+  'Dimont_results/basic',
+  'Dimont_results/detrended',
+].flat_map{|results_folder|
+  chip_stages.flat_map{|chip_stage|
+    metrics_names.flat_map{|metrics_name|
+      File.readlines("#{results_folder}/motif_metrics/#{chip_stage}/motif_metrics_#{metrics_name}.tsv").drop(1).map{|l|
+        dataset, val = l.chomp.split("\t")
+        {chip_stage: chip_stage, metrics: metrics_name, dataset: dataset, value: Float(val)}
+      }
+    }
+  }
+}.group_by{|info| info[:chip_stage] }.transform_values{|stage_group|
+  stage_group.group_by{|info|
+    info[:metrics]
+  }.transform_values{|metrics_group|
+      metrics_group.map{|info| info.values_at(:dataset, :value) }.to_h
+  }
+}
 
 web_sources_url = 'websrc'
 File.open('results/compilation.html', 'w') do |fw|
@@ -24,6 +57,11 @@ File.open('results/compilation.html', 'w') do |fw|
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/widgets/widget-grouping.min.js"></script>
     <style>
 
+.metrics-group {
+  border-left: 2px solid black;
+  border-right: 2px solid black;
+  padding: 2px 10px;
+}
 tr.group-header td {
   background: lightgray;
   padding: 20px;
@@ -81,27 +119,51 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
     </head><body>
   EOS
 
-  header = [{name:'tf', class: 'group-text'}, {name:'chip_type', class: 'group-text'}, {name:'dataset', class: 'group-text'}, {name:'logo_type'}, {name:'logo'}]
-  fw.puts '<table class="tablesorter"><thead><tr>'
-  fw.puts header.map{|info| "<th class='#{info[:class]}'>#{info[:name]}</th>" }.join
-  fw.puts '</tr></thead><tbody>'
+  header = [
+    {name:'tf', class: 'group-text', rowspan: 2},
+    {name:'chip_type', class: 'group-text', rowspan: 2},
+    {name:'dataset', class: 'group-text', rowspan: 2},
+    {name:'logo_type', class: 'group-text', rowspan: 2},
+    {name:'logo', class: 'group-false sorter-false', rowspan:2},
+    *chip_stages.flat_map{|stage| {name: stage, class: 'group-false metrics-group', colspan: metrics_names.size} },
+    *quantiles_header.map{|col_name| {name: col_name, class: 'group-false', rowspan: 2} },
+  ]
+  header_2 = chip_stages.flat_map{|stage| metrics_names.map{|metrics_name| {name: metrics_name, class: 'group-false'} } }
+
+  fw.puts '<table class="tablesorter"><thead>'
+  fw.puts '<tr>' + header.map{|info| "<th class='#{info[:class]}' rowspan='#{info[:rowspan] || 1}' colspan='#{info[:colspan] || 1}' >#{info[:name]}</th>" }.join + '</tr>'
+  fw.puts '<tr>' + header_2.map{|info| "<th class='#{info[:class]}' rowspan='#{info[:rowspan] || 1}' colspan='#{info[:colspan] || 1}' >#{info[:name]}</th>" }.join + '</tr>'
+  fw.puts '</thead><tbody>'
   datasets.each_with_index{|dataset, idx|
     tf = tf_by_dataset[dataset]
+    quantiles = quantiles_by_dataset[dataset]
     logos = [
-      {logo_type: 'flat', src: "logo_flat/#{dataset}.png"},
-      {logo_type: 'single', src: "logo_single/#{dataset}.png"}
+      {logo_type: 'flat', src: "../results_q0.05_8-15_flat_log_simple_discard-flagged/logo/#{dataset}.png"},
+      {logo_type: 'single', src: "../results_top1000_15-8_single_log_simple_discard-flagged/logo/#{dataset}.png"}
     ]
-    logos += Dir.glob("results/logo_dimont_basic/#{dataset}*.png").map{|img_fn|
-      {logo_type: 'dimont_basic', src: 'logo_dimont_basic/' + File.basename(img_fn) }
+    logos += Dir.glob("Dimont_results/basic/logo/#{dataset}*.png").map{|img_fn|
+      {logo_type: 'dimont_basic', src: '../Dimont_results/basic/logo/' + File.basename(img_fn) }
     }
-    logos += Dir.glob("results/logo_dimont_detrended/#{dataset}*.png").map{|img_fn|
-      {logo_type: 'dimont_detrended', src: 'logo_dimont_detrended/' + File.basename(img_fn)}
+    logos += Dir.glob("Dimont_results/detrended/logo/#{dataset}*.png").map{|img_fn|
+      {logo_type: 'dimont_detrended', src: '../Dimont_results/detrended/logo/' + File.basename(img_fn)}
     }
     logos.each{|logo_info|
       logo_name = File.basename(logo_info[:src], '.png')
       fw.puts "<tr class='logo-#{logo_info[:logo_type]}'>"
-      fw.puts [tf, dataset.split('_')[3], dataset, logo_info[:logo_type]].map{|hdr| "<td>#{hdr}</td>" }.join
-      fw.puts "<td><img src='#{logo_info[:src]}' /></td>"
+      row = [
+        tf,
+        dataset.split('_')[3],
+        dataset,
+        logo_info[:logo_type],
+        "<img src='#{logo_info[:src]}' />",
+        *chip_stages.flat_map{|stage|
+          metrics_names.map{|metrics_name|
+            metrics[stage][metrics_name][dataset].round(3)
+          }
+        },
+        *quantiles,
+      ]
+      fw.puts row.map{|hdr| "<td>#{hdr}</td>" }.join
       fw.puts '</tr>'
     }
   }
@@ -126,17 +188,22 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
           group_enforceSort : true, // only apply group_forceColumn when a sort is applied to the table
           group_formatter   : function(txt, col, table, c, wo, data) { return txt; },
           group_callback    : function($cell, $rows, column, table) {
-            // callback allowing modification of the group header labels
-            // $cell = current table cell (containing group header cells ".group-name" & ".group-count"
-            // $rows = all of the table rows for the current group; table = current table (DOM)
-            // column = current column being sorted/grouped
-            let dataset = $cell.find('.group-name').text();
-            $cell.html('<i></i><span class="group-name">' + tf_by_dataset(dataset) + ':</b></span><em>' + dataset + '</em>');
-            
+            $cell.find('.group-count').remove();
+            if (column == 2) {
+              // callback allowing modification of the group header labels
+              // $cell = current table cell (containing group header cells ".group-name" & ".group-count"
+              // $rows = all of the table rows for the current group; table = current table (DOM)
+              // column = current column being sorted/grouped
+              let dataset = $cell.find('.group-name').text();
+              $cell.html('<i></i><span class="group-name">' + tf_by_dataset(dataset) + ':</b></span><em>' + dataset + '</em>');
+            } else {
+              let group_name = $cell.find('.group-name').text();
+              $cell.html('<i></i><span class="group-name">' + group_name + '</span>')
+            }
           },
         },
         textSorter : {
-          1 : function(a, b, direction, column, table) {
+          2 : function(a, b, direction, column, table) {
             return $.tablesorter.sortNatural(tf_by_dataset(a) + ' ' + chip_type(a), tf_by_dataset(b) + ' ' + chip_type(b), direction, column, table)
           },
         }
