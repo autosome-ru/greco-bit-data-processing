@@ -32,8 +32,8 @@ metrics = [
   chip_stages.flat_map{|chip_stage|
     metrics_names.flat_map{|metrics_name|
       File.readlines("#{results_folder}/motif_metrics/#{chip_stage}/motif_metrics_#{metrics_name}.tsv").drop(1).map{|l|
-        dataset, val = l.chomp.split("\t")
-        {chip_stage: chip_stage, metrics: metrics_name, dataset: dataset, value: Float(val)}
+        motif, val = l.chomp.split("\t")
+        {chip_stage: chip_stage, metrics: metrics_name, motif: motif, value: Float(val)}
       }
     }
   }
@@ -41,7 +41,7 @@ metrics = [
   stage_group.group_by{|info|
     info[:metrics]
   }.transform_values{|metrics_group|
-      metrics_group.map{|info| info.values_at(:dataset, :value) }.to_h
+      metrics_group.map{|info| info.values_at(:motif, :value) }.to_h
   }
 }
 
@@ -137,18 +137,18 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
   datasets.each_with_index{|dataset, idx|
     tf = tf_by_dataset[dataset]
     quantiles = quantiles_by_dataset[dataset]
-    logos = [
+    motif_infos = [
       {logo_type: 'flat', src: "../results_q0.05_8-15_flat_log_simple_discard-flagged/logo/#{dataset}.png"},
       {logo_type: 'single', src: "../results_top1000_15-8_single_log_simple_discard-flagged/logo/#{dataset}.png"}
     ]
-    logos += Dir.glob("Dimont_results/basic/logo/#{dataset}*.png").map{|img_fn|
+    motif_infos += Dir.glob("Dimont_results/basic/logo/#{dataset}*.png").map{|img_fn|
       {logo_type: 'dimont_basic', src: '../Dimont_results/basic/logo/' + File.basename(img_fn) }
     }
-    logos += Dir.glob("Dimont_results/detrended/logo/#{dataset}*.png").map{|img_fn|
+    motif_infos += Dir.glob("Dimont_results/detrended/logo/#{dataset}*.png").map{|img_fn|
       {logo_type: 'dimont_detrended', src: '../Dimont_results/detrended/logo/' + File.basename(img_fn)}
     }
-    logos.each{|logo_info|
-      logo_name = File.basename(logo_info[:src], '.png')
+    motif_infos.each{|logo_info|
+      motif_name = File.basename(logo_info[:src], '.png')
       fw.puts "<tr class='logo-#{logo_info[:logo_type]}'>"
       row = [
         tf,
@@ -158,7 +158,7 @@ tr.logo-dimont_detrended td { background-color: lightcoral; }
         "<img src='#{logo_info[:src]}' />",
         *chip_stages.flat_map{|stage|
           metrics_names.map{|metrics_name|
-            metrics[stage][metrics_name][dataset].round(3)
+            metrics[stage][metrics_name][motif_name].round(3)
           }
         },
         *quantiles,
