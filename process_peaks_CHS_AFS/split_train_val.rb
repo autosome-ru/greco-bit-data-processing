@@ -11,7 +11,7 @@ PeakInfo = Struct.new(:chr, :start, :stop, :abs_summit, :pileup, :neg_log10_pval
 
   def self.each_in_stream(stream, has_header: true, &block)
     return enum_for(:each_in_stream, stream, has_header: has_header)  unless block_given?
-    stream.read_line  if has_header # skip header
+    stream.readline  if has_header # skip header
     stream.each_line{|l|
       yield self.from_string(l)
     }
