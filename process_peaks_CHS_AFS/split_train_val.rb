@@ -19,8 +19,8 @@ def store_table(filename, header, rows)
   }
 end
 
-TRAIN_CHR = (1..21).step(2).to_set
-VALIDATION_CHR = (2..22).step(2).to_set
+TRAIN_CHR = (1..21).step(2).map(&:to_s).to_set
+VALIDATION_CHR = (2..22).step(2).map(&:to_s).to_set
 
 peaks_fn, train_fn, validation_fn = ARGV.first(3)
 FileUtils.mkdir_p(File.dirname(train_fn))
