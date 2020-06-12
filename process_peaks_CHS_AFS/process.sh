@@ -18,3 +18,5 @@ for PEAK_CALLER in cpics gem macs2-pemode sissrs; do
 		ruby split_train_val.rb "${FN}" "${RESULTS_FOLDER}/train/peaks-intervals/${PEAK_CALLER}/${BN}.interval" "${RESULTS_FOLDER}/validation/peaks-intervals/${PEAK_CALLER}/${BN}.interval"
 	done
 done
+
+ruby prepare_peaks.rb ./results/affiseq/
