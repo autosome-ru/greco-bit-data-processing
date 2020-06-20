@@ -25,7 +25,7 @@ ruby prepare_peaks.rb ./source_data/affiseq ./results/affiseq
 mkdir -p results/affiseq/train/sequences/
 for FN in $(find results/affiseq/train/tf_peaks/ -xtype f); do
   TF="$(basename -s .train.interval "$FN")"
-  ./bedtools getfasta -fi ./source_data/hg38.fa -bed ${FN} -name | ruby fixup_summit.rb > results/affiseq/train/sequences/${TF}.fa
+  cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - -name | ruby fixup_summit.rb > results/affiseq/train/sequences/${TF}.fa
 done
 
 CHIPMUNK_RESULTS_DESTINATION_FOLDER="./results/affiseq/chipmunk_results/"
