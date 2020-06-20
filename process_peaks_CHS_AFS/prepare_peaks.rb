@@ -12,7 +12,7 @@ def get_bed_intervals(filename, has_header: true, drop_wrong: false)
   lines.map{|l|
     l.chomp.split("\t").first(3)
   }.reject{|r|
-    drop_wrong && r[1].to_i < 0
+    drop_wrong && Integer(r[1]) < 0
   }
 end
 
@@ -40,7 +40,7 @@ def make_confirmed_peaks(peak_id, filename, &peaks_filename)
   supporting_intervals_file = Tempfile.new("#{peak_id}.supplementary_callers.bed").tap(&:close)
   make_merged_intervals(supporting_intervals_file.path, supporting_intervals)
     
-  system("( head -1 #{main_peak_fn}; ./bedtools intersect -wa -a #{main_peak_fn} -b #{supporting_intervals_file.path} ) > #{filename}")
+  system("( head -1 #{main_peak_fn}; ./bedtools intersect -wa -a #{main_peak_fn} -b #{supporting_intervals_file.path} ) | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' > #{filename}")
   supporting_intervals_file.unlink
 end
 
