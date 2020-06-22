@@ -27,7 +27,10 @@ SOURCE_FOLDER="./source_data/${DATA_TYPE}"
 RESULTS_FOLDER="./results/${DATA_TYPE}"
 
 mkdir -p "${RESULTS_FOLDER}"
-cat "${SOURCE_FOLDER}/metrics_by_exp.tsv" | tail -n+2 | cut -d $'\t' -f2,4 | awk -F $'\t' -e '$1 != "CONTROL" && $1 != ""' > "${RESULTS_FOLDER}/tf_peaks.txt"
+cat "${SOURCE_FOLDER}/metrics_by_exp.tsv" | tail -n+2 | cut -d $'\t' -f2,4 \
+    | awk -F $'\t' -e '$1 != "CONTROL" && $1 != ""' \
+    | ruby -e 'readlines.each{|l| row = l.split("\t"); peaks = row[1].split(";").map{|fn| File.basename(fn.strip,".interval") }.uniq.reject(&:empty?).join(";"); puts [row[0], peaks].join("\t") }' \
+    > "${RESULTS_FOLDER}/tf_peaks.txt"
 
 ruby prepare_peaks.rb ./source_data/${DATA_TYPE} ./results/${DATA_TYPE}
 
