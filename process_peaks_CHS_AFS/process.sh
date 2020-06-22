@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eu
+#set -o pipefail
 
-NUM_PROCESSES=2
+NUM_PROCESSES=12
 LENGTH_RANGE="8 15"
 WEIGHTING_MODE="m" # peak summit
 NUM_INNER_THREADS=2
@@ -16,6 +17,8 @@ SOURCE_FOLDER="./source_data/affiseq"
 RESULTS_FOLDER="./results/affiseq"
 # ln -s /home_local/ivanyev/egrid/dfs-affyseq-cutadapt/peaks-interval "${SOURCE_FOLDER}/peaks-intervals"
 # ln -s ~/iogen/data/genome/hg38.fa ./source_data/hg38.fa
+## Generate index
+# echo | ./bedtools getfasta -fi source_data/hg38.fa -bed -
 
 mkdir -p "${RESULTS_FOLDER}"
 cat "${SOURCE_FOLDER}/metrics_by_exp.tsv" | tail -n+2 | cut -d $'\t' -f2,4 | awk -F $'\t' -e '$1 != "CONTROL" && $1 != ""' > "${RESULTS_FOLDER}/tf_peaks.txt"
