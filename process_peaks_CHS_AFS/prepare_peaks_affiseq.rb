@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'tempfile'
 require_relative 'utils'
+require_relative 'experiment_info_extension'
 
 PEAK_CALLERS = ['macs2-pemode', 'cpics', 'gem', 'gem-affiseq', 'sissrs']
 MAIN_PEAK_CALLERS = ['macs2-pemode']
@@ -12,7 +13,8 @@ RESULTS_FOLDER = ARGV[1] # 'results/affiseq'
 
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/confirmed_intervals")
 
-ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :replica, :raw_fastq, :type) do
+ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_fastq, :type) do
+  include ExperimentInfoExtension
   def self.from_string(str)
     row = str.chomp.split("\t")
 
@@ -21,28 +23,17 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :replica, :raw_fastq,
     raw_fastq = row[2].split(';').map{|fn| File.basename(fn, '.fastq.gz') }
     peak_id = row[3]
 
-    if raw_fastq.first.match?(/AffSeq_IVT/)
-      replica = 'IVT'
-    elsif raw_fastq.first.match?(/AffSeq_Lysate/)
-      replica = 'Lysate'
-    else
-      replica = 'control'
-    end
-
     if tf == 'CONTROL'
       type = 'control'
     else
-      type = 'experiment'
+      if raw_fastq.first.match?(/AffSeq_IVT/)
+        type = 'IVT'
+      elsif raw_fastq.first.match?(/AffSeq_Lysate/)
+        type = 'Lysate'
+      end
     end
 
-    self.new(experiment_id, peak_id, tf, replica, raw_fastq, type)
-  end
-
-  def self.each_from_file(filename, &block)
-    return enum_for(:each_from_file, filename)  unless block_given?
-    File.readlines(filename).drop(1).each{|l|
-      yield self.from_string(l)
-    }
+    self.new(experiment_id, peak_id, tf, raw_fastq, type)
   end
 
   def peak_fn_for_peakcaller(peak_caller)
@@ -55,38 +46,6 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :replica, :raw_fastq,
       raise "Unknown type `#{type}` for #{peak_id}"
     end
   end
-
-  def peak_fn_for_main_caller
-    MAIN_PEAK_CALLERS.map{|peak_caller|
-      peak_fn_for_peakcaller(peak_caller)
-    }.detect{|fn| File.exist?(fn) }
-  end
-
-  def confirmed_peaks_fn
-    "#{RESULTS_FOLDER}/confirmed_intervals/#{peak_id}.interval"
-  end
-
-  def num_peaks_for_peakcaller(peak_caller)
-    peaks_fn = peak_fn_for_peakcaller(peak_caller)
-    File.exist?(peaks_fn) ? num_rows(peaks_fn, has_header: true) : nil
-  end
-
-  def num_confirmed_peaks
-    num_rows(confirmed_peaks_fn, has_header: true)
-  end
-
-  def make_confirmed_peaks!
-    supporting_intervals = SUPPLEMENTARY_PEAK_CALLERS.flat_map{|peak_caller|
-      peaks_fn = peak_fn_for_peakcaller(peak_caller)
-      File.exist?(peaks_fn)  ?  get_bed_intervals(peaks_fn, has_header: true, drop_wrong: true)  :  []
-    }
-    supporting_intervals_file = Tempfile.new("#{peak_id}.supplementary_callers.bed").tap(&:close)
-    make_merged_intervals(supporting_intervals_file.path, supporting_intervals)
-
-    system("head -1 #{peak_fn_for_main_caller} > #{confirmed_peaks_fn}")
-    system("./bedtools intersect -wa -a #{peak_fn_for_main_caller} -b #{supporting_intervals_file.path}  | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
-    supporting_intervals_file.unlink
-  end
 end
 
 experiment_infos = ExperimentInfo.each_from_file("#{SOURCE_FOLDER}/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
@@ -94,7 +53,7 @@ experiment_infos = ExperimentInfo.each_from_file("#{SOURCE_FOLDER}/metrics_by_ex
 experiment_infos.each(&:make_confirmed_peaks!)
 
 tf_infos = experiment_infos.group_by(&:tf).map{|tf, tf_group|
-  best_cycle_infos = tf_group.group_by(&:replica).map{|replica, peak_infos| peak_infos.max_by(&:num_confirmed_peaks) }
+  best_cycle_infos = tf_group.group_by(&:type).map{|type, peak_infos| peak_infos.max_by(&:num_confirmed_peaks) }
 
   best_replica = best_cycle_infos.max_by(&:num_confirmed_peaks)
   rest_replicas = best_cycle_infos - [best_replica]
