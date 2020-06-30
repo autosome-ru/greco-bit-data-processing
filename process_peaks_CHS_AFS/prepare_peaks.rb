@@ -36,12 +36,12 @@ def make_merged_intervals(filename, intervals)
   intervals_unsorted.unlink
 end
 
-PEAK_CALLERS = ['macs2-pemode', 'cpics', 'gem', 'sissrs']
+PEAK_CALLERS = ['macs2-pemode', 'macs2-nomodel', 'cpics', 'gem', 'sissrs']
 MAIN_PEAK_CALLERS = ['macs2-pemode', 'macs2-nomodel']
 SUPPLEMENTARY_PEAK_CALLERS = PEAK_CALLERS - MAIN_PEAK_CALLERS
 
-SOURCE_FOLDER = ARGV[0] # 'source_data/affiseq'
-RESULTS_FOLDER = ARGV[1] # 'results/affiseq'
+SOURCE_FOLDER = ARGV[0] # 'source_data/chipseq'
+RESULTS_FOLDER = ARGV[1] # 'results/chipseq'
 
 
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/confirmed_intervals")
@@ -49,7 +49,7 @@ FileUtils.mkdir_p("#{RESULTS_FOLDER}/confirmed_intervals")
 confirmed_peaks_filename = ->(peak_id){ "#{confirmed_intervals_dirname}/#{peak_id}.interval" }
 
 ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_fastq, :peaks, :peak_count_macs2_nomodel, :peak_count_macs2_pemode, :type) do
-  def self.from_string(str)  
+  def self.from_string(str)
     row = str.chomp.split("\t")
 
     experiment_id = row[0]
@@ -134,7 +134,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_fastq, :peaks, :
     }
     supporting_intervals_file = Tempfile.new("#{peak_id}.supplementary_callers.bed").tap(&:close)
     make_merged_intervals(supporting_intervals_file.path, supporting_intervals)
-      
+
     system("head -1 #{peak_fn_for_main_caller} > #{confirmed_peaks_fn}")
     system("./bedtools intersect -wa -a #{peak_fn_for_main_caller} -b #{supporting_intervals_file.path}  | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
     supporting_intervals_file.unlink
@@ -211,7 +211,7 @@ File.open("#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", 'w') {|fw|
     train_fn = "#{RESULTS_FOLDER}/train/tf_peaks/#{tf_info[:tf]}/#{tf_info[:tf]}.train.interval"
     basic_validation_fn = "#{RESULTS_FOLDER}/validation/tf_peaks/#{tf_info[:tf]}/#{tf_info[:tf]}.basic_validation.interval"
     advanced_validation_fn = "#{RESULTS_FOLDER}/validation/tf_peaks/#{tf_info[:tf]}/#{tf_info[:tf]}.advanced_validation.interval"
-    
+
     row = [peak_info.peak_id, tf_info[:tf], 'train', num_rows(train_fn, has_header: true), train_fn]
     fw.puts(row.join("\t"))
 
