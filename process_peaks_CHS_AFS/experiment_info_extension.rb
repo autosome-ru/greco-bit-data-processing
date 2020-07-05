@@ -35,7 +35,7 @@ module ExperimentInfoExtension
 
     header = `head -1 #{peak_fn_for_main_caller}`.chomp
     system("echo '#{header}' '\t' supporting_peakcallers  > #{confirmed_peaks_fn}")
-    system("./bedtools intersect -loj -a #{peak_fn_for_main_caller} -b #{supporting_intervals_file.path} | sort -k1,9 | bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct | awk -F '\t' -e '$13 != \".\"' | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
+    system("./bedtools intersect -loj -a #{peak_fn_for_main_caller} -b #{supporting_intervals_file.path} | sort -k1,9 | ./bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct | awk -F '\t' -e '$13 != \".\"' | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
     supporting_intervals_file.unlink
   end
 
