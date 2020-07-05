@@ -19,15 +19,23 @@ module ExperimentInfoExtension
   end
 
   def make_confirmed_peaks!
-    supporting_intervals = SUPPLEMENTARY_PEAK_CALLERS.flat_map{|peak_caller|
+    supporting_intervals_file_infos = SUPPLEMENTARY_PEAK_CALLERS.map{|peak_caller|
       peaks_fn = peak_fn_for_peakcaller(peak_caller)
-      File.exist?(peaks_fn)  ?  get_bed_intervals(peaks_fn, has_header: true, drop_wrong: true)  :  []
+      {filename: peaks_fn, name: peak_caller}
+    }.select{|info| File.exist?(info[:filename]) }
+
+    supporting_intervals = supporting_intervals_file_infos.flat_map{|info|
+      get_bed_intervals(info[:filename], has_header: true, drop_wrong: true).map{|row|
+        row + [info[:name]]
+      }
     }
     supporting_intervals_file = Tempfile.new("#{peak_id}.supplementary_callers.bed").tap(&:close)
-    make_merged_intervals(supporting_intervals_file.path, supporting_intervals)
+    store_table(supporting_intervals_file.path, supporting_intervals)
+    # make_merged_intervals(supporting_intervals_file.path, supporting_intervals)
 
-    system("head -1 #{peak_fn_for_main_caller} > #{confirmed_peaks_fn}")
-    system("./bedtools intersect -wa -a #{peak_fn_for_main_caller} -b #{supporting_intervals_file.path}  | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
+    header = `head -1 #{peak_fn_for_main_caller}`.chomp
+    system("echo '#{header}' '\t' supporting_peakcallers  > #{confirmed_peaks_fn}")
+    system("./bedtools intersect -loj -a #{peak_fn_for_main_caller} -b #{supporting_intervals_file.path} | sort -k1,9 | bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct | awk -F '\t' -e '$13 != \".\"' | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
     supporting_intervals_file.unlink
   end
 
