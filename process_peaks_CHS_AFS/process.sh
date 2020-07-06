@@ -33,22 +33,22 @@ for DATA_TYPE in affiseq chipseq; do
 
     ruby prepare_peaks_${DATA_TYPE}.rb ./source_data/${DATA_TYPE} ./results/${DATA_TYPE}
 
-    mkdir -p results/${DATA_TYPE}/train/sequences_for_motifs/
-    for FN in $(find results/${DATA_TYPE}/train/tf_peaks/ -xtype f); do
-      TF="$(basename -s .train.interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - -name | ruby fixup_summit.rb > results/${DATA_TYPE}/train/sequences_for_motifs/${TF}.fa
-    done
-
     mkdir -p results/${DATA_TYPE}/train/sequences/
     for FN in $(find results/${DATA_TYPE}/train/tf_peaks/ -xtype f); do
-      TF="$(basename -s .train.interval "$FN")"
+      TF="$(basename -s .interval "$FN")"
       cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > results/${DATA_TYPE}/train/sequences/${TF}.fa
     done
 
     mkdir -p results/${DATA_TYPE}/validation/sequences/
     for FN in $(find results/${DATA_TYPE}/validation/tf_peaks/ -xtype f); do
-      TF="$(basename -s .train.interval "$FN")"
+      TF="$(basename -s .interval "$FN")"
       cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > results/${DATA_TYPE}/validation/sequences/${TF}.fa
+    done
+
+    mkdir -p results/${DATA_TYPE}/train/sequences_for_motifs/
+    for FN in $(find results/${DATA_TYPE}/train/tf_peaks/ -xtype f); do
+      TF="$(basename -s .interval "$FN")"
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - -name | ruby fixup_summit.rb > results/${DATA_TYPE}/train/sequences_for_motifs/${TF}.fa
     done
 
     # CHIPMUNK_RESULTS_DESTINATION_FOLDER="./results/${DATA_TYPE}/chipmunk_results/"
