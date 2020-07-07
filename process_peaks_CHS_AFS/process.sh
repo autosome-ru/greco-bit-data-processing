@@ -22,8 +22,8 @@ ADDITIONAL_OPTIONS=""
 # echo | ./bedtools getfasta -fi source_data/hg38.fa -bed -
 
 for DATA_TYPE in affiseq chipseq; do
-    SOURCE_FOLDER="./source_data/${DATA_TYPE}"
-    RESULTS_FOLDER="./results/${DATA_TYPE}"
+    SOURCE_FOLDER="./${DATA_TYPE}/source_data"
+    RESULTS_FOLDER="./${DATA_TYPE}/results"
 
     mkdir -p "${RESULTS_FOLDER}"
     cat "${SOURCE_FOLDER}/metrics_by_exp.tsv" | tail -n+2 | cut -d $'\t' -f2,4 \
@@ -31,30 +31,30 @@ for DATA_TYPE in affiseq chipseq; do
         | ruby -e 'readlines.each{|l| row = l.split("\t"); peaks = row[1].split(";").map{|fn| File.basename(fn.strip,".interval") }.uniq.reject(&:empty?).join(";"); puts [row[0], peaks].join("\t") }' \
         > "${RESULTS_FOLDER}/tf_peaks.txt"
 
-    ruby prepare_peaks_${DATA_TYPE}.rb ./source_data/${DATA_TYPE} ./results/${DATA_TYPE}
+    ruby prepare_peaks_${DATA_TYPE}.rb ./source_data/${DATA_TYPE} ./${DATA_TYPE}/results
 
-    mkdir -p results/${DATA_TYPE}/train/sequences/
-    for FN in $(find results/${DATA_TYPE}/train/tf_peaks/ -xtype f); do
+    mkdir -p ${DATA_TYPE}/results/train/sequences/
+    for FN in $(find ${DATA_TYPE}/results/train/tf_peaks/ -xtype f); do
       TF="$(basename -s .interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > results/${DATA_TYPE}/train/sequences/${TF}.fa
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/train/sequences/${TF}.fa
     done
 
-    mkdir -p results/${DATA_TYPE}/validation/sequences/
-    for FN in $(find results/${DATA_TYPE}/validation/tf_peaks/ -xtype f); do
+    mkdir -p ${DATA_TYPE}/results/validation/sequences/
+    for FN in $(find ${DATA_TYPE}/results/validation/tf_peaks/ -xtype f); do
       TF="$(basename -s .interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > results/${DATA_TYPE}/validation/sequences/${TF}.fa
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/validation/sequences/${TF}.fa
     done
 
-    mkdir -p results/${DATA_TYPE}/train/sequences_for_motifs/
-    for FN in $(find results/${DATA_TYPE}/train/tf_peaks/ -xtype f); do
+    mkdir -p ${DATA_TYPE}/results/train/sequences_for_motifs/
+    for FN in $(find ${DATA_TYPE}/results/train/tf_peaks/ -xtype f); do
       TF="$(basename -s .interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - -name | ruby fixup_summit.rb > results/${DATA_TYPE}/train/sequences_for_motifs/${TF}.fa
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - -name | ruby fixup_summit.rb > ${DATA_TYPE}/results/train/sequences_for_motifs/${TF}.fa
     done
 
-    # CHIPMUNK_RESULTS_DESTINATION_FOLDER="./results/${DATA_TYPE}/chipmunk_results/"
-    # CHIPMUNK_LOGS_DESTINATION_FOLDER="./results/${DATA_TYPE}/chipmunk_logs/"
+    # CHIPMUNK_RESULTS_DESTINATION_FOLDER="./${DATA_TYPE}/results/chipmunk_results/"
+    # CHIPMUNK_LOGS_DESTINATION_FOLDER="./${DATA_TYPE}/results/chipmunk_logs/"
     # mkdir -p ${CHIPMUNK_RESULTS_DESTINATION_FOLDER} ${CHIPMUNK_LOGS_DESTINATION_FOLDER}
-    # for FN in $(find results/${DATA_TYPE}/train/sequences_for_motifs/ -xtype f); do
+    # for FN in $(find ${DATA_TYPE}/results/train/sequences_for_motifs/ -xtype f); do
     #   TF="$(basename -s .fa "$FN")"
     #   echo "java -cp chipmunk.jar ru.autosome.di.ChIPMunk" \
     #       "${LENGTH_RANGE} y 1.0 ${WEIGHTING_MODE}:${FN} 400 40 1 ${NUM_INNER_THREADS} random auto ${SHAPE} ${ADDITIONAL_OPTIONS}" \
@@ -62,10 +62,10 @@ for DATA_TYPE in affiseq chipseq; do
     #       "2> ${CHIPMUNK_LOGS_DESTINATION_FOLDER}/${TF}.log"
     # done | parallel -j ${NUM_PROCESSES}
 
-    # PCMS_FOLDER="./results/${DATA_TYPE}/pcms/"
-    # DPCMS_FOLDER="./results/${DATA_TYPE}/dpcms/"
-    # WORDS_FOLDER="./results/${DATA_TYPE}/words/"
-    # LOGO_FOLDER="./results/${DATA_TYPE}/logo/"
+    # PCMS_FOLDER="./${DATA_TYPE}/results/pcms/"
+    # DPCMS_FOLDER="./${DATA_TYPE}/results/dpcms/"
+    # WORDS_FOLDER="./${DATA_TYPE}/results/words/"
+    # LOGO_FOLDER="./${DATA_TYPE}/results/logo/"
 
     # ./extract_pcms.sh --source ${CHIPMUNK_RESULTS_DESTINATION_FOLDER} --dpcms-destination ${DPCMS_FOLDER} --pcms-destination ${PCMS_FOLDER} --words-destination ${WORDS_FOLDER}
     # ./generate_logo.sh --source ${PCMS_FOLDER} --destination ${LOGO_FOLDER}

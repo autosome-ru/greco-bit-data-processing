@@ -14,7 +14,7 @@ RESULTS_FOLDER = ARGV[1] # 'results/chipseq'
 
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/confirmed_intervals")
 
-ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_fastq, :peaks, :type) do
+ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :peaks, :type) do
   include ExperimentInfoExtension
 
   def self.from_string(str)
@@ -22,7 +22,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_fastq, :peaks, :
 
     experiment_id = row[0]
     tf = row[1]
-    raw_fastq = row[2].split(';')
+    raw_files = row[2]
     peaks = row[3].split(';')
 
     raise 'Inconsistent data'  if (row[13] == 'CONTROL') ^ (row[13] == 'CONTROL')
@@ -40,7 +40,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_fastq, :peaks, :
       end
     end
 
-    self.new(experiment_id, peak_id, tf, raw_fastq, peaks, type)
+    self.new(experiment_id, peak_id, tf, raw_files, peaks, type)
   end
 
   def peak_fn_for_peakcaller(peak_caller)
@@ -64,6 +64,9 @@ experiment_infos = ExperimentInfo.each_from_file("#{SOURCE_FOLDER}/metrics_by_ex
   bad_experiments.include?(info.experiment_id)
 }.to_a
 
+raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
+experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
+
 experiment_infos.each(&:make_confirmed_peaks!)
 
 # experiment_infos = experiment_infos.reject{|info| info.num_confirmed_peaks < 100 }
@@ -83,4 +86,4 @@ tf_infos = experiment_infos.group_by(&:tf).map{|tf, infos|
 
 tf_infos.each{|tf_info| split_train_val!(tf_info) }
 store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/confirmed_peaks_stats.tsv")
-store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv")
+store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)

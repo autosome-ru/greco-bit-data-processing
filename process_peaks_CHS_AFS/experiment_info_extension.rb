@@ -15,7 +15,7 @@ module ExperimentInfoExtension
   end
 
   def num_confirmed_peaks
-    num_rows(confirmed_peaks_fn, has_header: true)
+    File.exist?(confirmed_peaks_fn) ? num_rows(confirmed_peaks_fn, has_header: true) : 0
   end
 
   def make_confirmed_peaks!
@@ -29,6 +29,9 @@ module ExperimentInfoExtension
         row + [info[:name]]
       }
     }
+    return  if num_rows(peak_fn_for_main_caller, has_header: true) == 0
+    return  if supporting_intervals.size == 0
+
     supporting_intervals_file = Tempfile.new("#{peak_id}.supplementary_callers.bed").tap(&:close)
     store_table(supporting_intervals_file.path, supporting_intervals)
     # make_merged_intervals(supporting_intervals_file.path, supporting_intervals)
@@ -41,6 +44,10 @@ module ExperimentInfoExtension
 
   def peak_fn_for_peakcaller(peak_caller)
     raise NotImplementedError
+  end
+
+  def raw_datasets
+    raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.join(';')
   end
 
   def self.included(base)

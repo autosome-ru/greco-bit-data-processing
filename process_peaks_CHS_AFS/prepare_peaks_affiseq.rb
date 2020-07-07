@@ -14,27 +14,27 @@ RESULTS_FOLDER = ARGV[1] # 'results/affiseq'
 
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/confirmed_intervals")
 
-ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_fastq, :type) do
+ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type) do
   include ExperimentInfoExtension
   def self.from_string(str)
     row = str.chomp.split("\t")
 
     experiment_id = row[0]
     tf = row[1]
-    raw_fastq = row[2].split(';').map{|fn| File.basename(fn, '.fastq.gz') }
+    raw_files = row[2]
     peak_id = row[3]
 
     if tf == 'CONTROL'
       type = 'control'
     else
-      if raw_fastq.first.match?(/AffSeq_IVT/)
+      if raw_files.first.match?(/AffSeq_IVT/)
         type = 'IVT'
-      elsif raw_fastq.first.match?(/AffSeq_Lysate/)
+      elsif raw_files.first.match?(/AffSeq_Lysate/)
         type = 'Lysate'
       end
     end
 
-    self.new(experiment_id, peak_id, tf, raw_fastq, type)
+    self.new(experiment_id, peak_id, tf, raw_files, type)
   end
 
   def peak_fn_for_peakcaller(peak_caller)
@@ -51,6 +51,9 @@ end
 
 experiment_infos = ExperimentInfo.each_from_file("#{SOURCE_FOLDER}/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
 
+raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
+experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
+
 experiment_infos.each(&:make_confirmed_peaks!)
 
 tf_infos = experiment_infos.group_by(&:tf).map{|tf, tf_group|
@@ -65,4 +68,4 @@ tf_infos = experiment_infos.group_by(&:tf).map{|tf, tf_group|
 
 tf_infos.each{|tf_info| split_train_val!(tf_info) }
 store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/confirmed_peaks_stats.tsv")
-store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv")
+store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)
