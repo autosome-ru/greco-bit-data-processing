@@ -27,9 +27,10 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type) do
     if tf == 'CONTROL'
       type = 'control'
     else
-      if raw_files.first.match?(/AffSeq_IVT/)
+      raw_files_list = raw_files.split(';')
+      if raw_files_list.first.match?(/AffSeq_IVT/)
         type = 'IVT'
-      elsif raw_files.first.match?(/AffSeq_Lysate/)
+      elsif raw_files_list.first.match?(/AffSeq_Lysate/)
         type = 'Lysate'
       end
     end
