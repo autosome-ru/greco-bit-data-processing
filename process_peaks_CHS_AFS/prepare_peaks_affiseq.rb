@@ -12,9 +12,9 @@ SOURCE_FOLDER = ARGV[0] # 'source_data/affiseq'
 RESULTS_FOLDER = ARGV[1] # 'results/affiseq'
 
 
-FileUtils.mkdir_p("#{RESULTS_FOLDER}/confirmed_intervals")
+FileUtils.mkdir_p("#{RESULTS_FOLDER}/complete_data")
 
-ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type) do
+ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type, :cycle_number) do
   include ExperimentInfoExtension
   def self.from_string(str)
     row = str.chomp.split("\t")
@@ -23,6 +23,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type) do
     tf = row[1]
     raw_files = row[2]
     peak_id = row[3]
+    cycle_number = take_the_only( raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq )
 
     if tf == 'CONTROL'
       type = 'control'
@@ -35,7 +36,16 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type) do
       end
     end
 
-    self.new(experiment_id, peak_id, tf, raw_files, type)
+    self.new(experiment_id, peak_id, tf, raw_files, type, cycle_number)
+  end
+
+  # GLI4.IVT.Cycle3.PEAKS991005
+  def basename
+    "#{tf}.#{type}.#{cycle_number}.#{peak_id}"
+  end
+
+  def self.peak_id_from_basename(bn)
+    bn.split('.')[3]
   end
 
   def peak_fn_for_peakcaller(peak_caller)
@@ -57,10 +67,17 @@ experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
 
 experiment_infos.each(&:make_confirmed_peaks!)
 
-tf_infos = experiment_infos.group_by(&:tf).map{|tf, tf_group|
-  FileUtils.mkdir_p "#{RESULTS_FOLDER}/tf_peaks/#{tf}/best"
-  FileUtils.mkdir_p "#{RESULTS_FOLDER}/tf_peaks/#{tf}/rest"
+experiment_infos.each{|peak_info|
+    FileUtils.rm(peak_info.confirmed_peaks_fn)  if File.exist?(peak_info.confirmed_peaks_fn) && num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
+}
+experiment_infos = experiment_infos.select{|peak_info|
+  File.exist?(peak_info.confirmed_peaks_fn)
+}.reject{|peak_info|
+  num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
+}
 
+
+tf_infos = experiment_infos.group_by(&:tf).map{|tf, tf_group|
   best_cycle_infos = tf_group.group_by(&:type).map{|type, peak_infos| peak_infos.max_by(&:num_confirmed_peaks) }
   best_replica = best_cycle_infos.max_by(&:num_confirmed_peaks)
   rest_replicas = best_cycle_infos - [best_replica]
@@ -68,5 +85,5 @@ tf_infos = experiment_infos.group_by(&:tf).map{|tf, tf_group|
 }
 
 tf_infos.each{|tf_info| split_train_val!(tf_info) }
-store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/confirmed_peaks_stats.tsv")
+store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/complete_data_stats.tsv")
 store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)

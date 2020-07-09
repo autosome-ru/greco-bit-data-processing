@@ -1,3 +1,4 @@
+require 'fileutils'
 module ExperimentInfoExtension
   def peak_fn_for_main_caller
     MAIN_PEAK_CALLERS.map{|peak_caller|
@@ -6,7 +7,7 @@ module ExperimentInfoExtension
   end
 
   def confirmed_peaks_fn
-    "#{RESULTS_FOLDER}/confirmed_intervals/#{peak_id}.interval"
+    "#{RESULTS_FOLDER}/complete_data/#{basename}.interval"
   end
 
   def num_peaks_for_peakcaller(peak_caller)
@@ -38,7 +39,7 @@ module ExperimentInfoExtension
 
     header = `head -1 #{peak_fn_for_main_caller}`.chomp
     system("echo '#{header}' '\t' supporting_peakcallers  > #{confirmed_peaks_fn}")
-    system("./bedtools intersect -loj -a #{peak_fn_for_main_caller} -b #{supporting_intervals_file.path} | sort -k1,9 | ./bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct | awk -F '\t' -e '$13 != \".\"' | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
+    system("./bedtools intersect -loj -a #{peak_fn_for_main_caller} -b #{supporting_intervals_file.path} | sort -k1,9 | ./bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct | awk -F '\t' -e '$10 != \".\"' | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
     supporting_intervals_file.unlink
   end
 
@@ -47,7 +48,7 @@ module ExperimentInfoExtension
   end
 
   def raw_datasets
-    raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.join(';')
+    raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq.join(';')
   end
 
   def self.included(base)
