@@ -10,11 +10,11 @@ end
 
 def cleanup_bad_datasets!(tf_info, min_peaks: 50)
   tf = tf_info[:tf]
-  train_fn = take_the_only( Dir.glob("#{RESULTS_FOLDER}/train_intervals/#{tf}.*.train.interval") )
-  basic_fn = take_the_only( Dir.glob("#{RESULTS_FOLDER}/validation_intervals/#{tf}.*.basic_val.interval") )
+  train_fns = Dir.glob("#{RESULTS_FOLDER}/train_intervals/#{tf}.*.train.interval")
+  basic_fns = Dir.glob("#{RESULTS_FOLDER}/validation_intervals/#{tf}.*.basic_val.interval")
   advanced_fns = Dir.glob("#{RESULTS_FOLDER}/validation_intervals/#{tf}.*.advanced_val_*.interval")
-  if num_rows(train_fn, has_header: true) < min_peaks  ||  num_rows(basic_fn, has_header: true) < min_peaks
-    [train_fn, basic_fn, *advanced_fns].each{|fn| FileUtils.rm(fn) }
+  if !(train_fns.size == 1 && num_rows(train_fns.first, has_header: true) >= min_peaks  && basic_fns.size == 1 && num_rows(basic_fns.first, has_header: true) >= min_peaks)
+    [*train_fns, *basic_fns, *advanced_fns].each{|fn| FileUtils.rm(fn) }
   end
   advanced_fns.select{|fn| num_rows(fn, has_header: true) < min_peaks }.each{|fn| FileUtils.rm(fn) }
 end
