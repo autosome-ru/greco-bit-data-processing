@@ -84,6 +84,10 @@ class Chip
   def filename; info[:filename]; end
   def basename; info[:basename]; end
 
+  def sort
+    Chip.new(probes.sort_by(&:signal).reverse, info)
+  end
+
   def self.from_file(filename, &block)
     probes = ChipProbe.each_in_file(filename).to_a
     info = self.parse_filename(filename)
