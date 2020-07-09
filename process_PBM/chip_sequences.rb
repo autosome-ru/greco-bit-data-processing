@@ -8,10 +8,12 @@ src_folder = nil
 dst_folder = nil
 
 linker_length = 0 # Take `linker_length` nucleotides from linker sequence
+output_format = :tsv
 option_parser = OptionParser.new{|opts|
   opts.on('--source FOLDER') {|folder| src_folder = folder }
   opts.on('--destination FOLDER') {|folder| dst_folder = folder }
   opts.on('--linker-length LENGTH') {|val| linker_length = Integer(val) }
+  opts.on('--fasta'){|opts| output_format = :fasta }
 }
 option_parser.parse!(ARGV)
 
@@ -23,11 +25,26 @@ FileUtils.mkdir_p(dst_folder)
 Dir.glob(File.join(src_folder, '*.txt')).each{|fn|
   chip = Chip.from_file(fn)
 
-  File.open(File.join(dst_folder, "#{chip.basename}.tsv"), 'w') {|fw|
+  if output_format == :tsv
+    output_filename = File.join(dst_folder, "#{chip.basename}.tsv")
+  elsif output_format == :fasta
+    output_filename = File.join(dst_folder, "#{chip.basename}.fa")
+  else
+    raise "Unknown output format `#{output_format}`"
+  end
+
+  File.open(output_filename, 'w') {|fw|
     chip.probes.reject(&:flag).sort_by(&:signal).reverse.each{|probe|
       linker_suffix = (linker_length == 0) ? '' : probe.linker_sequence[(-linker_length) .. (-1)]
-      info = [probe.id_probe, linker_suffix + probe.pbm_sequence, probe.signal]
-      fw.puts(info.join("\t"))
+      if output_format == :tsv
+        info = [probe.id_probe, linker_suffix + probe.pbm_sequence, probe.signal]
+        fw.puts(info.join("\t"))
+      elsif output_format == :fasta
+        fw.puts(">#{probe.id_probe} #{probe.signal}")
+        fw.puts(linker_suffix + probe.pbm_sequence)
+      else
+        raise "Unknown output format `#{output_format}`"
+      end
     }
   }
 }
