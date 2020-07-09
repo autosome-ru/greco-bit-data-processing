@@ -53,11 +53,11 @@ for SUBFOLDER in raw  spatialDetrend_quantNorm  quantNorm_zscore; do
             --source ${RESULTS_FOLDER}/${SUBFOLDER}/train_chips \
             --destination ${RESULTS_FOLDER}/${SUBFOLDER}/train_sequences \
             --linker-length 0 \
-            --fasta
+            --fasta  --take-top 1000
 
     ruby chip_sequences.rb \
             --source ${RESULTS_FOLDER}/${SUBFOLDER}/validation_chips \
             --destination ${RESULTS_FOLDER}/${SUBFOLDER}/validation_sequences \
             --linker-length 0 \
-            --fasta
+            --fasta  --take-top 1000
 done
