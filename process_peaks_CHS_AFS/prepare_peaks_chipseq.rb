@@ -90,14 +90,15 @@ experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
 
 experiment_infos.each(&:make_confirmed_peaks!)
 
-experiment_infos.each{|peak_info|
-    FileUtils.rm(peak_info.confirmed_peaks_fn)  if File.exist?(peak_info.confirmed_peaks_fn) && num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
-}
-experiment_infos = experiment_infos.select{|peak_info|
-  File.exist?(peak_info.confirmed_peaks_fn)
-}.reject{|peak_info|
-  num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
-}
+# experiment_infos.each{|peak_info|
+#     FileUtils.rm(peak_info.confirmed_peaks_fn)  if File.exist?(peak_info.confirmed_peaks_fn) && num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
+# }
+# experiment_infos = experiment_infos.select{|peak_info|
+#   File.exist?(peak_info.confirmed_peaks_fn)
+# }
+#.reject{|peak_info|
+#  num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
+# }
 
 tf_infos = experiment_infos.group_by(&:tf).map{|tf, infos|
   sorted_peaks_infos = infos.sort_by(&:num_confirmed_peaks).reverse
