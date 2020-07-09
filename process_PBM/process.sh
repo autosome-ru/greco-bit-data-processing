@@ -96,14 +96,13 @@ cp ${CHIPS_SOURCE_FOLDER}/*.txt ${RESULTS_FOLDER}/raw_chips/
 
 ruby quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
-        --source ${RESULTS_FOLDER}/raw_chips/ \
-        --destination ${RESULTS_FOLDER}/quantile_normalized_chips
-
-ruby quantile_normalize_chips.rb \
-        ${NORMALIZATION_OPTS} \
         --source ${RESULTS_FOLDER}/spatial_detrended_chips/ \
         --destination ${RESULTS_FOLDER}/sd_qn_chips
 
+ruby quantile_normalize_chips.rb \
+        ${NORMALIZATION_OPTS} \
+        --source ${RESULTS_FOLDER}/raw_chips/ \
+        --destination ${RESULTS_FOLDER}/quantile_normalized_chips
 
 ruby zscore_transform_chips.rb \
         --source ${RESULTS_FOLDER}/quantile_normalized_chips \
