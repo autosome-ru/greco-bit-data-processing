@@ -13,6 +13,7 @@ mkdir -p ${INTERMEDIATE_FOLDER}/raw_chips/
 cp ${CHIPS_SOURCE_FOLDER}/*.txt ${INTERMEDIATE_FOLDER}/raw_chips/
 
 ## sd_qn_chips
+# window-size=5 means window 11x11
 ./spatial_detrending.sh --source ${INTERMEDIATE_FOLDER}/raw_chips/ \
                         --destination ${INTERMEDIATE_FOLDER}/spatial_detrended_chips/ \
                         --window-size 5 \
@@ -21,20 +22,17 @@ cp ${CHIPS_SOURCE_FOLDER}/*.txt ${INTERMEDIATE_FOLDER}/raw_chips/
 ruby quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
         --source ${INTERMEDIATE_FOLDER}/spatial_detrended_chips/ \
-        --destination ${INTERMEDIATE_FOLDER}/sd_qn_chips \
-        --sort-chip
+        --destination ${INTERMEDIATE_FOLDER}/sd_qn_chips
 
 ## qn_zscore_chips
 ruby quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
         --source ${INTERMEDIATE_FOLDER}/raw_chips/ \
-        --destination ${INTERMEDIATE_FOLDER}/quantile_normalized_chips \
-        --sort-chip
+        --destination ${INTERMEDIATE_FOLDER}/quantile_normalized_chips
 
 ruby zscore_transform_chips.rb \
         --source ${INTERMEDIATE_FOLDER}/quantile_normalized_chips \
-        --destination ${INTERMEDIATE_FOLDER}/qn_zscore_chips \
-        --sort-chip
+        --destination ${INTERMEDIATE_FOLDER}/qn_zscore_chips
 
 #########
 

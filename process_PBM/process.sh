@@ -89,6 +89,7 @@ done
 mkdir -p ${RESULTS_FOLDER}/raw_chips/
 cp ${CHIPS_SOURCE_FOLDER}/*.txt ${RESULTS_FOLDER}/raw_chips/
 
+# window-size=5 means window 11x11
 ./spatial_detrending.sh --source ${RESULTS_FOLDER}/raw_chips/ \
                         --destination ${RESULTS_FOLDER}/spatial_detrended_chips/ \
                         --window-size 5 \
