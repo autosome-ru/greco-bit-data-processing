@@ -11,12 +11,16 @@ end
 def cleanup_bad_datasets!(tf_info, min_peaks: 50)
   tf = tf_info[:tf]
   train_fns = Dir.glob("#{RESULTS_FOLDER}/train_intervals/#{tf}.*.train.interval")
-  basic_fns = Dir.glob("#{RESULTS_FOLDER}/validation_intervals/#{tf}.*.basic_val.interval")
-  advanced_fns = Dir.glob("#{RESULTS_FOLDER}/validation_intervals/#{tf}.*.advanced_val_*.interval")
-  if !(train_fns.size == 1 && num_rows(train_fns.first, has_header: true) >= min_peaks  && basic_fns.size == 1 && num_rows(basic_fns.first, has_header: true) >= min_peaks)
-    [*train_fns, *basic_fns, *advanced_fns].each{|fn| FileUtils.rm(fn) }
+  basic_validation_fns = Dir.glob("#{RESULTS_FOLDER}/validation_intervals/#{tf}.*.basic_val.interval")
+  advanced_validation_fns = Dir.glob("#{RESULTS_FOLDER}/validation_intervals/#{tf}.*.advanced_val_*.interval")
+
+  train_ok = (train_fns.size == 1) && (num_rows(train_fns.first, has_header: true) >= min_peaks)
+  basic_validation_ok = (basic_validation_fns.size == 1) && (num_rows(basic_validation_fns.first, has_header: true) >= min_peaks)
+  if !(train_ok && basic_validation_ok)
+    [*train_fns, *basic_validation_fns, *advanced_validation_fns].each{|fn| FileUtils.rm(fn) }
+  else
+    advanced_validation_fns.select{|fn| num_rows(fn, has_header: true) < min_peaks }.each{|fn| FileUtils.rm(fn) }
   end
-  advanced_fns.select{|fn| num_rows(fn, has_header: true) < min_peaks }.each{|fn| FileUtils.rm(fn) }
 end
 
 def split_train_val!(tf_info)
