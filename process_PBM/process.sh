@@ -87,7 +87,12 @@ while true; do
 done
 
 mkdir -p ${RESULTS_FOLDER}/raw_chips/
-cp ${CHIPS_SOURCE_FOLDER}/*.txt ${RESULTS_FOLDER}/raw_chips/
+for FN in $(find -L $CHIPS_SOURCE_FOLDER -xtype f -iname '*.txt'); do
+    BN=$(basename -s .txt ${FN})
+    TF=$(echo ${BN} | grep -oPe '[^_]+$' | grep -oPe '^[^.]+')
+    cp ${FN} ${RESULTS_FOLDER}/raw_chips/${TF}.${BN}.pbm.txt
+done
+
 
 # window-size=5 means window 11x11
 ./spatial_detrending.sh --source ${RESULTS_FOLDER}/raw_chips/ \

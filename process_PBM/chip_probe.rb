@@ -105,13 +105,14 @@ class Chip
     }
   end
 
-  # 'R_2018-10-24_13709_1M-HK_Standard_pTH13929.2_ZBED2.FL.txt'
+  # 'ZBED2.R_2018-10-24_13709_1M-HK_Standard_pTH13929.2_ZBED2.FL.pbm.txt'
   def self.parse_filename(filename)
     filename = File.absolute_path(filename)
     dirname = File.dirname(filename)
     extname = File.extname(filename)
     basename = File.basename(filename, extname)
-    prefix, date, sample_id, chip_type, standard, pth, tf = basename.split("_")
+    reduced_basename = basename.split('.')[1...-1].join('.')
+    prefix, date, sample_id, chip_type, standard, pth, tf = reduced_basename.split("_")
     {sample_id: sample_id, chip_type: chip_type, tf: tf, date: date, basename: basename, extname: extname, dirname: dirname, filename: filename}
   end
 

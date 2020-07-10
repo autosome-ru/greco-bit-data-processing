@@ -10,7 +10,11 @@ INTERMEDIATE_FOLDER='results_databox_intermediate'
 RESULTS_FOLDER='results_databox'
 
 mkdir -p ${INTERMEDIATE_FOLDER}/raw_chips/
-cp ${CHIPS_SOURCE_FOLDER}/*.txt ${INTERMEDIATE_FOLDER}/raw_chips/
+for FN in $(find -L $CHIPS_SOURCE_FOLDER -xtype f -iname '*.txt'); do
+    BN=$(basename -s .txt ${FN})
+    TF=$(echo ${BN} | grep -oPe '[^_]+$' | grep -oPe '^[^.]+')
+    cp ${FN} ${INTERMEDIATE_FOLDER}/raw_chips/${TF}.${BN}.pbm.txt
+done
 
 ## sd_qn_chips
 # window-size=5 means window 11x11
