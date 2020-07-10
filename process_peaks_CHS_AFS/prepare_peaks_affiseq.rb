@@ -61,6 +61,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type, :c
 end
 
 experiment_infos = ExperimentInfo.each_from_file("#{SOURCE_FOLDER}/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+tfs_at_start = experiment_infos.map(&:tf).uniq
 
 raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
 experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
@@ -89,3 +90,8 @@ tf_infos.each{|tf_info| split_train_val!(tf_info) }
 tf_infos.each{|tf_info| cleanup_bad_datasets!(tf_info, min_peaks: 50) }
 store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/complete_data_stats.tsv")
 store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)
+
+tfs_at_finish = Dir.glob("#{RESULTS_FOLDER}/train_intervals/*").map{|fn| File.basename(fn).split('.').first }.uniq
+
+File.write("#{RESULTS_FOLDER}/skipped_tfs.txt", (tfs_at_start - tfs_at_finish).sort.join("\n"))
+$stderr.puts("Affiseq TFs:\n" + tfs_at_finish.sort.join("\n"))
