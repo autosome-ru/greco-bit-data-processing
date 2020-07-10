@@ -78,11 +78,8 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :peaks, :
   end
 end
 
-bad_experiments = File.readlines("#{SOURCE_FOLDER}/bad_experiments.txt").map(&:strip).reject(&:empty?)
 experiment_infos = ExperimentInfo.each_from_file("#{SOURCE_FOLDER}/metrics_by_exp.tsv").reject{|info|
   info.type == 'control'
-}.reject{|info|
-  bad_experiments.include?(info.experiment_id)
 }.to_a
 
 raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
