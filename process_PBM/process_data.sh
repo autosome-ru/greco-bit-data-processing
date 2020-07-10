@@ -44,14 +44,39 @@ mkdir -p ${RESULTS_FOLDER}/raw/train_chips  ${RESULTS_FOLDER}/raw/validation_chi
 mkdir -p ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_chips  ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_chips 
 mkdir -p ${RESULTS_FOLDER}/quantNorm_zscore/train_chips  ${RESULTS_FOLDER}/quantNorm_zscore/validation_chips
 
-cp ${INTERMEDIATE_FOLDER}/raw_chips/*_1M-ME_*  ${RESULTS_FOLDER}/raw/train_chips
-cp ${INTERMEDIATE_FOLDER}/raw_chips/*_1M-HK_*  ${RESULTS_FOLDER}/raw/validation_chips
+# raw
+for FN in $(find ${INTERMEDIATE_FOLDER}/raw_chips/ -xtype f -name '*_1M-ME_*'); do
+    BN=$(basename -s .txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/raw/train_chips/${BN}.train.txt
+done
 
-cp ${INTERMEDIATE_FOLDER}/sd_qn_chips/*_1M-ME_*  ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_chips
-cp ${INTERMEDIATE_FOLDER}/sd_qn_chips/*_1M-HK_*  ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_chips
+for FN in $(find ${INTERMEDIATE_FOLDER}/raw_chips/ -xtype f -name '*_1M-HK_*'); do
+    BN=$(basename -s .txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/raw/validation_chips/${BN}.val.txt
+done
 
-cp ${INTERMEDIATE_FOLDER}/qn_zscore_chips/*_1M-ME_*  ${RESULTS_FOLDER}/quantNorm_zscore/train_chips
-cp ${INTERMEDIATE_FOLDER}/qn_zscore_chips/*_1M-HK_*  ${RESULTS_FOLDER}/quantNorm_zscore/validation_chips
+# sd_qn
+for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_chips/ -xtype f -name '*_1M-ME_*'); do
+    BN=$(basename -s .txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_chips/${BN}.train.txt
+done
+
+for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_chips/ -xtype f -name '*_1M-HK_*'); do
+    BN=$(basename -s .txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_chips/${BN}.val.txt
+done
+
+# qn_zscore
+for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_chips/ -xtype f -name '*_1M-ME_*'); do
+    BN=$(basename -s .txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/train_chips/${BN}.train.txt
+done
+
+for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_chips/ -xtype f -name '*_1M-HK_*'); do
+    BN=$(basename -s .txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/validation_chips/${BN}.val.txt
+done
+
 
 for SUBFOLDER in raw  spatialDetrend_quantNorm  quantNorm_zscore; do
     ruby chip_sequences.rb \
