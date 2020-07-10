@@ -4,7 +4,7 @@ require_relative 'utils'
 require_relative 'peak_preparation_utils'
 require_relative 'experiment_info_extension'
 
-PEAK_CALLERS = ['macs2-pemode', 'cpics', 'gem', 'gem-affiseq', 'sissrs']
+PEAK_CALLERS = ['macs2-pemode', 'cpics', 'gem', 'sissrs']
 MAIN_PEAK_CALLERS = ['macs2-pemode']
 SUPPLEMENTARY_PEAK_CALLERS = PEAK_CALLERS - MAIN_PEAK_CALLERS
 
@@ -41,7 +41,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type, :c
 
   # GLI4.IVT.Cycle3.PEAKS991005
   def basename
-    "#{tf}.#{type}.#{cycle_number}.#{peak_id}"
+    "#{tf}.#{type}.#{cycle_number}.#{peak_id}.affiseq"
   end
 
   def self.peak_id_from_basename(bn)

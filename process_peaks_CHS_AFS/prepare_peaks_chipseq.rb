@@ -57,7 +57,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :peaks, :
 
   # GLI4.Plate_2_G12_S191.PEAKS991005
   def basename
-    "#{tf}.#{plate_id}.#{peak_id}"
+    "#{tf}.#{plate_id}.#{peak_id}.chipseq"
   end
 
   def self.peak_id_from_basename(bn)
