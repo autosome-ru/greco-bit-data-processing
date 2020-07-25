@@ -16,13 +16,25 @@ NUM_PROCESSES=12
 ## Generate index
 # echo | ./bedtools getfasta -fi source_data/hg38.fa -bed -
 
-for DATA_TYPE in affiseq chipseq; do
-    SOURCE_FOLDER="./${DATA_TYPE}/source_data"
+for DATA_TYPE in affiseq_Lysate affiseq_IVT chipseq; do
     RESULTS_FOLDER="./${DATA_TYPE}/results"
 
     mkdir -p "${RESULTS_FOLDER}"
 
-    ruby prepare_peaks_${DATA_TYPE}.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER}
+    case "$DATA_TYPE" in
+      chipseq)
+        SOURCE_FOLDER="./chipseq/source_data"
+        ruby prepare_peaks_chipseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER}
+        ;;
+      affiseq_Lysate)
+        SOURCE_FOLDER="./affiseq/source_data"
+        ruby prepare_peaks_affiseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER} --experiment-type Lysate
+        ;;
+      affiseq_IVT)
+        SOURCE_FOLDER="./affiseq/source_data"
+        ruby prepare_peaks_affiseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER} --experiment-type IVT
+        ;;
+    esac
 
     mkdir -p ${DATA_TYPE}/results/train_sequences/
     for FN in $(find ${DATA_TYPE}/results/train_intervals/ -xtype f); do
