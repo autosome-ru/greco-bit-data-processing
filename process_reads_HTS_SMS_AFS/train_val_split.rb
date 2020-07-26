@@ -2,6 +2,12 @@ require 'parallel'
 require 'fileutils'
 require_relative 'fastq'
 
+def num_reads_in_fastq(filename)
+  open_fastq_read(filename){|f|
+    f.each_line.count / 4
+  }
+end
+
 # def train_val_split(input_filename, train_filename, test_filename, &criteria)
 #   reads = FastqRecord.each_in_file(input_filename).to_a
 #   criteria = ->(read, idx){ idx % 3 < 2 }  unless block_given?
@@ -41,10 +47,25 @@ sample_filenames.select!{|fn| File.basename(fn).match?(/_(IVT|Lysate)_/) }
 sample_filenames.reject!{|fn| File.basename(fn).match?(/_AffSeq_/) }
 
 samples = sample_filenames.map{|fn| parse_filename(fn) }
-Parallel.each(samples, in_processes: 20){|sample|
+Parallel.each(samples, in_processes: 20) do |sample|
   # In SELEX there are no paired reads, so we don't add it to filename
   bn = sample.values_at(:tf, :type, :cycle, :adapter, :batch).join('.')
   train_fn = "#{results_folder}/train_reads/#{bn}.selex.train.fastq.gz"
   validation_fn = "#{results_folder}/validation_reads/#{bn}.selex.val.fastq.gz"
   train_val_split(sample[:filename], train_fn, validation_fn)
-}
+end
+
+File.open('results/stats.tsv', 'w') do |fw|
+  header = ['tf', 'type', 'cycle', 'adapter', 'batch', 'train/validation', 'filename', 'num_reads']
+  fw.puts(header.join("\t"))
+  samples.each{|sample|
+    bn = sample.values_at(:tf, :type, :cycle, :adapter, :batch).join('.')
+    train_fn = "#{results_folder}/train_reads/#{bn}.selex.train.fastq.gz"
+    info_train = sample.values_at(:tf, :type, :cycle, :adapter, :batch) + ['train', train_fn, num_reads_in_fastq(train_fn)]
+    fw.puts(info_train.join("\t"))
+
+    validation_fn = "#{results_folder}/validation_reads/#{bn}.selex.val.fastq.gz"
+    info_validation = sample.values_at(:tf, :type, :cycle, :adapter, :batch) + ['validation', validation_fn, num_reads_in_fastq(validation_fn)]
+    fw.puts(info_validation.join("\t"))
+  }
+end
