@@ -1,7 +1,7 @@
 require 'fileutils'
 require_relative 'fastq'
 
-def train_test_split(input_filename, train_filename, test_filename, &criteria)
+def train_val_split(input_filename, train_filename, test_filename, &criteria)
   # reads = FastqRecord.each_in_file(input_filename).to_a
   # criteria = ->(read, idx){ idx % 3 < 2 }  unless block_given?
   # train_reads = reads.each_with_index.select(&criteria)
@@ -42,6 +42,6 @@ samples.group_by{|info| [info[:tf], info[:type]] }.each{|(tf, type), tf_samples|
     bn = sample.values_at(:tf, :type, :cycle, :adapter, :batch).join('.')
     train_fn = "results/train_reads/#{bn}.selex.train.fastq.gz"
     validation_fn = "results/validation_reads/#{bn}.selex.val.fastq.gz"
-    train_test_split(sample[:filename], , "results/test_reads/#{sample[:basename]}.fastq.gz")
+    train_val_split(sample[:filename], train_fn, validation_fn)
   }
 }
