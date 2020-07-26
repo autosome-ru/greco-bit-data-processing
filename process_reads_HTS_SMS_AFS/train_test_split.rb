@@ -30,10 +30,10 @@ sample_filenames.reject!{|fn| File.basename(fn).match?(/_AffSeq_/) }
 samples = sample_filenames.map{|fn| parse_filename(fn) }
 samples.group_by{|info| [info[:tf], info[:type]] }.each{|(tf, type), tf_samples|
   tf_samples.each{|sample|
-    train_test_split(sample[:filename], "results/train_reads/#{sample[:basename]}.fastq.gz", "results/test_reads/#{sample[:basename]}.fastq.gz")
+    # In SELEX there are no paired reads, so we don't add it to filename
+    bn = sample.values_at(:tf, :type, :cycle, :adapter, :batch).join('.')
+    train_fn = "results/train_reads/#{bn}.selex.train.fastq.gz"
+    validation_fn = "results/validation_reads/#{bn}.selex.val.fastq.gz"
+    train_test_split(sample[:filename], , "results/test_reads/#{sample[:basename]}.fastq.gz")
   }
 }
-
-
-# seqkit  sample          sample sequences by number or proportion
-# seqkit  common          find common sequences of multiple files by id/name/sequence
