@@ -6,7 +6,7 @@ FastqRecord = Struct.new(:instrument, :run_id, :flow_cell_id, :lane, :tile, :x, 
   def self.parse_header(str)
     raise unless str[0] == '@'
     str.chomp!
-    parts = str.split(' ')
+    parts = str[1..-1].split(' ')
     instrument, run_id, flow_cell_id, lane, tile, x, y, umi = parts[0].split(':')
     read, filter, _, index_sequence = parts[1].split(':')
     {
