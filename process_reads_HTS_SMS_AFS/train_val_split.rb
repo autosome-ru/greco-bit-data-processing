@@ -1,13 +1,17 @@
+require 'parallel'
 require 'fileutils'
 require_relative 'fastq'
 
+# def train_val_split(input_filename, train_filename, test_filename, &criteria)
+#   reads = FastqRecord.each_in_file(input_filename).to_a
+#   criteria = ->(read, idx){ idx % 3 < 2 }  unless block_given?
+#   train_reads = reads.each_with_index.select(&criteria)
+#   validation_reads  = reads.each_with_index.reject(&criteria)
+#   FastqRecord.store_to_file(train_filename, train_reads)
+#   FastqRecord.store_to_file(test_filename, validation_reads)
+# end
+
 def train_val_split(input_filename, train_filename, test_filename, &criteria)
-  # reads = FastqRecord.each_in_file(input_filename).to_a
-  # criteria = ->(read, idx){ idx % 3 < 2 }  unless block_given?
-  # train_reads = reads.each_with_index.select(&criteria)
-  # validation_reads  = reads.each_with_index.reject(&criteria)
-  # FastqRecord.store_to_file(train_filename, train_reads)
-  # FastqRecord.store_to_file(test_filename, validation_reads)
   open_fastq_write(train_filename){|train_fw|
     open_fastq_write(test_filename){|test_fw|
       open_fastq_read(input_filename).each_line.each_slice(4).each_with_index{|slice, idx|
@@ -28,20 +32,19 @@ def parse_filename(filename)
   {tf: tf, adapter: adapter, type: type, batch: batch, cycle: cycle, read: read, filename: filename, basename: basename}
 end
 
-FileUtils.mkdir_p 'results/train_reads'
-FileUtils.mkdir_p 'results/validation_reads'
+results_folder = 'results'
+FileUtils.mkdir_p "#{results_folder}/train_reads"
+FileUtils.mkdir_p "#{results_folder}/validation_reads"
 
 sample_filenames = Dir.glob('source_data/reads/*.fastq.gz')
 sample_filenames.select!{|fn| File.basename(fn).match?(/_(IVT|Lysate)_/) }
 sample_filenames.reject!{|fn| File.basename(fn).match?(/_AffSeq_/) }
 
 samples = sample_filenames.map{|fn| parse_filename(fn) }
-samples.group_by{|info| [info[:tf], info[:type]] }.each{|(tf, type), tf_samples|
-  tf_samples.each{|sample|
-    # In SELEX there are no paired reads, so we don't add it to filename
-    bn = sample.values_at(:tf, :type, :cycle, :adapter, :batch).join('.')
-    train_fn = "results/train_reads/#{bn}.selex.train.fastq.gz"
-    validation_fn = "results/validation_reads/#{bn}.selex.val.fastq.gz"
-    train_val_split(sample[:filename], train_fn, validation_fn)
-  }
+Parallel.each(samples, in_processes: 20){|sample|
+  # In SELEX there are no paired reads, so we don't add it to filename
+  bn = sample.values_at(:tf, :type, :cycle, :adapter, :batch).join('.')
+  train_fn = "#{results_folder}/train_reads/#{bn}.selex.train.fastq.gz"
+  validation_fn = "#{results_folder}/validation_reads/#{bn}.selex.val.fastq.gz"
+  train_val_split(sample[:filename], train_fn, validation_fn)
 }
