@@ -1,3 +1,5 @@
+require_relative 'fastq'
+
 def train_test_split(input_filename, train_filename, test_filename, &criteria)
   reads = FastqRecord.each_in_file(filename).to_a
   criteria = ->(read){ (read.x + read.y).odd? }  unless block_given?
