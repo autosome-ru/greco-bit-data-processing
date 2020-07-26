@@ -1,3 +1,4 @@
+require 'fileutils'
 require_relative 'fastq'
 
 def train_test_split(input_filename, train_filename, test_filename, &criteria)
@@ -18,6 +19,9 @@ def parse_filename(filename)
   tf, adapter, type, batch, cycle, read = basename.split('_')
   {tf: tf, adapter: adapter, type: type, batch: batch, cycle: cycle, read: read, filename: filename, basename: basename}
 end
+
+FileUtils.mkdir_p 'results/train_reads'
+FileUtils.mkdir_p 'results/test_reads'
 
 sample_filenames = Dir.glob('source_data/reads/*.fastq.gz').select{|fn| File.basename(fn).match?(/_(IVT|Lysate)_/) }
 samples = sample_filenames.map{|fn| parse_filename(fn) }
