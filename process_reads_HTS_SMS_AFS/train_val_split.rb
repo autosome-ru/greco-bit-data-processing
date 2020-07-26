@@ -56,7 +56,7 @@ end
     train_val_split(sample[:filename], train_fn, validation_fn)
   end
 
-  File.open('results/stats.tsv', 'w') do |fw|
+  File.open("#{results_folder}/stats.tsv", 'w') do |fw|
     header = ['tf', 'type', 'cycle', 'adapter', 'batch', 'train/validation', 'filename', 'num_reads']
     fw.puts(header.join("\t"))
     samples.each{|sample|
