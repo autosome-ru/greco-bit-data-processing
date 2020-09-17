@@ -23,7 +23,6 @@ FileUtils.mkdir_p './tmp/'
 validation_datasets = [
   Dir.glob("#{DATA_PATH}/pbm/quantNorm_zscore/validation_intensities/*"),
   Dir.glob("#{DATA_PATH}/pbm/spatialDetrend_quantNorm/validation_intensities/*"),
-  Dir.glob("#{DATA_PATH}/pbm/quantNorm_zscore/validation_intensities/*"),
 ].flatten.map{|fn| File.absolute_path(fn) }
 
 datasets_by_tf = validation_datasets.group_by{|fn|
