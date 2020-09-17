@@ -16,12 +16,15 @@ end
 TF_NAME_MAPPING = File.readlines('tf_name_mapping.txt').map{|l| l.chomp.split("\t") }.to_h
 
 ## fix bug: pbm_roclog and pbm_prlog are equivalent to pbm_roc and pbm_log
-RETAINED_METRICS = [
-  :combined, :chipseq_ROC, :affiseq_ROC, :selex_ROC, :pbm_combined,
-  :affiseq_IVT_ROC, :affiseq_Lysate_ROC, :selex_IVT_ROC, :selex_Lysate_ROC,
-  :pbm_asis, :pbm_log, :pbm_exp, :pbm_roc, :pbm_pr,
+BASIC_RETAINED_METRICS = [
+  :chipseq_ROC,
+  :affiseq_IVT_ROC, :affiseq_Lysate_ROC,
+  :selex_IVT_ROC, :selex_Lysate_ROC,
+  :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
+  :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr,
 ]
-
+  # :combined, :affiseq_ROC, :selex_ROC, :pbm_combined,
+  # :affiseq_IVT_ROC, :affiseq_Lysate_ROC, :selex_IVT_ROC, :selex_Lysate_ROC,
 METRIC_COMBINATIONS = {
   combined: {
     chipseq_ROC: true,
@@ -76,7 +79,7 @@ all_metric_infos = [
     }
   }
 }.select{|info|
-  RETAINED_METRICS.include?(info[:metric_name])
+  BASIC_RETAINED_METRICS.include?(info[:metric_name])
 }
 
 module Enumerable
@@ -94,6 +97,21 @@ def product_mean(values)
   values.size == 0 ? nil : values.inject(1.0, &:*) ** (1.0 / values.size)
 end
 
+# def combine_metrics(tree, leaf_block: ->(k,v){puts "leaf #{x}"; x}, combine_block: ->(tree){ puts "combine #{tree}"; tree })
+#   p tree
+#   if tree.size == 1
+#     k = tree.keys.first
+#     v = tree[k]
+#     return leaf_block.call(k,v)  if !v.is_a?(Enumerable)
+#   end
+#   # raise  unless block_given?
+#   tree_combined = tree.map{|parent, child|
+#     combine_metrics(child, leaf_block: leaf_block, combine_block: combine_block)
+#   }.to_h
+#   combine_block.call(tree_combined)
+# end
+# combine_metrics(METRIC_COMBINATIONS)
+
 motif_metrics_combined = all_metric_infos.group_by{|info|
   info[:tf]
 }.flat_map{|tf, tf_metrics|
@@ -106,7 +124,7 @@ motif_metrics_combined = all_metric_infos.group_by{|info|
       info[:dataset]
     }.each{|dataset, infos|
       infos.rank_by(order: :large_better, start_with: 1){|info| info[:value] }.each{|rank, info|
-        motif_ranks[ info[:motif] ] << {dataset: info[:dataset], rank: rank}
+        motif_ranks[ info[:motif] ] << {dataset: info[:dataset], rank: rank, value: info[:value]}
       }
     }
     
@@ -117,7 +135,7 @@ motif_metrics_combined = all_metric_infos.group_by{|info|
       agg_rank
     }.map{|motif, rank_infos, agg_rank|
       rank_details = rank_infos.map{|info| "#{info[:dataset]}: #{info[:rank]}" }.join(', ')
-      {tf: tf, metric_name: metric_name, motif: motif, dataset_combined_rank: agg_rank, rank_details: rank_details}
+      {tf: tf, metric_name: metric_name, motif: motif, dataset_combined_rank: agg_rank, rank_details: rank_details, rank_infos: rank_infos}
     }
   }
 }
@@ -133,24 +151,16 @@ File.open('results/metrics.tsv', 'w') do |fw|
   }
 end
 
-# def combine_metrics(motif_ranks, combination, &block)
-#   raise  unless block_given?
-#   combination.map{|resulting_metric, incoming_metrics|
-#     return motif_ranks[incoming_metrics]  if incoming_metrics == true
-#     incoming_metrics.map{|metric|
-      
-#     }
-#   }
-#   motif_ranks.merge()
-
-# end
-
 motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat_map{|tf, tf_infos|
   tf_infos.group_by{|info| info[:motif] }.map{|motif, motif_infos|
     motif_ranks = motif_infos.map{|info|
       [info[:metric_name], info[:dataset_combined_rank]]
     }.to_h
     combined_rank = product_mean(motif_ranks.values.compact)
+
+    motif_values = motif_infos.map{|info|
+      [info[:metric_name], info[:rank_infos].map{|rank_info| rank_info[:value] }]
+    }.to_h
     ## METRIC_COMBINATIONS.each
 
 
@@ -160,17 +170,25 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     motif_ranks[:pbm_qn_zscore] = product_mean(motif_ranks.values_at(:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr).compact)
     motif_ranks[:pbm_combined] = product_mean(motif_ranks.values_at(:pbm_sd_qn, :pbm_qn_zscore).compact)
     motif_ranks[:combined] = product_mean(motif_ranks.values_at(:chipseq_ROC, :affiseq_ROC, :selex_ROC, :pbm_combined).compact)
-    [tf, motif, motif_ranks]
+
+    motif_values[:affiseq_ROC] = motif_values.values_at(:affiseq_IVT_ROC, :affiseq_Lysate_ROC).flatten
+    motif_values[:selex_ROC] = motif_values.values_at(:selex_IVT_ROC, :selex_Lysate_ROC).flatten
+    motif_values[:pbm_sd_qn] = motif_values.values_at(:pbm_sd_qn_roc).flatten # :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, , :pbm_sd_qn_pr
+    motif_values[:pbm_qn_zscore] = motif_values.values_at(:pbm_qn_zscore_roc).flatten # :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_pr)
+    motif_values[:pbm_combined] = motif_values.values_at(:pbm_sd_qn, :pbm_qn_zscore).flatten
+    motif_values[:combined] = motif_values.values_at(:chipseq_ROC, :affiseq_ROC, :selex_ROC, :pbm_combined).flatten
+    
+    [tf, motif, motif_ranks, motif_values]
   }
 }
 
-motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks|
+motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks, motif_values|
   tf
 }.sort.flat_map{|tf, tf_metrics|
-  tf_metrics.rank_by(order: :small_better, start_with: 1){|tf, motif, motif_ranks|
+  tf_metrics.rank_by(order: :small_better, start_with: 1){|tf, motif, motif_ranks, motif_values|
     motif_ranks[:combined]
-  }.map{|overall_rank, (tf, motif, motif_ranks)|
-    [tf, motif, overall_rank, motif_ranks]
+  }.map{|overall_rank, (tf, motif, motif_ranks, motif_values)|
+    [tf, motif, overall_rank, motif_ranks, motif_values]
   }
 }
 
@@ -185,14 +203,14 @@ File.open('results/motif_metrics.tsv', 'w'){|fw|
   header = ['tf', 'motif', 'rank_overall', *metrics_order.map{|metric| "rank_#{metric}"} ]
   fw.puts(header.join("\t"))
 
-  motif_rankings.each{|tf, motif, overall_rank, motif_ranks|
+  motif_rankings.each{|tf, motif, overall_rank, motif_ranks, motif_values|
     row = [tf, motif, overall_rank, motif_ranks.values_at(*metrics_order).map{|x| x&.round(2) }]
     fw.puts(row.join("\t"))
   }
 }
 
 
-winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks|
+winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
   overall_rank == 1
 }.map{|tf, motif, *rest|
   motif.match(/\w+@\w+/)[0]
@@ -235,14 +253,18 @@ metrics_order.each{|metric_name|
     </tr></thead><tbody>
     EOS
 
-    motif_rankings.select{|tf, motif, overall_rank, ranks|
+    motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
       ranks[metric_name]
-    }.each{|tf, motif, overall_rank, ranks|
+    }.each{|tf, motif, overall_rank, ranks, motif_values|
       motif_bn = File.basename(motif, File.extname(motif))
       fw.puts '<tr>'
       motif_metric_infos = motif_metrics_subset.select{|info| info[:motif] == motif }
-      vals = motif_metric_infos.map{|info| info[:value] }
-      row = [tf, overall_rank, ranks[metric_name], "#{vals.mean&.round(2)} ± #{vals.stddev&.round(2)}", "<img src='../../logo/#{motif_bn}.png' />", motif]
+      if BASIC_RETAINED_METRICS.include?(metric_name)
+        vals = motif_metric_infos.map{|info| info[:value] }
+      else
+        vals = motif_values[metric_name].compact
+      end
+      row = [tf, overall_rank, ranks[metric_name].round(2), vals.size >= 2 ? "#{vals.mean&.round(2)} ± #{vals.stddev&.round(2)}" : vals.mean&.round(2), "<img src='../../logo/#{motif_bn}.png' />", motif]
       fw.puts row.map{|x| "<td>#{x}</td>" }.join
       fw.puts '</tr>'
     }
