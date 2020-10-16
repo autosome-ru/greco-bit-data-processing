@@ -42,7 +42,7 @@ FileUtils.mkdir_p(results_folder)
   FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/ppm/mihaialbu/")
 }
 
-['pbm', 'chipseq', 'affiseq_IVT', 'affiseq_Lysate'].each{|dataset_type|
+['pbm', 'chipseq', 'affiseq_IVT', 'affiseq_Lysate', 'selex_IVT', 'selex_Lysate'].each{|dataset_type|
   FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/ppm/jangrau/")
 }
 
@@ -56,6 +56,7 @@ FileUtils.mkdir_p(results_folder)
   FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/pcm/pavelkrav/")
 }
 
+FileUtils.mkdir_p("#{results_folder}/source_data/chipseq/pcm/oriol/")
 FileUtils.mkdir_p("#{results_folder}/source_data/pbm/pcm/vorontsovie/")
 
 ###################
@@ -76,6 +77,18 @@ Dir.glob("/home_local/jangrau/ppms/affiseq_Lysate/*.ppm").each{|fn|
   dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle')
   rename_motif(fn, "#{results_folder}/affiseq_Lysate/ppm/#{dst_bn}")
   rename_motif(fn, "#{results_folder}/source_data/affiseq_Lysate/ppm/jangrau/#{dst_bn}")
+}
+
+Dir.glob("/home_local/jangrau/ppms/selex/IVT/ppms/*.ppm").each{|fn|
+  dst_bn = File.basename(fn)
+  rename_motif(fn, "#{results_folder}/selex_IVT/ppm/#{dst_bn}")
+  rename_motif(fn, "#{results_folder}/source_data/selex_IVT/ppm/jangrau/#{dst_bn}")
+}
+
+Dir.glob("/home_local/jangrau/ppms/selex/Lysate/ppms/*.ppm").each{|fn|
+  dst_bn = File.basename(fn)
+  rename_motif(fn, "#{results_folder}/selex_Lysate/ppm/#{dst_bn}")
+  rename_motif(fn, "#{results_folder}/source_data/selex_Lysate/ppm/jangrau/#{dst_bn}")
 }
 
 # missing suffix {spatialDetrend_quantNorm,quantNorm_zscore} of pbm preprocessing subtype (came from an error in previous version of source files)
@@ -165,26 +178,27 @@ Dir.glob("/home_local/mihaialbu/Codebook/ppms/pbm/*.train.Zscore.ppm").each{|fn|
   rename_motif(fn, "#{results_folder}/source_data/pbm/ppm/mihaialbu/#{dst_bn}")
 }
 
-['selex_Lysate', 'selex_IVT'].each do |selex_type|
-  # seqAjolmaAutoseed / BEESEM_KL in the same folder.
-  # no model name (BEESEM_KL)
-  # no separation of tool and model name (seqAjolmaAutoseed)
-
-  # We drop these Autoseed occurences as they are already included in Arttu's data
-  # Dir.glob("/home_local/mihaialbu/Codebook/ppms/#{selex_type}/*.train.seqAjolmaAutoseed*.ppm").each{|fn|
-  #   bn = basename_wo_ext(fn)
-  #   m = bn.match(/^(?<prefix>.*)\.train\.seqAjolmaAutoseed_(?<model_name>.+)$/)
-  #   dst_bn = "#{m[:prefix]}.train.Autoseed@Codebook.#{m[:model_name]}.ppm"
-  #   rename_motif(fn, "#{results_folder}/#{selex_type}/ppm/#{dst_bn}")
-  #   rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/ppm/mihaialbu/#{dst_bn}")
-  # }
-
-  Dir.glob("/home_local/mihaialbu/Codebook/ppms/#{selex_type}/*.train.BEESEM_KL.ppm").each{|fn| # seqAjolmaAutoseed / BEESEM_KL in the same folder
-    dst_bn = File.basename(fn).sub('BEESEM_KL', 'BEESEM_KL@Codebook.model1')
-    rename_motif(fn, "#{results_folder}/#{selex_type}/ppm/#{dst_bn}")
-    rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/ppm/mihaialbu/#{dst_bn}")
-  }
-end
+# # Excluded, subset of Arttu's results
+# ['selex_Lysate', 'selex_IVT'].each do |selex_type|
+#  # seqAjolmaAutoseed / BEESEM_KL in the same folder.
+#  # no model name (BEESEM_KL)
+#  # no separation of tool and model name (seqAjolmaAutoseed)
+#
+#  # We drop these Autoseed occurences as they are already included in Arttu's data
+#  # Dir.glob("/home_local/mihaialbu/Codebook/ppms/#{selex_type}/*.train.seqAjolmaAutoseed*.ppm").each{|fn|
+#  #   bn = basename_wo_ext(fn)
+#  #   m = bn.match(/^(?<prefix>.*)\.train\.seqAjolmaAutoseed_(?<model_name>.+)$/)
+#  #   dst_bn = "#{m[:prefix]}.train.Autoseed@Codebook.#{m[:model_name]}.ppm"
+#  #   rename_motif(fn, "#{results_folder}/#{selex_type}/ppm/#{dst_bn}")
+#  #   rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/ppm/mihaialbu/#{dst_bn}")
+#  # }
+#
+#  Dir.glob("/home_local/mihaialbu/Codebook/ppms/#{selex_type}/*.train.BEESEM_KL.ppm").each{|fn| # seqAjolmaAutoseed / BEESEM_KL in the same folder
+#    dst_bn = File.basename(fn).sub('BEESEM_KL', 'BEESEM_KL@Codebook.model1')
+#    rename_motif(fn, "#{results_folder}/#{selex_type}/ppm/#{dst_bn}")
+#    rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/ppm/mihaialbu/#{dst_bn}")
+#  }
+# end
 
 # incorrect header
 ['affiseq_Lysate', 'affiseq_IVT'].each do |affiseq_type|
@@ -203,4 +217,13 @@ Dir.glob("/home_local/mihaialbu/Codebook/ppms/chipseq/*.train.*.ppm").each{|fn|
   dst_bn = "#{m[:prefix]}.train.#{m[:tool]}@Codebook.#{m[:model_name]}.ppm"
   rename_motif(fn, "#{results_folder}/chipseq/ppm/#{dst_bn}") # it will fix header
   rename_motif(fn, "#{results_folder}/source_data/chipseq/ppm/mihaialbu/#{dst_bn}") # it will fix header
+}
+
+
+Dir.glob("/home_local/ofornes/JASPAR-MoDisco/results/pcms/chipseq/*.train.*.pcm").each{|fn|
+  bn = File.basename(fn)
+  m = bn.match(/^(?<prefix>.*)\.train\.JASPAR-MoDisco\.(?<model_name>.+)\.pcm$/)
+  dst_bn = "#{m[:prefix]}.train.oriol@jaspar.#{m[:model_name]}.pcm"
+  rename_motif(fn, "#{results_folder}/chipseq/pcm/#{dst_bn}") # it will fix header
+  rename_motif(fn, "#{results_folder}/source_data/chipseq/pcm/oriol/#{dst_bn}") # it will fix header
 }
