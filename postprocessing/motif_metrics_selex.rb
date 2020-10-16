@@ -1,6 +1,14 @@
 require 'fileutils'
+require 'optparse'
 
 Signal.trap("PIPE", "EXIT")
+
+top_fraction = 0.1
+option_parser = OptionParser.new{|opts|
+  opts.on('--fraction X', "Take top X sequences"){|val|
+    top_fraction = Float(val)
+  }
+}
 
 DATA_PATH = '/home_local/vorontsovie/greco-data/release_3.2020-08-08/'
 
@@ -56,7 +64,7 @@ tfs.each{|tf|
         " --volume #{dataset_fq}:/seq.fastq.gz:ro " \
         " --volume #{motif}:/motif#{ext}:ro " \
         " vorontsovie/pwmeval_selex:1.0.0 " \
-        " --seq-length 40 --non-redundant --top 0.1 --bin 1000 " \
+        " --seq-length 40 --non-redundant --top #{top_fraction} --bin 1000 " \
         " --pseudo-weight 0.0001 --flank-5 #{flank_5} --flank-3 #{flank_3} " \
         " --seed 1 "
       puts cmd_2
