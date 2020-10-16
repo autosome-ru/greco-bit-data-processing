@@ -46,7 +46,7 @@ tfs.each{|tf|
         " --security-opt apparmor=unconfined " \
         " --volume #{dataset_txt}:/pbm_data.txt:ro " \
         " --volume #{motif}:/motif#{ext}:ro " \
-        " vorontsovie/pwmbench_pbm:1.2.1 " \
+        " vorontsovie/pwmbench_pbm:1.3.0 " \
         " all /pbm_data.txt /motif#{ext} "
       puts cmd_2
     }
