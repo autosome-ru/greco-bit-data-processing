@@ -37,25 +37,16 @@ datasets_by_tf = validation_datasets.group_by{|fn|
 tfs = motifs_by_tf.keys & datasets_by_tf.keys
 tfs.each{|tf|
   datasets_by_tf[tf].each{|dataset|
-
-#     dataset_narrowPeak = dataset
-    dataset_bn = File.basename(dataset)
-    dataset_intervals = File.absolute_path("./tmp/#{dataset_bn}")
-
-    #cmd_1 = "cat #{dataset} | tail -n+2 | sort -k5,5nr | head -500 > #{dataset_narrowPeak}"
-    cmd_1 = "cat #{dataset} | tail -n+2 > #{dataset_intervals}"
-    system(cmd_1)
-
     motifs_by_tf[tf].each{|motif|
       ext = File.extname(motif)
       cmd_2 = "echo -ne #{dataset.shellescape}'\\t'#{motif.shellescape}'\\t'; " \
         "docker run --rm " \
         " --security-opt apparmor=unconfined " \
         " --volume #{ASSEMBLY_PATH.shellescape}:/assembly " \
-        " --volume #{dataset_intervals.shellescape}:/peaks.bed:ro " \
+        " --volume #{dataset.shellescape}:/peaks:ro " \
         " --volume #{motif.shellescape}:/motif#{ext}:ro " \
-        " vorontsovie/motif_pseudo_roc:console_v1.0.0.test " \
-        " --assembly-name hg38  --bed; "
+        " vorontsovie/motif_pseudo_roc:v2.0.0 " \
+        " --assembly-name hg38  --bed --peak-format 1,2,3,summit:abs:4; "
       puts cmd_2
     }
   }
