@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 mkdir -p results
-DATA_FOLDER='/home_local/vorontsovie/greco-data/release_3.2020-08-30'
-MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_4.2020-10-20'
+DATA_FOLDER='/home_local/vorontsovie/greco-data/release_3.2020-08-08'
+MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_4.2020-10-20/all'
 
 ruby motif_metrics_pbm.rb  ${DATA_FOLDER}  ${MOTIFS_FOLDER}  | parallel > results/pbm_metrics.txt
 ruby motif_metrics_selex.rb  ${DATA_FOLDER}  ${MOTIFS_FOLDER}  --fraction 0.1 | parallel > results/selex_0.1_metrics.txt
