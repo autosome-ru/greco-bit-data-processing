@@ -4,6 +4,12 @@ def basename_wo_ext(fn)
   File.basename(fn, File.extname(fn))
 end
 
+def rename_motif_copies(src_filename, dst_filenames, transpose: false)
+  dst_filenames.each{|dst_filename|
+    rename_motif(src_filename, dst_filename, transpose: transpose)
+  }
+end
+
 def rename_motif(src_filename, dst_filename, transpose: false)
   new_motif_name = basename_wo_ext(dst_filename)
   lines = File.readlines(src_filename).map(&:chomp)
@@ -29,74 +35,75 @@ end
 # filename = ARGV[0]
 # new_filename = ARGV[1]
 
-results_folder = '/home_local/vorontsovie/greco-motifs/release_3_motifs_2020-08-30'
+results_folder = File.absolute_path(ARGV[0]) # '/home_local/vorontsovie/greco-motifs/release_3_motifs_2020-08-30'
+
 FileUtils.mkdir_p(results_folder)
 ['pbm', 'chipseq', 'affiseq_IVT', 'affiseq_Lysate', 'selex_IVT', 'selex_Lysate'].each{|dataset_type|
   ['pcm', 'ppm'].each{|motif_type|
-    FileUtils.mkdir_p("#{results_folder}/#{dataset_type}/#{motif_type}")
-    FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/#{motif_type}/")
+    FileUtils.mkdir_p("#{results_folder}/by_experiment/#{dataset_type}/#{motif_type}")
+    FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/#{motif_type}/")
   }
 }
 
 ['pbm', 'chipseq', 'affiseq_IVT', 'affiseq_Lysate', 'selex_IVT', 'selex_Lysate'].each{|dataset_type|
-  FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/ppm/mihaialbu/")
+  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/ppm/mihaialbu/")
 }
 
 ['pbm', 'chipseq', 'affiseq_IVT', 'affiseq_Lysate', 'selex_IVT', 'selex_Lysate'].each{|dataset_type|
-  FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/ppm/jangrau/")
+  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/ppm/jangrau/")
 }
 
 ['selex_IVT', 'selex_Lysate'].each{|dataset_type|
-  FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/ppm/pbucher/")
-  FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/pcm/arsen_l/") # philipp's protocol reimplementation
-  FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/ppm/ajolma/")  # arsen_l splitted ajolma motifs from a single file
+  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/ppm/pbucher/")
+  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/pcm/arsen_l/") # philipp's protocol reimplementation
+  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/ppm/ajolma/")  # arsen_l splitted ajolma motifs from a single file
 }
 
 ['chipseq', 'affiseq_IVT', 'affiseq_Lysate'].each{|dataset_type|
-  FileUtils.mkdir_p("#{results_folder}/source_data/#{dataset_type}/pcm/pavelkrav/")
+  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/pcm/pavelkrav/")
 }
 
-FileUtils.mkdir_p("#{results_folder}/source_data/chipseq/pcm/oriol/")
-FileUtils.mkdir_p("#{results_folder}/source_data/pbm/pcm/vorontsovie/")
+FileUtils.mkdir_p("#{results_folder}/by_source/chipseq/pcm/oriol/")
+FileUtils.mkdir_p("#{results_folder}/by_source/pbm/pcm/vorontsovie/")
 
 ###################
 
 # Here files are ok
 Dir.glob("/home_local/jangrau/ppms/chipseq/*.ppm").each{|fn|
   dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle')
-  rename_motif(fn, "#{results_folder}/chipseq/ppm/#{dst_bn}")
-  rename_motif(fn, "#{results_folder}/source_data/chipseq/ppm/jangrau/#{dst_bn}")
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/chipseq/ppm/#{dst_bn}",
+                           "#{results_folder}/by_source/chipseq/ppm/jangrau/#{dst_bn}",])
 }
 
 Dir.glob("/home_local/jangrau/ppms/affiseq_IVT/*.ppm").each{|fn|
   dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle')
-  rename_motif(fn, "#{results_folder}/affiseq_IVT/ppm/#{dst_bn}")
-  rename_motif(fn, "#{results_folder}/source_data/affiseq_IVT/ppm/jangrau/#{dst_bn}")
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/affiseq_IVT/ppm/#{dst_bn}",
+                           "#{results_folder}/by_source/affiseq_IVT/ppm/jangrau/#{dst_bn}",])
 }
 Dir.glob("/home_local/jangrau/ppms/affiseq_Lysate/*.ppm").each{|fn|
   dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle')
-  rename_motif(fn, "#{results_folder}/affiseq_Lysate/ppm/#{dst_bn}")
-  rename_motif(fn, "#{results_folder}/source_data/affiseq_Lysate/ppm/jangrau/#{dst_bn}")
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/affiseq_Lysate/ppm/#{dst_bn}",
+                           "#{results_folder}/by_source/affiseq_Lysate/ppm/jangrau/#{dst_bn}",])
 }
 
 Dir.glob("/home_local/jangrau/ppms/selex/IVT/ppms/*.ppm").each{|fn|
   dst_bn = File.basename(fn)
-  rename_motif(fn, "#{results_folder}/selex_IVT/ppm/#{dst_bn}")
-  rename_motif(fn, "#{results_folder}/source_data/selex_IVT/ppm/jangrau/#{dst_bn}")
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/selex_IVT/ppm/#{dst_bn}",
+                           "#{results_folder}/by_source/selex_IVT/ppm/jangrau/#{dst_bn}",])
 }
 
 Dir.glob("/home_local/jangrau/ppms/selex/Lysate/ppms/*.ppm").each{|fn|
   dst_bn = File.basename(fn)
-  rename_motif(fn, "#{results_folder}/selex_Lysate/ppm/#{dst_bn}")
-  rename_motif(fn, "#{results_folder}/source_data/selex_Lysate/ppm/jangrau/#{dst_bn}")
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/selex_Lysate/ppm/#{dst_bn}",
+                           "#{results_folder}/by_source/selex_Lysate/ppm/jangrau/#{dst_bn}",])
 }
 
 # missing suffix {spatialDetrend_quantNorm,quantNorm_zscore} of pbm preprocessing subtype (came from an error in previous version of source files)
 ['spatialDetrend_quantNorm', 'quantNorm_zscore'].each do |pbm_subtype|
   Dir.glob("/home_local/jangrau/ppms/pbm/#{pbm_subtype}/*.pbm.train.*.ppm").each{|fn|
     dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle').sub('.pbm.', ".#{pbm_subtype}.pbm.")
-    rename_motif(fn, "#{results_folder}/pbm/ppm/#{dst_bn}")
-    rename_motif(fn, "#{results_folder}/source_data/pbm/ppm/jangrau/#{dst_bn}")
+    rename_motif_copies(fn, ["#{results_folder}/by_experiment/pbm/ppm/#{dst_bn}",
+                             "#{results_folder}/by_source/pbm/ppm/jangrau/#{dst_bn}",])
   }
 end
 
@@ -104,8 +111,8 @@ end
 ['spatialDetrend_quantNorm', 'quantNorm_zscore'].each do |pbm_subtype|
   Dir.glob("/home_local/vorontsovie/greco_pbm/release_3_motifs/#{pbm_subtype}/pcms/*.pcm").each{|fn|
     dst_bn = File.basename(fn).sub('chipmunk', 'ChIPMunk@VIGG')
-    rename_motif(fn, "#{results_folder}/pbm/pcm/#{dst_bn}")
-    rename_motif(fn, "#{results_folder}/source_data/pbm/pcm/vorontsovie/#{dst_bn}")
+    rename_motif_copies(fn, ["#{results_folder}/by_experiment/pbm/pcm/#{dst_bn}",
+                             "#{results_folder}/by_source/pbm/pcm/vorontsovie/#{dst_bn}",])
   }
 end
 
@@ -116,8 +123,8 @@ end
     m = bn.match(/^(?<prefix>.*)\.selex\.train\.meme\.(?<model_name>.+)$/)
     model_name = m[:model_name].split('.').join('_')
     dst_bn = "#{m[:prefix]}.selex.train.MEME@SIB.#{model_name}.ppm"
-    rename_motif(fn, "#{results_folder}/#{selex_type}/ppm/#{dst_bn}")
-    rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/ppm/pbucher/#{dst_bn}")
+    rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/ppm/#{dst_bn}",
+                             "#{results_folder}/by_source/#{selex_type}/ppm/pbucher/#{dst_bn}",])
   }
 }
 
@@ -125,15 +132,17 @@ end
 Dir.glob("/home_local/pavelkrav/pcms/chipseq/*.train.*.pcm").each{|fn|
   # ZNF35.IVT.Cycle3.PEAKS991110.affiseq.train.unified.109seq_25to7_m1.pcm
   dst_bn = File.basename(fn).sub('unified', 'ChIPMunk@VIGG')
-  rename_motif(fn, "#{results_folder}/chipseq/pcm/#{dst_bn}", transpose: true)
-  rename_motif(fn, "#{results_folder}/source_data/chipseq/pcm/pavelkrav/#{dst_bn}", transpose: true)
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/chipseq/pcm/#{dst_bn}",
+                           "#{results_folder}/by_source/chipseq/pcm/pavelkrav/#{dst_bn}"],
+                transpose: true)
 }
 
 ['affiseq_Lysate', 'affiseq_IVT'].each do |affiseq_type|
   Dir.glob("/home_local/pavelkrav/pcms/affiseq/#{affiseq_type}/*.train.*.pcm").each{|fn|
     dst_bn = File.basename(fn).sub('unified', 'ChIPMunk@VIGG')
-    rename_motif(fn, "#{results_folder}/#{affiseq_type}/pcm/#{dst_bn}", transpose: true)
-    rename_motif(fn, "#{results_folder}/source_data/#{affiseq_type}/pcm/pavelkrav/#{dst_bn}", transpose: true)
+    rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{affiseq_type}/pcm/#{dst_bn}",
+                             "#{results_folder}/by_source/#{affiseq_type}/pcm/pavelkrav/#{dst_bn}"],
+                  transpose: true)
   }
 end
 
@@ -149,8 +158,8 @@ Dir.glob("/home_local/arsen_l/greco-bit/motifs/selex/pcms/*.train.*.pcm").each{|
   else
     raise
   end
-  rename_motif(fn, "#{results_folder}/#{selex_type}/pcm/#{bn}")
-  rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/pcm/arsen_l/#{bn}")
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/pcm/#{bn}",
+                           "#{results_folder}/by_source/#{selex_type}/pcm/arsen_l/#{bn}",])
 }
 
 # no separation of selex_IVT/selex_Lysate
@@ -166,16 +175,16 @@ Dir.glob("/home_local/arsen_l/greco-bit/motifs/ajolma/ppms/*.train.*.ppm").each{
     raise
   end
   dst_bn = "#{m[:prefix]}.selex.train.Autoseed@Codebook.#{m[:model_name]}.ppm"
-  rename_motif(fn, "#{results_folder}/#{selex_type}/ppm/#{dst_bn}")
-  rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/ppm/ajolma/#{dst_bn}")
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/ppm/#{dst_bn}",
+                           "#{results_folder}/by_source/#{selex_type}/ppm/ajolma/#{dst_bn}",])
 }
 
 # no model name
 Dir.glob("/home_local/mihaialbu/Codebook/ppms/pbm/*.train.Zscore.ppm").each{|fn| # here .val. motifs also exist
   bn = File.basename(fn)
   dst_bn = bn.sub('Zscore', 'PBMZscore@Codebook.model1')
-  rename_motif(fn, "#{results_folder}/pbm/ppm/#{dst_bn}")
-  rename_motif(fn, "#{results_folder}/source_data/pbm/ppm/mihaialbu/#{dst_bn}")
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/pbm/ppm/#{dst_bn}",
+                           "#{results_folder}/by_source/pbm/ppm/mihaialbu/#{dst_bn}",])
 }
 
 # # Excluded, subset of Arttu's results
@@ -189,14 +198,14 @@ Dir.glob("/home_local/mihaialbu/Codebook/ppms/pbm/*.train.Zscore.ppm").each{|fn|
 #  #   bn = basename_wo_ext(fn)
 #  #   m = bn.match(/^(?<prefix>.*)\.train\.seqAjolmaAutoseed_(?<model_name>.+)$/)
 #  #   dst_bn = "#{m[:prefix]}.train.Autoseed@Codebook.#{m[:model_name]}.ppm"
-#  #   rename_motif(fn, "#{results_folder}/#{selex_type}/ppm/#{dst_bn}")
-#  #   rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/ppm/mihaialbu/#{dst_bn}")
+#  # rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/ppm/#{dst_bn}",
+#  #                          "#{results_folder}/by_source/#{selex_type}/ppm/mihaialbu/#{dst_bn}",])
 #  # }
 #
 #  Dir.glob("/home_local/mihaialbu/Codebook/ppms/#{selex_type}/*.train.BEESEM_KL.ppm").each{|fn| # seqAjolmaAutoseed / BEESEM_KL in the same folder
 #    dst_bn = File.basename(fn).sub('BEESEM_KL', 'BEESEM_KL@Codebook.model1')
-#    rename_motif(fn, "#{results_folder}/#{selex_type}/ppm/#{dst_bn}")
-#    rename_motif(fn, "#{results_folder}/source_data/#{selex_type}/ppm/mihaialbu/#{dst_bn}")
+#    rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/ppm/#{dst_bn}",
+#                             "#{results_folder}/by_source/#{selex_type}/ppm/mihaialbu/#{dst_bn}",])
 #  }
 # end
 
@@ -206,8 +215,8 @@ Dir.glob("/home_local/mihaialbu/Codebook/ppms/pbm/*.train.Zscore.ppm").each{|fn|
     bn = File.basename(fn)
     m = bn.match(/^(?<prefix>.*)\.train\.(?<tool>[^.]+)\.(?<model_name>.+).ppm$/)
     dst_bn = "#{m[:prefix]}.train.#{m[:tool]}@Codebook.#{m[:model_name]}.ppm"
-    rename_motif(fn, "#{results_folder}/#{affiseq_type}/ppm/#{dst_bn}") # it will fix header
-    rename_motif(fn, "#{results_folder}/source_data/#{affiseq_type}/ppm/mihaialbu/#{dst_bn}") # it will fix header
+    rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{affiseq_type}/ppm/#{dst_bn}",
+                             "#{results_folder}/by_source/#{affiseq_type}/ppm/mihaialbu/#{dst_bn}"]) # it will fix header
   }
 end
 
@@ -215,8 +224,8 @@ Dir.glob("/home_local/mihaialbu/Codebook/ppms/chipseq/*.train.*.ppm").each{|fn|
   bn = File.basename(fn)
   m = bn.match(/^(?<prefix>.*)\.train\.(?<tool>[^.]+)\.(?<model_name>.+).ppm$/)
   dst_bn = "#{m[:prefix]}.train.#{m[:tool]}@Codebook.#{m[:model_name]}.ppm"
-  rename_motif(fn, "#{results_folder}/chipseq/ppm/#{dst_bn}") # it will fix header
-  rename_motif(fn, "#{results_folder}/source_data/chipseq/ppm/mihaialbu/#{dst_bn}") # it will fix header
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/chipseq/ppm/#{dst_bn}",
+                           "#{results_folder}/by_source/chipseq/ppm/mihaialbu/#{dst_bn}"]) # it will fix header
 }
 
 
@@ -224,6 +233,6 @@ Dir.glob("/home_local/ofornes/JASPAR-MoDisco/results/pcms/chipseq/*.train.*.pcm"
   bn = File.basename(fn)
   m = bn.match(/^(?<prefix>.*)\.train\.JASPAR-MoDisco\.(?<model_name>.+)\.pcm$/)
   dst_bn = "#{m[:prefix]}.train.oriol@jaspar.#{m[:model_name]}.pcm"
-  rename_motif(fn, "#{results_folder}/chipseq/pcm/#{dst_bn}") # it will fix header
-  rename_motif(fn, "#{results_folder}/source_data/chipseq/pcm/oriol/#{dst_bn}") # it will fix header
+  rename_motif_copies(fn, ["#{results_folder}/by_experiment/chipseq/pcm/#{dst_bn}",
+                           "#{results_folder}/by_source/chipseq/pcm/oriol/#{dst_bn}"]) # it will fix header
 }

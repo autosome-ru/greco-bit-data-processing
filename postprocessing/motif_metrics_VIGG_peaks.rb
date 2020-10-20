@@ -3,14 +3,15 @@ require 'shellwords'
 
 Signal.trap("PIPE", "EXIT")
 
+DATA_PATH = File.absolute_path(ARGV[0]) # '/home_local/vorontsovie/greco-data/release_3.2020-08-08/'
+MOTIFS_PATH = File.absolute_path(ARGV[1]) # 'data/all_motifs'
 ASSEMBLY_PATH = '/home_local/vorontsovie/greco-processing/assembly/'
-DATA_PATH = '/home_local/vorontsovie/greco-data/release_3.2020-08-08/'
 
 ## fix bug: different TF names for the same TF (e.g. CxxC4 --> CXXC4, zf-CXXC4 --> CXXC4)
 TF_NAME_MAPPING = File.readlines('tf_name_mapping.txt').map{|l| l.chomp.split("\t") }.to_h
 
-ppms = Dir.glob('data/all_motifs/*.ppm')
-pcms = Dir.glob('data/all_motifs/*.pcm')
+ppms = Dir.glob("#{MOTIFS_PATH}/*.ppm")
+pcms = Dir.glob("#{MOTIFS_PATH}/*.pcm")
 motifs = [ppms, pcms].flatten.map{|fn| File.absolute_path(fn) }
 motifs_by_tf = motifs.group_by{|fn|
   tf = File.basename(fn).split('.').first
