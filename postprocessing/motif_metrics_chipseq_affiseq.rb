@@ -37,13 +37,11 @@ datasets_by_tf = validation_datasets.group_by{|fn|
 tfs = motifs_by_tf.keys & datasets_by_tf.keys
 tfs.each{|tf|
   datasets_by_tf[tf].each{|dataset|
-
-#     dataset_narrowPeak = dataset
     dataset_bn = File.basename(dataset)
     dataset_narrowPeak = File.absolute_path("./tmp/#{dataset_bn}")
 
-    #cmd_1 = "cat #{dataset} | tail -n+2 | sort -k5,5nr | head -500 > #{dataset_narrowPeak}"
-    cmd_1 = "cat #{dataset} | tail -n+2 > #{dataset_narrowPeak}"
+    # 10-th column should be relative summit position
+    cmd_1 = "cat #{dataset} | tail -n+2 | cut -d $'\\t' -f 1-9 | awk -F $'\\t' -e '{print $0 \"\\t\" ($4-$2)}' > #{dataset_narrowPeak}"
     system(cmd_1)
 
     motifs_by_tf[tf].each{|motif|
