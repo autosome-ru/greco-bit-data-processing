@@ -52,7 +52,7 @@ tfs.each{|tf|
         " --volume #{ASSEMBLY_PATH}:/assembly/ " \
         " --volume #{dataset_narrowPeak}:/peaks.narrowPeak:ro " \
         " --volume #{motif}:/motif#{ext}:ro " \
-        " vorontsovie/pwmeval_chipseq:1.0.2 " \
+        " vorontsovie/pwmeval_chipseq:1.0.3 " \
         "  --assembly-name hg38  --top 1000 "
       puts cmd_2
     }
