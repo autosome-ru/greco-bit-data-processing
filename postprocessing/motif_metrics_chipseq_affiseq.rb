@@ -41,7 +41,7 @@ tfs.each{|tf|
     dataset_narrowPeak = File.absolute_path("./tmp/#{dataset_bn}")
 
     # 10-th column should be relative summit position
-    cmd_1 = "cat #{dataset} | tail -n+2 | cut -d $'\\t' -f 1-9 | awk -F $'\\t' -e '{print $0 \"\\t\" ($4-$2)}' > #{dataset_narrowPeak}"
+    cmd_1 = "cat #{dataset} | tail -n+2 | cut -d '\t' -f 1-9 | awk -F '\t' -e '{print $0 \"\\t\" ($4-$2)}' > #{dataset_narrowPeak}"
     system(cmd_1)
 
     motifs_by_tf[tf].each{|motif|
