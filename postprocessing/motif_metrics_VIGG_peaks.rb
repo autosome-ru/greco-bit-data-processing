@@ -47,7 +47,7 @@ tfs.each{|tf|
         " --volume #{dataset.shellescape}:/peaks:ro " \
         " --volume #{motif.shellescape}:/motif#{ext}:ro " \
         " vorontsovie/motif_pseudo_roc:v2.0.0 " \
-        " --assembly-name hg38  --bed --peak-format 1,2,3,summit:abs:4; "
+        " --assembly-name hg38 --peak-format 1,2,3,summit:abs:4; "
       puts cmd_2
     }
   }
