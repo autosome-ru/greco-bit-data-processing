@@ -39,8 +39,7 @@ tfs = motifs_by_tf.keys & datasets_by_tf.keys
 tfs.each{|tf|
   datasets_by_tf[tf].each{|dataset|
     motifs_by_tf[tf].each{|motif|
-      ext = File.extname(motif)
-      cmd = "./run_vigg_metrics #{dataset.shellescape} #{motif.shellescape} #{ASSEMBLY_PATH.shellescape} hg38"
+      cmd = "./run_vigg_metrics.sh #{dataset.shellescape} #{motif.shellescape} #{ASSEMBLY_PATH.shellescape} hg38"
       puts cmd
     }
   }
