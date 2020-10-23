@@ -40,15 +40,8 @@ tfs.each{|tf|
   datasets_by_tf[tf].each{|dataset|
     motifs_by_tf[tf].each{|motif|
       ext = File.extname(motif)
-      cmd_2 = "echo -ne #{dataset.shellescape}'\\t'#{motif.shellescape}'\\t'; " \
-        "docker run --rm " \
-        " --security-opt apparmor=unconfined " \
-        " --volume #{ASSEMBLY_PATH.shellescape}:/assembly " \
-        " --volume #{dataset.shellescape}:/peaks:ro " \
-        " --volume #{motif.shellescape}:/motif#{ext}:ro " \
-        " vorontsovie/motif_pseudo_roc:v2.0.0 " \
-        " --assembly-name hg38 --peak-format 1,2,3,summit:abs:4; "
-      puts cmd_2
+      cmd = "./run_vigg_metrics #{dataset.shellescape} #{motif.shellescape} #{ASSEMBLY_PATH.shellescape} hg38"
+      puts cmd
     }
   }
 }
