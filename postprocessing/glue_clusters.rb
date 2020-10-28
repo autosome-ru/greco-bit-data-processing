@@ -39,7 +39,8 @@ clusters.each_with_index{|cluster, idx|
   puts "Cluster #{idx}: " + cluster.join(' ')
 }; nil
 
-File.open('index.html', 'w') {|fw|
+File.open('clusters.html', 'w') {|fw|
+
   fw.puts <<-EOS
     <html><head><style>img {max-width: 700px;}</style></head><body>
     <table><thead><tr><th width="100px">Cluster</th><th width="700px">Logo</th><th>Motif</th></tr></thead><tbody>
