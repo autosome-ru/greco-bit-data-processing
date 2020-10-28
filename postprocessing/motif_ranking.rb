@@ -209,6 +209,120 @@ File.open('results/motif_metrics.tsv', 'w'){|fw|
   }
 }
 
+File.open('results/motif_metrics.html', 'w'){|fw|
+  header = ['tf', 'motif', 'rank_overall', *metrics_order.map{|metric| "rank_#{metric}"} ]
+  fw.puts <<-EOS
+    <html><head>
+    <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js" integrity="sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/widgets/widget-grouping.min.js" integrity="sha512-6FAqJpQEAS0yk/zE3Wa8XkWkisc4okyOJmmqihmwhZskbzW3Rmuq8z3/c4EEWZtWimY3sK/tCTxgLN9YakO08w==" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.blue.min.css" integrity="sha512-jJ9r3lTLaH5XXa9ZOsCQU8kLvxdAVzyTWO/pnzdZrshJQfnw1oevJFpoyCDr7K1lqt1hUgqoxA5e2PctVtlSTg==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/widget.grouping.min.css" integrity="sha512-BCNF9B5IaHyaQnwYzahHkA0+rM7DAotlTNEdbDvgkVPzqT9sjh/8jqdDUdfG4rSXon4gvjmEHVQu1KjXjek5Zg==" crossorigin="anonymous" />
+    <script>
+    $(function() {
+      $("table.tablesorter").tablesorter({
+        theme: 'blue',
+        widgets: ['zebra', 'group'],
+        widgetOptions: {
+          group_collapsible : true, 
+          group_collapsed   : true,
+          group_saveGroups  : true,
+          group_enforceSort : true,
+          group_callback : function($cell, $rows, column, table) {
+            $cell.find('.group-count').remove();
+            if (column || true) {
+              // callback allowing modification of the group header labels
+              // $cell = current table cell (containing group header cells ".group-name" & ".group-count"
+              // $rows = all of the table rows for the current group; table = current table (DOM)
+              // column = current column being sorted/grouped
+              let group_name = $cell.find('.group-name').text();
+              $cell.html('<i></i><span class="group-name">' + group_name + '</span>')
+            }
+          },
+
+        },
+        sortList: [[0,0], [2,0]] 
+      });
+    });
+    </script>
+    <style>
+    img{max-width: 400px;}
+
+tr.group-header td {
+  background: lightgray;
+  padding: 20px;
+}
+tr.group-header td .group-name {
+  margin-left: 100px;
+}
+td.group-name {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+tr.group-header td {
+  text-transform: uppercase;
+}
+.group-count {
+  color: #999;
+  display: none;
+}
+.group-hidden {
+  display: none;
+}
+.group-header, .group-header td {
+  user-select: none;
+  -moz-user-select: none;
+}
+/* collapsed arrow */
+tr.group-header td {
+  height:35px;
+}
+tr.group-header td i {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid #888;
+  border-right: 4px solid #888;
+  border-left: 4px solid transparent;
+  margin-right: 7px;
+  user-select: none;
+  -moz-user-select: none;
+}
+tr.group-header.collapsed td i {
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #888;
+  border-right: 0;
+  margin-right: 10px;
+}
+
+    </style></head><body>
+    <table class="tablesorter tablesorter-blue"><thead><tr>
+    <th class="group-word">TF</th>
+    <th>logo</th>
+    <th>overall rank</th>
+    EOS
+  metrics_order.each{|metric| fw.puts "<th>#{metric} rank</th>"}
+  fw.puts <<-EOS
+    <th>motif</th>
+    </tr></thead><tbody>
+  EOS
+
+  motif_rankings.each{|tf, motif, overall_rank, motif_ranks, motif_values|
+    motif_bn = File.basename(motif, File.extname(motif))
+    row = [tf, "<img src='../logo/#{motif_bn}.png' />", overall_rank, *motif_ranks.values_at(*metrics_order).map{|x| x&.round(2) }, motif]
+    fw.puts('<tr>' + row.map{|x| "<td>#{x}</td>" }.join + '</tr>')
+  }
+
+  fw.puts <<-EOS
+    </tbody></table>
+    </body></html>
+    EOS
+}
+
+
 
 winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
   overall_rank == 1
@@ -229,6 +343,7 @@ metrics_order.each{|metric_name|
   File.open("results/metrics/#{metric_name}.html", 'w'){|fw|
     fw.puts <<-EOS
     <html><head>
+    <meta charset="utf-8">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js" integrity="sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.blue.min.css" integrity="sha512-jJ9r3lTLaH5XXa9ZOsCQU8kLvxdAVzyTWO/pnzdZrshJQfnw1oevJFpoyCDr7K1lqt1hUgqoxA5e2PctVtlSTg==" crossorigin="anonymous" />
