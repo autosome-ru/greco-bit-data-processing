@@ -17,53 +17,66 @@ TF_NAME_MAPPING = File.readlines('tf_name_mapping.txt').map{|l| l.chomp.split("\
 
 ## fix bug: pbm_roclog and pbm_prlog are equivalent to pbm_roc and pbm_log
 BASIC_RETAINED_METRICS = [
-  :chipseq_ROC,
-  :affiseq_IVT_ROC, :affiseq_Lysate_ROC,
-  :selex_IVT_ROC, :selex_Lysate_ROC,
-  :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
-  :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr,
+  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC,
+  :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC,
+  :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC,
+  :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
+  :selex_50_IVT_ROC, :selex_50_Lysate_ROC,
+  # :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers, :pbm_qn_zscore_logmers,
+  # :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers,
+  :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
+  :pbm_sd_qn_roc, :pbm_sd_qn_pr,
 ]
   # :combined, :affiseq_ROC, :selex_ROC, :pbm_combined,
-  # :affiseq_IVT_ROC, :affiseq_Lysate_ROC, :selex_IVT_ROC, :selex_Lysate_ROC,
-METRIC_COMBINATIONS = {
-  combined: {
-    chipseq_ROC: true,
-    affiseq_ROC: {
-      affiseq_IVT_ROC: true,
-      affiseq_Lysate_ROC: true,
-    },
-    selex_ROC: {
-      selex_IVT_ROC: true,
-      selex_Lysate_ROC: true,
-    },
-    pbm_combined: {
-      pbm_qn_zscore: {
-        pbm_qn_zscore_asis: true,
-        pbm_qn_zscore_log: true,
-        pbm_qn_zscore_exp: true,
-        pbm_qn_zscore_roc: true,
-        pbm_qn_zscore_pr: true,
-      },
-      pbm_sd_qn: {
-        pbm_sd_qn_asis: true,
-        pbm_sd_qn_log: true,
-        pbm_sd_qn_exp: true,
-        pbm_sd_qn_roc: true,
-        pbm_sd_qn_pr: true,
-      }
-    }
-  }
-}
+  # :affiseq_IVT_pwmeval_ROC, :affiseq_Lysate_pwmeval_ROC, :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
+# METRIC_COMBINATIONS = {
+#   combined: {
+#     chipseq_pwmeval_ROC: true,
+#     affiseq_ROC: {
+#       affiseq_IVT_pwmeval_ROC: true,
+#       affiseq_Lysate_pwmeval_ROC: true,
+#     },
+#     selex_ROC: {
+#       selex_10_IVT_ROC: true,
+#       selex_10_Lysate_ROC: true,
+#     },
+#     pbm_combined: {
+#       pbm_qn_zscore: {
+#         pbm_qn_zscore_asis: true,
+#         pbm_qn_zscore_log: true,
+#         pbm_qn_zscore_exp: true,
+#         pbm_qn_zscore_roc: true,
+#         pbm_qn_zscore_pr: true,
+#       },
+#       pbm_sd_qn: {
+#         pbm_sd_qn_asis: true,
+#         pbm_sd_qn_log: true,
+#         pbm_sd_qn_exp: true,
+#         pbm_sd_qn_roc: true,
+#         pbm_sd_qn_pr: true,
+#       }
+#     }
+#   }
+# }
 
 
 all_metric_infos = [
-  ['results/parsed_chipseq_affiseq_metrics.tsv', [:chipseq_ROC], ->(x){ x.match?(/\.chipseq\./) }],
-  ['results/parsed_chipseq_affiseq_metrics.tsv', [:affiseq_IVT_ROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.IVT\./) }],
-  ['results/parsed_chipseq_affiseq_metrics.tsv', [:affiseq_Lysate_ROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.Lysate\./) }],
-  ['results/parsed_selex_metrics.tsv', [:selex_IVT_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.IVT\./) }],
-  ['results/parsed_selex_metrics.tsv', [:selex_Lysate_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.Lysate\./) }],
-  ['results/parsed_pbm_metrics.tsv', [:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr], ->(x){ x.match?(/\.quantNorm_zscore\./) }],
-  ['results/parsed_pbm_metrics.tsv', [:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr], ->(x){ x.match?(/\.spatialDetrend_quantNorm\./) }],
+  ['results/parsed_chipseq_affiseq_metrics.tsv', [:chipseq_pwmeval_ROC], ->(x){ x.match?(/\.chipseq\./) }],
+  ['results/parsed_chipseq_affiseq_metrics.tsv', [:affiseq_IVT_pwmeval_ROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.IVT\./) }],
+  ['results/parsed_chipseq_affiseq_metrics.tsv', [:affiseq_Lysate_pwmeval_ROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.Lysate\./) }],
+
+  ['results/parsed_vigg_peaks_metrics.tsv', [:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/\.chipseq\./) }],
+  ['results/parsed_vigg_peaks_metrics.tsv', [:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.IVT\./) }],
+  ['results/parsed_vigg_peaks_metrics.tsv', [:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.Lysate\./) }],
+
+  ['results/parsed_selex_0.1_metrics.tsv', [:selex_10_IVT_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.IVT\./) }],
+  ['results/parsed_selex_0.1_metrics.tsv', [:selex_10_Lysate_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.Lysate\./) }],
+
+  ['results/parsed_selex_0.5_metrics.tsv', [:selex_50_IVT_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.IVT\./) }],
+  ['results/parsed_selex_0.5_metrics.tsv', [:selex_50_Lysate_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.Lysate\./) }],
+
+  ['results/parsed_pbm_metrics.tsv', [:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers,  :pbm_qn_zscore_logmers], ->(x){ x.match?(/\.quantNorm_zscore\./) }],
+  ['results/parsed_pbm_metrics.tsv', [:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers], ->(x){ x.match?(/\.spatialDetrend_quantNorm\./) }],
 ].flat_map{|fn, metric_names, condition|
   File.readlines(fn).drop(1).flat_map{|l|
     dataset, motif, *values = l.chomp.split("\t")
@@ -95,6 +108,10 @@ end
 
 def product_mean(values)
   values.size == 0 ? nil : values.inject(1.0, &:*) ** (1.0 / values.size)
+end
+
+def basic_stats(vals)
+  (vals.size >= 2) ? "#{vals.mean&.round(2)} ± #{vals.stddev&.round(2)}" : vals.mean&.round(2)
 end
 
 # def combine_metrics(tree, leaf_block: ->(k,v){puts "leaf #{x}"; x}, combine_block: ->(tree){ puts "combine #{tree}"; tree })
@@ -163,20 +180,41 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     }.to_h
     ## METRIC_COMBINATIONS.each
 
-
-    motif_ranks[:affiseq_ROC] = product_mean(motif_ranks.values_at(:affiseq_IVT_ROC, :affiseq_Lysate_ROC).compact)
-    motif_ranks[:selex_ROC] = product_mean(motif_ranks.values_at(:selex_IVT_ROC, :selex_Lysate_ROC).compact)
-    motif_ranks[:pbm_sd_qn] = product_mean(motif_ranks.values_at(:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr).compact)
-    motif_ranks[:pbm_qn_zscore] = product_mean(motif_ranks.values_at(:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr).compact)
+    ################
+    motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).compact)
+    motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).compact)
+    motif_ranks[:affiseq] = product_mean(motif_ranks.values_at(:affiseq_IVT, :affiseq_Lysate).compact)
+    #
+    motif_ranks[:selex_IVT] = product_mean(motif_ranks.values_at(:selex_10_IVT_ROC, :selex_50_IVT_ROC).compact)
+    motif_ranks[:selex_Lysate] = product_mean(motif_ranks.values_at(:selex_10_Lysate_ROC, :selex_50_Lysate_ROC).compact)
+    motif_ranks[:selex] = product_mean(motif_ranks.values_at(:selex_IVT, :selex_Lysate).compact)
+    #
+    motif_ranks[:pbm_sd_qn] = product_mean(motif_ranks.values_at(:pbm_sd_qn_roc, :pbm_sd_qn_pr).compact)
+    motif_ranks[:pbm_qn_zscore] = product_mean(motif_ranks.values_at(:pbm_qn_zscore_roc, :pbm_qn_zscore_pr).compact)
     motif_ranks[:pbm_combined] = product_mean(motif_ranks.values_at(:pbm_sd_qn, :pbm_qn_zscore).compact)
-    motif_ranks[:combined] = product_mean(motif_ranks.values_at(:chipseq_ROC, :affiseq_ROC, :selex_ROC, :pbm_combined).compact)
+    #
+    motif_ranks[:combined] = product_mean(motif_ranks.values_at(:chipseq_ROC, :affiseq, :selex, :pbm_combined).compact)
+    ################
 
-    motif_values[:affiseq_ROC] = motif_values.values_at(:affiseq_IVT_ROC, :affiseq_Lysate_ROC).flatten
-    motif_values[:selex_ROC] = motif_values.values_at(:selex_IVT_ROC, :selex_Lysate_ROC).flatten
-    motif_values[:pbm_sd_qn] = motif_values.values_at(:pbm_sd_qn_roc).flatten # :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, , :pbm_sd_qn_pr
-    motif_values[:pbm_qn_zscore] = motif_values.values_at(:pbm_qn_zscore_roc).flatten # :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_pr)
-    motif_values[:pbm_combined] = motif_values.values_at(:pbm_sd_qn, :pbm_qn_zscore).flatten
-    motif_values[:combined] = motif_values.values_at(:chipseq_ROC, :affiseq_ROC, :selex_ROC, :pbm_combined).flatten
+    ################
+    motif_ranks[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).flatten
+    motif_ranks[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).flatten
+    motif_ranks[:affiseq] = motif_values.values_at(:affiseq_IVT, :affiseq_Lysate).flatten
+    #
+    motif_values[:selex_IVT] = motif_values.values_at(:selex_10_IVT_ROC, :selex_50_IVT_ROC).flatten
+    motif_values[:selex_Lysate] = motif_values.values_at(:selex_10_Lysate_ROC, :selex_50_Lysate_ROC).flatten
+    motif_values[:selex] = motif_values.values_at(:selex_IVT, :selex_Lysate).flatten
+    #
+    motif_values[:pbm_sd_qn_roc] = motif_values.values_at(:pbm_sd_qn_roc).flatten
+    motif_values[:pbm_qn_zscore_roc] = motif_values.values_at(:pbm_qn_zscore_roc).flatten
+    motif_values[:pbm_combined_roc] = motif_values.values_at(:pbm_sd_qn_roc, :pbm_qn_zscore_roc).flatten
+    #
+    motif_values[:pbm_sd_qn_pr] = motif_values.values_at(:pbm_sd_qn_pr).flatten
+    motif_values[:pbm_qn_zscore_pr] = motif_values.values_at(:pbm_qn_zscore_pr).flatten
+    motif_values[:pbm_combined_pr] = motif_values.values_at(:pbm_sd_qn_pr, :pbm_qn_zscore_pr).flatten
+    #
+    # motif_values[:combined] = motif_values.values_at(:chipseq_ROC, :affiseq_ROC, :selex, :pbm_combined).flatten
+    ################
     
     [tf, motif, motif_ranks, motif_values]
   }
@@ -193,8 +231,8 @@ motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks, motif_
 }
 
 metrics_order = [
-  :combined, :chipseq_ROC, :affiseq_ROC, :selex_ROC, :pbm_combined, :pbm_sd_qn, :pbm_qn_zscore,
-  :affiseq_IVT_ROC, :affiseq_Lysate_ROC, :selex_IVT_ROC, :selex_Lysate_ROC,
+  :combined, :chipseq_pwmeval_ROC, :affiseq_ROC, :selex_ROC, :pbm_combined, :pbm_sd_qn, :pbm_qn_zscore,
+  :affiseq_IVT_ROC, :affiseq_Lysate_ROC, :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
   :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, 
   :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, 
 ]
@@ -377,9 +415,18 @@ metrics_order.each{|metric_name|
       if BASIC_RETAINED_METRICS.include?(metric_name)
         vals = motif_metric_infos.map{|info| info[:value] }
       else
-        vals = motif_values[metric_name].compact
+        if [:pbm_combined, :pbm_sd_qn, :pbm_qn_zscore].include?(metric_name)
+          vals_roc = motif_values.fetch("#{metric_name}_roc".to_sym).compact
+          vals_pr = motif_values.fetch("#{metric_name}_pr".to_sym).compact
+          vals_summary = "ROC: #{basic_stats(vals_roc)}; PR: #{basic_stats(vals_pr)}"
+        elsif metric_name == :combined
+          vals_summary = ''
+        else
+          vals = motif_values.fetch(metric_name).compact
+          vals_summary = basic_stats(vals)
+        end
       end
-      row = [tf, overall_rank, ranks[metric_name].round(2), vals.size >= 2 ? "#{vals.mean&.round(2)} ± #{vals.stddev&.round(2)}" : vals.mean&.round(2), "<img src='../../logo/#{motif_bn}.png' />", motif]
+      row = [tf, overall_rank, ranks[metric_name].round(2), vals_summary, "<img src='../../logo/#{motif_bn}.png' />", motif]
       fw.puts row.map{|x| "<td>#{x}</td>" }.join
       fw.puts '</tr>'
     }
