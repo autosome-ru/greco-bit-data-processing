@@ -1,0 +1,54 @@
+TF name	Motifs count	ChIP-Seq datasets	PBM datasets	AffiSeq IVT datasets	AffiSeq Lysate datasets	SELEX IVT datasets	SELEX Lysate datasets	Verdict	Why
+AHCTF1	19	-	Nay	-	-	Nay	-	Nay	Only 2 discordant sources
+AKAP8L	20	-	Yay?	-	-	Nay	-	Nay	Only 2 discordant sources, but PBM motifs seem to be meaningful
+C11orf95	31	Yay	Yay	-	-	Nay	-	Yay	PBM+ChIP-Seq are concordant
+CHAMP1	25	Nay	Nay	-	-	Nay	-	Nay	Discordant motifs
+CXXC4	27	Nay	Yay	-	-	Yay	-	Yay	Discordant motif in ChIP-Seq
+FBXL19	29	Nay	Yay	-	-	Yay	-	Yay	No reasonable motif in ChIP-Seq
+GLI4	45	Yay	-	-	Yay	Nay	Yay	Yay	SELEX IVT failed
+GLYR1	31	Nay	Nay	-	-	Nay	-	Nay	Discordant motifs
+JRK	33	Yay	TBD	-	-	Yay	-	Yay	Truncated motifs in PBM data
+NACC2	29	TBD	Yay	-	-	Yay	-	Yay	Concordant; 2nd ChIP-Seq dataset enriched with repeats
+PHF21A	29	Nay	Nay	-	-	Nay	-	Nay	Discordant motifs
+SETBP1	26	Nay	Nay	-	-	Nay	-	Nay	Discordant motifs
+SGSM2	20	Nay	-	-	-	Nay	-	Nay	Discordant motifs
+SNAI1	57	Nay	-	Yay	Nay	Yay	Nay	Yay	NFI in ChIP-Seq and Lysate data; proper Snail-like motif in IVT
+SP140	26	Nay	Nay	-	-	Nay	-	Nay	Discordant motifs
+SP140L	28	Yay	Yay	-	-	Yay	-	Yay	Fully concordant
+TIGD3	32	Yay	Yay	-	-	Nay	-	Yay	Concodant except SELEX
+TIGD7	27	Nay	Yay?	-	-	Nay	-	Nay	PBM seems to be meaningful but discordant with other sources
+ZBED2	35	Yay	Yay	-	-	Nay	-	Yay	SELEX discordant, others OK
+ZBED4	30	Nay	Nay	-	-	Nay	-	Nay	Discordant motifs
+ZBED5	36	Yay	Yay	-	-	Yay	-	Yay	Fully concordant
+ZBED9	37	Yay?	Nay	-	-	Nay	-	Nay	Untrivial motif in ChIP-Seq, but discordant with other sources
+ZFP28	42	Nay?	-	-	-	Nay	Nay	Nay	Discordant motifs
+ZFP3	66	Yay?	-	Yay?	Yay?	Yay?	Yay?	TBD	Complex case: two different motif subtypes (one found in SELEX-only data), both score well in AffiSeq
+ZIM3	61	Yay	-	-	Yay	Nay	Yay	Yay	Concordant except SELEX IVT
+ZNF121	52	Nay?	-	-	Nay?	Nay?	Nay?	Nay	There are non-trivial motifs but discordant
+ZNF134	68	Yay	-	Nay	Yay	Nay	Yay	Yay	Discordant IVT motifs
+ZNF140	31	Yay	-	-	-	Nay?	-	TBD	Only Autoseed is correct in IVT, and perf.metrics in SELEX favor wrong motifs
+ZNF146	30	Nay	-	Nay	-	Nay	-	Nay	Discordant motifs
+ZNF16	55	-	-	-	Yay	Nay	Yay	TBD	Concordant but only Lysate data
+ZNF18	40	Yay	-	-	Yay	-	Yay	Yay	Concordant
+ZNF189	46	Nay	-	-	Nay	Nay	Nay	Nay	Discordant + NFI
+ZNF22	59	Nay	-	-	Nay	Nay	Nay	Nay	Discordant motifs
+ZNF250	56	Yay	-	-	Yay	Nay	Nay	Yay	Discordant motifs from SELEX
+ZNF260	59	Yay?	-	-	Yay	Nay	Nay?	Nay	Some NFI contamination in SELEX Lysate, weak signal in ChIP-Seq
+ZNF264	50	Yay	-	-	Yay	Nay	Nay	Yay	2 of 4 concordant
+ZNF280A	47	Nay?	-	-	Nay?	Nay?	Nay?	Nay	Unclear: discordant motifs, some similarity in SELEX data
+ZNF30	48	Nay?	-	-	Nay?	Nay?	Nay?	Nay	Weak polyGs and NFI-like
+ZNF317	28	Nay?	-	-	-	Nay	-	Nay	Discordant motifs, alghouth some signal in ChIP-Seq
+ZNF322	52	Yay?	-	-	Yay?	Nay?	Yay?	TBD	Unclear: NFI-like motifs
+ZNF35	77	Yay	-	Yay	Yay	Yay	Yay	Yay	Concordant
+ZNF382	55	Yay?	-	-	Nay	Nay	Nay	Nay	ChIP-Seq are not concordant w. anything
+ZNF384	49	Yay	-	-	Yay	Yay	Yay	Yay	Fully concordant CG+PolyA (like Dmel Hunchback)
+ZNF436	66	Yay	-	Yay	Yay	Nay	Nay	Yay	ChIP-Seq + AffiSeq OK
+ZNF454	38	-	-	-	Nay	Nay?	Nay?	Nay	SELEX motifs are somewhat similar
+ZNF490	49	Nay	-	-	-	Nay	Nay	Nay	Discordant motifs
+ZNF582	44	Yay	-	-	Nay	Nay	Nay	Nay	Only ChIP-Seq OK (IVT failed, Lysate rich in NFI)
+ZNF596	26	Nay?	-	-	Nay?	-	Yay	Nay	GA-repeats in ChIP-Seq and Affi-Seq; nice signal in SELEX IVT
+ZNF708	38	Yay	-	-	Nay	-	Nay	Nay	ChIP-Seq seems OK but no supporting data
+ZNF770	48	Yay?	-	-	Yay	Nay	Yay	Yay	ChIP-Seq metrics are low and highlight noisy motifs
+ZNF8	53	Nay	-	-	Nay	Nay	Nay	Nay	Discordant motifs
+ZNF99	7	Nay	-	-	-	-	-	Nay	Single failed data source
+ZNF997	15	-	-	-	-	-	Yay?	Nay	Single data source
