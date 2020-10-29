@@ -12,22 +12,78 @@ module Enumerable
   end
 end
 
+def treat_status(status)
+  case status
+  when '-'
+    nil
+  when 'Nay'
+    false
+  when 'Yay'
+    true
+  when 'TBD'
+    true  ## To fix
+  end
+end
+
+def read_tfs_curration(filename)
+  File.readlines(filename).drop(1).each_with_object(Hash.new){|l, result|
+    row = l.chomp.split("\t")
+    tf, motifs_count, *verdicts, reason = *row
+
+    chipseq_verdict, pbm_verdict, \
+        affiseq_IVT_verdict, affiseq_Lysate_verdict, \
+        selex_IVT_verdict, selex_Lysate_verdict, \
+        final_verdict = verdicts.map{|val| treat_status(val) }
+    result[tf] = {
+      verdicts: { # If datasets of a certain type passed curration
+        chipseq: chipseq_verdict,
+        affiseq_IVT: affiseq_IVT_verdict,
+        affiseq_Lysate: affiseq_Lysate_verdict,
+        selex_IVT: selex_IVT_verdict,
+        selex_Lysate: selex_Lysate_verdict,
+        pbm: pbm_verdict,
+        final: final_verdict,
+      },
+      motifs_count: Integer(motifs_count),
+      reason: reason,
+    }
+  }
+end
+
 ## fix bug: different TF names for the same TF (e.g. CxxC4 --> CXXC4, zf-CXXC4 --> CXXC4)
 TF_NAME_MAPPING = File.readlines('tf_name_mapping.txt').map{|l| l.chomp.split("\t") }.to_h
 
 ## fix bug: pbm_roclog and pbm_prlog are equivalent to pbm_roc and pbm_log
+METRIC_NAMES_BY_TYPE = {
+  chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC],
+  affiseq_IVT: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC],
+  affiseq_Lysate: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC],
+  selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
+  selex_Lysate: [:selex_10_Lysate_ROC, :selex_50_Lysate_ROC],
+  pbm: [
+    :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
+    :pbm_qn_zscore_mers, :pbm_qn_zscore_logmers,
+    :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr,
+    :pbm_sd_qn_mers, :pbm_sd_qn_logmers,
+  ]
+}
+
+METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
+  metric_names.map{|metric_name| [metric_name, metric_type] }
+}.to_h
+
 BASIC_RETAINED_METRICS = [
   :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC,
   :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC,
   :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC,
-  :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
-  :selex_50_IVT_ROC, :selex_50_Lysate_ROC,
+  :selex_10_IVT_ROC, :selex_50_IVT_ROC,
+  :selex_10_Lysate_ROC, :selex_50_Lysate_ROC,
   # :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers, :pbm_qn_zscore_logmers,
   # :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers,
   :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
   :pbm_sd_qn_roc, :pbm_sd_qn_pr,
 ]
-  # :combined, :affiseq_ROC, :selex_ROC, :pbm_combined,
+  # :combined, :affiseq_ROC, :selex_ROC, :pbm,
   # :affiseq_IVT_pwmeval_ROC, :affiseq_Lysate_pwmeval_ROC, :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
 # METRIC_COMBINATIONS = {
 #   combined: {
@@ -40,7 +96,7 @@ BASIC_RETAINED_METRICS = [
 #       selex_10_IVT_ROC: true,
 #       selex_10_Lysate_ROC: true,
 #     },
-#     pbm_combined: {
+#     pbm: {
 #       pbm_qn_zscore: {
 #         pbm_qn_zscore_asis: true,
 #         pbm_qn_zscore_log: true,
@@ -59,6 +115,7 @@ BASIC_RETAINED_METRICS = [
 #   }
 # }
 
+tfs_curration = read_tfs_curration('data/curation_tfs_vigg.tsv')
 
 all_metric_infos = [
   ['results/parsed_chipseq_affiseq_metrics.tsv', [:chipseq_pwmeval_ROC], ->(x){ x.match?(/\.chipseq\./) }],
@@ -93,6 +150,11 @@ all_metric_infos = [
   }
 }.select{|info|
   BASIC_RETAINED_METRICS.include?(info[:metric_name])
+}.select{|info|
+  tf = info[:tf]
+  metric_name = info[:metric_name]
+  metric_type = METRIC_TYPE_BY_NAME[metric_name]
+  tfs_curration[tf][:verdicts][metric_type]
 }
 
 module Enumerable
@@ -181,6 +243,8 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     ## METRIC_COMBINATIONS.each
 
     ################
+    motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).compact)
+
     motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).compact)
     motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).compact)
     motif_ranks[:affiseq] = product_mean(motif_ranks.values_at(:affiseq_IVT, :affiseq_Lysate).compact)
@@ -191,15 +255,17 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     #
     motif_ranks[:pbm_sd_qn] = product_mean(motif_ranks.values_at(:pbm_sd_qn_roc, :pbm_sd_qn_pr).compact)
     motif_ranks[:pbm_qn_zscore] = product_mean(motif_ranks.values_at(:pbm_qn_zscore_roc, :pbm_qn_zscore_pr).compact)
-    motif_ranks[:pbm_combined] = product_mean(motif_ranks.values_at(:pbm_sd_qn, :pbm_qn_zscore).compact)
+    motif_ranks[:pbm] = product_mean(motif_ranks.values_at(:pbm_sd_qn, :pbm_qn_zscore).compact)
     #
-    motif_ranks[:combined] = product_mean(motif_ranks.values_at(:chipseq_ROC, :affiseq, :selex, :pbm_combined).compact)
+    motif_ranks[:combined] = product_mean(motif_ranks.values_at(:chipseq, :affiseq, :selex, :pbm).compact)
     ################
 
     ################
-    motif_ranks[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).flatten
-    motif_ranks[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).flatten
-    motif_ranks[:affiseq] = motif_values.values_at(:affiseq_IVT, :affiseq_Lysate).flatten
+    motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).flatten
+    
+    motif_values[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).flatten
+    motif_values[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).flatten
+    motif_values[:affiseq] = motif_values.values_at(:affiseq_IVT, :affiseq_Lysate).flatten
     #
     motif_values[:selex_IVT] = motif_values.values_at(:selex_10_IVT_ROC, :selex_50_IVT_ROC).flatten
     motif_values[:selex_Lysate] = motif_values.values_at(:selex_10_Lysate_ROC, :selex_50_Lysate_ROC).flatten
@@ -207,15 +273,14 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     #
     motif_values[:pbm_sd_qn_roc] = motif_values.values_at(:pbm_sd_qn_roc).flatten
     motif_values[:pbm_qn_zscore_roc] = motif_values.values_at(:pbm_qn_zscore_roc).flatten
-    motif_values[:pbm_combined_roc] = motif_values.values_at(:pbm_sd_qn_roc, :pbm_qn_zscore_roc).flatten
+    motif_values[:pbm_roc] = motif_values.values_at(:pbm_sd_qn_roc, :pbm_qn_zscore_roc).flatten
     #
     motif_values[:pbm_sd_qn_pr] = motif_values.values_at(:pbm_sd_qn_pr).flatten
     motif_values[:pbm_qn_zscore_pr] = motif_values.values_at(:pbm_qn_zscore_pr).flatten
-    motif_values[:pbm_combined_pr] = motif_values.values_at(:pbm_sd_qn_pr, :pbm_qn_zscore_pr).flatten
+    motif_values[:pbm_pr] = motif_values.values_at(:pbm_sd_qn_pr, :pbm_qn_zscore_pr).flatten
     #
-    # motif_values[:combined] = motif_values.values_at(:chipseq_ROC, :affiseq_ROC, :selex, :pbm_combined).flatten
+    # motif_values[:combined] = motif_values.values_at(:chipseq_ROC, :affiseq_ROC, :selex, :pbm).flatten
     ################
-    
     [tf, motif, motif_ranks, motif_values]
   }
 }
@@ -231,10 +296,19 @@ motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks, motif_
 }
 
 metrics_order = [
-  :combined, :chipseq_pwmeval_ROC, :affiseq_ROC, :selex_ROC, :pbm_combined, :pbm_sd_qn, :pbm_qn_zscore,
-  :affiseq_IVT_ROC, :affiseq_Lysate_ROC, :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
-  :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, 
-  :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, 
+  :combined, :chipseq, :affiseq, :selex, :pbm,
+  :affiseq_IVT, :affiseq_Lysate,
+  :selex_IVT, :selex_Lysate,
+  :pbm_sd_qn, :pbm_qn_zscore,
+
+  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC,
+  :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC,
+  :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC,
+  :selex_10_IVT_ROC, :selex_50_IVT_ROC,
+  :selex_10_Lysate_ROC, :selex_50_Lysate_ROC,
+
+  :pbm_sd_qn_roc, :pbm_sd_qn_pr,
+  :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
 ]
 
 File.open('results/motif_metrics.tsv', 'w'){|fw|
@@ -415,7 +489,7 @@ metrics_order.each{|metric_name|
       if BASIC_RETAINED_METRICS.include?(metric_name)
         vals = motif_metric_infos.map{|info| info[:value] }
       else
-        if [:pbm_combined, :pbm_sd_qn, :pbm_qn_zscore].include?(metric_name)
+        if [:pbm, :pbm_sd_qn, :pbm_qn_zscore].include?(metric_name)
           vals_roc = motif_values.fetch("#{metric_name}_roc".to_sym).compact
           vals_pr = motif_values.fetch("#{metric_name}_pr".to_sym).compact
           vals_summary = "ROC: #{basic_stats(vals_roc)}; PR: #{basic_stats(vals_pr)}"
