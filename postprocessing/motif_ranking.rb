@@ -135,15 +135,16 @@ all_metric_infos = [
   ['results/parsed_pbm_metrics.tsv', [:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers,  :pbm_qn_zscore_logmers], ->(x){ x.match?(/\.quantNorm_zscore\./) }],
   ['results/parsed_pbm_metrics.tsv', [:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers], ->(x){ x.match?(/\.spatialDetrend_quantNorm\./) }],
 ].flat_map{|fn, metric_names, condition|
-  File.readlines(fn).drop(1).flat_map{|l|
-    dataset, motif, *values = l.chomp.split("\t")
+  File.readlines(fn).drop(1).flat_map{|line|
+    line.chomp!
+    dataset, motif, *values = line.split("\t")
     dataset_tf = dataset.split('.')[0]
     motif_tf = motif.split('.')[0]
     dataset_tf = TF_NAME_MAPPING.fetch(dataset_tf, dataset_tf)
     motif_tf = TF_NAME_MAPPING.fetch(motif_tf, motif_tf)
     raise  unless dataset_tf == motif_tf
     metric_names.zip(values).map{|metric_name, value|
-      {dataset: dataset, motif: motif, value: Float(value), metric_name: metric_name, tf: dataset_tf}
+      {dataset: dataset, motif: motif, value: Float(value), metric_name: metric_name, tf: dataset_tf, original_line: line}
     }.select{|info|
       condition.call(info[:dataset])
     }
@@ -434,6 +435,55 @@ tr.group-header.collapsed td i {
     EOS
 }
 
+##########################################################
+FileUtils.mkdir_p "results/metrics_by_TF/"
+motif_rankings.group_by{|tf,*rest| tf }.each do |tf, motif_rankings_part|
+File.open("results/metrics_by_TF/#{tf}.html", 'w'){|fw|
+  header = ['tf', 'motif', 'rank_overall', *metrics_order.map{|metric| "rank_#{metric}"} ]
+  fw.puts <<-EOS
+    <html><head>
+    <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js" integrity="sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.blue.min.css" integrity="sha512-jJ9r3lTLaH5XXa9ZOsCQU8kLvxdAVzyTWO/pnzdZrshJQfnw1oevJFpoyCDr7K1lqt1hUgqoxA5e2PctVtlSTg==" crossorigin="anonymous" />
+    <script>
+    $(function() {
+      $("table.tablesorter").tablesorter({
+        theme: 'blue',
+        widgets: ['zebra'],
+        sortList: [[0,0], [2,0]]
+      });
+    });
+    </script>
+    <style>
+    img{max-width: 400px;}
+    </style></head><body>
+    <table class="tablesorter tablesorter-blue"><thead><tr>
+    <th class="group-word">TF</th>
+    <th>logo</th>
+    <th>overall rank</th>
+    EOS
+  metrics_order.each{|metric| fw.puts "<th>#{metric} rank</th>"}
+  fw.puts <<-EOS
+    <th>motif</th>
+    </tr></thead><tbody>
+  EOS
+
+  motif_rankings_part.each{|tf, motif, overall_rank, motif_ranks, motif_values|
+    motif_bn = File.basename(motif, File.extname(motif))
+    row = [tf, "<img src='../../logo/#{motif_bn}.png' />", overall_rank, *motif_ranks.values_at(*metrics_order).map{|x| x&.round(2) }, motif]
+    fw.puts('<tr>' + row.map{|x| "<td>#{x}</td>" }.join + '</tr>')
+  }
+
+  fw.puts <<-EOS
+    </tbody></table>
+    </body></html>
+    EOS
+}
+end
+
+
+##########################################################
 
 
 winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
