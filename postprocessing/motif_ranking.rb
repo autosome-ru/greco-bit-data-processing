@@ -144,7 +144,7 @@ all_metric_infos = [
     motif_tf = TF_NAME_MAPPING.fetch(motif_tf, motif_tf)
     raise  unless dataset_tf == motif_tf
     metric_names.zip(values).map{|metric_name, value|
-      {dataset: dataset, motif: motif, value: Float(value), metric_name: metric_name, tf: dataset_tf, original_line: line}
+      {dataset: dataset, motif: motif, value: Float(value), metric_name: metric_name, tf: dataset_tf, original_line: line, filename: File.basename(fn) }
     }.select{|info|
       condition.call(info[:dataset])
     }
