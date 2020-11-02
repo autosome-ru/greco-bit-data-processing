@@ -16,12 +16,14 @@ def treat_status(status)
   case status
   when '-'
     nil
-  when 'Nay'
+  when /^Nay/
     false
-  when 'Yay'
+  when /^Yay/
     true
-  when 'TBD'
+  when 'TBD', 'Borderline'
     true  ## To fix
+  else
+    raise 'Unknown status'
   end
 end
 

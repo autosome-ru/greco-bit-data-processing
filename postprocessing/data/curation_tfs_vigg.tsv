@@ -34,7 +34,7 @@ ZNF189	46	Nay	-	-	Nay	Nay	Nay	Nay	Discordant + NFI
 ZNF22	59	Nay	-	-	Nay	Nay	Nay	Nay	Discordant motifs
 ZNF250	56	Yay	-	-	Yay	Nay	Nay	Yay	Discordant motifs from SELEX
 ZNF260	59	Yay?	-	-	Yay	Nay	Nay?	Nay	Some NFI contamination in SELEX Lysate, weak signal in ChIP-Seq
-ZNF264	50	Yay	-	-	Yay	Nay	Nay	Yay	2 of 4 concordant
+ZNF264	50	Yay	-	-	Borderline	Borderline	Nay	Yay	2 of 4 concordant
 ZNF280A	47	Nay?	-	-	Nay?	Nay?	Nay?	Nay	Unclear: discordant motifs, some similarity in SELEX data
 ZNF30	48	Nay?	-	-	Nay?	Nay?	Nay?	Nay	Weak polyGs and NFI-like
 ZNF317	28	Nay?	-	-	-	Nay	-	Nay	Discordant motifs, alghouth some signal in ChIP-Seq
