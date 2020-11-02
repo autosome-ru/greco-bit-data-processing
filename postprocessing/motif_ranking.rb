@@ -57,7 +57,7 @@ TF_NAME_MAPPING = File.readlines('tf_name_mapping.txt').map{|l| l.chomp.split("\
 
 ## fix bug: pbm_roclog and pbm_prlog are equivalent to pbm_roc and pbm_log
 METRIC_NAMES_BY_TYPE = {
-  chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC],
+  chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC], #, :chipseq_vigg_logROC],
   affiseq_IVT: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC],
   affiseq_Lysate: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC],
   selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
@@ -75,7 +75,7 @@ METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
 }.to_h
 
 BASIC_RETAINED_METRICS = [
-  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC,
+  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, #:chipseq_vigg_logROC,
   :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC,
   :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC,
   :selex_10_IVT_ROC, :selex_50_IVT_ROC,
@@ -246,7 +246,8 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     ## METRIC_COMBINATIONS.each
 
     ################
-    motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).compact)
+    # motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).compact)
+    motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC).compact)
 
     motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).compact)
     motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).compact)
@@ -264,7 +265,8 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     ################
 
     ################
-    motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).flatten
+    # motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).flatten
+    motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC).flatten
     
     motif_values[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).flatten
     motif_values[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).flatten
@@ -304,7 +306,7 @@ metrics_order = [
   :selex_IVT, :selex_Lysate,
   :pbm_sd_qn, :pbm_qn_zscore,
 
-  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC,
+  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, #:chipseq_vigg_logROC,
   :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC,
   :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC,
   :selex_10_IVT_ROC, :selex_50_IVT_ROC,
