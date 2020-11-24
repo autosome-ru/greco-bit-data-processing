@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SUFFIX=""
 while true; do
     case "${1-}" in
         --source)
@@ -17,6 +18,10 @@ while true; do
             ;;
         --words-destination)
             WORDS_DESTINATION_FOLDER="$(readlink -m "$2")"
+            shift
+            ;;
+        --suffix)
+            SUFFIX="$2"
             shift
             ;;
         -?*)
@@ -37,22 +42,24 @@ for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
   BN=$(basename -s .txt ${FN})
 
   # # It's reserved for mono-chipmunk results
-  # cat "${SOURCE_FOLDER}/${BN}.txt"  \
+  # ( echo ">${BN}${SUFFIX}"; cat "${SOURCE_FOLDER}/${BN}.txt"  \
   #   | grep -Pe '^[ACGT]\|'  \
   #   | sed -re 's/^[ACGT]\|//' \
-  #   > "${PCMS_DESTINATION_FOLDER}/${BN}.pcm"
+  # ) > "${PCMS_DESTINATION_FOLDER}/${BN}${SUFFIX}.pcm"
 
-  cat "${SOURCE_FOLDER}/${BN}.txt"  \
+  ( echo ">${BN}${SUFFIX}"; cat "${SOURCE_FOLDER}/${BN}.txt"  \
     | grep -Pe '^[ACGT][ACGT]\|'  \
     | sed -re 's/^[ACGT][ACGT]\|//' \
     | ruby -e 'readlines.map{|l| l.chomp.split }.transpose.each{|r| puts r.join("\t") }' \
-    > "${DPCMS_DESTINATION_FOLDER}/${BN}.dpcm"
+  ) > "${DPCMS_DESTINATION_FOLDER}/${BN}${SUFFIX}.dpcm"
 
   cat "${SOURCE_FOLDER}/${BN}.txt"  \
     | grep -Pe '^WORD\|'  \
     | sed -re 's/^WORD\|//' \
     | ruby -e 'readlines.each{|l| word, weight = l.chomp.split("\t").values_at(2, 5); puts(">#{weight}"); puts(word) }' \
-    > "${WORDS_DESTINATION_FOLDER}/${BN}.fa"
+    > "${WORDS_DESTINATION_FOLDER}/${BN}${SUFFIX}.fa"
 
-  cat "${WORDS_DESTINATION_FOLDER}/${BN}.fa" | ruby fasta2pcm.rb --weighted > "${PCMS_DESTINATION_FOLDER}/${BN}.pcm"
+  ( echo ">${BN}${SUFFIX}"; cat "${WORDS_DESTINATION_FOLDER}/${BN}${SUFFIX}.fa" \
+    | ruby fasta2pcm.rb --weighted \
+  ) > "${PCMS_DESTINATION_FOLDER}/${BN}${SUFFIX}.pcm"
 done
