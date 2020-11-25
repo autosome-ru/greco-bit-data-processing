@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CHIPS_SOURCE_FOLDER=source_data
+CHIPS_SOURCE_FOLDER=./data/RawData
 NUM_THREADS=20
 NORMALIZATION_OPTS='--log10'
 
@@ -9,12 +9,10 @@ NORMALIZATION_OPTS='--log10'
 INTERMEDIATE_FOLDER='results_databox_intermediate'
 RESULTS_FOLDER='results_databox'
 
-mkdir -p ${INTERMEDIATE_FOLDER}/raw_intensities/
-for FN in $(find -L $CHIPS_SOURCE_FOLDER -xtype f -iname '*.txt'); do
-    BN=$(basename -s .txt ${FN})
-    TF=$(echo ${BN} | grep -oPe '[^_]+$' | grep -oPe '^[^.]+')
-    cp ${FN} ${INTERMEDIATE_FOLDER}/raw_intensities/${TF}.${BN}.pbm.txt
-done
+ruby rename_chips.rb \
+     --source ${CHIPS_SOURCE_FOLDER} \
+     --destination ${INTERMEDIATE_FOLDER}/raw_intensities/ \
+     --tf-mapping 'tf_name_mapping.txt'
 
 ## sd_qn_intensities
 # window-size=5 means window 11x11
