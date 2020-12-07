@@ -59,3 +59,9 @@ FastqRecord = Struct.new(:instrument, :run_id, :flow_cell_id, :lane, :tile, :x, 
     ['@' + part_1.join(':') + ' ' + part_2.join(':'), sequence, '+', qualities].join("\n")
   end
 end
+
+def num_reads_in_fastq(filename)
+  open_fastq_read(filename){|f|
+    f.each_line.count / 4
+  }
+end
