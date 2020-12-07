@@ -9,7 +9,7 @@ def parse_filename_smileseq(filename)
   # ['UT380-185', 'SETBP1', 'DBD', ['1', 'AT', 'hook'], 'SS018', 'BC07']
   lab_specific_id, tf, dbd_or_fl, *domain_parts, sequencing_id, barcode_index = basename.split('_')
   barcode_index = barcode_index.sub(/^BC0*(\d+)$/, 'BC\1') # BC07 --> BC7
-  {tf: tf, protein_structure: dbd_or_fl, domain: domain_parts.join('_')
+  {tf: tf, protein_structure: dbd_or_fl, domain: domain_parts.join('_'),
     barcode_index: barcode_index, sequencing_id: sequencing_id,
     lab_specific_id: lab_specific_id, filename: filename}
 end
@@ -28,7 +28,7 @@ sample_filenames = Dir.glob('source_data_smileseq/smileseq_raw/*.fastq')
 
 samples = sample_filenames.map{|fn| parse_filename_smileseq(fn) }
 Parallel.each(samples, in_processes: 20) do |sample|
-  barcode = barcodes[sample[:barcode_index]].value_at(:flank_5, :flank_3).join('+')
+  barcode = barcodes[sample[:barcode_index]].values_at(:flank_5, :flank_3).join('+')
 
   bn = [*sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index), barcode].join('.')
   train_fn = "#{results_folder}/train_reads/#{bn}.smileseq.train.fastq"
