@@ -14,6 +14,11 @@ def parse_filename_smileseq(filename)
     lab_specific_id: lab_specific_id, filename: filename}
 end
 
+barcodes = File.readlines('source_data_smileseq/smileseq_barcode_file.txt').map{|l|
+  barcode_index, barcode_seq = l.chomp.split("\t")
+  [barcode_index, {flank_5: barcode_seq, flank_3: ''}]
+}.to_h
+
 # SmileSeq
 results_folder = "results_smileseq"
 FileUtils.mkdir_p "#{results_folder}/train_reads"
@@ -23,7 +28,9 @@ sample_filenames = Dir.glob('source_data_smileseq/smileseq_raw/*.fastq')
 
 samples = sample_filenames.map{|fn| parse_filename_smileseq(fn) }
 Parallel.each(samples, in_processes: 20) do |sample|
-  bn = sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index).join('.')
+  barcode = barcodes[sample[:barcode_index]].value_at(:flank_5, :flank_3).join('+')
+
+  bn = [*sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index), barcode].join('.')
   train_fn = "#{results_folder}/train_reads/#{bn}.smileseq.train.fastq"
   validation_fn = "#{results_folder}/validation_reads/#{bn}.smileseq.val.fastq"
   train_val_split(sample[:filename], train_fn, validation_fn)
@@ -33,7 +40,7 @@ File.open("#{results_folder}/stats.tsv", 'w') do |fw|
   header = ['tf', 'protein_structure', 'domain', 'lab_specific_id', 'sequencing_id', 'barcode_index', 'train/validation', 'filename', 'num_reads']
   fw.puts(header.join("\t"))
   samples.each{|sample|
-    bn = sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index).join('.')
+    bn = [*sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index), barcode].join('.')
     train_fn = "#{results_folder}/train_reads/#{bn}.smileseq.train.fastq"
 
     column_infos = sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index)
