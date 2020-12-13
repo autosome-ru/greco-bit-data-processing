@@ -20,10 +20,10 @@ set -euo pipefail
 # CHIPS_SOURCE_FOLDER='./release_2_motifs/'
 # RESULTS_FOLDER='./release_2_motifs/results_top1000_15-8_single_log_simple_flag/'
 
-# cp ~/greco-data/release_3.2020-08-08/pbm/quantNorm_zscore/ ./release_3_motifs/ -r
-# cp ~/greco-data/release_3.2020-08-08/pbm/spatialDetrend_quantNorm/ ./release_3_motifs/ -r
-CHIPS_SOURCE_FOLDER='./release_3_motifs/'
-RESULTS_FOLDER='./release_3_motifs/'
+# cp ~/greco-data/release_4.2020-11-26/pbm/quantNorm_zscore/ ./release_4_motifs/ -r
+# cp ~/greco-data/release_4.2020-11-26/pbm/spatialDetrend_quantNorm/ ./release_4_motifs/ -r
+CHIPS_SOURCE_FOLDER='./release_4_motifs/'
+RESULTS_FOLDER='./release_4_motifs/'
 #######
 
 # TOP_OPTS='--max-head-size 1000'
@@ -101,22 +101,22 @@ mkdir -p ./resulting_pcms
 SUBFOLDERS="spatialDetrend_quantNorm  quantNorm_zscore"
 
 for SUBFOLDER in $SUBFOLDERS; do
-#    ruby chip_sequences.rb \
-#            --source ${CHIPS_SOURCE_FOLDER}/${SUBFOLDER}/train_intensities \
-#            --destination ${RESULTS_FOLDER}/${SUBFOLDER}/train_sequences \
-#            --linker-length 0 \
-#            --fasta  --take-top 1000
+    ruby chip_sequences.rb \
+            --source ${CHIPS_SOURCE_FOLDER}/${SUBFOLDER}/train_intensities \
+            --destination ${RESULTS_FOLDER}/${SUBFOLDER}/train_sequences \
+            --linker-length 0 \
+            --fasta  --take-top 1000
 
 
-#    ./calculate_motifs.sh --source ${RESULTS_FOLDER}/${SUBFOLDER}/train_sequences \
-#                      --results-destination ${RESULTS_FOLDER}/${SUBFOLDER}/chipmunk_results \
-#                      --logs-destination ${RESULTS_FOLDER}/${SUBFOLDER}/chipmunk_logs \
-#                      --num-inner-threads ${CHIPMUNK_NUM_INNER_THREADS} \
-#                      --num-processes ${CHIPMUNK_NUM_PROCESSES} \
-#                      --length-range ${CHIPMUNK_LENGTH_RANGE} \
-#                      --shape ${CHIPMUNK_SHAPE} \
-#                      --weighting-mode ${CHIPMUNK_WEIGHTING_MODE} \
-#                      --additional-options "${CHIPMUNK_ADDITIONAL_OPTIONS}"
+    ./calculate_motifs.sh --source ${RESULTS_FOLDER}/${SUBFOLDER}/train_sequences \
+                      --results-destination ${RESULTS_FOLDER}/${SUBFOLDER}/chipmunk_results \
+                      --logs-destination ${RESULTS_FOLDER}/${SUBFOLDER}/chipmunk_logs \
+                      --num-inner-threads ${CHIPMUNK_NUM_INNER_THREADS} \
+                      --num-processes ${CHIPMUNK_NUM_PROCESSES} \
+                      --length-range ${CHIPMUNK_LENGTH_RANGE} \
+                      --shape ${CHIPMUNK_SHAPE} \
+                      --weighting-mode ${CHIPMUNK_WEIGHTING_MODE} \
+                      --additional-options "${CHIPMUNK_ADDITIONAL_OPTIONS}"
 
     ./extract_pcms.sh --source ${RESULTS_FOLDER}/${SUBFOLDER}/chipmunk_results \
                   --pcms-destination ${RESULTS_FOLDER}/${SUBFOLDER}/pcms \
