@@ -44,35 +44,35 @@ mkdir -p ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities  ${RESULTS_FOLDER}
 
 # raw
 for FN in $(find ${INTERMEDIATE_FOLDER}/raw_intensities/ -xtype f -name '*_1M-ME_*'); do
-    BN=$(basename -s .txt ${FN})
-    cp ${FN} ${RESULTS_FOLDER}/raw/train_intensities/${BN}.train.txt
+    BN=$(basename -s .pbm.txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/raw/train_intensities/${BN}.raw.pbm.train.txt
 done
 
 for FN in $(find ${INTERMEDIATE_FOLDER}/raw_intensities/ -xtype f -name '*_1M-HK_*'); do
-    BN=$(basename -s .txt ${FN})
-    cp ${FN} ${RESULTS_FOLDER}/raw/validation_intensities/${BN}.val.txt
+    BN=$(basename -s .pbm.txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/raw/validation_intensities/${BN}.raw.pbm.val.txt
 done
 
 # sd_qn
 for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-ME_*'); do
-    BN=$(basename -s .txt ${FN})
-    cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_intensities/${BN}.train.txt
+    BN=$(basename -s .pbm.txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_intensities/${BN}.spatialDetrend_quantNorm.pbm.train.txt
 done
 
 for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-HK_*'); do
-    BN=$(basename -s .txt ${FN})
-    cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_intensities/${BN}.val.txt
+    BN=$(basename -s .pbm.txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_intensities/${BN}.spatialDetrend_quantNorm.pbm.val.txt
 done
 
 # qn_zscore
 for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*_1M-ME_*'); do
-    BN=$(basename -s .txt ${FN})
-    cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities/${BN}.train.txt
+    BN=$(basename -s .pbm.txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities/${BN}.quantNorm_zscore.pbm.train.txt
 done
 
 for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*_1M-HK_*'); do
-    BN=$(basename -s .txt ${FN})
-    cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/validation_intensities/${BN}.val.txt
+    BN=$(basename -s .pbm.txt ${FN})
+    cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/validation_intensities/${BN}.quantNorm_zscore.pbm.val.txt
 done
 
 
