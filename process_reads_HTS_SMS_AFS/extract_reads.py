@@ -139,15 +139,16 @@ def task_generator():
         
         alignment_fn = f"{ALIGNMENT_DIRNAME}/{alignment}.bam"
         RESULTS_FOLDER = f'results_affiseq_{ivt_or_lysate}'
-        train_fn      = f'{RESULTS_FOLDER}/{tf}.{ivt_or_lysate}.{cycle}.{batch}.asReads.affiseq.train.fastq.gz' # ToDo: check suffix
-        validation_fn = f'{RESULTS_FOLDER}/{tf}.{ivt_or_lysate}.{cycle}.{batch}.asReads.affiseq.val.fastq.gz'
+        train_fn      = f'{RESULTS_FOLDER}/train_sequences/{tf}.{ivt_or_lysate}.{cycle}.{batch}.asReads.affiseq.train.fastq.gz' # ToDo: check suffix
+        validation_fn = f'{RESULTS_FOLDER}/validation_sequences/{tf}.{ivt_or_lysate}.{cycle}.{batch}.asReads.affiseq.val.fastq.gz'
         fastq_fns = [f"{FASTQ_DIRNAME}/{fastq_bn}.fastq.gz"  for fastq_bn in read_basenames]
         yield (fastq_fns, alignment_fn, train_fn, validation_fn)
 
-if not os.path.exists('results_affiseq_IVT'):
-    os.makedirs('results_affiseq_IVT')
-if not os.path.exists('results_affiseq_Lysate'):
-    os.makedirs('results_affiseq_Lysate')
+for ivt_or_lysate in ['IVT', 'Lysate']:
+    for train_or_validate in ['train', 'validation']:
+        folder = f'results_affiseq_{ivt_or_lysate}/{train_or_validate}_sequences/'
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
 with multiprocessing.Pool(NUM_THREADS) as pool:
     pool.starmap(split_fastq_train_val, task_generator())
