@@ -5,12 +5,11 @@ require_relative 'train_val_split'
 
 # AHCTF1_GG40NCGTAGT_IVT_BatchYWCB_Cycle3_R1.fastq.gz
 # SNAI1_AC40NGCTGCT_Lysate_BatchAATA_Cycle2_R1.fastq.gz
-# SNAI1_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz
-# GLI4_AffSeq_Lysate_BatchAATA_Cycle1_R2.fastq.gz
 def parse_filename_selex(filename)
   basename = File.basename(File.basename(filename, '.gz'), '.fastq')
-  tf, adapter, type, batch, cycle, read = basename.split('_')
-  {tf: tf, adapter: adapter, type: type, batch: batch, cycle: cycle, read: read, filename: filename, basename: basename}
+  tf, adapter, type, batch, cycle, reads_part = basename.split('_')
+  raise  unless reads_part == 'R1'
+  {tf: tf, adapter: adapter, type: type, batch: batch, cycle: cycle, filename: filename, basename: basename}
 end
 
 # SELEX (and without AffiSeq!)
