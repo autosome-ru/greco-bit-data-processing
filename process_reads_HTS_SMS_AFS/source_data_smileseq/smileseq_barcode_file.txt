@@ -1,0 +1,1 @@
+/mnt/space/depla/smileseq_barcode_file.txt
