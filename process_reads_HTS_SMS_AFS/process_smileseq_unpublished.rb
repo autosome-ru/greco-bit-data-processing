@@ -19,8 +19,11 @@ end
 
 def read_metadata(filename)
   File.readlines(filename).drop(1).map{|line|
+    # Example:
+    ## BBI_ID  Hughes_ID TF_family SSID  Barcode
+    ## UT380-009 AHCTF1.DBD  AT hook SS001 BC01
     bbi_id, hughes_id, tf_family, ssid, barcode = line.chomp.split("\t")
-    tf, *rest = info[:hughes_id].split('.')
+    tf, *rest = hughes_id.split('.')  # hughes_id examples: `MBD4`, `BHLHA9.FL`, `CASZ1.DBD.1`
     construct_type = (rest.size >= 1) ? rest[0] : 'NA'
     {
       tf: tf, construct_type: construct_type, unique_experiment_id: bbi_id,
