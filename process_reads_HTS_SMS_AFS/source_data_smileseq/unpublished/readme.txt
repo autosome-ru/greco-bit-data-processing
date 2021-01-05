@@ -12,7 +12,7 @@ Files are provided in fastq format and contain only the randomized region access
 
 The library is designed as follows:
 
-TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG -[BC 1-12, 10bp i.e. CGTATGAATC] - NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN - CTGTCTCTTATACACATCTCCGAGCCCACGAGAC
+TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG -[BC 1-12, 10bp e.g. CGTATGAATC] - NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN - CTGTCTCTTATACACATCTCCGAGCCCACGAGAC
 
 The library present during the experiment has 4 parts, separated by " - ":
 1) Read 1 primer binding site (constant across all libraries; Illumina adapter sequencing)
