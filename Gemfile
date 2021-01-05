@@ -1,3 +1,4 @@
 source 'https://rubygems.org/'
+gem 'sqlite3'
 gem 'bioinform'
 gem 'sequence_logo'
