@@ -3,81 +3,122 @@ require 'fileutils'
 require_relative 'fastq'
 require_relative 'train_val_split'
 require_relative '../shared/lib/index_by'
+require_relative '../shared/lib/random_names'
 
-# UT380-185_SETBP1_DBD_1_AT_hook_SS018_BC07.fastq
-def parse_filename_smileseq(filename)
-  basename = File.basename(filename, '.fastq')
-  # ['UT380-185', 'SETBP1', 'DBD', ['1', 'AT', 'hook'], 'SS018', 'BC07']
-  lab_specific_id, tf, dbd_or_fl, *domain_parts, sequencing_id, barcode_index = basename.split('_')
-  barcode_index = barcode_index.sub(/^BC0*(\d+)$/, 'BC\1') # BC07 --> BC7
-  {
-    tf: tf, protein_structure: dbd_or_fl, domain: domain_parts.join('_'),
-    barcode_index: barcode_index, sequencing_id: sequencing_id, lab_specific_id: lab_specific_id,
-    basename: basename, filename: filename
-  }
+module SMSUnpublished
+  # The library is designed as follows:
+  # TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG -[BC 1-12, 10bp e.g. CGTATGAATC] - NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN - CTGTCTCTTATACACATCTCCGAGCCCA
+  ADAPTER_5 = 'TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG'
+  ADAPTER_3 = 'CTGTCTCTTATACACATCTCCGAGCCCA'
+
+  def self.read_barcodes(filename)
+    File.readlines(filename).map{|l|
+      barcode_index, barcode_seq = l.chomp.split("\t")
+      [barcode_index, {flank_5: barcode_seq, flank_3: ''}]
+    }.to_h
+  end
+
+  class DatasetNaming
+    attr_reader :results_folder, :barcodes, :metadata
+    def initialize(results_folder, barcodes:, metadata:)
+      @results_folder = results_folder
+      @barcodes = barcodes
+      @metadata = metadata
+    end
+
+    def self.create_folders!
+      FileUtils.mkdir_p "#{results_folder}/train_reads"
+      FileUtils.mkdir_p "#{results_folder}/validation_reads"
+    end
+
+    def basename(sample)
+      experiment_id = sample.experiment_id
+      sample_metadata = metadata[experiment_id]
+      unless sample.barcode_index == sample_metadata.barcode_index
+        raise "Metadata for `#{experiment_id}` contradicts data encoded in filename `#{sample.filename}`"
+      end
+      barcode = barcodes[barcode_index]
+      flank_5 = (ADAPTER_5 + barcode[:flank_5])[-20,20]
+      flank_3 = (barcode[:flank_3] + ADAPTER_3)[0,20]
+      uuid = take_dataset_name!
+      "#{sample.tf}.#{sample.construct_type}@SMS@#{experiment_id}.5#{flank_5}.3#{flank_3}@Reads.#{uuid}"
+    end
+
+    def train_filename(sample); "#{results_folder}/train_reads/#{basename(sample)}.Train.fastq"; end
+    def validation_filename(sample); "#{results_folder}/validation_reads/#{basename(sample)}.Val.fastq"; end
+    def stats_filename; "#{results_folder}/stats.tsv"; end
+  end
+
+  Sample = Struct.new(*[:experiment_id, :tf, :construct_type, :domain, :barcode_index, :sequencing_id, :filename], keyword_init: true) do
+    # UT380-185_SETBP1_DBD_1_AT_hook_SS018_BC07.fastq
+    def self.from_filename(filename)
+      basename = File.basename(filename, '.fastq')
+      # ['UT380-185', 'SETBP1', 'DBD', ['1', 'AT', 'hook'], 'SS018', 'BC07']
+      experiment_id_match = basename.match(/^(UT\d\d\d)[-_]?(\d\d\d)_/)
+      experiment_id = experiment_id_match[1] + '-' + experiment_id_match[2] # UT380_501 --> UT380-501, UT380408 --> UT380-408
+      tf, dbd_or_fl, *domain_parts, sequencing_id, barcode_index = basename[experiment_id_match[0].length..-1].split('_')
+      barcode_index = barcode_index.sub(/^BC0*(\d+)$/, 'BC\1') # BC07 --> BC7
+      self.new(tf: tf, construct_type: dbd_or_fl, domain: domain_parts.join('_'),
+        barcode_index: barcode_index, sequencing_id: sequencing_id, experiment_id: experiment_id,
+        filename: filename)
+    end
+  end
+
+  SampleMetadata = Struct.new(*[:tf, :construct_type, :experiment_id, :barcode_index, :hughes_id, :tf_family, :ssid], keyword_init: true) do
+    def self.from_string(line)
+      # Example:
+      ## BBI_ID  Hughes_ID TF_family SSID  Barcode
+      ## UT380-009 AHCTF1.DBD  AT hook SS001 BC01
+      bbi_id, hughes_id, tf_family, ssid, barcode_index = line.chomp.split("\t")
+      tf, *rest = hughes_id.split('.')  # hughes_id examples: `MBD4`, `BHLHA9.FL`, `CASZ1.DBD.1`
+      construct_type = (rest.size >= 1) ? rest[0] : 'NA'
+      self.new(tf: tf, construct_type: construct_type, experiment_id: bbi_id,
+        barcode_index: barcode_index.sub(/^BC0*(\d+)$/, 'BC\1'), # BC07 --> BC7
+        hughes_id: hughes_id, tf_family: tf_family, ssid: ssid)
+    end
+
+    def self.each_in_file(filename)
+      return enum_for(:each_in_file, filename)  unless block_given?
+      File.readlines(filename).drop(1).map{|line|
+        yield self.from_string(line)
+      }
+    end
+  end
 end
 
-def read_metadata(filename)
-  File.readlines(filename).drop(1).map{|line|
-    # Example:
-    ## BBI_ID  Hughes_ID TF_family SSID  Barcode
-    ## UT380-009 AHCTF1.DBD  AT hook SS001 BC01
-    bbi_id, hughes_id, tf_family, ssid, barcode = line.chomp.split("\t")
-    tf, *rest = hughes_id.split('.')  # hughes_id examples: `MBD4`, `BHLHA9.FL`, `CASZ1.DBD.1`
-    construct_type = (rest.size >= 1) ? rest[0] : 'NA'
-    {
-      tf: tf, construct_type: construct_type, unique_experiment_id: bbi_id,
-      barcode: barcode.sub(/^BC0*(\d+)$/, 'BC\1'), # BC07 --> BC7
-      hughes_id: hughes_id, tf_family: tf_family, ssid: ssid,
+def generate_samples_stats(ds_naming, samples)
+  File.open(ds_naming.stats_filename, 'w') do |fw|
+    header = ['experiment_id', 'tf', 'construct_type', 'domain', 'sequencing_id', 'barcode_index', 'train/validation', 'filename', 'num_reads']
+    fw.puts(header.join("\t"))
+    samples.each{|sample|
+      column_infos = sample.to_h.values_at(:experiment_id, :tf, :construct_type, :domain, :sequencing_id, :barcode_index)
+
+      train_fn = ds_naming.train_filename(sample)
+      val_fn = ds_naming.validation_filename(sample)
+
+      info_train = [*column_infos, 'train', train_fn, num_reads_in_fastq(train_fn)]
+      info_val   = [*column_infos, 'validation', val_fn, num_reads_in_fastq(val_fn)]
+      fw.puts(info_train.join("\t"))
+      fw.puts(info_val.join("\t"))
     }
-  }
+  end
 end
 
-def read_barcodes(filename)
-  File.readlines(filename).map{|l|
-    barcode_index, barcode_seq = l.chomp.split("\t")
-    [barcode_index, {flank_5: barcode_seq, flank_3: ''}]
-  }.to_h
-end
 
-barcodes = read_barcodes('source_data_smileseq/unpublished/smileseq_barcode_file.txt')
+SOURCE_FOLDER = 'source_data_smileseq/unpublished'
+barcodes = SMSUnpublished.read_barcodes("#{SOURCE_FOLDER}/smileseq_barcode_file.txt")
 
-metadata_fn = 'source_data_smileseq/unpublished/SMiLE_seq_metadata_temp_17DEC2020_newData.tsv'
-smileseq_infos = read_metadata(metadata_fn).index_by{|info| info[:unique_experiment_id] }
+metadata_fn = "#{SOURCE_FOLDER}/SMiLE_seq_metadata_temp_17DEC2020_newData.tsv"
+smileseq_infos = SMSUnpublished::SampleMetadata.each_in_file(metadata_fn).index_by(&:experiment_id)
 
+sample_filenames = Dir.glob("#{SOURCE_FOLDER}/smileseq_raw/*.fastq")
+samples = sample_filenames.map{|fn| SMSUnpublished::Sample.from_filename(fn) }
 
-# SmileSeq
-results_folder = "results_smileseq"
-FileUtils.mkdir_p "#{results_folder}/train_reads"
-FileUtils.mkdir_p "#{results_folder}/validation_reads"
-
-sample_filenames = Dir.glob('source_data_smileseq/smileseq_raw/*.fastq')
-
-samples = sample_filenames.map{|fn| parse_filename_smileseq(fn) }
-
+ds_naming = SMSUnpublished::DatasetNaming.new("results_smileseq", barcodes: barcodes, metadata: smileseq_infos)
+ds_naming.create_folders!
 
 Parallel.each(samples, in_processes: 20) do |sample|
-  barcode = barcodes[sample[:barcode_index]].values_at(:flank_5, :flank_3).join('+')
-
-  bn = [*sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index), barcode].join('.')
-  train_fn = "#{results_folder}/train_reads/#{bn}.smileseq.train.fastq"
-  validation_fn = "#{results_folder}/validation_reads/#{bn}.smileseq.val.fastq"
-  train_val_split(sample[:filename], train_fn, validation_fn)
+  train_val_split(sample.filename, ds_naming.train_filename(sample), ds_naming.validation_filename(sample))
 end
 
-File.open("#{results_folder}/stats.tsv", 'w') do |fw|
-  header = ['tf', 'protein_structure', 'domain', 'lab_specific_id', 'sequencing_id', 'barcode_index', 'train/validation', 'filename', 'num_reads']
-  fw.puts(header.join("\t"))
-  samples.each{|sample|
-    bn = [*sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index), barcode].join('.')
-    train_fn = "#{results_folder}/train_reads/#{bn}.smileseq.train.fastq"
-
-    column_infos = sample.values_at(:tf, :protein_structure, :domain, :lab_specific_id, :sequencing_id, :barcode_index)
-    info_train = [*column_infos, 'train', train_fn, num_reads_in_fastq(train_fn)]
-    fw.puts(info_train.join("\t"))
-
-    validation_fn = "#{results_folder}/validation_reads/#{bn}.smileseq.val.fastq"
-    info_validation = [*column_infos, 'validation', validation_fn, num_reads_in_fastq(validation_fn)]
-    fw.puts(info_validation.join("\t"))
-  }
-end
+generate_samples_stats(ds_naming, samples)
