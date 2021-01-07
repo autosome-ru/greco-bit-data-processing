@@ -1,9 +1,6 @@
-require 'parallel'
-require 'fileutils'
-require_relative 'train_val_split'
 require_relative '../shared/lib/index_by'
 
-module ReadsProcessing::SMSUnpublished
+module SMSUnpublished
   # The library is designed as follows:
   # TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG -[BC 1-12, 10bp e.g. CGTATGAATC] - NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN - CTGTCTCTTATACACATCTCCGAGCCCA
   ADAPTER_5 = 'TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG'
@@ -62,37 +59,3 @@ module ReadsProcessing::SMSUnpublished
     sample.to_h.values_at(*fields) == sample_metadata.to_h.values_at(*fields)
   end
 end
-
-source_folder = 'source_data_smileseq/unpublished'
-barcodes = SMSUnpublished.read_barcodes("#{source_folder}/smileseq_barcode_file.txt")
-
-sample_filenames = Dir.glob("#{source_folder}/smileseq_raw/*.fastq")
-samples = sample_filenames.map{|fn| SMSUnpublished::Sample.from_filename(fn) }
-
-metadata_fn = "#{source_folder}/SMiLE_seq_metadata_temp_17DEC2020_newData.tsv"
-metadata = SMSUnpublished::SampleMetadata.each_in_file(metadata_fn).to_a
-
-metadata_by_experiment_id = metadata.index_by(&:experiment_id)
-sample_by_experiment_id = samples.index_by(&:experiment_id)
-
-sample_triples = sample_by_experiment_id.map{|experiment_id, sample|
-  sample_metadata = metadata_by_experiment_id[experiment_id]
-  [experiment_id, sample, sample_metadata]
-}
-
-sample_triples.each{|experiment_id, sample, sample_metadata|
-  $stderr.puts("No metadata for `#{experiment_id}`")  if sample_metadata.nil?
-  $stderr.puts("No sample for `#{experiment_id}`")  if sample.nil? # Impossible
-  unless SMSUnpublished.match_metadata?(sample, sample_metadata)
-    $stderr.puts("Metadata for #{sample.experiment_id} doesn't match info in filename")
-  end
-}
-
-ds_naming = ReadsProcessing::DatasetNaming.new("results_smileseq/unpublished", barcodes: barcodes, metadata: metadata)
-ds_naming.create_folders!
-
-Parallel.each(sample_triples, in_processes: 20) do |experiment_id, sample, sample_metadata|
-  train_val_split(sample.filename, ds_naming.train_filename(experiment_id), ds_naming.validation_filename(experiment_id))
-end
-
-ReadsProcessing.generate_samples_stats(SMSUnpublished::SampleMetadata, ds_naming, sample_triples)
