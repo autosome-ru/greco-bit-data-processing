@@ -1,6 +1,5 @@
 bedtools2/
 bedtools
-source_data/
 results/
 *.pyc
 *.db
