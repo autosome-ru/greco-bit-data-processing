@@ -1,0 +1,4 @@
+Barcode sequences and metadata are encoded in filenames. We suggest the adapters to be treated the similar way as it was described in [Ambrosini et al., Genome biology 2020; doi:10.1186/s13059-020-01996-3]:
+Random insert sequences should be extended with sequences that were physically present during the binding experiments, i.e. include parts of the primers (5′ ACACTCTTTCCCTACACGACGCTCTTCCGATCT and 3′ AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC) and barcodes.
+The barcodes vary from experiment to experiment. After flanking with barcode and primers on both sides, it’s reasonable to truncate sequences to include only the 20 bp adjacent to the random insert on each flank. For instance, random insert sequences from experiment ELK3_TCGGGG20NGGT_AG (barcodes TCCGGGG and GGT, as indicated by the name) should be extended in the following way:
+CGCTCTTCCGATCT TCGGGG NNNNNNNNNNNNNNNNNNNN GGT AGATCGGAAGAGCACAC 
