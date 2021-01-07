@@ -26,8 +26,8 @@ module ReadsProcessing
       "#{sample_metadata.tf}.#{sample_metadata.construct_type}@#{sample_metadata.experiment_type}@#{experiment_id}.5#{flank_5}.3#{flank_3}@Reads.#{uuid}"
     end
 
-    def train_filename(experiment_id); "#{results_folder}/train_reads/#{basename(experiment_id)}.Train.fastq"; end
-    def validation_filename(experiment_id); "#{results_folder}/validation_reads/#{basename(experiment_id)}.Val.fastq"; end
+    def train_filename(experiment_id); "#{results_folder}/train_reads/#{basename(experiment_id)}.Train.fastq.gz"; end
+    def validation_filename(experiment_id); "#{results_folder}/validation_reads/#{basename(experiment_id)}.Val.fastq.gz"; end
     def stats_filename; "#{results_folder}/stats.tsv"; end
   end
 
