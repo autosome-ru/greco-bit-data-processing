@@ -1,6 +1,7 @@
 require_relative 'reads_processing'
 require_relative 'sms_published'
 require_relative 'sms_unpublished'
+require_relative 'hts'
 
 def process_sms_unpublished!
   $stderr.puts "Process unpublished SMiLE-seq data"
@@ -20,6 +21,15 @@ def process_sms_published!
   samples_glob = "#{source_folder}/smileseq_raw/*.fastq"
 
   ReadsProcessing.process!(SMSPublished, samples_glob, metadata_fn, barcodes_fn, num_threads: 20)
+end
+
+def process_hts!
+  $stderr.puts "Process HT-SELEX data"
+  metadata_fn = "shared/source_data_HTS/HTS.tsv"
+  barcodes_fn = nil
+  samples_glob = "source_data_hts/reads/*.fastq.gz"
+
+  ReadsProcessing.process!(Selex, samples_glob, metadata_fn, barcodes_fn, num_threads: 20)
 end
 
 process_sms_unpublished!
