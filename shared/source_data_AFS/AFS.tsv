@@ -1,50 +1,60 @@
-Experiment ID	Plasmid ID	Gene name	ExperimentID from Hughes lab	IVT or Lysate	DNA library ID	Cycle 1 - file ID (Read 1)	etc.
-YWC_198	pTH13913	AHCTF1			AffiSeqV1		
-YWC_199	pTH13918	GLYR1			AffiSeqV1		
-YWC_200	pTH13919	GLYR1			AffiSeqV1		
-YWC_201	pTH13920	PHF21A			AffiSeqV1		
-YWC_202	pTH13923	SETBP1			AffiSeqV1		
-YWC_203	pTH13925	SETBP1			AffiSeqV1		
-YWC_204	pTH13940	USF3			AffiSeqV1		
-YWC_205	pTH13945	CREB3L3			AffiSeqV1		
-YWC_206	pTH13951	AKAP8L			AffiSeqV1		
-YWC_207	pTH13957	CHAMP1			AffiSeqV1		
-YWC_208	pTH14204	MBNL2			AffiSeqV1		
-YWC_209	pTH14206	ZC3H8			AffiSeqV1		
-YWC_210	pTH14209	JRK			AffiSeqV1		
-YWC_211	pTH14210	JRK			AffiSeqV1		
-YWC_212	pTH14211	TIGD3			AffiSeqV1		
-YWC_213	pTH14212	TIGD3			AffiSeqV1		
-YWC_214	pTH14216	TIGD7			AffiSeqV1		
-YWC_215	pTH14217	TIGD7			AffiSeqV1		
-YWC_216	pTH14220	CXXC4			AffiSeqV1		
-YWC_217	pTH14221	CXXC4			AffiSeqV1		
-YWC_218	pTH14222	FBXL19			AffiSeqV1		
-YWC_219	pTH14223	KDM2A			AffiSeqV1		
-YWC_220	pTH14224	TET3			AffiSeqV1		
-YWC_221	pTH14225	DMRTB1			AffiSeqV1		
-YWC_222	pTH14226	DMRTB1			AffiSeqV1		
-YWC_223	pTH14227	FLYWCH1			AffiSeqV1		
-YWC_224	pTH14231	ZGLP1			AffiSeqV1		
-YWC_225	pTH14232	ZGLP1			AffiSeqV1		
-YWC_226	pTH14233	GRHL3			AffiSeqV1		
-YWC_227	pTH14236	HMG20A			AffiSeqV1		
-YWC_228	pTH14237	HMG20A			AffiSeqV1		
-YWC_229	pTH14243	LEUTX			AffiSeqV1		
-YWC_230	pTH14245	MKX			AffiSeqV1		
-YWC_231	pTH14247	TPRX1			AffiSeqV1		
-YWC_232	pTH14248	TPRX1			AffiSeqV1		
-YWC_233	pTH14259	MSANTD1			AffiSeqV1		
-YWC_234	pTH14266	MBD1			AffiSeqV1		
-YWC_235	pTH14271	DMTF1			AffiSeqV1		
-YWC_236	pTH14272	MSANTD4			AffiSeqV1		
-YWC_237	pTH14274	MYPOP			AffiSeqV1		
-YWC_238	pTH14278	TERF1			AffiSeqV1		
-YWC_239	pTH14304	GPBP1			AffiSeqV1		
-YWC_240	pTH14308	NACC2			AffiSeqV1		
-YWC_241	pTH14310	NME2			AffiSeqV1		
-YWC_242	pTH14319	PURB			AffiSeqV1		
-YWC_243	pTH14327	SMYD3			AffiSeqV1		
-YWC_244	pTH14330	TCF20			AffiSeqV1		
-YWC_245	pTH14338	SP140			AffiSeqV1		
-YWC_246	pTH14340	SP140L			AffiSeqV1		
+Experiment ID	Plasmid ID	Gene name	IVT or Lysate	DNA library ID	Well	Filename Read1 Cycle1	Filename Read1 Cycle2	Filename Read1 Cycle3
+AATA_AffSeq_D5_GLI4	pTH15820	GLI4	Lysate	AffiSeqV1	D5	GLI4_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	GLI4_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	GLI4_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_A5_SNAI1	pTH16498	SNAI1	Lysate	AffiSeqV1	A5	SNAI1_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	SNAI1_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	SNAI1_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_G8_ZFP28	pTH15866	ZFP28	Lysate	AffiSeqV1	G8	ZFP28_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZFP28_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZFP28_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_E5_ZFP3	pTH15836	ZFP3	Lysate	AffiSeqV1	E5	ZFP3_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZFP3_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZFP3_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_B7_ZIM3	pTH15862	ZIM3	Lysate	AffiSeqV1	B7	ZIM3_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZIM3_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZIM3_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_H6_ZNF121	pTH16034	ZNF121	Lysate	AffiSeqV1	H6	ZNF121_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF121_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF121_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_A7_ZNF134	pTH15812	ZNF134	Lysate	AffiSeqV1	A7	ZNF134_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF134_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF134_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_H7_ZNF16	pTH15949	ZNF16	Lysate	AffiSeqV1	H7	ZNF16_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF16_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF16_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_B5_ZNF189	pTH16499	ZNF189	Lysate	AffiSeqV1	B5	ZNF189_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF189_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF189_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_E6_ZNF22	pTH15985	ZNF22	Lysate	AffiSeqV1	E6	ZNF22_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF22_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF22_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_G5_ZNF250	pTH15840	ZNF250	Lysate	AffiSeqV1	G5	ZNF250_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF250_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF250_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_B8_ZNF260	pTH15959	ZNF260	Lysate	AffiSeqV1	B8	ZNF260_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF260_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF260_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_C7_ZNF264	pTH15950	ZNF264	Lysate	AffiSeqV1	C7	ZNF264_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF264_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF264_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_H5_ZNF280A	pTH15842	ZNF280A	Lysate	AffiSeqV1	H5	ZNF280A_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF280A_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF280A_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_F6_ZNF30	pTH15998	ZNF30	Lysate	AffiSeqV1	F6	ZNF30_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF30_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF30_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_A6_ZNF322	pTH15815	ZNF322	Lysate	AffiSeqV1	A6	ZNF322_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF322_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF322_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_G6_ZNF35	pTH15874	ZNF35	Lysate	AffiSeqV1	G6	ZNF35_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF35_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF35_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_B6_ZNF382	pTH15828	ZNF382	Lysate	AffiSeqV1	B6	ZNF382_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF382_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF382_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_D7_ZNF384	pTH15892	ZNF384	Lysate	AffiSeqV1	D7	ZNF384_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF384_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF384_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_E7_ZNF436	pTH15849	ZNF436	Lysate	AffiSeqV1	E7	ZNF436_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF436_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF436_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_C6_ZNF454	pTH15830	ZNF454	Lysate	AffiSeqV1	C6	ZNF454_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF454_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF454_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_F7_ZNF490	pTH15851	ZNF490	Lysate	AffiSeqV1	F7	ZNF490_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF490_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF490_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_C8_ZNF582	pTH15943	ZNF582	Lysate	AffiSeqV1	C8	ZNF582_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF582_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF582_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_E8_ZNF770	pTH15883	ZNF770	Lysate	AffiSeqV1	E8	ZNF770_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF770_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF770_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_G7_ZNF8	pTH15857	ZNF8	Lysate	AffiSeqV1	G7	ZNF8_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF8_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF8_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_F5_ZNF18	pTH15838	ZNF18	Lysate	AffiSeqV1	F5	ZNF18_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF18_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF18_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_D8_ZNF596	pTH15990	ZNF596	Lysate	AffiSeqV1	D8	ZNF596_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF596_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF596_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATA_AffSeq_C5_ZNF708	pTH16500	ZNF708	Lysate	AffiSeqV1	C5	ZNF708_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz	ZNF708_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz	ZNF708_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_A9_GLI4	pTH15392	GLI4	IVT	AffiSeqV1	A9	GLI4_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	GLI4_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	GLI4_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_B9_SNAI1	pTH15393	SNAI1	IVT	AffiSeqV1	B9	SNAI1_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	SNAI1_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	SNAI1_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_C9_ZFP28	pTH15394	ZFP28	IVT	AffiSeqV1	C9	ZFP28_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZFP28_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZFP28_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_D9_ZFP3	pTH15395	ZFP3	IVT	AffiSeqV1	D9	ZFP3_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZFP3_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZFP3_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_E9_ZIM3	pTH15396	ZIM3	IVT	AffiSeqV1	E9	ZIM3_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZIM3_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZIM3_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_F9_ZNF121	pTH15397	ZNF121	IVT	AffiSeqV1	F9	ZNF121_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF121_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF121_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_G9_ZNF134	pTH15398	ZNF134	IVT	AffiSeqV1	G9	ZNF134_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF134_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF134_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_H9_ZNF140	pTH15399	ZNF140	IVT	AffiSeqV1	H9	ZNF140_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF140_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF140_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_A10_ZNF146	pTH15400	ZNF146	IVT	AffiSeqV1	A10	ZNF146_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF146_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF146_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_B10_ZNF16	pTH15401	ZNF16	IVT	AffiSeqV1	B10	ZNF16_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF16_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF16_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_C10_ZNF189	pTH15402	ZNF189	IVT	AffiSeqV1	C10	ZNF189_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF189_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF189_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_D10_ZNF22	pTH15403	ZNF22	IVT	AffiSeqV1	D10	ZNF22_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF22_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF22_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_E10_ZNF250	pTH15404	ZNF250	IVT	AffiSeqV1	E10	ZNF250_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF250_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF250_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_F10_ZNF260	pTH15405	ZNF260	IVT	AffiSeqV1	F10	ZNF260_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF260_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF260_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_G10_ZNF264	pTH15406	ZNF264	IVT	AffiSeqV1	G10	ZNF264_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF264_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF264_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_H10_ZNF280A	pTH15407	ZNF280A	IVT	AffiSeqV1	H10	ZNF280A_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF280A_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF280A_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_A11_ZNF30	pTH15408	ZNF30	IVT	AffiSeqV1	A11	ZNF30_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF30_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF30_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_B11_ZNF317	pTH15409	ZNF317	IVT	AffiSeqV1	B11	ZNF317_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF317_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF317_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_C11_ZNF322	pTH15410	ZNF322	IVT	AffiSeqV1	C11	ZNF322_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF322_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF322_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_D11_ZNF35	pTH15411	ZNF35	IVT	AffiSeqV1	D11	ZNF35_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF35_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF35_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_E11_ZNF382	pTH15412	ZNF382	IVT	AffiSeqV1	E11	ZNF382_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF382_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF382_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_F11_ZNF384	pTH15413	ZNF384	IVT	AffiSeqV1	F11	ZNF384_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF384_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF384_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_G11_ZNF436	pTH15414	ZNF436	IVT	AffiSeqV1	G11	ZNF436_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF436_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF436_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_H11_ZNF454	pTH15415	ZNF454	IVT	AffiSeqV1	H11	ZNF454_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF454_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF454_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_A12_ZNF490	pTH15416	ZNF490	IVT	AffiSeqV1	A12	ZNF490_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF490_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF490_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_B12_ZNF502	pTH15417	ZNF502	IVT	AffiSeqV1	B12	ZNF502_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF502_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF502_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_C12_ZNF563	pTH15418	ZNF563	IVT	AffiSeqV1	C12	ZNF563_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF563_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF563_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_D12_ZNF582	pTH15419	ZNF582	IVT	AffiSeqV1	D12	ZNF582_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF582_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF582_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_E12_ZNF677	pTH15420	ZNF677	IVT	AffiSeqV1	E12	ZNF677_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF677_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF677_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_F12_ZNF770	pTH15421	ZNF770	IVT	AffiSeqV1	F12	ZNF770_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF770_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF770_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
+AATBA_AffSeq_G12_ZNF8	pTH15422	ZNF8	IVT	AffiSeqV1	G12	ZNF8_AffSeq_IVT_BatchAATBA_Cycle1_R1.fastq.gz	ZNF8_AffSeq_IVT_BatchAATBA_Cycle2_R1.fastq.gz	ZNF8_AffSeq_IVT_BatchAATBA_Cycle3_R1.fastq.gz
