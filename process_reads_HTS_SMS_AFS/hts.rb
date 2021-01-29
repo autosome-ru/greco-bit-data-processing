@@ -1,4 +1,5 @@
 require_relative '../shared/lib/index_by'
+require_relative '../shared/lib/plasmid_metadata'
 
 module Selex
   # Random insert sequences should be extended with sequences that were physically present during the binding experiments,
@@ -63,3 +64,44 @@ module Selex
     sample.to_h.values_at(*fields) == sample_metadata.to_h.values_at(*fields)
   end
 end
+
+
+plasmids_metadata = PlasmidMetadata.each_in_file('shared/source_data/Plasmids.tsv').to_a
+plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
+Selex::SampleMetadata.each_in_file
+
+
+# SELEX (and without AffiSeq!)
+['IVT', 'Lysate'].each{|experiment_type|
+  results_folder = "results_#{experiment_type}"
+  FileUtils.mkdir_p "#{results_folder}/train_reads"
+  FileUtils.mkdir_p "#{results_folder}/validation_reads"
+
+  sample_filenames = Dir.glob('source_data/reads/*.fastq.gz')
+  sample_filenames.select!{|fn| File.basename(fn).match?(/_#{experiment_type}_/) }
+  sample_filenames.reject!{|fn| File.basename(fn).match?(/_AffSeq_/) }
+
+  samples = sample_filenames.map{|fn| parse_filename_selex(fn) }
+  Parallel.each(samples, in_processes: 20) do |sample|
+    # In SELEX there are no paired reads, so we don't add it to filename
+    bn = sample.values_at(:tf, :type, :cycle, :adapter, :batch).join('.')
+    train_fn = "#{results_folder}/train_reads/#{bn}.selex.train.fastq.gz"
+    validation_fn = "#{results_folder}/validation_reads/#{bn}.selex.val.fastq.gz"
+    train_val_split(sample[:filename], train_fn, validation_fn)
+  end
+
+  File.open("#{results_folder}/stats.tsv", 'w') do |fw|
+    header = ['tf', 'type', 'cycle', 'adapter', 'batch', 'train/validation', 'filename', 'num_reads']
+    fw.puts(header.join("\t"))
+    samples.each{|sample|
+      bn = sample.values_at(:tf, :type, :cycle, :adapter, :batch).join('.')
+      train_fn = "#{results_folder}/train_reads/#{bn}.selex.train.fastq.gz"
+      info_train = sample.values_at(:tf, :type, :cycle, :adapter, :batch) + ['train', train_fn, num_reads_in_fastq(train_fn)]
+      fw.puts(info_train.join("\t"))
+
+      validation_fn = "#{results_folder}/validation_reads/#{bn}.selex.val.fastq.gz"
+      info_validation = sample.values_at(:tf, :type, :cycle, :adapter, :batch) + ['validation', validation_fn, num_reads_in_fastq(validation_fn)]
+      fw.puts(info_validation.join("\t"))
+    }
+  end
+}
