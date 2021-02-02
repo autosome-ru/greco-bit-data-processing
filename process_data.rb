@@ -39,7 +39,7 @@ def process_hts!
   ReadsProcessing.process!(Selex, results_folder, samples_glob, metadata_fn, barcode_proc, num_threads: 20)
 end
 
-plasmids_metadata = PlasmidMetadata.each_in_file('shared/source_data/Plasmids.tsv').to_a
+plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
 $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
 process_sms_unpublished!
