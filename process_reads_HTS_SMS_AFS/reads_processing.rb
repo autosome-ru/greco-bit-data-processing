@@ -5,22 +5,7 @@ require_relative 'dataset_naming'
 
 module ReadsProcessing
   # processing_module = SMSPublished / SMSUnpublished
-  def self.process!(processing_module, results_folder, samples_glob, metadata_fn, barcode_proc, num_threads: 1)
-    sample_filenames = Dir.glob(samples_glob)
-    samples = sample_filenames.map{|fn| processing_module::Sample.from_filename(fn) }
-    samples.reject_unique_by(&:experiment_id).yield_self{|rejected_samples|
-      $stderr.puts("Rejected sample not unique by experiment_id:")  if !rejected_samples.empty?
-      rejected_samples.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
-    }
-    samples = samples.select_unique_by(&:experiment_id)
-
-    metadata = processing_module::SampleMetadata.each_in_file(metadata_fn).to_a
-    metadata.reject_unique_by(&:experiment_id).yield_self{|rejected_metadata|
-      $stderr.puts("Rejected sample metadata not unique by experiment_id:")  if !rejected_metadata.empty?
-      rejected_metadata.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
-    }
-    metadata = metadata.select_unique_by(&:experiment_id)
-
+  def self.process!(processing_module, results_folder, samples, metadata, barcode_proc, num_threads: 1)
     sample_triples = ReadsProcessing.collect_sample_triples(samples, metadata)
     verify_sample_triples!(processing_module, sample_triples)
 

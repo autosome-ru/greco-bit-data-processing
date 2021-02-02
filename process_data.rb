@@ -3,6 +3,24 @@ require_relative 'process_reads_HTS_SMS_AFS/sms_published'
 require_relative 'process_reads_HTS_SMS_AFS/sms_unpublished'
 require_relative 'process_reads_HTS_SMS_AFS/hts'
 
+def unique_samples(samples, warnings: true)
+  bad_samples = samples.reject_unique_by(&:experiment_id)
+  if warnings && !bad_sample.empty?
+    $stderr.puts("Rejected sample not unique by experiment_id:")  if !bad_samples.empty?
+    bad_samples.sort_by(&:experiment_id).each{|sample| $stderr.puts(sample) }
+  end
+  samples.select_unique_by(&:experiment_id)
+end
+
+def unique_metadata(metadata, warnings: true)
+  bad_metadata = metadata.reject_unique_by(&:experiment_id)
+  if warnings && !bad_metadata.empty?
+    $stderr.puts("Rejected sample metadata not unique by experiment_id:")  if !bad_metadata.empty?
+    bad_metadata.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
+  end
+  metadata.select_unique_by(&:experiment_id)
+end
+
 def process_sms_unpublished!
   $stderr.puts "Process unpublished SMiLE-seq data"
 
@@ -13,7 +31,13 @@ def process_sms_unpublished!
 
   barcodes = SMSUnpublished.read_barcodes(barcodes_fn)
   barcode_proc = ->(sample_metadata){ barcodes[sample_metadata.barcode_index] }
-  ReadsProcessing.process!(SMSUnpublished, results_folder, samples_glob, metadata_fn, barcode_proc, num_threads: 20)
+
+  samples = Dir.glob(samples_glob).map{|fn| SMSUnpublished::Sample.from_filename(fn) }
+  metadata = SMSUnpublished::SampleMetadata.each_in_file(metadata_fn).to_a
+  samples = unique_samples(samples)
+  metadata = unique_metadata(metadata)
+
+  ReadsProcessing.process!(SMSUnpublished, results_folder, samples, metadata, barcode_proc, num_threads: 20)
 end
 
 def process_sms_published!
@@ -26,7 +50,13 @@ def process_sms_published!
 
   barcodes = SMSPublished.read_barcodes(barcodes_fn)
   barcode_proc = ->(sample_metadata){ barcodes[sample_metadata.barcode_index] }
-  ReadsProcessing.process!(SMSPublished, results_folder, samples_glob, metadata_fn, barcode_proc, num_threads: 20)
+
+  samples = Dir.glob(samples_glob).map{|fn| SMSPublished::Sample.from_filename(fn) }
+  metadata = SMSPublished::SampleMetadata.each_in_file(metadata_fn).to_a
+  samples = unique_samples(samples)
+  metadata = unique_metadata(metadata)
+
+  ReadsProcessing.process!(SMSPublished, results_folder, samples, metadata, barcode_proc, num_threads: 20)
 end
 
 def process_hts!
@@ -36,7 +66,11 @@ def process_hts!
   results_folder = "source_data_prepared/HTS/reads/"
 
   barcode_proc = ->(sample_metadata){ sample_metadata.barcode }
-  ReadsProcessing.process!(Selex, results_folder, samples_glob, metadata_fn, barcode_proc, num_threads: 20)
+
+  samples = Dir.glob(samples_glob).map{|fn| Selex::Sample.from_filename(fn) }
+  metadata = Selex::SampleMetadata.each_in_file(metadata_fn).to_a
+
+  ReadsProcessing.process!(Selex, results_folder, samples, metadata, barcode_proc, num_threads: 20)
 end
 
 plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
