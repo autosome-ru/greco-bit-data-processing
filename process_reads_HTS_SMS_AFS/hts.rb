@@ -101,9 +101,6 @@ module Selex
   end
 end
 
-
-plasmids_metadata = PlasmidMetadata.each_in_file('shared/source_data/Plasmids.tsv').to_a
-$plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 # # Selex::SampleMetadata.each_in_file
 
 

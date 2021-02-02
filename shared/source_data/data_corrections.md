@@ -28,3 +28,9 @@ Plasmids:
 - Plasmid #889 has plasmid number pTH15990 and simultaneously pTH15883. Probably the first one was accidentally copy-pasted from plasmid #888. Is it correct, that plasmid number should be pTH15883?
 - Is it necessary to have two distinct plasmid number columns (B and J) with identical data?
 - Some plasmids have "Marjanset TFs with published ChIP-seq data" in unnamed column R. Can you please either give some name to the column or fix these data.
+
+
+SMiLE-Seq data:
+- renamed UT{123_456}_*.fastq -> UT{123-456}_*.fastq
+- renamed UT380408_ZNF66_C2H2_ZF_SS114_BC01.fastq -> UT380-408_ZNF66_C2H2_ZF_SS114_BC01.fastq
+- ...

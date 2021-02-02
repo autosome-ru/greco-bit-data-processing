@@ -1,0 +1,20 @@
+mkdir -p source_data/HTS/reads
+find -L /home_local/mihaialbu/Codebook/SELEX/RawData/ -xtype f -iname '*.fastq.gz' | grep -vi AffSeq | grep -vi Control | grep -vi Unselected | xargs -n1 -I{} ln -s {} source_data/HTS/reads/
+
+mkdir -p source_data/AFS/reads
+find -L /home_local/mihaialbu/Codebook/SELEX/RawData/ -xtype f -iname '*.fastq.gz' | grep -i AffSeq | grep -vi Control | xargs -n1 -I{} ln -s {} source_data/AFS/reads/
+
+mkdir -p source_data/SMS/reads/unpublished
+find -L /mnt/space/depla/smileseq_raw/ -xtype f -iname '*.fastq' | ruby -r fileutils -e '$stdin.readlines.map(&:chomp).each{|fn| new_bn = File.basename(fn).sub(/^UT(\d\d\d)_?(\d\d\d)/, "UT\1-\2"); FileUtils.ln_s(fn, "source_data/SMS/reads/unpublished/#{new_bn}") }'
+
+mkdir -p source_data/SMS/reads/published
+find -L /mnt/space/depla/old_smlseq_raw/raw/ -xtype f -iname '*.fastq' | xargs -n1 -I{} ln -s {} source_data/SMS/reads/published/
+
+mkdir -p source_data/AFS/peaks
+
+
+mkdir -p source_data/CHS/peaks
+
+
+mkdir -p source_data/PBM/chips
+
