@@ -8,8 +8,18 @@ module ReadsProcessing
   def self.process!(processing_module, results_folder, samples_glob, metadata_fn, barcode_proc, num_threads: 1)
     sample_filenames = Dir.glob(samples_glob)
     samples = sample_filenames.map{|fn| processing_module::Sample.from_filename(fn) }
+    samples.reject_unique_by(&:experiment_id).yield_self{|rejected_samples|
+      $stderr.puts("Rejected sample not unique by experiment_id:")  if !rejected_samples.empty?
+      rejected_samples.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
+    }
+    samples = samples.select_unique_by(&:experiment_id)
 
     metadata = processing_module::SampleMetadata.each_in_file(metadata_fn).to_a
+    metadata.reject_unique_by(&:experiment_id).yield_self{|rejected_metadata|
+      $stderr.puts("Rejected sample metadata not unique by experiment_id:")  if !rejected_metadata.empty?
+      rejected_metadata.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
+    }
+    metadata = metadata.select_unique_by(&:experiment_id)
 
     sample_triples = ReadsProcessing.collect_sample_triples(samples, metadata)
     verify_sample_triples!(processing_module, sample_triples)
@@ -25,17 +35,8 @@ module ReadsProcessing
   end
 
   def self.collect_sample_triples(samples, metadata)
-    metadata.reject_unique_by(&:experiment_id).yield_self{|rejected_metadata|
-      $stderr.puts("Rejected sample metadata not unique by experiment_id:")  if !rejected_metadata.empty?
-      rejected_metadata.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
-    }
-    metadata_by_experiment_id = metadata.select_unique_by(&:experiment_id).index_by(&:experiment_id)
-
-    samples.reject_unique_by(&:experiment_id).yield_self{|rejected_samples|
-      $stderr.puts("Rejected sample not unique by experiment_id:")  if !rejected_samples.empty?
-      rejected_samples.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
-    }
-    sample_by_experiment_id = samples.select_unique_by(&:experiment_id).index_by(&:experiment_id)
+    metadata_by_experiment_id = metadata.index_by(&:experiment_id)
+    sample_by_experiment_id = samples.index_by(&:experiment_id)
 
     sample_triples = sample_by_experiment_id.map{|experiment_id, sample|
       sample_metadata = metadata_by_experiment_id[experiment_id]
