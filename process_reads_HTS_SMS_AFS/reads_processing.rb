@@ -28,7 +28,9 @@ module ReadsProcessing
     ds_naming.create_folders!
 
     Parallel.each(sample_triples, in_processes: num_threads) do |experiment_id, sample, sample_metadata|
-      train_val_split(sample.filename, ds_naming.train_filename(experiment_id), ds_naming.validation_filename(experiment_id))
+      train_fn = ds_naming.train_filename(experiment_id, uuid: take_dataset_name!)
+      val_fn = ds_naming.validation_filename(experiment_id, uuid: take_dataset_name!)
+      train_val_split(sample.filename, train_fn, val_fn)
     end
 
     ReadsProcessing.generate_samples_stats(processing_module::SampleMetadata, ds_naming, sample_triples)
