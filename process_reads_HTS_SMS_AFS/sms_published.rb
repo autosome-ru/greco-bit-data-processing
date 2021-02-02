@@ -44,6 +44,8 @@ module SMSPublished
         yield self.from_string(line)
       }
     end
+    def adapter_5; ADAPTER_5; end
+    def adapter_3; ADAPTER_3; end
   end
 
   def self.match_metadata?(sample, sample_metadata)

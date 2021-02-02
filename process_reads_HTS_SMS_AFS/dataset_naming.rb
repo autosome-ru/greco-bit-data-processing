@@ -21,8 +21,8 @@ module ReadsProcessing
       sample_metadata = metadata_by_experiment_id[experiment_id]
       # barcode = barcodes[sample_metadata.barcode_index]
       barcode = barcode_proc.call(sample_metadata)
-      flank_5 = (ADAPTER_5 + barcode[:flank_5])[-20,20]
-      flank_3 = (barcode[:flank_3] + ADAPTER_3)[0,20]
+      flank_5 = (sample_metadata.adapter_5 + barcode[:flank_5])[-20,20]
+      flank_3 = (barcode[:flank_3] + sample_metadata.adapter_3)[0,20]
       uuid = take_dataset_name!
       "#{sample_metadata.tf}.#{sample_metadata.construct_type}@#{sample_metadata.experiment_type}@#{experiment_id}.5#{flank_5}.3#{flank_3}@Reads.#{uuid}"
     end
