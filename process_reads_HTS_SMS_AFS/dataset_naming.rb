@@ -12,7 +12,7 @@ module ReadsProcessing
       @metadata_by_experiment_id = @metadata.index_by(&:experiment_id)
     end
 
-    def self.create_folders!
+    def create_folders!
       FileUtils.mkdir_p "#{results_folder}/train_reads"
       FileUtils.mkdir_p "#{results_folder}/validation_reads"
     end
