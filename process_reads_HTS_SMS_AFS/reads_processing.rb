@@ -31,7 +31,7 @@ module ReadsProcessing
     }
     metadata_by_experiment_id = metadata.select_unique_by(&:experiment_id).index_by(&:experiment_id)
 
-    sample.reject_unique_by(&:experiment_id).yield_self{|rejected_samples|
+    samples.reject_unique_by(&:experiment_id).yield_self{|rejected_samples|
       $stderr.puts("Rejected sample not unique by experiment_id:")  if !rejected_samples.empty?
       rejected_samples.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
     }
