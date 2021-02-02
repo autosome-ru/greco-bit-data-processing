@@ -19,7 +19,7 @@ end
 def process_sms_published!
   $stderr.puts "Process published SMiLE-seq data"
 
-  metadata_fn = "source_data_meta/SMS/published/SMiLE_seq_metadata_temp_17DEC2020_publishedData.tsv"
+  metadata_fn = "source_data_meta/SMS/published/SMS_published.tsv"
   barcodes_fn = "source_data_meta/SMS/published/Barcode_sequences.txt"
   samples_glob = "source_data/SMS/reads/published/*.fastq"
   results_folder = "source_data_prepared/SMS/published/reads/"

@@ -38,6 +38,8 @@ module SMSPublished
       self.new(tfs: tfs, construct_type: 'NA', experiment_id: srr_id, barcode_index: barcode_index, tf_non_normalized: tf_non_normalized)
     end
 
+    alias_method :tf, :tf_normalized
+
     def self.each_in_file(filename)
       return enum_for(:each_in_file, filename)  unless block_given?
       File.readlines(filename).drop(1).map{|line|
