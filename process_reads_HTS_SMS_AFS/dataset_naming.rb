@@ -4,10 +4,10 @@ require_relative 'fastq'
 
 module ReadsProcessing
   class DatasetNaming
-    attr_reader :results_folder, :barcodes, :metadata, :metadata_by_experiment_id
-    def initialize(results_folder, barcodes:, metadata:)
+    attr_reader :results_folder, :barcode_proc, :metadata, :metadata_by_experiment_id
+    def initialize(results_folder, barcode_proc:, metadata:)
       @results_folder = results_folder
-      @barcodes = barcodes
+      @barcode_proc = barcode_proc
       @metadata = metadata
       @metadata_by_experiment_id = @metadata.index_by(&:experiment_id)
     end
@@ -19,7 +19,8 @@ module ReadsProcessing
 
     def basename(experiment_id)
       sample_metadata = metadata_by_experiment_id[experiment_id]
-      barcode = barcodes[sample_metadata.barcode_index]
+      # barcode = barcodes[sample_metadata.barcode_index]
+      barcode = barcode_proc.call(sample_metadata)
       flank_5 = (ADAPTER_5 + barcode[:flank_5])[-20,20]
       flank_3 = (barcode[:flank_3] + ADAPTER_3)[0,20]
       uuid = take_dataset_name!

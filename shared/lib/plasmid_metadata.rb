@@ -41,7 +41,7 @@ PlasmidMetadata = Struct.new(*[
     }
   end
 
-  def construct_name
+  def construct_type
     plasmid_name.split('.')[2]
   end
 end

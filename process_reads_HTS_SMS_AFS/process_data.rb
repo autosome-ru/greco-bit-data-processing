@@ -10,7 +10,9 @@ def process_sms_unpublished!
   barcodes_fn = "#{source_folder}/smileseq_barcode_file.txt"
   samples_glob = "#{source_folder}/smileseq_raw/*.fastq"
 
-  ReadsProcessing.process!(SMSUnpublished, samples_glob, metadata_fn, barcodes_fn, num_threads: 20)
+  barcodes = SMSUnpublished.read_barcodes(barcodes_fn)
+  barcode_proc = ->(sample_metadata){ barcodes[sample_metadata.barcode_index] }
+  ReadsProcessing.process!(SMSUnpublished, samples_glob, metadata_fn, barcode_proc, num_threads: 20)
 end
 
 def process_sms_published!
@@ -20,7 +22,9 @@ def process_sms_published!
   barcodes_fn = "#{source_folder}/Barcode_sequences.txt"
   samples_glob = "#{source_folder}/smileseq_raw/*.fastq"
 
-  ReadsProcessing.process!(SMSPublished, samples_glob, metadata_fn, barcodes_fn, num_threads: 20)
+  barcodes = SMSPublished.read_barcodes(barcodes_fn)
+  barcode_proc = ->(sample_metadata){ barcodes[sample_metadata.barcode_index] }
+  ReadsProcessing.process!(SMSPublished, samples_glob, metadata_fn, barcode_proc, num_threads: 20)
 end
 
 def process_hts!
@@ -29,8 +33,10 @@ def process_hts!
   barcodes_fn = nil
   samples_glob = "source_data_hts/reads/*.fastq.gz"
 
-  ReadsProcessing.process!(Selex, samples_glob, metadata_fn, barcodes_fn, num_threads: 20)
+  barcode_proc = ->(sample_metadata){ sample_metadata.barcode }
+  ReadsProcessing.process!(Selex, samples_glob, metadata_fn, barcode_proc, num_threads: 20)
 end
 
 process_sms_unpublished!
 process_sms_published!
+process_hts!

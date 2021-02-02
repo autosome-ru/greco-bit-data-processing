@@ -66,6 +66,8 @@ module Selex
     end
 
     def experiment_type; "HTS_#{experiment_subtype}"; end
+    def tf; gene_name; end
+    def construct_type; $plasmid_by_number[plasmid_id].construct_type; end
 
     def self.from_string(line)
       # Example:
@@ -100,8 +102,8 @@ module Selex
 end
 
 
-# plasmids_metadata = PlasmidMetadata.each_in_file('shared/source_data/Plasmids.tsv').to_a
-# plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
+plasmids_metadata = PlasmidMetadata.each_in_file('shared/source_data/Plasmids.tsv').to_a
+$plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 # # Selex::SampleMetadata.each_in_file
 
 
