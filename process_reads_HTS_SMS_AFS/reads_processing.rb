@@ -25,8 +25,17 @@ module ReadsProcessing
   end
 
   def self.collect_sample_triples(samples, metadata)
-    metadata_by_experiment_id = metadata.index_by(&:experiment_id)
-    sample_by_experiment_id = samples.index_by(&:experiment_id)
+    metadata.reject_unique_by(&:experiment_id).yield_self{|rejected_metadata|
+      $stderr.puts("Rejected sample metadata not unique by experiment_id:")  if !rejected_metadata.empty?
+      rejected_metadata.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
+    }
+    metadata_by_experiment_id = metadata.select_unique_by(&:experiment_id).index_by(&:experiment_id)
+
+    sample.reject_unique_by(&:experiment_id).yield_self{|rejected_samples|
+      $stderr.puts("Rejected sample not unique by experiment_id:")  if !rejected_samples.empty?
+      rejected_samples.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
+    }
+    sample_by_experiment_id = samples.select_unique_by(&:experiment_id).index_by(&:experiment_id)
 
     sample_triples = sample_by_experiment_id.map{|experiment_id, sample|
       sample_metadata = metadata_by_experiment_id[experiment_id]

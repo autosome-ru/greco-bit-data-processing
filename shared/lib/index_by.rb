@@ -6,4 +6,12 @@ module Enumerable
       hsh[index] = object
     }
   end
+
+  def select_unique_by(&block)
+    group_by(&block).select{|k,vs| vs.size == 1 }.values
+  end
+
+  def reject_unique_by(&block)
+    group_by(&block).reject{|k,vs| vs.size == 1 }.values
+  end
 end

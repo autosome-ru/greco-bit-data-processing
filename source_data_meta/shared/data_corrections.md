@@ -33,4 +33,4 @@ Plasmids:
 SMiLE-Seq data:
 - renamed UT{123_456}_*.fastq -> UT{123-456}_*.fastq
 - renamed UT380408_ZNF66_C2H2_ZF_SS114_BC01.fastq -> UT380-408_ZNF66_C2H2_ZF_SS114_BC01.fastq
-- ...
+- there are duplicate BBI_IDs (UT380-038, UT380-056, UT380-066, UT380-068, UT380-105, UT380-127, UT380-144, UT380-185, UT380-212, UT380-233, UT380-245, UT380-502, UT380-503). Thus we can't treat them as experiment ids. Hughes_ID is also not unique.
