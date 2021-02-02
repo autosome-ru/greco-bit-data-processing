@@ -1,7 +1,7 @@
-require_relative 'reads_processing'
-require_relative 'sms_published'
-require_relative 'sms_unpublished'
-require_relative 'hts'
+require_relative 'process_reads_HTS_SMS_AFS/reads_processing'
+require_relative 'process_reads_HTS_SMS_AFS/sms_published'
+require_relative 'process_reads_HTS_SMS_AFS/sms_unpublished'
+require_relative 'process_reads_HTS_SMS_AFS/hts'
 
 def process_sms_unpublished!
   $stderr.puts "Process unpublished SMiLE-seq data"
