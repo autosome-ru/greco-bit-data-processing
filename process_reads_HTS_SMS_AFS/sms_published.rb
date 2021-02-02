@@ -33,7 +33,7 @@ module SMSPublished
       # Example:
       ## SRR_ID  Barcode TF_name_(replicate) tf_normalized
       ## SRR3405054  BC15  CEBPb CEBPB
-      srr_id, barcode_index, tf_non_normalized, tf_normalized = l.chomp.split("\t")
+      srr_id, barcode_index, tf_non_normalized, tf_normalized = line.chomp.split("\t")
       tfs = tf_normalized.split(';')
       self.new(tfs: tfs, construct_type: 'NA', experiment_id: srr_id, barcode_index: barcode_index, tf_non_normalized: tf_non_normalized)
     end
