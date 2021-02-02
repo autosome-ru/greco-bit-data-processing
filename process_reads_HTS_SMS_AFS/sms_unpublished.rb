@@ -22,6 +22,10 @@ module SMSUnpublished
       experiment_id = experiment_id_match[1] + '-' + experiment_id_match[2] # UT380_501 --> UT380-501, UT380408 --> UT380-408
       # ['SETBP1', 'DBD', ['1', 'AT', 'hook'], 'SS018', 'BC07']
       tf, dbd_or_fl, *domain_parts, sequencing_id, barcode_index = basename_wo_experiment_id.split('_')
+      unless ['FL', 'DBD', 'AThook'].include?(dbd_or_fl)
+        domain_parts = [dbd_or_fl, *domain_parts]
+        dbd_or_fl = 'NA'
+      end
       barcode_index = barcode_index.sub(/^BC0*(\d+)$/, 'BC\1') # BC07 --> BC7
       self.new(experiment_id: experiment_id, tf: tf, construct_type: dbd_or_fl,
         barcode_index: barcode_index, domain: domain_parts.join('_'), sequencing_id: sequencing_id,
