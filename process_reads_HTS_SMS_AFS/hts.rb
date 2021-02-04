@@ -35,6 +35,8 @@ module Selex
       raise  unless reads_part == 'R1'
       raise  unless batch.start_with?('Batch')
       raise  unless cycle.start_with?('Cycle')
+      raise "Unknown experiment subtype `#{experiment_subtype}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
+      experiment_subtype = experiment_subtype[0,3]
       self.new(tf: tf, experiment_subtype: experiment_subtype,
         cycle: Integer(cycle.sub(/^Cycle/, '')),
         barcode: Selex.parse_barcode(barcode_str),
