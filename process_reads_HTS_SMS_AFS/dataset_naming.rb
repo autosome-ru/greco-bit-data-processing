@@ -19,7 +19,8 @@ module ReadsProcessing
       barcode = barcode_proc.call(sample_metadata)
       flank_5 = (sample_metadata.adapter_5 + barcode[:flank_5])[-20,20]
       flank_3 = (barcode[:flank_3] + sample_metadata.adapter_3)[0,20]
-      "#{sample_metadata.tf}.#{sample_metadata.construct_type}@#{sample_metadata.experiment_type}@#{experiment_id}.5#{flank_5}.3#{flank_3}@Reads"
+      procedure = 'Reads'
+      "#{sample_metadata.tf}.#{sample_metadata.construct_type}@#{sample_metadata.experiment_type}@#{experiment_id}.5#{flank_5}.3#{flank_3}@#{procedure}"
     end
 
     def train_filename(sample_metadata, uuid:); "#{results_folder}/train_reads/#{basename(sample_metadata)}.#{uuid}.Train.fastq.gz"; end
