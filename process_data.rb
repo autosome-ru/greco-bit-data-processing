@@ -21,6 +21,23 @@ def unique_metadata(metadata, warnings: true)
   metadata.select_unique_by(&:experiment_id)
 end
 
+def match_triples_by_filenames(samples, metadata, metadata_keys)
+  sample_triples = metadata_keys.flat_map{|meta_key|
+    inner_join_by(
+      samples, metadata,
+      key_proc_1: ->(smp){ File.basename(smp.filename) },
+      key_proc_2: ->(meta){ meta.send(meta_key)}
+    )
+  }
+end
+
+def report_unmatched!(samples, sample_triples)
+  unmatched_samples = samples - sample_triples.map{|key, sample, sample_meta| sample }
+  unmatched_samples.each{|sample|
+    $stderr.puts "There is no metadata for `#{sample}`"
+  }
+end
+
 def process_sms_unpublished!
   $stderr.puts "Process unpublished SMiLE-seq data"
 
@@ -37,7 +54,9 @@ def process_sms_unpublished!
   samples = unique_samples(samples)
   metadata = unique_metadata(metadata)
 
-  ReadsProcessing.process!(SMSUnpublished, results_folder, samples, metadata, barcode_proc, num_threads: 20)
+  sample_triples = left_join_by(samples, metadata, &:experiment_id)
+
+  ReadsProcessing.process!(SMSUnpublished, results_folder, sample_triples, metadata, barcode_proc, num_threads: 20)
 end
 
 def process_sms_published!
@@ -56,7 +75,9 @@ def process_sms_published!
   samples = unique_samples(samples)
   metadata = unique_metadata(metadata)
 
-  ReadsProcessing.process!(SMSPublished, results_folder, samples, metadata, barcode_proc, num_threads: 20)
+  sample_triples = left_join_by(samples, metadata, &:experiment_id)
+
+  ReadsProcessing.process!(SMSPublished, results_folder, sample_triples, metadata, barcode_proc, num_threads: 20)
 end
 
 def process_hts!
@@ -70,7 +91,13 @@ def process_hts!
   samples = Dir.glob(samples_glob).map{|fn| Selex::Sample.from_filename(fn) }
   metadata = Selex::SampleMetadata.each_in_file(metadata_fn).to_a
 
-  ReadsProcessing.process!(Selex, results_folder, samples, metadata, barcode_proc, num_threads: 20)
+  sample_triples = match_triples_by_filenames(
+    samples, metadata,
+    ['cycle_1_filename', 'cycle_2_filename', 'cycle_3_filename']
+  )
+  report_unmatched!(samples, sample_triples)
+
+  ReadsProcessing.process!(Selex, results_folder, sample_triples, metadata, barcode_proc, num_threads: 20)
 end
 
 plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a

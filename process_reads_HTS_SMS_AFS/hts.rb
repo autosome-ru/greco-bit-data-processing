@@ -79,10 +79,14 @@ module Selex
       raise  unless dna_library_id.match?(/^[ACGT]+\d+N[ACGT]+_v1$/)
       # adapter_str = dna_library_id.sub(/_v1$/, '') # GT40NGCGTGT_v1 --> GT40NGCGTGT
       # adapter = Selex.parse_adapter(adapter_str)
+
+      filename_or_nil = ->(fn){ (fn == 'No_Data') ? nil : fn }
       self.new(
         experiment_id: experiment_id, plasmid_id: plasmid_id, gene_name: gene_name,
         experiment_subtype: experiment_subtype, dna_library_id: dna_library_id,
-        cycle_1_filename: cycle_1_filename, cycle_2_filename: cycle_2_filename, cycle_3_filename: cycle_3_filename,
+        cycle_1_filename: filename_or_nil.(cycle_1_filename),
+        cycle_2_filename: filename_or_nil.(cycle_2_filename),
+        cycle_3_filename: filename_or_nil.(cycle_3_filename),
         well_on_plate: well_on_plate,
       )
     end
