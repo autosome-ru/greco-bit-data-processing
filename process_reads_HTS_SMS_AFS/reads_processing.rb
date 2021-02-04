@@ -12,8 +12,8 @@ module ReadsProcessing
     ds_naming.create_folders!
 
     Parallel.each(sample_triples, in_processes: num_threads) do |experiment_id, sample, sample_metadata|
-      train_fn = ds_naming.train_filename(experiment_id, uuid: take_dataset_name!)
-      val_fn = ds_naming.validation_filename(experiment_id, uuid: take_dataset_name!)
+      train_fn = ds_naming.train_filename(sample_metadata, uuid: take_dataset_name!)
+      val_fn = ds_naming.validation_filename(sample_metadata, uuid: take_dataset_name!)
       train_val_split(sample.filename, train_fn, val_fn)
     end
 
@@ -26,7 +26,7 @@ module ReadsProcessing
       $stderr.puts("No metadata for `#{key}`")  if sample_metadata.nil?
       $stderr.puts("No sample for `#{key}`")  if sample.nil? # Impossible
       unless matcher.match_metadata?(sample, sample_metadata)
-        $stderr.puts("Metadata for #{sample.key} doesn't match info in filename")
+        $stderr.puts("Sample #{sample} doesn't match metadata #{sample_metadata}")
       end
     }
   end
