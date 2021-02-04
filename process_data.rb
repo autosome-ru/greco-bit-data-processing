@@ -5,7 +5,7 @@ require_relative 'process_reads_HTS_SMS_AFS/hts'
 
 def unique_samples(samples, warnings: true)
   bad_samples = samples.reject_unique_by(&:experiment_id)
-  if warnings && !bad_sample.empty?
+  if warnings && !bad_samples.empty?
     $stderr.puts("Rejected sample not unique by experiment_id:")  if !bad_samples.empty?
     bad_samples.sort_by(&:experiment_id).each{|sample| $stderr.puts(sample) }
   end
