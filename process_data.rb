@@ -56,7 +56,7 @@ def process_sms_unpublished!
 
   sample_triples = left_join_by(samples, metadata, &:experiment_id)
 
-  ReadsProcessing.process!(SMSUnpublished, results_folder, sample_triples, metadata, barcode_proc, num_threads: 20)
+  ReadsProcessing.process!(SMSUnpublished, results_folder, sample_triples, barcode_proc, num_threads: 20)
 end
 
 def process_sms_published!
@@ -77,7 +77,7 @@ def process_sms_published!
 
   sample_triples = left_join_by(samples, metadata, &:experiment_id)
 
-  ReadsProcessing.process!(SMSPublished, results_folder, sample_triples, metadata, barcode_proc, num_threads: 20)
+  ReadsProcessing.process!(SMSPublished, results_folder, sample_triples, barcode_proc, num_threads: 20)
 end
 
 def process_hts!
@@ -97,7 +97,7 @@ def process_hts!
   )
   report_unmatched!(samples, sample_triples)
 
-  ReadsProcessing.process!(Selex, results_folder, sample_triples, metadata, barcode_proc, num_threads: 20)
+  ReadsProcessing.process!(Selex, results_folder, sample_triples, barcode_proc, num_threads: 20)
 end
 
 plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a

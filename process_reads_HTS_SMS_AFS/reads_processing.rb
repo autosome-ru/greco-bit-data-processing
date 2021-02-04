@@ -5,10 +5,10 @@ require_relative 'dataset_naming'
 
 module ReadsProcessing
   # processing_module = SMSPublished / SMSUnpublished
-  def self.process!(processing_module, results_folder, sample_triples, metadata, barcode_proc, num_threads: 1)
+  def self.process!(processing_module, results_folder, sample_triples, barcode_proc, num_threads: 1)
     verify_sample_triples!(processing_module, sample_triples)
 
-    ds_naming = ReadsProcessing::DatasetNaming.new(results_folder, barcode_proc: barcode_proc, metadata: metadata)
+    ds_naming = ReadsProcessing::DatasetNaming.new(results_folder, barcode_proc: barcode_proc)
     ds_naming.create_folders!
 
     Parallel.each(sample_triples, in_processes: num_threads) do |experiment_id, sample, sample_metadata|

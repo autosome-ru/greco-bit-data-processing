@@ -4,12 +4,10 @@ require_relative 'fastq'
 
 module ReadsProcessing
   class DatasetNaming
-    attr_reader :results_folder, :barcode_proc, :metadata, :metadata_by_experiment_id
-    def initialize(results_folder, barcode_proc:, metadata:)
+    attr_reader :results_folder, :barcode_proc
+    def initialize(results_folder, barcode_proc:)
       @results_folder = results_folder
       @barcode_proc = barcode_proc
-      @metadata = metadata
-      @metadata_by_experiment_id = @metadata.index_by(&:experiment_id)
     end
 
     def create_folders!
@@ -17,19 +15,18 @@ module ReadsProcessing
       FileUtils.mkdir_p "#{results_folder}/validation_reads"
     end
 
-    def basename(experiment_id)
-      sample_metadata = metadata_by_experiment_id[experiment_id]
+    def basename(sample_metadata)
       barcode = barcode_proc.call(sample_metadata)
       flank_5 = (sample_metadata.adapter_5 + barcode[:flank_5])[-20,20]
       flank_3 = (barcode[:flank_3] + sample_metadata.adapter_3)[0,20]
       "#{sample_metadata.tf}.#{sample_metadata.construct_type}@#{sample_metadata.experiment_type}@#{experiment_id}.5#{flank_5}.3#{flank_3}@Reads"
     end
 
-    def train_filename(experiment_id, uuid:); "#{results_folder}/train_reads/#{basename(experiment_id)}.#{uuid}.Train.fastq.gz"; end
-    def validation_filename(experiment_id, uuid:); "#{results_folder}/validation_reads/#{basename(experiment_id)}.#{uuid}.Val.fastq.gz"; end
+    def train_filename(sample_metadata, uuid:); "#{results_folder}/train_reads/#{basename(sample_metadata)}.#{uuid}.Train.fastq.gz"; end
+    def validation_filename(sample_metadata, uuid:); "#{results_folder}/validation_reads/#{basename(sample_metadata)}.#{uuid}.Val.fastq.gz"; end
     def stats_filename; "#{results_folder}/stats.tsv"; end
-    def find_train_filename(experiment_id); Dir.glob("#{results_folder}/train_reads/#{basename(experiment_id)}.*.Train.fastq.gz").first; end
-    def find_validation_filename(experiment_id); Dir.glob("#{results_folder}/validation_reads/#{basename(experiment_id)}.*.Val.fastq.gz").first; end
+    def find_train_filename(sample_metadata); Dir.glob("#{results_folder}/train_reads/#{basename(sample_metadata)}.*.Train.fastq.gz").first; end
+    def find_validation_filename(sample_metadata); Dir.glob("#{results_folder}/validation_reads/#{basename(sample_metadata)}.*.Val.fastq.gz").first; end
   end
 
   def self.generate_samples_stats(metadata_class, ds_naming, sample_triples)
@@ -39,8 +36,8 @@ module ReadsProcessing
       sample_triples.each{|experiment_id, sample, sample_metadata|
         column_infos = sample_metadata.data_row
 
-        train_fn = ds_naming.find_train_filename(experiment_id)
-        val_fn = ds_naming.find_validation_filename(experiment_id)
+        train_fn = ds_naming.find_train_filename(sample_metadata)
+        val_fn = ds_naming.find_validation_filename(sample_metadata)
 
         info_train = [*column_infos, 'train', train_fn, num_reads_in_fastq(train_fn), sample.filename]
         info_val   = [*column_infos, 'validation', val_fn, num_reads_in_fastq(val_fn), sample.filename]
