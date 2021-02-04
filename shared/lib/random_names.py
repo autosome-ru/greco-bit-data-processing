@@ -4,6 +4,7 @@ import namegenerator
 
 DB_NAME = 'dataset_names.db'
 conn = sqlite3.connect(DB_NAME)
+conn.isolation_level = 'EXCLUSIVE'
 cursor = conn.cursor()
 
 def gen_names(num_names):
