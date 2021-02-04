@@ -108,6 +108,6 @@ module Selex
 
   def self.match_metadata?(sample, sample_metadata)
     fields = [:tf, :experiment_subtype, :barcode]
-    sample.to_h.values_at(*fields) == sample_metadata.to_h.values_at(*fields)
+    fields.all?{|f| sample.send(f) == sample_metadata.send(f) }
   end
 end
