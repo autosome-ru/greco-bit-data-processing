@@ -7,14 +7,6 @@ module Selex
   ADAPTER_5 = 'ACACTCTTTCCCTACACGACGCTCTTCCGATCT'
   ADAPTER_3 = 'AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'
 
-  def self.read_barcodes(filename)
-    nil
-    # File.readlines(filename).map{|l|
-    #   barcode_index, barcode_seq = l.chomp.split("\t")
-    #   [barcode_index, {flank_5: barcode_seq, flank_3: ''}]
-    # }.to_h
-  end
-
   # barcode_str example: 'GG40NCGTAGT'
   def self.parse_barcode(barcode_str)
     barcode_match = barcode_str.match(/^(?<flank_5>[ACGT]+)(?<insertion_length>\d+)N(?<flank_3>[ACGT]+)$/)
