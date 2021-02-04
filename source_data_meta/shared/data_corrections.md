@@ -34,3 +34,8 @@ SMiLE-Seq data:
 - renamed UT{123_456}_*.fastq -> UT{123-456}_*.fastq
 - renamed UT380408_ZNF66_C2H2_ZF_SS114_BC01.fastq -> UT380-408_ZNF66_C2H2_ZF_SS114_BC01.fastq
 - there are duplicate BBI_IDs (UT380-038, UT380-056, UT380-066, UT380-068, UT380-105, UT380-127, UT380-144, UT380-185, UT380-212, UT380-233, UT380-245, UT380-502, UT380-503). Thus we can't treat them as experiment ids. Hughes_ID is also not unique.
+
+
+HT-Selex:
+- There is no metadata for ZNF280A_TC40NGTTTTG_IVT_BatchAATBA_Cycle{2,3}_R1.fastq.gz
+- There is no metadata for ZNF997_TA40NGTTAGC_Lysate_BatchAATA_Cycle{1,2,3}_R1.fastq.gz
