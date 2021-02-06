@@ -16,7 +16,10 @@ module Enumerable
   end
 end
 
-def left_join_by(collection_1, collection_2, drop_nil: true, key_proc_1: nil, key_proc_2: nil, &key_proc)
+# doesn't work if there are duplicate keys
+
+# doesn't work if there are duplicate keys
+def full_join_by(collection_1, collection_2, drop_nil: true, key_proc_1: nil, key_proc_2: nil, &key_proc)
   key_proc_1 ||= key_proc
   key_proc_2 ||= key_proc
   if drop_nil
@@ -25,13 +28,21 @@ def left_join_by(collection_1, collection_2, drop_nil: true, key_proc_1: nil, ke
   end
   collection_1_by_key = collection_1.index_by(&key_proc_1)
   collection_2_by_key = collection_2.index_by(&key_proc_2)
-  collection_1_by_key.map{|key, obj_1|
+  keys = (collection_1_by_key.keys + collection_2_by_key.keys).uniq
+  keys.map{|key|
+    obj_1 = collection_1_by_key[key]
     obj_2 = collection_2_by_key[key]
     [key, obj_1, obj_2]
   }
 end
 
+def left_join_by(collection_1, collection_2, drop_nil: true, key_proc_1: nil, key_proc_2: nil, &key_proc)
+  full_join_result = full_join_by(collection_1, collection_2, drop_nil: drop_nil, key_proc_1: key_proc_1, key_proc_2: key_proc_2, &key_proc)
+  full_join_result.select{|k, obj_1, obj_2| obj_2 }
+end
+
+# doesn't work if there are duplicate keys
 def inner_join_by(collection_1, collection_2, drop_nil: true, key_proc_1: nil, key_proc_2: nil, &key_proc)
-  left_join_result = left_join_by(collection_1, collection_2, drop_nil: drop_nil, key_proc_1: key_proc_1, key_proc_2: key_proc_2, &key_proc)
-  left_join_result.select{|k, obj_1, obj_2| obj_2 }
+  full_join_result = full_join_by(collection_1, collection_2, drop_nil: drop_nil, key_proc_1: key_proc_1, key_proc_2: key_proc_2, &key_proc)
+  full_join_result.select{|k, obj_1, obj_2| obj_1 && obj_2 }
 end
