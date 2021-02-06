@@ -39,3 +39,13 @@ SMiLE-Seq data:
 HT-Selex:
 - There is no metadata for ZNF280A_TC40NGTTTTG_IVT_BatchAATBA_Cycle{2,3}_R1.fastq.gz
 - There is no metadata for ZNF997_TA40NGTTAGC_Lysate_BatchAATA_Cycle{1,2,3}_R1.fastq.gz
+
+
+PBM:
+- There is no metadata for several samples:
+13689_R_2018-10-24_13689_1M-ME_Standard_pTH12990.1_LIN28B.RBR.txt
+13705_R_2018-10-24_13705_1M-HK_Standard_pTH12990.2_LIN28B.RBR.txt
+13800_R_2018-11-06_13800_1M-ME_Standard_pTH12991.1_LIN28B.mCCHC.txt
+13816_R_2018-11-06_13816_1M-HK_Standard_pTH12991.2_LIN28B.mCCHC.txt
+13690_R_2018-10-24_13690_1M-ME_Standard_pTH13023.1_RBCK1.sRANBP2.txt
+13706_R_2018-10-24_13706_1M-HK_Standard_pTH13023.2_RBCK1.sRANBP2.txt
