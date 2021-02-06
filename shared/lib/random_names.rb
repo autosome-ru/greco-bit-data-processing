@@ -12,10 +12,7 @@ def take_dataset_name!
         return ds_name
       }
     rescue => e
-      $stderr.puts("Error while trying to generate dataset name")
-      $stderr.puts(e)
-      sleep(rand * 5)
-      $stderr.puts("Retry to generate dataset name")
+      sleep(rand * 5) # wait and retry
     end
   end
 end
