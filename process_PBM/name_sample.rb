@@ -59,35 +59,31 @@ def gen_name(sample_metadata, sample_fn, slice_type:, extension:, processing_typ
   basename = "#{tf}.#{construct_type}@PBM.#{experiment_subtype}@#{experiment_id}.5#{adapter_5}"
 
   uuid = take_dataset_name!
-  puts "#{basename}@#{processing_type}.#{uuid}.#{slice_type}.#{extension}"
+  "#{basename}@#{processing_type}.#{uuid}.#{slice_type}.#{extension}"
 end
 
-def main
-  slice_type = nil
-  extension = nil
-  processing_type = nil
-  argparser = OptionParser.new{|o|
-    o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
-    o.on('--extension VAL', 'fa or tsv') {|v| extension = v }
-    o.on('--processing-type VAL', 'SDQN or QNZS') {|v| processing_type = v }
-  }
+slice_type = nil
+extension = nil
+processing_type = nil
+argparser = OptionParser.new{|o|
+  o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
+  o.on('--extension VAL', 'fa or tsv') {|v| extension = v }
+  o.on('--processing-type VAL', 'SDQN or QNZS') {|v| processing_type = v }
+}
 
-  argparser.parse!(ARGV)
-  chip_filename = ARGV[0]
-  raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
-  raise 'Specify extension (fa or tsv)'  unless ['fa', 'tsv'].include?(extension)
-  raise 'Specify processing type (SDQN or QNZS)'  unless ['SDQN', 'QNZS'].include?(processing_type)
-  raise 'Specify chip filename'  unless chip_filename
-  raise 'Chip file not exists'  unless File.exist?(chip_filename)
+argparser.parse!(ARGV)
+chip_filename = ARGV[0]
+raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
+raise 'Specify extension (fa or tsv)'  unless ['fa', 'tsv'].include?(extension)
+raise 'Specify processing type (SDQN or QNZS)'  unless ['SDQN', 'QNZS'].include?(processing_type)
+raise 'Specify chip filename'  unless chip_filename
+raise 'Chip file not exists'  unless File.exist?(chip_filename)
 
-  plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
-  $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
+plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
+$plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
-  metadata = PBMSampleMetadata.each_in_file('source_data_meta/PBM/PBM.tsv').to_a
+metadata = PBMSampleMetadata.each_in_file('source_data_meta/PBM/PBM.tsv').to_a
 
-  assay_id = File.basename(chip_filename).split('_')[0]
-  sample_metadata = metadata.detect{|m| m.pbm_assay_num == assay_id }
-  puts gen_name(sample_metadata, chip_filename, slice_type: slice_type, extension: extension, processing_type: processing_type)
-end
-
-main
+assay_id = File.basename(chip_filename).split('_')[0]
+sample_metadata = metadata.detect{|m| m.pbm_assay_num == assay_id }
+puts gen_name(sample_metadata, chip_filename, slice_type: slice_type, extension: extension, processing_type: processing_type)
