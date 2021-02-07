@@ -47,7 +47,7 @@ while true; do
     shift
 done
 
-if [[ "$NAME_MAPPING" == "no" ]]; then
+if [[ "$NAME_MAPPING" != "no" ]]; then
     ruby ${SCRIPT_FOLDER}/rename_chips.rb \
          --source ${CHIPS_SOURCE_FOLDER} \
          --destination ${INTERMEDIATE_FOLDER}/raw_intensities/ \
