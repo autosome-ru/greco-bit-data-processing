@@ -1,3 +1,4 @@
+require 'optparse'
 require_relative '../shared/lib/index_by'
 require_relative '../shared/lib/plasmid_metadata'
 require_relative '../shared/lib/random_names'
@@ -48,7 +49,7 @@ def verify_sample_metadata_match!
   }
 end
 
-def gen_name(sample_metadata, sample_fn)
+def gen_name(sample_metadata, sample_fn, slice_type:, extension:, processing_type:)
   linker = Chip.from_file(sample_fn).linker_sequence
   adapter_5 = linker.size >= 20 ? linker[-20,20] : linker
   experiment_id = sample_metadata.experiment_id
@@ -57,7 +58,7 @@ def gen_name(sample_metadata, sample_fn)
   construct_type = sample_metadata.construct_type
   basename = "#{tf}.#{construct_type}@PBM.#{experiment_subtype}@#{experiment_id}.5#{adapter_5}"
 
-  uuid = "fake_uuid" # take_dataset_name!
+  uuid = take_dataset_name!
   processing_type = 'SDQN'
   slice_type = 'train'
   extension = 'fa'
@@ -65,6 +66,19 @@ def gen_name(sample_metadata, sample_fn)
 end
 
 def main
+  slice_type = nil
+  extension = nil
+  processing_type = nil
+  argparser = OptionParser.new{|o|
+    o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
+    o.on('--extension VAL', 'fa or tsv') {|v| extension = v }
+    o.on('--processing-type VAL', 'SDQN or QNZS') {|v| processing_type = v }
+  }
+  raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
+  raise 'Specify extension (fa or tsv)'  unless ['fa', 'tsv'].include?(extension)
+  raise 'Specify processing type (SDQN or QNZS)'  unless ['SDQN', 'QNZS'].include?(processing_type)
+
+  argparser.parse!(ARGV)
   chip_filename = ARGV[0]
 
   plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
@@ -74,7 +88,7 @@ def main
 
   assay_id = File.basename(chip_filename).split('_')[0]
   sample_metadata = metadata.detect{|m| m.pbm_assay_num == assay_id }
-  puts gen_name(sample_metadata, chip_filename)
+  puts gen_name(sample_metadata, chip_filename, slice_type: slice_type, extension: extension, processing_type: processing_type)
 end
 
 main
