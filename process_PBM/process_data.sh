@@ -82,6 +82,8 @@ ruby ${SCRIPT_FOLDER}/zscore_transform_chips.rb \
 mkdir -p ${RESULTS_FOLDER}/raw/train_intensities  ${RESULTS_FOLDER}/raw/validation_intensities
 mkdir -p ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_intensities  ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_intensities 
 mkdir -p ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities  ${RESULTS_FOLDER}/quantNorm_zscore/validation_intensities
+mkdir -p source_data_prepared/PBM.SDQN/train_intensities  source_data_prepared/PBM.SDQN/validation_intensities
+mkdir -p source_data_prepared/PBM.QNZS/train_intensities  source_data_prepared/PBM.QNZS/validation_intensities
 
 # raw
 for FN in $(find ${CHIPS_SOURCE_FOLDER} -xtype f -name '*_1M-ME_*'); do
