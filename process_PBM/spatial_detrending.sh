@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_FOLDER=$(dirname $(readlink -f $0))
+
 WINDOW_SIZE=5
 NUM_THREADS=1
 
@@ -36,5 +38,5 @@ mkdir -p "${DESTINATION_FOLDER}"
 for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
   BN=$(basename ${FN})
 
-  echo "Rscript spatial_detrend.R --window-size ${WINDOW_SIZE} ${SOURCE_FOLDER}/${BN} > ${DESTINATION_FOLDER}/${BN}"
+  echo "Rscript ${SCRIPT_FOLDER}/spatial_detrend.R --window-size ${WINDOW_SIZE} ${SOURCE_FOLDER}/${BN} > ${DESTINATION_FOLDER}/${BN}"
 done | parallel -j ${NUM_THREADS}
