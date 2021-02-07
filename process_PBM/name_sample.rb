@@ -72,7 +72,8 @@ def main
 
   metadata = PBMSampleMetadata.each_in_file('source_data_meta/PBM/PBM.tsv').to_a
 
-  sample_metadata = metadata.detect{|m| m.pbm_assay_num == chip_filename.split('_')[0] }
+  assay_id = File.basename(chip_filename).split('_')[0]
+  sample_metadata = metadata.detect{|m| m.pbm_assay_num == assay_id }
   puts gen_name(sample_metadata, chip_filename)
 end
 
