@@ -57,7 +57,7 @@ fi
 
 ## sd_qn_intensities
 # window-size=5 means window 11x11
-./spatial_detrending.sh --source ${CHIPS_SOURCE_FOLDER} \
+${SCRIPT_FOLDER}/spatial_detrending.sh --source ${CHIPS_SOURCE_FOLDER} \
                         --destination ${INTERMEDIATE_FOLDER}/spatial_detrended_intensities/ \
                         --window-size 5 \
                         --num-threads ${NUM_THREADS}
