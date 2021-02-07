@@ -116,6 +116,12 @@ class Chip
     {sample_id: sample_id, chip_type: chip_type, tf: tf, date: date, basename: basename, extname: extname, dirname: dirname, filename: filename}
   end
 
+  def linker_sequence
+    linker_sequences = probes.map(&:linker_sequence).uniq
+    raise "Different linkers for chip" unless linker_sequences.size == 1
+    linker_sequences.first
+  end
+
   def mean_signal
     @_mean_signal ||= probes.map(&:signal).mean
   end
