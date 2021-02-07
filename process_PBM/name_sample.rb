@@ -74,12 +74,14 @@ def main
     o.on('--extension VAL', 'fa or tsv') {|v| extension = v }
     o.on('--processing-type VAL', 'SDQN or QNZS') {|v| processing_type = v }
   }
-  raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
-  raise 'Specify extension (fa or tsv)'  unless ['fa', 'tsv'].include?(extension)
-  raise 'Specify processing type (SDQN or QNZS)'  unless ['SDQN', 'QNZS'].include?(processing_type)
 
   argparser.parse!(ARGV)
   chip_filename = ARGV[0]
+  raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
+  raise 'Specify extension (fa or tsv)'  unless ['fa', 'tsv'].include?(extension)
+  raise 'Specify processing type (SDQN or QNZS)'  unless ['SDQN', 'QNZS'].include?(processing_type)
+  raise 'Specify chip filename'  unless chip_filename
+  raise 'Chip file not exists'  unless File.exist?(chip_filename)
 
   plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
   $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
