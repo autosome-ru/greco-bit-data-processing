@@ -59,9 +59,6 @@ def gen_name(sample_metadata, sample_fn, slice_type:, extension:, processing_typ
   basename = "#{tf}.#{construct_type}@PBM.#{experiment_subtype}@#{experiment_id}.5#{adapter_5}"
 
   uuid = take_dataset_name!
-  processing_type = 'SDQN'
-  slice_type = 'train'
-  extension = 'fa'
   puts "#{basename}@#{processing_type}.#{uuid}.#{slice_type}.#{extension}"
 end
 
