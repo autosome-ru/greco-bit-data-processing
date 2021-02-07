@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_FOLDER=$(dirname $(readlink -f $0))
+
 CHIPS_SOURCE_FOLDER=./data/RawData
 NUM_THREADS=20
 NORMALIZATION_OPTS='--log10'
@@ -46,7 +48,7 @@ while true; do
 done
 
 if [[ "$NAME_MAPPING" == "no" ]]; then
-    ruby rename_chips.rb \
+    ruby ${SCRIPT_FOLDER}/rename_chips.rb \
          --source ${CHIPS_SOURCE_FOLDER} \
          --destination ${INTERMEDIATE_FOLDER}/raw_intensities/ \
          --tf-mapping "${NAME_MAPPING}";
@@ -60,18 +62,18 @@ fi
                         --window-size 5 \
                         --num-threads ${NUM_THREADS}
 
-ruby quantile_normalize_chips.rb \
+ruby ${SCRIPT_FOLDER}/quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
         --source ${INTERMEDIATE_FOLDER}/spatial_detrended_intensities/ \
         --destination ${INTERMEDIATE_FOLDER}/sd_qn_intensities
 
 ## qn_zscore_intensities
-ruby quantile_normalize_chips.rb \
+ruby ${SCRIPT_FOLDER}/quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
         --source ${CHIPS_SOURCE_FOLDER} \
         --destination ${INTERMEDIATE_FOLDER}/quantile_normalized_intensities
 
-ruby zscore_transform_chips.rb \
+ruby ${SCRIPT_FOLDER}/zscore_transform_chips.rb \
         --source ${INTERMEDIATE_FOLDER}/quantile_normalized_intensities \
         --destination ${INTERMEDIATE_FOLDER}/qn_zscore_intensities
 
@@ -95,14 +97,14 @@ done
 # sd_qn
 for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-ME_*'); do
     BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby name_samples.rb "$FN" --slice-type Train --extension tsv --processing-type SDQN )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_samples.rb "$FN" --slice-type Train --extension tsv --processing-type SDQN )
     cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_intensities/${BN}.spatialDetrend_quantNorm.pbm.train.txt
     cp ${FN} source_data_prepared/PBM.SDQN/train_intensities/${NEW_BN}
 done
 
 for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-HK_*'); do
     BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby name_samples.rb "$FN" --slice-type Val --extension tsv --processing-type SDQN )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_samples.rb "$FN" --slice-type Val --extension tsv --processing-type SDQN )
     cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_intensities/${BN}.spatialDetrend_quantNorm.pbm.val.txt
     cp ${FN} source_data_prepared/PBM.SDQN/validation_intensities/${NEW_BN}
 done
@@ -110,27 +112,27 @@ done
 # qn_zscore
 for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*_1M-ME_*'); do
     BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby name_samples.rb "$FN" --slice-type Train --extension tsv --processing-type QNZS )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_samples.rb "$FN" --slice-type Train --extension tsv --processing-type QNZS )
     cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities/${BN}.quantNorm_zscore.pbm.train.txt
     cp ${FN} source_data_prepared/PBM.QNZS/train_intensities/${NEW_BN}
 done
 
 for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*_1M-HK_*'); do
     BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby name_samples.rb "$FN" --slice-type Val --extension tsv --processing-type QNZS )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_samples.rb "$FN" --slice-type Val --extension tsv --processing-type QNZS )
     cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/validation_intensities/${BN}.quantNorm_zscore.pbm.val.txt
     cp ${FN} source_data_prepared/PBM.QNZS/validation_intensities/${NEW_BN}
 done
 
 
 for SUBFOLDER in raw  spatialDetrend_quantNorm  quantNorm_zscore; do
-    ruby chip_sequences.rb \
+    ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
             --source ${RESULTS_FOLDER}/${SUBFOLDER}/train_intensities \
             --destination ${RESULTS_FOLDER}/${SUBFOLDER}/train_sequences \
             --linker-length 0 \
             --fasta  --take-top 1000
 
-    ruby chip_sequences.rb \
+    ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
             --source ${RESULTS_FOLDER}/${SUBFOLDER}/validation_intensities \
             --destination ${RESULTS_FOLDER}/${SUBFOLDER}/validation_sequences \
             --linker-length 0 \
@@ -138,13 +140,13 @@ for SUBFOLDER in raw  spatialDetrend_quantNorm  quantNorm_zscore; do
 done
 
 for PROCESSING_TYPE  in  SDQN  QNZS; do
-    ruby chip_sequences.rb \
+    ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
             --source source_data_prepared/PBM.${PROCESSING_TYPE}/train_intensities \
             --destination source_data_prepared/PBM.${PROCESSING_TYPE}/train_sequences \
             --linker-length 0 \
             --fasta  --take-top 1000
 
-    ruby chip_sequences.rb \
+    ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
             --source source_data_prepared/PBM.${PROCESSING_TYPE}/validation_intensities \
             --destination source_data_prepared/PBM.${PROCESSING_TYPE}/validation_sequences \
             --linker-length 0 \
