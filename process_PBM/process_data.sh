@@ -99,14 +99,14 @@ done
 # sd_qn
 for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-ME_*'); do
     BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_samples.rb "$FN" --slice-type Train --extension tsv --processing-type SDQN )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Train --extension tsv --processing-type SDQN )
     cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_intensities/${BN}.spatialDetrend_quantNorm.pbm.train.txt
     cp ${FN} source_data_prepared/PBM.SDQN/train_intensities/${NEW_BN}
 done
 
 for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-HK_*'); do
     BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_samples.rb "$FN" --slice-type Val --extension tsv --processing-type SDQN )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Val --extension tsv --processing-type SDQN )
     cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_intensities/${BN}.spatialDetrend_quantNorm.pbm.val.txt
     cp ${FN} source_data_prepared/PBM.SDQN/validation_intensities/${NEW_BN}
 done
@@ -114,14 +114,14 @@ done
 # qn_zscore
 for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*_1M-ME_*'); do
     BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_samples.rb "$FN" --slice-type Train --extension tsv --processing-type QNZS )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Train --extension tsv --processing-type QNZS )
     cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities/${BN}.quantNorm_zscore.pbm.train.txt
     cp ${FN} source_data_prepared/PBM.QNZS/train_intensities/${NEW_BN}
 done
 
 for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*_1M-HK_*'); do
     BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_samples.rb "$FN" --slice-type Val --extension tsv --processing-type QNZS )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Val --extension tsv --processing-type QNZS )
     cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/validation_intensities/${BN}.quantNorm_zscore.pbm.val.txt
     cp ${FN} source_data_prepared/PBM.QNZS/validation_intensities/${NEW_BN}
 done
