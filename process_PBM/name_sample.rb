@@ -88,7 +88,9 @@ module PBM
 
     assay_id = File.basename(chip_filename).split('_')[0]
     sample_metadata = metadata.detect{|m| m.pbm_assay_num == assay_id }
-    puts self.gen_name(sample_metadata, chip_filename, slice_type: slice_type, extension: extension, processing_type: processing_type)
+    if sample_metadata
+      puts self.gen_name(sample_metadata, chip_filename, slice_type: slice_type, extension: extension, processing_type: processing_type)
+    end
   end
 end
 
