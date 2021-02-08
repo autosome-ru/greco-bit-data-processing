@@ -24,7 +24,7 @@ raise "Specify sequences destination folder" unless dst_folder
 
 FileUtils.mkdir_p(dst_folder)
 
-Dir.glob(File.join(src_folder, '*.txt')).each{|fn|
+Dir.glob(File.join(src_folder, '*')).each{|fn|
   chip = Chip.from_file(fn)
 
   if output_format == :tsv

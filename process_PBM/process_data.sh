@@ -157,16 +157,46 @@ for SUBFOLDER in raw  spatialDetrend_quantNorm  quantNorm_zscore; do
             --fasta  --take-top 1000
 done
 
-for PROCESSING_TYPE  in  SDQN  QNZS; do
-    ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
-            --source source_data_prepared/PBM.${PROCESSING_TYPE}/train_intensities \
-            --destination source_data_prepared/PBM.${PROCESSING_TYPE}/train_sequences \
-            --linker-length 0 \
-            --fasta  --take-top 1000
+for FN in $( find "${RESULTS_FOLDER}/quantNorm_zscore/train_sequences" ); do
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" \
+                    --source-mode normalized --slice-type Train \
+                    --extension fa --processing-type QNZS );
+    if [[ -n "$NEW_BN" ]]; then
+        cp ${FN} source_data_prepared/PBM.QNZS/train_sequences/${NEW_BN}
+    else
+        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+    fi
+done
 
-    ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
-            --source source_data_prepared/PBM.${PROCESSING_TYPE}/validation_intensities \
-            --destination source_data_prepared/PBM.${PROCESSING_TYPE}/validation_sequences \
-            --linker-length 0 \
-            --fasta  --take-top 1000
+for FN in $( find "${RESULTS_FOLDER}/quantNorm_zscore/validation_sequences" ); do
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" \
+                    --source-mode normalized --slice-type Val \
+                    --extension fa --processing-type QNZS );
+    if [[ -n "$NEW_BN" ]]; then
+        cp ${FN} source_data_prepared/PBM.QNZS/validation_sequences/${NEW_BN}
+    else
+        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+    fi
+done
+
+for FN in $( find "${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_sequences" ); do
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" \
+                    --source-mode normalized --slice-type Train \
+                    --extension fa --processing-type SDQN );
+    if [[ -n "$NEW_BN" ]]; then
+        cp ${FN} source_data_prepared/PBM.SDQN/train_sequences/${NEW_BN}
+    else
+        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+    fi
+done
+
+for FN in $( find "${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_sequences" ); do
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" \
+                    --source-mode normalized --slice-type Val \
+                    --extension fa --processing-type SDQN );
+    if [[ -n "$NEW_BN" ]]; then
+        cp ${FN} source_data_prepared/PBM.SDQN/validation_sequences/${NEW_BN}
+    else
+        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+    fi
 done

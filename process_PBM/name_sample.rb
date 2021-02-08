@@ -67,7 +67,9 @@ module PBM
     slice_type = nil
     extension = nil
     processing_type = nil
+    source_mode = 'original'
     argparser = OptionParser.new{|o|
+      o.on('--source-mode VAL', 'original or normalized') {|v| source_mode = v }
       o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
       o.on('--extension VAL', 'fa or tsv') {|v| extension = v }
       o.on('--processing-type VAL', 'SDQN or QNZS') {|v| processing_type = v }
@@ -78,6 +80,7 @@ module PBM
     raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
     raise 'Specify extension (fa or tsv)'  unless ['fa', 'tsv'].include?(extension)
     raise 'Specify processing type (SDQN or QNZS)'  unless ['SDQN', 'QNZS'].include?(processing_type)
+    raise 'Source mode should be one of `original` or `normalized`'  unless ['original', 'normalized'].include?(source_mode)
     raise 'Specify chip filename'  unless chip_filename
     raise 'Chip file not exists'  unless File.exist?(chip_filename)
 
@@ -86,8 +89,13 @@ module PBM
 
     metadata = PBM::SampleMetadata.each_in_file('source_data_meta/PBM/PBM.tsv').to_a
 
-    assay_id = File.basename(chip_filename).split('_')[0]
-    sample_metadata = metadata.detect{|m| m.pbm_assay_num == assay_id }
+    if source_mode == 'original'
+      assay_id = File.basename(chip_filename).split('_')[0]
+      sample_metadata = metadata.detect{|m| m.pbm_assay_num == assay_id }
+    elsif source_mode == 'normalized'
+      experiment_id = File.basename(chip_filename).split('@')[2].split('.').first
+      sample_metadata = metadata.detect{|m| m.experiment_id == experiment_id }
+    end
     if sample_metadata
       puts self.gen_name(sample_metadata, chip_filename, slice_type: slice_type, extension: extension, processing_type: processing_type)
     end
