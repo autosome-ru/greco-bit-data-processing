@@ -166,9 +166,8 @@ for PROCESSING_TYPE in SDQN QNZS; do
                         --source-mode normalized --slice-type Train \
                         --extension fa --processing-type ${PROCESSING_TYPE} ); \
         if [[ -n "$NEW_BN" ]]; then
-            ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
+            ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
                     --source ${FN} \
-                    --destination ${RESULTS_FOLDER}/${PROCESSING_TYPE}/train_sequences \
                     --linker-length 0 \
                     --fasta  --take-top 1000 \
                 > source_data_prepared/PBM.${PROCESSING_TYPE}/train_sequences/${NEW_BN};
@@ -182,9 +181,8 @@ for PROCESSING_TYPE in SDQN QNZS; do
                         --source-mode normalized --slice-type Val \
                         --extension fa --processing-type ${PROCESSING_TYPE} ); \
         if [[ -n "$NEW_BN" ]]; then
-            ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
+            ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
                     --source ${FN} \
-                    --destination ${RESULTS_FOLDER}/${PROCESSING_TYPE}/validation_sequences \
                     --linker-length 0 \
                     --fasta  --take-top 1000 \
                 > source_data_prepared/PBM.${PROCESSING_TYPE}/validation_sequences/${NEW_BN};
