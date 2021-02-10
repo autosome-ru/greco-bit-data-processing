@@ -78,7 +78,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :peaks, :
   end
 end
 
-experiment_infos = ExperimentInfo.each_from_file("#{SOURCE_FOLDER}/metrics_by_exp.tsv").reject{|info|
+experiment_infos = ExperimentInfo.each_from_file("source_data_meta/CHS/metrics_by_exp.tsv").reject{|info|
   info.type == 'control'
 }.to_a
 tfs_at_start = experiment_infos.map(&:tf).uniq
