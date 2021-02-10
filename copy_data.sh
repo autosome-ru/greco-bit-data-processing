@@ -23,9 +23,14 @@ mkdir -p source_data/AFS/peaks
 
 
 mkdir -p source_data/CHS/peaks
-ruby -r fileutils \
-  -e 'folder=ARGV[0]; dst=ARGV[1]; fns = Dir.glob("#{folder}/**/*").map{|fn| File.absolute_path(fn) }.select{|fn| File.file?(fn) }; fns.each{|fn| bn= fn.sub(/^#{folder}/, ""); dn = File.dirname(bn); FileUtils.mkdir_p("#{dst}/#{dn}"); FileUtils.ln_s(fn, "#{dst}/#{bn}") }' \
-  -- "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1/peaks-interval/"  "source_data/CHS/peaks/"
+ruby shared/lib/symlink_folder_content.rb \
+ "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1/peaks-interval/" \
+ "source_data/CHS/peaks-intervals/"
+
+ruby shared/lib/symlink_folder_content.rb \
+ "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1-se/peaks-interval/" \
+ "source_data/CHS/peaks-intervals-se_control/"
+
 
 mkdir -p source_data/PBM/chips
 find -L /home_local/mihaialbu/Codebook_extended/PBM_raw/ -iname '*.txt' | xargs -n1 -I{} ln -s {} source_data/PBM/chips
