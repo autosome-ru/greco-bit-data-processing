@@ -75,7 +75,7 @@ module Chipseq
     argparser.parse!(ARGV)
     sample_fn = ARGV[0]
     raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
-    raise 'Specify extension (fa or tsv)'  unless ['fa', 'peaks'].include?(extension)
+    raise 'Specify extension (fa or peaks)'  unless ['fa', 'peaks'].include?(extension)
     raise 'Specify sample filename'  unless sample_fn
     raise 'Sample file not exists'  unless File.exist?(sample_fn)
 
@@ -89,7 +89,7 @@ module Chipseq
     normalized_id = data_file_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_[ACGT]{6}$/, "")
     sample_metadata = metadata.detect{|m| m.normalized_id == normalized_id }
     if sample_metadata
-      puts self.gen_name(sample_metadata, chip_filename, slice_type: slice_type, extension: extension, )
+      puts self.gen_name(sample_metadata, sample_fn, slice_type: slice_type, extension: extension, )
     end
   end
 end
