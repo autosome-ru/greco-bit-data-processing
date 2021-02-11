@@ -29,16 +29,16 @@ for DATA_TYPE in affiseq chipseq; do
 
     ruby prepare_peaks_${DATA_TYPE}.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER}
 
-    mkdir -p ${DATA_TYPE}/results/train_sequences/
-    for FN in $(find ${DATA_TYPE}/results/train_intervals/ -xtype f); do
+    mkdir -p ${DATA_TYPE}/results/Train_sequences/
+    for FN in $(find ${DATA_TYPE}/results/Train_intervals/ -xtype f); do
       TF="$(basename -s .interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/train_sequences/${TF}.fa
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/Train_sequences/${TF}.fa
     done
 
-    mkdir -p ${DATA_TYPE}/results/validation_sequences/
-    for FN in $(find ${DATA_TYPE}/results/validation_intervals/ -xtype f); do
+    mkdir -p ${DATA_TYPE}/results/Val_sequences/
+    for FN in $(find ${DATA_TYPE}/results/Val_intervals/ -xtype f); do
       TF="$(basename -s .interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/validation_sequences/${TF}.fa
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/Val_sequences/${TF}.fa
     done
 done
 
@@ -46,16 +46,16 @@ for DATA_TYPE in affiseq chipseq; do
     SOURCE_FOLDER="./${DATA_TYPE}/source_data"
     RESULTS_FOLDER="./${DATA_TYPE}/results"
 
-    mkdir -p ${DATA_TYPE}/results/train_sequences_for_motifs/
-    for FN in $(find ${DATA_TYPE}/results/train/tf_peaks/ -xtype f); do
+    mkdir -p ${DATA_TYPE}/results/Train_sequences_for_motifs/
+    for FN in $(find ${DATA_TYPE}/results/Train/tf_peaks/ -xtype f); do
       TF="$(basename -s .interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - -name | ruby fixup_summit.rb > ${DATA_TYPE}/results/train_sequences_for_motifs/${TF}.fa
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - -name | ruby fixup_summit.rb > ${DATA_TYPE}/results/Train_sequences_for_motifs/${TF}.fa
     done
 
     CHIPMUNK_RESULTS_DESTINATION_FOLDER="./${DATA_TYPE}/results/chipmunk_results/"
     CHIPMUNK_LOGS_DESTINATION_FOLDER="./${DATA_TYPE}/results/chipmunk_logs/"
     mkdir -p ${CHIPMUNK_RESULTS_DESTINATION_FOLDER} ${CHIPMUNK_LOGS_DESTINATION_FOLDER}
-    for FN in $(find ${DATA_TYPE}/results/train/sequences_for_motifs/ -xtype f); do
+    for FN in $(find ${DATA_TYPE}/results/Train/sequences_for_motifs/ -xtype f); do
       TF="$(basename -s .fa "$FN")"
       echo "java -cp chipmunk.jar ru.autosome.di.ChIPMunk" \
           "${LENGTH_RANGE} y 1.0 ${WEIGHTING_MODE}:${FN} 400 40 1 ${NUM_INNER_THREADS} random auto ${SHAPE} ${ADDITIONAL_OPTIONS}" \

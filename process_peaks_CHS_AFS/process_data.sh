@@ -36,15 +36,15 @@ for DATA_TYPE in affiseq_Lysate affiseq_IVT chipseq; do
         ;;
     esac
 
-    mkdir -p ${DATA_TYPE}/results/train_sequences/
-    for FN in $(find ${DATA_TYPE}/results/train_intervals/ -xtype f); do
+    mkdir -p ${DATA_TYPE}/results/Train_sequences/
+    for FN in $(find ${DATA_TYPE}/results/Train_intervals/ -xtype f); do
       TF="$(basename -s .interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/train_sequences/${TF}.fa
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/Train_sequences/${TF}.fa
     done
 
-    mkdir -p ${DATA_TYPE}/results/validation_sequences/
-    for FN in $(find ${DATA_TYPE}/results/validation_intervals/ -xtype f); do
+    mkdir -p ${DATA_TYPE}/results/Val_sequences/
+    for FN in $(find ${DATA_TYPE}/results/Val_intervals/ -xtype f); do
       TF="$(basename -s .interval "$FN")"
-      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/validation_sequences/${TF}.fa
+      cat ${FN} | tail -n+2 | sort -k5,5nr | head -500 | ./bedtools getfasta -fi ./source_data/hg38.fa -bed - > ${DATA_TYPE}/results/Val_sequences/${TF}.fa
     done
 done

@@ -111,7 +111,7 @@ tf_infos.each{|tf_info| cleanup_bad_datasets!(tf_info, min_peaks: 50) }
 store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/complete_data_stats.tsv")
 store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)
 
-tfs_at_finish = Dir.glob("#{RESULTS_FOLDER}/train_intervals/*").map{|fn| File.basename(fn).split('.').first }.uniq
+tfs_at_finish = Dir.glob("#{RESULTS_FOLDER}/Train_intervals/*").map{|fn| File.basename(fn).split('.').first }.uniq
 
 File.write("#{RESULTS_FOLDER}/skipped_tfs.txt", (tfs_at_start - tfs_at_finish).sort.join("\n"))
 $stderr.puts("Chipseq TFs:\n" + tfs_at_finish.sort.join("\n"))
