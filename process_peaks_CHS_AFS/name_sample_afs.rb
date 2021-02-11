@@ -56,7 +56,7 @@ module AffiseqPeaks
 
   def self.gen_name(sample_metadata, sample_fn, slice_type:, extension:, cycle:)
     experiment_id = sample_metadata.experiment_id
-    tf = sample_metadata.gene_id
+    tf = sample_metadata.gene_name
     construct_type = sample_metadata.construct_type
     basename = "#{tf}.#{construct_type}@AFS.#{sample_metadata.ivt_or_lysate}@#{experiment_id}.C#{cycle}"
 
