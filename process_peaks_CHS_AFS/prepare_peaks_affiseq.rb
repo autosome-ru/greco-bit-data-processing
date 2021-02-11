@@ -64,7 +64,7 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :type, :c
   end
 end
 
-experiment_infos = ExperimentInfo.each_from_file("#{SOURCE_FOLDER}/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+experiment_infos = ExperimentInfo.each_from_file("#{__dir__}/source_data_meta/AFS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/complete_data")
 
 experiment_infos.select!{|info| info.type == experiment_type }  if experiment_type

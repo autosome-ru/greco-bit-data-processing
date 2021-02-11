@@ -19,7 +19,10 @@ mkdir -p source_data/SMS/reads/published
 find -L /mnt/space/depla/old_smlseq_raw/raw/ -xtype f -iname '*.fastq' \
   | xargs -n1 -I{} ln -s {} source_data/SMS/reads/published/
 
-mkdir -p source_data/AFS/peaks
+
+ruby shared/lib/symlink_folder_content.rb \
+    "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/peaks-interval/" \
+    "source_data/AFS/peaks-intervals/"
 
 
 ruby shared/lib/symlink_folder_content.rb \
