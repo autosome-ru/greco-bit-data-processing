@@ -54,3 +54,11 @@ CHS:
 - No metadata for:
 	Sample_Hughes_4A_ZNF99_FS0205
 	Sample_Hughes_4_ZNF99_Chip
+	140515_LYNLEY_0427_AC3U4EACXX_L8_TGACCA (ZNF382)
+- Strange `Data File ID`s for:
+	THC_0272 (NCOA1?)
+	THC_0277 (only found ZBED5ChIP2)
+	THC_0080, THC_0095, THC_0177 (missing; those are control samples)
+- Inconsistencies in `Data File ID`s:
+	some are file names: SI2081.fastq.gz / Plate_1_A1_S1_R2_001.fastq.gz / SP110ChIP2_IGO_10521_89_S30_R2_001.fastq.gz
+	the others are not: Hughes_SI0581_ZNF317
