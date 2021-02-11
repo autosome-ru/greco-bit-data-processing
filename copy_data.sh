@@ -22,7 +22,6 @@ find -L /mnt/space/depla/old_smlseq_raw/raw/ -xtype f -iname '*.fastq' \
 mkdir -p source_data/AFS/peaks
 
 
-mkdir -p source_data/CHS/peaks
 ruby shared/lib/symlink_folder_content.rb \
  "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1/peaks-interval/" \
  "source_data/CHS/peaks-intervals/"

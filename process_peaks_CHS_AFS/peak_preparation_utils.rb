@@ -32,7 +32,7 @@ def split_train_val!(tf_info)
   # train & basic validation
   train_fn = "#{RESULTS_FOLDER}/train_intervals/#{tf_info[:best_peak].basename}.train.interval"
   validation_fn = "#{RESULTS_FOLDER}/validation_intervals/#{tf_info[:best_peak].basename}.basic_val.interval"
-  system "ruby split_train_val.rb #{best_peak_file.path} #{train_fn} #{validation_fn}"
+  system "ruby #{__dir__}/split_train_val.rb #{best_peak_file.path} #{train_fn} #{validation_fn}"
   best_peak_file.unlink
 
 
@@ -46,7 +46,7 @@ def split_train_val!(tf_info)
 
     train_fn = '/dev/null'
     validation_fn = "#{RESULTS_FOLDER}/validation_intervals/#{peak_info.basename}.advanced_val_#{idx + 1}.interval"
-    system "ruby split_train_val.rb #{rest_peak_file.path} #{train_fn} #{validation_fn}"
+    system "ruby #{__dir__}/split_train_val.rb #{rest_peak_file.path} #{train_fn} #{validation_fn}"
     rest_peak_file.unlink
   }
 end
