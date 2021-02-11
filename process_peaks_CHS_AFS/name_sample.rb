@@ -86,7 +86,7 @@ module Chipseq
 
     # assay_id = File.basename(sample_fn).split('_')[0]
     data_file_id = File.basename(sample_fn).split('.')[1]
-    normalized_id = data_file_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_[ACGT]{6}$/, "")
+    normalized_id = data_file_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_\d_pf(\+\d_pf)?$/,"").sub(/_[ACGT]{6}$/, "")
     sample_metadata = metadata.detect{|m| m.normalized_id == normalized_id }
     if sample_metadata
       puts self.gen_name(sample_metadata, sample_fn, slice_type: slice_type, extension: extension, )
