@@ -102,7 +102,7 @@ for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-
     NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Train --extension tsv --processing-type SDQN )
     cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_intensities/${BN}.spatialDetrend_quantNorm.pbm.train.txt
     if [[ -n "$NEW_BN" ]]; then
-        cp ${FN} source_data_prepared/PBM.SDQN/train_intensities/${NEW_BN}
+        cp ${FN} source_data_prepared/PBM.SDQN/Train_intensities/${NEW_BN}
     else
         echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
     fi
@@ -113,7 +113,7 @@ for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-
     NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Val --extension tsv --processing-type SDQN )
     cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_intensities/${BN}.spatialDetrend_quantNorm.pbm.val.txt
     if [[ -n "$NEW_BN" ]]; then
-        cp ${FN} source_data_prepared/PBM.SDQN/validation_intensities/${NEW_BN}
+        cp ${FN} source_data_prepared/PBM.SDQN/Val_intensities/${NEW_BN}
     else
         echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
     fi
@@ -125,7 +125,7 @@ for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*
     NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Train --extension tsv --processing-type QNZS )
     cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities/${BN}.quantNorm_zscore.pbm.train.txt
     if [[ -n "$NEW_BN" ]]; then
-        cp ${FN} source_data_prepared/PBM.QNZS/train_intensities/${NEW_BN}
+        cp ${FN} source_data_prepared/PBM.QNZS/Train_intensities/${NEW_BN}
     else
         echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
     fi
@@ -136,7 +136,7 @@ for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*
     NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Val --extension tsv --processing-type QNZS )
     cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/validation_intensities/${BN}.quantNorm_zscore.pbm.val.txt
     if [[ -n "$NEW_BN" ]]; then
-        cp ${FN} source_data_prepared/PBM.QNZS/validation_intensities/${NEW_BN}
+        cp ${FN} source_data_prepared/PBM.QNZS/Val_intensities/${NEW_BN}
     else
         echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
     fi
@@ -158,10 +158,10 @@ for SUBFOLDER in raw  spatialDetrend_quantNorm  quantNorm_zscore; do
 done
 
 for PROCESSING_TYPE in SDQN QNZS; do
-    mkdir -p "source_data_prepared/PBM.${PROCESSING_TYPE}/train_sequences"
-    mkdir -p "source_data_prepared/PBM.${PROCESSING_TYPE}/validation_sequences"
+    mkdir -p "source_data_prepared/PBM.${PROCESSING_TYPE}/Train_sequences"
+    mkdir -p "source_data_prepared/PBM.${PROCESSING_TYPE}/Val_sequences"
 
-    for FN in $( find "source_data_prepared/PBM.${PROCESSING_TYPE}/train_intensities" -xtype f ); do
+    for FN in $( find "source_data_prepared/PBM.${PROCESSING_TYPE}/Train_intensities" -xtype f ); do
         NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" \
                         --source-mode normalized --slice-type Train \
                         --extension fa --processing-type ${PROCESSING_TYPE} ); \
@@ -170,13 +170,13 @@ for PROCESSING_TYPE in SDQN QNZS; do
                     --source ${FN} \
                     --linker-length 0 \
                     --fasta  --take-top 1000 \
-                > source_data_prepared/PBM.${PROCESSING_TYPE}/train_sequences/${NEW_BN};
+                > source_data_prepared/PBM.${PROCESSING_TYPE}/Train_sequences/${NEW_BN};
         else
             echo "Can't get sequence filename for ${FN}" >& 2
         fi
     done
 
-    for FN in $( find "source_data_prepared/PBM.${PROCESSING_TYPE}/validation_intensities" -xtype f ); do
+    for FN in $( find "source_data_prepared/PBM.${PROCESSING_TYPE}/Val_intensities" -xtype f ); do
         NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" \
                         --source-mode normalized --slice-type Val \
                         --extension fa --processing-type ${PROCESSING_TYPE} ); \
@@ -185,7 +185,7 @@ for PROCESSING_TYPE in SDQN QNZS; do
                     --source ${FN} \
                     --linker-length 0 \
                     --fasta  --take-top 1000 \
-                > source_data_prepared/PBM.${PROCESSING_TYPE}/validation_sequences/${NEW_BN};
+                > source_data_prepared/PBM.${PROCESSING_TYPE}/Val_sequences/${NEW_BN};
         else
             echo "Can't get sequence filename for ${FN}" >& 2
         fi
