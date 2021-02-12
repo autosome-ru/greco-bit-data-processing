@@ -26,14 +26,14 @@ done
 for EXP_TYPE in IVT Lysate; do
   RESULTS_FOLDER=./results_databox_afs_${EXP_TYPE}/
   for SLICE_TYPE in Train Val; do
-    mkdir -p source_data_prepared/AFS/${SLICE_TYPE}_intervals
-    mkdir -p source_data_prepared/AFS/${SLICE_TYPE}_sequences
+    mkdir -p source_data_prepared/AFS.Peaks/${SLICE_TYPE}_intervals
+    mkdir -p source_data_prepared/AFS.Peaks/${SLICE_TYPE}_sequences
 
     for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_intervals/ -xtype f ); do
         # BN=$(basename -s .pbm.txt ${FN})
-        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_afs.rb "$FN" --slice-type ${SLICE_TYPE} --extension peaks )
+        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_afs_peaks.rb "$FN" --slice-type ${SLICE_TYPE} --extension peaks )
         if [[ -n "$NEW_BN" ]]; then
-            cp ${FN} source_data_prepared/AFS/${SLICE_TYPE}_intervals/${NEW_BN}
+            cp ${FN} source_data_prepared/AFS.Peaks/${SLICE_TYPE}_intervals/${NEW_BN}
         else
             echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
         fi
@@ -41,9 +41,9 @@ for EXP_TYPE in IVT Lysate; do
 
     for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_sequences/ -xtype f ); do
         # BN=$(basename -s .pbm.txt ${FN})
-        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_afs.rb "$FN" --slice-type ${SLICE_TYPE} --extension fa )
+        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_afs_peaks.rb "$FN" --slice-type ${SLICE_TYPE} --extension fa )
         if [[ -n "$NEW_BN" ]]; then
-            cp ${FN} source_data_prepared/AFS/${SLICE_TYPE}_sequences/${NEW_BN}
+            cp ${FN} source_data_prepared/AFS.Peaks/${SLICE_TYPE}_sequences/${NEW_BN}
         else
             echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
         fi
