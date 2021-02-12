@@ -24,7 +24,7 @@ mkdir -p source_data_prepared/CHS/Train_sequences source_data_prepared/CHS/Val_s
 
 for FN in $(find ${RESULTS_FOLDER}/Train_intervals/ -xtype f ); do
     # BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --slice-type Train --extension peaks )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --extension peaks )
     if [[ -n "$NEW_BN" ]]; then
         cp ${FN} source_data_prepared/CHS/Train_intervals/${NEW_BN}
     else
@@ -34,7 +34,7 @@ done
 
 for FN in $(find ${RESULTS_FOLDER}/Val_intervals/ -xtype f ); do
     # BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --slice-type Val --extension peaks )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --extension peaks )
     if [[ -n "$NEW_BN" ]]; then
         cp ${FN} source_data_prepared/CHS/Val_intervals/${NEW_BN}
     else
@@ -44,7 +44,7 @@ done
 
 for FN in $(find ${RESULTS_FOLDER}/Train_sequences/ -xtype f ); do
     # BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --slice-type Train --extension fa )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --extension fa )
     if [[ -n "$NEW_BN" ]]; then
         cp ${FN} source_data_prepared/CHS/Train_sequences/${NEW_BN}
     else
@@ -54,7 +54,7 @@ done
 
 for FN in $(find ${RESULTS_FOLDER}/Val_sequences/ -xtype f ); do
     # BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --slice-type Val --extension fa )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --extension fa )
     if [[ -n "$NEW_BN" ]]; then
         cp ${FN} source_data_prepared/CHS/Val_sequences/${NEW_BN}
     else
