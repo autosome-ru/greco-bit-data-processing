@@ -25,7 +25,7 @@ def read_experiment_meta(filename):
         for line in f:
             experiment_id, tf, raw_files, peaks, *metrics, status = line.split("\t")
             if tf == 'CONTROL':
-                result[experiment_id] = {'tf': 'CONTROL', 'basename': fastq_bn}
+                result[experiment_id] = {'tf': 'CONTROL', 'basename': fastq_bn, 'peaks': peaks}
                 continue
             raw_files = raw_files.split(';')
             fastq_bns = set(re.sub(r'_R[12].fastq.gz', '', raw_fn) for raw_fn in raw_files)
@@ -34,7 +34,7 @@ def read_experiment_meta(filename):
             fastq_bn = fastq_bns.pop()
             if experiment_id in result:
                 raise f'Experiment {experiment_id} should have the only meta-info line'
-            result[experiment_id] = {'tf': tf, 'basename': fastq_bn}
+            result[experiment_id] = {'tf': tf, 'basename': fastq_bn, 'peaks': peaks}
     return result
 
 def get_experiment_infos(db_connection):
@@ -136,11 +136,12 @@ def task_generator():
         read_basenames = reads_by_experiment[experiment]
         basename = experiment_meta['basename'] # ZNF596_AffSeq_Lysate_BatchAATA_Cycle3
         _, _, ivt_or_lysate, batch, cycle = basename.split('_')
+        peak = experiment_meta['peaks']
         
         alignment_fn = f"{ALIGNMENT_DIRNAME}/{alignment}.bam"
         RESULTS_FOLDER = f'results_databox_afs_reads_{ivt_or_lysate}'
-        train_fn      = f'{RESULTS_FOLDER}/Train_sequences/{tf}.{ivt_or_lysate}.{cycle}.{batch}.asReads.affiseq.train.fastq.gz' # ToDo: check suffix
-        validation_fn = f'{RESULTS_FOLDER}/Val_sequences/{tf}.{ivt_or_lysate}.{cycle}.{batch}.asReads.affiseq.val.fastq.gz'
+        train_fn      = f'{RESULTS_FOLDER}/Train_sequences/{tf}.{ivt_or_lysate}.{cycle}.{peak}.{batch}.asReads.affiseq.train.fastq.gz' # ToDo: check suffix
+        validation_fn = f'{RESULTS_FOLDER}/Val_sequences/{tf}.{ivt_or_lysate}.{cycle}.{peak}.{batch}.asReads.affiseq.val.fastq.gz'
         fastq_fns = [f"{FASTQ_DIRNAME}/{fastq_bn}.fastq.gz"  for fastq_bn in read_basenames]
         yield (fastq_fns, alignment_fn, train_fn, validation_fn)
 
