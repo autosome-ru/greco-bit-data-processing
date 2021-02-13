@@ -14,6 +14,7 @@ module SMSPublished
   end
 
   Sample = Struct.new(*[:experiment_id, :tf_non_normalized, :barcode_index, :filename], keyword_init: true) do
+    def cycle; nil; end
     # SRR3405054_CEBPb_BC15.fastq or SRR3405138_cJUN_FOSL2_2_BC11.fastq
     def self.from_filename(filename)
       basename = File.basename(filename, '.fastq')
@@ -28,6 +29,7 @@ module SMSPublished
     def data_row; to_h.values_at(*[:experiment_id, :tf_normalized, :construct_type, :barcode_index, :tf_non_normalized]); end
     def tf_normalized; tfs.join(';'); end
     def experiment_type; 'SMS'; end
+    def cycle; nil; end
 
     def self.from_string(line)
       # Example:

@@ -31,12 +31,14 @@ module SMSUnpublished
         barcode_index: barcode_index, domain: domain_parts.join('_'), sequencing_id: sequencing_id,
         filename: filename)
     end
+    def cycle; nil; end
   end
 
   SampleMetadata = Struct.new(*[:experiment_id, :tf, :construct_type, :barcode_index, :hughes_id, :tf_family, :ssid], keyword_init: true) do
     def self.header_row; ['Experiment ID', 'TF', 'Construct type', 'Barcode', 'Hughes ID', 'TF family', 'SSID']; end
     def data_row; to_h.values_at(*[:experiment_id, :tf, :construct_type, :barcode_index, :hughes_id, :tf_family, :ssid]); end
     def experiment_type; 'SMS'; end
+    def cycle; nil; end
 
     def self.from_string(line)
       # Example:
