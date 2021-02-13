@@ -18,11 +18,13 @@ def process_sms_unpublished!
 
   samples = Dir.glob(samples_glob).map{|fn| SMSUnpublished::Sample.from_filename(fn) }
   metadata = SMSUnpublished::SampleMetadata.each_in_file(metadata_fn).to_a
-  samples = unique_samples(samples)
-  metadata = unique_metadata_by(metadata){|meta| [meta.experiment_id, meta.barcode_index, meta.ssid] }
+  sample_key = ->(sample){ [sample.experiment_id.split('-')[0,2].join('-'), sample.barcode_index, sample.sequencing_id] }
+  meta_key = ->(meta){ [meta.experiment_id, meta.barcode_index, meta.ssid] }
+  samples = unique_samples_by(samples, &sample_key)
+  metadata = unique_metadata_by(metadata, &meta_key)
   sample_triples = left_join_by(samples, metadata,
-                                key_proc_1: ->(sample){ [sample.experiment_id.split('-')[0,2].join('-'), sample.barcode_index, sample.sequencing_id] },
-                                key_proc_2: ->(meta){ [meta.experiment_id, meta.barcode_index, meta.ssid] })
+                                key_proc_1: sample_key,
+                                key_proc_2: meta_key)
 
   ReadsProcessing.process!(SMSUnpublished, results_folder, sample_triples, barcode_proc, num_threads: 20)
 end

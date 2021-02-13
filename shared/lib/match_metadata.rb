@@ -1,12 +1,16 @@
 require_relative 'index_by'
 
-def unique_samples(samples, warnings: true)
-  bad_samples = samples.reject_unique_by(&:experiment_id)
+def unique_samples_by(samples, warnings: true, &block)
+  bad_samples = samples.reject_unique_by(&block)
   if warnings && !bad_samples.empty?
     $stderr.puts("Rejected sample not unique by experiment_id:")  if !bad_samples.empty?
-    bad_samples.sort_by(&:experiment_id).each{|sample| $stderr.puts(sample) }
+    bad_samples.sort_by(&block).each{|sample| $stderr.puts(sample) }
   end
-  samples.select_unique_by(&:experiment_id)
+  samples.select_unique_by(&block)
+end
+
+def unique_samples(samples, warnings: true)
+  unique_samples_by(samples, warnings: true, &:experiment_id)
 end
 
 def unique_metadata_by(metadata, warnings: true, &block)
