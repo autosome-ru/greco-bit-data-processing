@@ -1,9 +1,9 @@
 require 'optparse'
-require_relative '../shared/lib/index_by'
-require_relative '../shared/lib/plasmid_metadata'
-require_relative '../shared/lib/random_names'
-require_relative 'experiment_info_afs'
-require_relative '../shared/lib/affiseq_metadata'
+require_relative '../lib/index_by'
+require_relative '../lib/plasmid_metadata'
+require_relative '../lib/random_names'
+require_relative '../../process_peaks_CHS_AFS/experiment_info_afs'
+require_relative '../lib/affiseq_metadata'
 
 module AffiseqPeaks
   def self.verify_sample_metadata_match!
