@@ -23,7 +23,7 @@ def process_sms_unpublished!
 
   sample_triples = left_join_by(samples, metadata,
                                 key_proc_1: ->(sample){ [sample.experiment_id.split('-')[0,2].join('-'), sample.barcode_index] },
-                                key_proc_2: ->(meta){ [meta.experiment_id, metadata.barcode_index] })
+                                key_proc_2: ->(meta){ [meta.experiment_id, meta.barcode_index] })
 
   ReadsProcessing.process!(SMSUnpublished, results_folder, sample_triples, barcode_proc, num_threads: 20)
 end
