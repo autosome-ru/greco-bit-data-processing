@@ -50,7 +50,7 @@ PBM:
 	13690_R_2018-10-24_13690_1M-ME_Standard_pTH13023.1_RBCK1.sRANBP2.txt
 	13706_R_2018-10-24_13706_1M-HK_Standard_pTH13023.2_RBCK1.sRANBP2.txt
 
-CHS:
+Chip-Seq:
 - No metadata for:
 	Sample_Hughes_4A_ZNF99_FS0205
 	Sample_Hughes_4_ZNF99_Chip
@@ -62,3 +62,6 @@ CHS:
 - Inconsistencies in `Data File ID`s:
 	some are file names: SI2081.fastq.gz / Plate_1_A1_S1_R2_001.fastq.gz / SP110ChIP2_IGO_10521_89_S30_R2_001.fastq.gz
 	the others are not: Hughes_SI0581_ZNF317
+
+Affiseq:
+	No metadata for ZNF997
