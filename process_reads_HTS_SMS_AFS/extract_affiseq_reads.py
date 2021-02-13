@@ -124,7 +124,7 @@ db_connection = pymysql.connect(**MYSQL_CONFIG)
 records = get_experiment_infos(db_connection)
 experiments, alignment_by_experiment, reads_by_experiment = infos_by_alignment(records)
 
-meta_by_experiment = read_experiment_meta('source_data_affiseq/metrics_by_exp.tsv')
+meta_by_experiment = read_experiment_meta('source_data_meta/AFS/metrics_by_exp.tsv')
 
 def task_generator():
     for experiment in experiments:
