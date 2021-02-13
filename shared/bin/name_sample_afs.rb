@@ -23,7 +23,7 @@ module AffiseqPeaks
     }
   end
 
-  def self.gen_name(sample_metadata, processing_type:, sample_fn, slice_type:, extension:, cycle:)
+  def self.gen_name(sample_metadata, sample_fn, processing_type:, slice_type:, extension:, cycle:)
     experiment_id = sample_metadata.experiment_id
     tf = sample_metadata.gene_name
     construct_type = sample_metadata.construct_type
