@@ -9,13 +9,18 @@ def unique_samples(samples, warnings: true)
   samples.select_unique_by(&:experiment_id)
 end
 
-def unique_metadata(metadata, warnings: true)
-  bad_metadata = metadata.reject_unique_by(&:experiment_id)
+def unique_metadata_by(metadata, warnings: true, &block)
+  bad_metadata = metadata.reject_unique_by(&block)
   if warnings && !bad_metadata.empty?
-    $stderr.puts("Rejected sample metadata not unique by experiment_id:")  if !bad_metadata.empty?
-    bad_metadata.sort_by(&:experiment_id).each{|sample_metadata| $stderr.puts(sample_metadata) }
+    $stderr.puts("Rejected not unique sample metadata:")  if !bad_metadata.empty?
+    bad_metadata.sort_by(&block).each{|sample_metadata| $stderr.puts(sample_metadata) }
   end
-  metadata.select_unique_by(&:experiment_id)
+  metadata.select_unique_by(&block)
+end
+
+
+def unique_metadata(metadata, warnings: true)
+  bad_metadata = unique_metadata_by(metadata, warnings: warnings, &:experiment_id)
 end
 
 def match_triples_by_filenames(samples, metadata, metadata_keys)

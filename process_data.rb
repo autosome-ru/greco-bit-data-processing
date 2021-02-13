@@ -19,7 +19,7 @@ def process_sms_unpublished!
   samples = Dir.glob(samples_glob).map{|fn| SMSUnpublished::Sample.from_filename(fn) }
   metadata = SMSUnpublished::SampleMetadata.each_in_file(metadata_fn).to_a
   samples = unique_samples(samples)
-  metadata = unique_metadata(metadata)
+  metadata = unique_metadata_by(metadata){|meta| [meta.experiment_id, metadata.barcode_index] }
 
   sample_triples = left_join_by(samples, metadata,
                                 key_proc_1: ->(sample){ [sample.experiment_id.split('-')[0,2].join('-'), sample.barcode_index] },
