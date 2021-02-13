@@ -3,10 +3,6 @@ find -L /home_local/mihaialbu/Codebook/SELEX/RawData/ -xtype f -iname '*.fastq.g
   | grep -vi AffSeq | grep -vi Control | grep -vi Unselected \
   | xargs -n1 -I{} ln -s {} source_data/HTS/reads/
 
-mkdir -p source_data/AFS/reads
-find -L /home_local/mihaialbu/Codebook/SELEX/RawData/ -xtype f -iname '*.fastq.gz' \
-  | grep -i AffSeq | grep -vi Control \
-  | xargs -n1 -I{} ln -s {} source_data/AFS/reads/
 
 mkdir -p source_data/SMS/reads/unpublished
 find -L /mnt/space/depla/smileseq_raw/ -xtype f -iname '*.fastq' \
@@ -20,9 +16,25 @@ find -L /mnt/space/depla/old_smlseq_raw/raw/ -xtype f -iname '*.fastq' \
   | xargs -n1 -I{} ln -s {} source_data/SMS/reads/published/
 
 
+# For AFS.peaks
 ruby shared/lib/symlink_folder_content.rb \
     "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/peaks-interval/" \
     "source_data/AFS/peaks-intervals/"
+
+# # We don't need raw reads for AFS. We use reads preprocessed by GTRD-pipeline instead (see below)
+# mkdir -p source_data/AFS/reads
+# find -L /home_local/mihaialbu/Codebook/SELEX/RawData/ -xtype f -iname '*.fastq.gz' \
+#   | grep -i AffSeq | grep -vi Control \
+#   | xargs -n1 -I{} ln -s {} source_data/AFS/reads/
+
+# For AFS.reads
+ruby shared/lib/symlink_folder_content.rb \
+    "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/aligns-sorted/" \
+    "source_data/AFS/aligns-sorted"
+
+ruby shared/lib/symlink_folder_content.rb \
+    "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/fastq" \
+    "source_data/AFS/fastq"
 
 
 ruby shared/lib/symlink_folder_content.rb \

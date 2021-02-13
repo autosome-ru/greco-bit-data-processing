@@ -14,7 +14,7 @@ VALIDATION_CHR = {f"chr{chr}" for chr in range(2,23,2)}  # chr2, chr4, ..., chr2
 
 MYSQL_CONFIG = {'host': 'localhost', 'user': 'vorontsovie', 'password': 'password', 'db': 'greco_affyseq'}
 
-SOURCE_DIRNAME = '/home_local/ivanyev/egrid/dfs-affyseq-cutadapt'
+SOURCE_DIRNAME = 'source_data/AFS/'
 ALIGNMENT_DIRNAME = f'{SOURCE_DIRNAME}/aligns-sorted'
 FASTQ_DIRNAME = f'{SOURCE_DIRNAME}/fastq'
 
@@ -138,7 +138,7 @@ def task_generator():
         _, _, ivt_or_lysate, batch, cycle = basename.split('_')
         
         alignment_fn = f"{ALIGNMENT_DIRNAME}/{alignment}.bam"
-        RESULTS_FOLDER = f'results_affiseq_{ivt_or_lysate}'
+        RESULTS_FOLDER = f'results_databox_afs_reads_{ivt_or_lysate}'
         train_fn      = f'{RESULTS_FOLDER}/train_sequences/{tf}.{ivt_or_lysate}.{cycle}.{batch}.asReads.affiseq.train.fastq.gz' # ToDo: check suffix
         validation_fn = f'{RESULTS_FOLDER}/validation_sequences/{tf}.{ivt_or_lysate}.{cycle}.{batch}.asReads.affiseq.val.fastq.gz'
         fastq_fns = [f"{FASTQ_DIRNAME}/{fastq_bn}.fastq.gz"  for fastq_bn in read_basenames]
