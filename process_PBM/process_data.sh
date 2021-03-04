@@ -167,9 +167,9 @@ for PROCESSING_TYPE in SDQN QNZS; do
                         --extension fa --processing-type ${PROCESSING_TYPE} ); \
         if [[ -n "$NEW_BN" ]]; then
             ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
-                    --source ${FN} \
                     --linker-length 0 \
                     --fasta  --take-top 1000 \
+                    ${FN}
                 > source_data_prepared/PBM.${PROCESSING_TYPE}/Train_sequences/${NEW_BN};
         else
             echo "Can't get sequence filename for ${FN}" >& 2
@@ -182,9 +182,9 @@ for PROCESSING_TYPE in SDQN QNZS; do
                         --extension fa --processing-type ${PROCESSING_TYPE} ); \
         if [[ -n "$NEW_BN" ]]; then
             ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
-                    --source ${FN} \
                     --linker-length 0 \
                     --fasta  --take-top 1000 \
+                    ${FN}
                 > source_data_prepared/PBM.${PROCESSING_TYPE}/Val_sequences/${NEW_BN};
         else
             echo "Can't get sequence filename for ${FN}" >& 2
