@@ -69,6 +69,10 @@ ChipProbe = Struct.new(:id_spot, :row, :col, :control, :id_probe, :pbm_sequence,
   def log10_scaled_bg_normalized
     with_signal(Math.log10(signal / background)).with_background(0)
   end
+
+  def linker_suffix(linker_length)
+    (linker_length == 0) ? '' : probe.linker_sequence[(-linker_length) .. (-1)]
+  end
 end
 
 class Chip

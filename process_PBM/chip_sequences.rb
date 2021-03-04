@@ -35,17 +35,18 @@ Dir.glob(File.join(src_folder, '*')).each{|fn|
     raise "Unknown output format `#{output_format}`"
   end
 
+  sorted_probes = chip.probes.reject(&:flag).sort_by(&:signal).reverse
+  sorted_probes = sorted_probes.first(take_top)  if take_top
   File.open(output_filename, 'w') {|fw|
-    sorted_probes = chip.probes.reject(&:flag).sort_by(&:signal).reverse
-    sorted_probes = sorted_probes.first(take_top)  if take_top
     sorted_probes.each{|probe|
-      linker_suffix = (linker_length == 0) ? '' : probe.linker_sequence[(-linker_length) .. (-1)]
+      linker_suffix = probe.linker_suffix(linker_length)
+      seq = linker_suffix + probe.pbm_sequence
       if output_format == :tsv
-        info = [probe.id_probe, linker_suffix + probe.pbm_sequence, probe.signal]
+        info = [probe.id_probe, seq, probe.signal]
         fw.puts(info.join("\t"))
       elsif output_format == :fasta
         fw.puts(">#{probe.id_probe} #{probe.signal}")
-        fw.puts(linker_suffix + probe.pbm_sequence)
+        fw.puts(seq)
       else
         raise "Unknown output format `#{output_format}`"
       end
