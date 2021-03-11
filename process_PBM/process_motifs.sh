@@ -23,13 +23,6 @@ CHIPS_SOURCE_FOLDER='./release_6_motifs/'
 RESULTS_FOLDER='./release_6_motifs/'
 #######
 
-# TOP_OPTS='--max-head-size 1000'
-# TOP_OPTS='--quantile 0.01'
-TOP_OPTS='--quantile 0.05'
-
-#NORMALIZATION_OPTS='--log10-bg'
-NORMALIZATION_OPTS='--log10'
-
 NUM_THREADS=24
 CHIPMUNK_NUM_PROCESSES=12
 CHIPMUNK_NUM_INNER_THREADS=2
@@ -40,26 +33,14 @@ CHIPMUNK_ADDITIONAL_OPTIONS=""
 
 while true; do
     case "${1-}" in
-#        --source)
-#            CHIPS_SOURCE_FOLDER="$2"
-#            shift
-#            ;;
-#        --destination)
-#            RESULTS_FOLDER="$2"
-#            shift
-#            ;;
-        --normalization-opts)
-            NORMALIZATION_OPTS="$2"
-            shift
-            ;;
-        --extract-top-opts)
-            TOP_OPTS="$2"
-            shift
-            ;;
-        --num-threads)
-            NUM_THREADS="$2"
-            shift
-            ;;
+       --source)
+           CHIPS_SOURCE_FOLDER="$2"
+           shift
+           ;;
+       --destination)
+           RESULTS_FOLDER="$2"
+           shift
+           ;;
         --chipmunk-num-processes)
             CHIPMUNK_NUM_PROCESSES="$2"
             shift
@@ -114,7 +95,7 @@ ruby chip_sequences.rb \
               --pcms-destination ${RESULTS_FOLDER}/pcms \
               --dpcms-destination ${RESULTS_FOLDER}/dpcms \
               --words-destination ${RESULTS_FOLDER}/words \
-              --suffix .chipmunk.model1
+              --motif-id-suffix s_8-15_flat
 
 ./generate_logo.sh --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/logo
 ./generate_dilogo.sh --source ${RESULTS_FOLDER}/dpcms --destination ${RESULTS_FOLDER}/dilogo

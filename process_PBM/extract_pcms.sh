@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SUFFIX=""
+CHIPMUNK_ARITY="di"
+MOTIF_ID_SUFFIX="" # common suffix for all motifs in a batch
 while true; do
     case "${1-}" in
         --source)
@@ -20,9 +21,15 @@ while true; do
             WORDS_DESTINATION_FOLDER="$(readlink -m "$2")"
             shift
             ;;
-        --suffix)
-            SUFFIX="$2"
+        --motif-id-suffix)
+            MOTIF_ID_SUFFIX="$2"
             shift
+            ;;
+        --mono-chipmunk)
+            CHIPMUNK_ARITY="mono"
+            ;;
+        --di-chipmunk)
+            CHIPMUNK_ARITY="di"
             ;;
         -?*)
             echo -e "WARN: Unknown option (ignored): $1\n" >&2
@@ -39,27 +46,33 @@ mkdir -p "${DPCMS_DESTINATION_FOLDER}"
 mkdir -p "${WORDS_DESTINATION_FOLDER}"
 
 for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
-  BN=$(basename -s .txt ${FN})
+    BN=$(basename -s .txt ${FN})
+    NEW_BN=$( ruby motif_name_pbm.rb --dataset "${BN}" --motif-id "${MOTIF_ID_SUFFIX}" --ext '' --team VIGG --tool ChIPMunk )
 
-  # # It's reserved for mono-chipmunk results
-  # ( echo ">${BN}${SUFFIX}"; cat "${SOURCE_FOLDER}/${BN}.txt"  \
-  #   | grep -Pe '^[ACGT]\|'  \
-  #   | sed -re 's/^[ACGT]\|//' \
-  # ) > "${PCMS_DESTINATION_FOLDER}/${BN}${SUFFIX}.pcm"
+    if [[ "${CHIPMUNK_ARITY}" == "mono" ]]; then
+        # It's reserved for mono-chipmunk results
+        ( echo ">${NEW_BN}"; cat "${SOURCE_FOLDER}/${BN}.txt"  \
+          | grep -Pe '^[ACGT]\|'  \
+          | sed -re 's/^[ACGT]\|//' \
+        ) > "${PCMS_DESTINATION_FOLDER}/${NEW_BN}.pcm"
+    elif [[ "${CHIPMUNK_ARITY}" == "di" ]]; then
+        ( echo ">${NEW_BN}"; cat "${SOURCE_FOLDER}/${BN}.txt"  \
+          | grep -Pe '^[ACGT][ACGT]\|'  \
+          | sed -re 's/^[ACGT][ACGT]\|//' \
+          | ruby -e 'readlines.map{|l| l.chomp.split }.transpose.each{|r| puts r.join("\t") }' \
+        ) > "${DPCMS_DESTINATION_FOLDER}/${NEW_BN}.dpcm"
 
-  ( echo ">${BN}${SUFFIX}"; cat "${SOURCE_FOLDER}/${BN}.txt"  \
-    | grep -Pe '^[ACGT][ACGT]\|'  \
-    | sed -re 's/^[ACGT][ACGT]\|//' \
-    | ruby -e 'readlines.map{|l| l.chomp.split }.transpose.each{|r| puts r.join("\t") }' \
-  ) > "${DPCMS_DESTINATION_FOLDER}/${BN}${SUFFIX}.dpcm"
+        cat "${SOURCE_FOLDER}/${BN}.txt"  \
+          | grep -Pe '^WORD\|'  \
+          | sed -re 's/^WORD\|//' \
+          | ruby -e 'readlines.each{|l| word, weight = l.chomp.split("\t").values_at(2, 5); puts(">#{weight}"); puts(word) }' \
+          > "${WORDS_DESTINATION_FOLDER}/${NEW_BN}.fa"
 
-  cat "${SOURCE_FOLDER}/${BN}.txt"  \
-    | grep -Pe '^WORD\|'  \
-    | sed -re 's/^WORD\|//' \
-    | ruby -e 'readlines.each{|l| word, weight = l.chomp.split("\t").values_at(2, 5); puts(">#{weight}"); puts(word) }' \
-    > "${WORDS_DESTINATION_FOLDER}/${BN}${SUFFIX}.fa"
-
-  ( echo ">${BN}${SUFFIX}"; cat "${WORDS_DESTINATION_FOLDER}/${BN}${SUFFIX}.fa" \
-    | ruby fasta2pcm.rb --weighted \
-  ) > "${PCMS_DESTINATION_FOLDER}/${BN}${SUFFIX}.pcm"
+        ( echo ">${NEW_BN}"; cat "${WORDS_DESTINATION_FOLDER}/${NEW_BN}.fa" \
+          | ruby fasta2pcm.rb --weighted \
+        ) > "${PCMS_DESTINATION_FOLDER}/${NEW_BN}.pcm"
+    else
+        echo "Unknown ChIPMunk arity. Should be 'mono' or 'di'" >&2
+        exit 1
+    fi
 done
