@@ -55,7 +55,7 @@ if [[ "$NAME_MAPPING" != "no" ]]; then
     CHIPS_SOURCE_FOLDER="${INTERMEDIATE_FOLDER}/raw_intensities/"
 fi
 
-## sd_qn_intensities
+## SDQN_intensities
 # window-size=5 means window 11x11
 ${SCRIPT_FOLDER}/spatial_detrending.sh --source ${CHIPS_SOURCE_FOLDER} \
                         --destination ${INTERMEDIATE_FOLDER}/spatial_detrended_intensities/ \
@@ -65,9 +65,9 @@ ${SCRIPT_FOLDER}/spatial_detrending.sh --source ${CHIPS_SOURCE_FOLDER} \
 ruby ${SCRIPT_FOLDER}/quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
         --source ${INTERMEDIATE_FOLDER}/spatial_detrended_intensities/ \
-        --destination ${INTERMEDIATE_FOLDER}/sd_qn_intensities
+        --destination ${INTERMEDIATE_FOLDER}/SDQN_intensities
 
-## qn_zscore_intensities
+## QNZS_intensities
 ruby ${SCRIPT_FOLDER}/quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
         --source ${CHIPS_SOURCE_FOLDER} \
@@ -75,119 +75,59 @@ ruby ${SCRIPT_FOLDER}/quantile_normalize_chips.rb \
 
 ruby ${SCRIPT_FOLDER}/zscore_transform_chips.rb \
         --source ${INTERMEDIATE_FOLDER}/quantile_normalized_intensities \
-        --destination ${INTERMEDIATE_FOLDER}/qn_zscore_intensities
+        --destination ${INTERMEDIATE_FOLDER}/QNZS_intensities
 
 #########
 
-mkdir -p ${RESULTS_FOLDER}/raw/train_intensities  ${RESULTS_FOLDER}/raw/validation_intensities
-mkdir -p ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_intensities  ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_intensities 
-mkdir -p ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities  ${RESULTS_FOLDER}/quantNorm_zscore/validation_intensities
-mkdir -p source_data_prepared/PBM.SDQN/train_intensities  source_data_prepared/PBM.SDQN/validation_intensities
-mkdir -p source_data_prepared/PBM.QNZS/train_intensities  source_data_prepared/PBM.QNZS/validation_intensities
+# mkdir -p ${RESULTS_FOLDER}/raw/Train_intensities  ${RESULTS_FOLDER}/raw/Val_intensities
+# # raw
+# for FN in $(find ${CHIPS_SOURCE_FOLDER} -xtype f -name '*_1M-ME_*'); do
+#     BN=$(basename -s .pbm.txt ${FN})
+#     cp ${FN} ${RESULTS_FOLDER}/raw/Train_intensities/${BN}.raw.pbm.train.txt
+# done
 
-# raw
-for FN in $(find ${CHIPS_SOURCE_FOLDER} -xtype f -name '*_1M-ME_*'); do
-    BN=$(basename -s .pbm.txt ${FN})
-    cp ${FN} ${RESULTS_FOLDER}/raw/train_intensities/${BN}.raw.pbm.train.txt
-done
-
-for FN in $(find ${CHIPS_SOURCE_FOLDER} -xtype f -name '*_1M-HK_*'); do
-    BN=$(basename -s .pbm.txt ${FN})
-    cp ${FN} ${RESULTS_FOLDER}/raw/validation_intensities/${BN}.raw.pbm.val.txt
-done
-
-# sd_qn
-for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-ME_*'); do
-    BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Train --extension tsv --processing-type SDQN )
-    cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/train_intensities/${BN}.spatialDetrend_quantNorm.pbm.train.txt
-    if [[ -n "$NEW_BN" ]]; then
-        cp ${FN} source_data_prepared/PBM.SDQN/Train_intensities/${NEW_BN}
-    else
-        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
-    fi
-done
-
-for FN in $(find ${INTERMEDIATE_FOLDER}/sd_qn_intensities/ -xtype f -name '*_1M-HK_*'); do
-    BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Val --extension tsv --processing-type SDQN )
-    cp ${FN} ${RESULTS_FOLDER}/spatialDetrend_quantNorm/validation_intensities/${BN}.spatialDetrend_quantNorm.pbm.val.txt
-    if [[ -n "$NEW_BN" ]]; then
-        cp ${FN} source_data_prepared/PBM.SDQN/Val_intensities/${NEW_BN}
-    else
-        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
-    fi
-done
-
-# qn_zscore
-for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*_1M-ME_*'); do
-    BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Train --extension tsv --processing-type QNZS )
-    cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/train_intensities/${BN}.quantNorm_zscore.pbm.train.txt
-    if [[ -n "$NEW_BN" ]]; then
-        cp ${FN} source_data_prepared/PBM.QNZS/Train_intensities/${NEW_BN}
-    else
-        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
-    fi
-done
-
-for FN in $(find ${INTERMEDIATE_FOLDER}/qn_zscore_intensities/ -xtype f -name '*_1M-HK_*'); do
-    BN=$(basename -s .pbm.txt ${FN})
-    NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" --slice-type Val --extension tsv --processing-type QNZS )
-    cp ${FN} ${RESULTS_FOLDER}/quantNorm_zscore/validation_intensities/${BN}.quantNorm_zscore.pbm.val.txt
-    if [[ -n "$NEW_BN" ]]; then
-        cp ${FN} source_data_prepared/PBM.QNZS/Val_intensities/${NEW_BN}
-    else
-        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
-    fi
-done
-
-
-for SUBFOLDER in raw  spatialDetrend_quantNorm  quantNorm_zscore; do
-    ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
-            --source ${RESULTS_FOLDER}/${SUBFOLDER}/train_intensities \
-            --destination ${RESULTS_FOLDER}/${SUBFOLDER}/train_sequences \
-            --linker-length 0 \
-            --fasta  --take-top 1000
-
-    ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
-            --source ${RESULTS_FOLDER}/${SUBFOLDER}/validation_intensities \
-            --destination ${RESULTS_FOLDER}/${SUBFOLDER}/validation_sequences \
-            --linker-length 0 \
-            --fasta  --take-top 1000
-done
+# for FN in $(find ${CHIPS_SOURCE_FOLDER} -xtype f -name '*_1M-HK_*'); do
+#     BN=$(basename -s .pbm.txt ${FN})
+#     cp ${FN} ${RESULTS_FOLDER}/raw/Val_intensities/${BN}.raw.pbm.val.txt
+# done
 
 for PROCESSING_TYPE in SDQN QNZS; do
-    mkdir -p "source_data_prepared/PBM.${PROCESSING_TYPE}/Train_sequences"
-    mkdir -p "source_data_prepared/PBM.${PROCESSING_TYPE}/Val_sequences"
+    mkdir -p source_data_prepared/PBM.${PROCESSING_TYPE}/Train_intensities  source_data_prepared/PBM.${PROCESSING_TYPE}/Val_intensities
 
-    for FN in $( find "source_data_prepared/PBM.${PROCESSING_TYPE}/Train_intensities" -xtype f ); do
-        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" \
-                        --source-mode normalized --slice-type Train \
-                        --extension fa --processing-type ${PROCESSING_TYPE} ); \
+    for FN in $(find ${INTERMEDIATE_FOLDER}/${PROCESSING_TYPE}_intensities/ -xtype f -name '*_1M-ME_*'); do
+        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_pbm.rb "$FN" --slice-type Train --extension tsv --processing-type ${PROCESSING_TYPE} )
         if [[ -n "$NEW_BN" ]]; then
-            ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
-                    --linker-length 0 \
-                    --fasta  --take-top 1000 \
-                    ${FN}
-                > source_data_prepared/PBM.${PROCESSING_TYPE}/Train_sequences/${NEW_BN};
+            cp ${FN} source_data_prepared/PBM.${PROCESSING_TYPE}/Train_intensities/${NEW_BN}
         else
-            echo "Can't get sequence filename for ${FN}" >& 2
+            echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
         fi
     done
 
-    for FN in $( find "source_data_prepared/PBM.${PROCESSING_TYPE}/Val_intensities" -xtype f ); do
-        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample.rb "$FN" \
-                        --source-mode normalized --slice-type Val \
-                        --extension fa --processing-type ${PROCESSING_TYPE} ); \
+    for FN in $(find ${INTERMEDIATE_FOLDER}/${PROCESSING_TYPE}_intensities/ -xtype f -name '*_1M-HK_*'); do
+        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_pbm.rb "$FN" --slice-type Val --extension tsv --processing-type ${PROCESSING_TYPE} )
         if [[ -n "$NEW_BN" ]]; then
-            ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
-                    --linker-length 0 \
-                    --fasta  --take-top 1000 \
-                    ${FN}
-                > source_data_prepared/PBM.${PROCESSING_TYPE}/Val_sequences/${NEW_BN};
+            cp ${FN} source_data_prepared/PBM.${PROCESSING_TYPE}/Val_intensities/${NEW_BN}
         else
-            echo "Can't get sequence filename for ${FN}" >& 2
+            echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
         fi
+    done
+
+    for SLICE_TYPE in Train Val; do
+        mkdir -p "source_data_prepared/PBM.${PROCESSING_TYPE}/${SLICE_TYPE}_sequences"
+
+        for FN in $( find "source_data_prepared/PBM.${PROCESSING_TYPE}/${SLICE_TYPE}_intensities" -xtype f ); do
+            NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_pbm.rb "$FN" \
+                            --source-mode normalized --slice-type ${SLICE_TYPE} \
+                            --extension fa --processing-type ${PROCESSING_TYPE} ); \
+            if [[ -n "$NEW_BN" ]]; then
+                ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
+                        --linker-length 0 \
+                        --fasta  --take-top 1000 \
+                        ${FN}
+                    > source_data_prepared/PBM.${PROCESSING_TYPE}/${SLICE_TYPE}_sequences/${NEW_BN};
+            else
+                echo "Can't get sequence filename for ${FN}" >& 2
+            fi
+        done
     done
 done

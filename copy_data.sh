@@ -47,4 +47,4 @@ ruby shared/lib/symlink_folder_content.rb \
 
 
 mkdir -p source_data/PBM/chips
-find -L /home_local/mihaialbu/Codebook_extended/PBM_raw/ -iname '*.txt' | xargs -n1 -I{} ln -s {} source_data/PBM/chips
+find -L /mnt/space/hughes/Codebook_extended/PBM_raw/ -iname '*.txt' | xargs -n1 -I{} ln -s {} source_data/PBM/chips
