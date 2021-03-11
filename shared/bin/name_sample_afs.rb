@@ -6,6 +6,13 @@ require_relative '../../process_peaks_CHS_AFS/experiment_info_afs'
 require_relative '../lib/affiseq_metadata'
 
 module AffiseqPeaks
+#  Library after PCR (for Affiseq). This is what the TF sees
+# ACACTCTTTCCCTACACGAC GCTCTTCCGATCT(Random Genomic fragment)AGATCGGAAGAGC ACACGTCTG AACTCCAG 3'
+# TGTGAGAAAGGGATGTGCTG CGAGAAGGCTAGA(Random Genomic fragment)TCTAGCCTTCTCG TGTGCAGAC TTGAGGTC 5'
+  ADAPTER_5 = 'ACACTCTTTCCCTACACGACGCTCTTCCGATCT'
+  ADAPTER_3 = 'AGATCGGAAGAGCACACGTCTGAACTCCAG'
+
+
   def self.verify_sample_metadata_match!
     samples = Dir.glob('results_databox_chs/train_intensities/*') # TODO: FIX !!!
     metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
@@ -27,7 +34,9 @@ module AffiseqPeaks
     experiment_id = sample_metadata.experiment_id
     tf = sample_metadata.gene_name
     construct_type = sample_metadata.construct_type
-    basename = "#{tf}.#{construct_type}@AFS.#{sample_metadata.ivt_or_lysate}@#{experiment_id}.C#{cycle}"
+    flank_5 = (ADAPTER_5 + '')[-20,20] # no inner barcodes are present
+    flank_3 = ('' + ADAPTER_3)[0,20]
+    basename = "#{tf}.#{construct_type}@AFS.#{sample_metadata.ivt_or_lysate}@#{experiment_id}.C#{cycle}.5#{flank_5}.3#{flank_3}"
 
     uuid = take_dataset_name!
     "#{basename}@#{processing_type}.#{uuid}.#{slice_type}.#{extension}"
