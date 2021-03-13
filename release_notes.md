@@ -1,4 +1,4 @@
-See also notes on [data corrections](source_data/shared/data_corrections.md).
+See also notes on [data corrections](data_corrections.md).
 
 ### Versions 1-5
 /home_local/vorontsovie/greco-data/release_2.2020-07-26/
