@@ -14,13 +14,10 @@ set -euo pipefail
 #
 
 ###########3
-mkdir -p ./release_6_motifs/Train_intensities/
-
-cp ~/greco-data/release_6.2021-02-13/PBM.SDQN/Train_intensities/* ./release_6_motifs/Train_intensities/
-cp ~/greco-data/release_6.2021-02-13/PBM.QNZS/Train_intensities/* ./release_6_motifs/Train_intensities/
 
 CHIPS_SOURCE_FOLDER='./release_6_motifs/'
 RESULTS_FOLDER='./release_6_motifs/'
+
 #######
 
 NUM_THREADS=24
@@ -73,6 +70,13 @@ while true; do
     esac
     shift
 done
+
+# # Copy source data
+# mkdir -p "${CHIPS_SOURCE_FOLDER}/Train_intensities/"
+# for PROCESSING_TYPE in SDQN QNZS; do
+#     cp "~/greco-data/release_6.2021-02-13/PBM.${PROCESSING_TYPE}/Train_intensities/*" "${CHIPS_SOURCE_FOLDER}/Train_intensities/"
+# done
+
 
 ruby chip_sequences.rb \
         --source ${CHIPS_SOURCE_FOLDER}/Train_intensities \
