@@ -1,4 +1,4 @@
-### Corrections for the version 1 (Codebook_Metadata_Masterfile_V9_16DEC2020.xlsx)
+### Data/metadata corrections for the metadata version 5.99 (Codebook_Metadata_Masterfile_V9_16DEC2020.xlsx)
 
 * (1) There is no metadata for any of Lysate (HT-SELEX) experiments. We do not need complete data, but Experiments IDs and key information on samples (raw data filenames) are strictly necessary to move on. Also, we need PlasmidIDs to distinguish between FL and DBD constructs.
 * (2) Metadata for Affi-Seq experiments do not match the datasets which Mihai previously uploaded to the shared server. None of previously uploaded TFs have metadata and vice versa. In the currently existing metadata, the IVT/Lysate tag is missing.
@@ -22,7 +22,7 @@ On the PBM spreadsheet:
 On the ChIP-seq spreadsheet:
 * AC008770, AC092835
 
-### Corrections for the version 2
+### Data/metadata corrections for the version 6
 
 Plasmids:
 - Plasmid #889 has plasmid number pTH15990 and simultaneously pTH15883. Probably the first one was accidentally copy-pasted from plasmid #888. Is it correct, that plasmid number should be pTH15883?

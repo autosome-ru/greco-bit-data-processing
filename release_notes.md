@@ -11,7 +11,8 @@ See also notes on [data corrections](source_data/shared/data_corrections.md).
 Release v6 is the first release where dataset names use unified format.
 
 Known problems:
-* AFS.Reads don't have adapter encoded in filenames
+* (FIXED at 12 March 2021) AFS.Reads don't have adapter encoded in filenames
+* (FIXED at 12 March 2021) Missing construct type in resulting filenames of some PBMs. For instance, `ZSCAN4.@PBM.ME...` should be `ZSCAN4.NA@PBM.ME@...`
 * No metadata (thus datasets not used) for
 ** AFS
 ***  `ZNF997`
@@ -31,5 +32,3 @@ Known problems:
 ***  `140515_LYNLEY_0427_AC3U4EACXX_L8_TGACCA` (ZNF382)
 ** SMS.published:
 *** Drop experiments related to dimeric TF sites.
-* Missing construct type in resulting filename: `ZSCAN4.@PBM.ME@PBM14304.5GTGAAATTGTTATCCGCTCT@QNZS.silly-goldenrod-catfish.Train.fa`
-
