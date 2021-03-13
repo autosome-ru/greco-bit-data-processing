@@ -9,7 +9,7 @@ for EXP_TYPE in IVT Lysate; do
 
     for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_sequences/ -xtype f ); do
         # BN=$(basename -s .pbm.txt ${FN})
-        NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Reads --slice-type ${SLICE_TYPE} --extension fa )
+        NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Reads --slice-type ${SLICE_TYPE} --extension fastq.gz )
         if [[ -n "$NEW_BN" ]]; then
             cp ${FN} source_data_prepared/AFS.Reads/${SLICE_TYPE}_sequences/${NEW_BN}
         else
