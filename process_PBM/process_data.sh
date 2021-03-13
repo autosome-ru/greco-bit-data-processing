@@ -10,7 +10,7 @@ NORMALIZATION_OPTS='--log10'
 INTERMEDIATE_FOLDER='results_databox_intermediate'
 RESULTS_FOLDER='results_databox'
 
-NAME_MAPPING='tf_name_mapping.txt' # use `--name_mapping no` to skip mapping
+NAME_MAPPING='no' # 'tf_name_mapping.txt' # use `--name_mapping no` to skip mapping
 
 while true; do
     case "${1-}" in
@@ -95,20 +95,30 @@ for PROCESSING_TYPE in SDQN QNZS; do
     mkdir -p source_data_prepared/PBM.${PROCESSING_TYPE}/Train_intensities  source_data_prepared/PBM.${PROCESSING_TYPE}/Val_intensities
 
     for FN in $(find ${INTERMEDIATE_FOLDER}/${PROCESSING_TYPE}_intensities/ -xtype f -name '*_1M-ME_*'); do
-        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_pbm.rb "$FN" --slice-type Train --extension tsv --processing-type ${PROCESSING_TYPE} )
+        NEW_DIRNAME="source_data_prepared/PBM.${PROCESSING_TYPE}/Train_intensities"
+        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_pbm.rb "$FN" --slice-type Train --extension tsv --processing-type ${PROCESSING_TYPE} --action find-or-generate --lookup-folder ${NEW_DIRNAME} )
         if [[ -n "$NEW_BN" ]]; then
-            cp ${FN} source_data_prepared/PBM.${PROCESSING_TYPE}/Train_intensities/${NEW_BN}
+            if [[ -s "${NEW_DIRNAME}/${NEW_BN}" ]]; then # file exists and has a size greater than zero.
+                echo "${NEW_DIRNAME}/${NEW_BN} already exists" >&2
+            else
+                cp "${FN}" "${NEW_DIRNAME}/${NEW_BN}"
+            fi
         else
-            echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+            echo "Can't get filename for ${FN}. Probably no metadata supplied" >&2
         fi
     done
 
     for FN in $(find ${INTERMEDIATE_FOLDER}/${PROCESSING_TYPE}_intensities/ -xtype f -name '*_1M-HK_*'); do
-        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_pbm.rb "$FN" --slice-type Val --extension tsv --processing-type ${PROCESSING_TYPE} )
+        NEW_DIRNAME="source_data_prepared/PBM.${PROCESSING_TYPE}/Val_intensities"
+        NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_pbm.rb "$FN" --slice-type Val --extension tsv --processing-type ${PROCESSING_TYPE} --action find-or-generate --lookup-folder ${NEW_DIRNAME} )
         if [[ -n "$NEW_BN" ]]; then
-            cp ${FN} source_data_prepared/PBM.${PROCESSING_TYPE}/Val_intensities/${NEW_BN}
+            if [[ -s "${NEW_DIRNAME}/${NEW_BN}" ]]; then # file exists and has a size greater than zero.
+                echo "${NEW_DIRNAME}/${NEW_BN} already exists" >&2
+            else
+                cp "${FN}" "${NEW_DIRNAME}/${NEW_BN}"
+            fi
         else
-            echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+            echo "Can't get filename for ${FN}. Probably no metadata supplied" >&2
         fi
     done
 
@@ -116,17 +126,22 @@ for PROCESSING_TYPE in SDQN QNZS; do
         mkdir -p "source_data_prepared/PBM.${PROCESSING_TYPE}/${SLICE_TYPE}_sequences"
 
         for FN in $( find "source_data_prepared/PBM.${PROCESSING_TYPE}/${SLICE_TYPE}_intensities" -xtype f ); do
+            NEW_DIRNAME="source_data_prepared/PBM.${PROCESSING_TYPE}/${SLICE_TYPE}_sequences"
             NEW_BN=$( ruby ${SCRIPT_FOLDER}/name_sample_pbm.rb "$FN" \
                             --source-mode normalized --slice-type ${SLICE_TYPE} \
                             --extension fa --processing-type ${PROCESSING_TYPE} ); \
             if [[ -n "$NEW_BN" ]]; then
-                ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
-                        --linker-length 0 \
-                        --fasta  --take-top 1000 \
-                        ${FN}
-                    > source_data_prepared/PBM.${PROCESSING_TYPE}/${SLICE_TYPE}_sequences/${NEW_BN};
+                if [[ -s "${NEW_DIRNAME}/${NEW_BN}" ]]; then # file exists and has a size greater than zero.
+                    echo "${NEW_DIRNAME}/${NEW_BN} already exists"  >&2
+                else
+                    ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
+                            --linker-length 0 \
+                            --fasta  --take-top 1000 \
+                            ${FN}
+                        > "${NEW_DIRNAME}/${NEW_BN}";
+                fi
             else
-                echo "Can't get sequence filename for ${FN}" >& 2
+                echo "Can't get sequence filename for ${FN}" >&2
             fi
         done
     done
