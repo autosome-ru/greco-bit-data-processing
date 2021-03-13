@@ -49,14 +49,14 @@ module AffiseqPeaks
     argparser = OptionParser.new{|o|
       o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
       o.on('--processing-type VAL', 'Peaks or Reads') {|v| processing_type = v }
-      o.on('--extension VAL', 'fa or peaks') {|v| extension = v }
+      o.on('--extension VAL', 'fa or peaks or fastq.gz') {|v| extension = v }
     }
 
     argparser.parse!(ARGV)
     sample_fn = ARGV[0]
     raise 'Specify processing type (Peaks or Reads)'  unless ['Peaks', 'Reads'].include?(processing_type)
     raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
-    raise 'Specify extension (fa or peaks)'  unless ['fa', 'peaks'].include?(extension)
+    raise 'Specify extension (fa or peaks or fastq.gz)'  unless ['fa', 'peaks', 'fastq.gz'].include?(extension)
     raise 'Specify sample filename'  unless sample_fn
     raise 'Sample file not exists'  unless File.exist?(sample_fn)
 
