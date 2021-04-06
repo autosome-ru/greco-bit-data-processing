@@ -5,6 +5,7 @@ end
 
 class Array
   def take_the_only
-    take_the_only(self)
+    raise "Size should be 1 but was #{size}" unless size == 1
+    self[0]
   end
 end
