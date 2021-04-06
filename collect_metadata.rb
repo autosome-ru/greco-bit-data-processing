@@ -1,4 +1,5 @@
 require 'json'
+require_relative 'shared/lib/utils'
 require_relative 'shared/lib/index_by'
 require_relative 'shared/lib/plasmid_metadata'
 require_relative 'shared/lib/random_names'
@@ -30,10 +31,13 @@ module DatasetNameParser
   end
 
   class PBMParser < BaseParser
-    # {tf}.{construct_type}@PBM.{experiment_subtype}@{experiment_id}.5{adapter_5}@{processing_type}.{uuid}.{slice_type}.{extension}
+    # {tf}.{construct_type}@PBM.{experiment_subtype}@{experiment_id}.5{flank_5}@{processing_type}.{uuid}.{slice_type}.{extension}
     def parse(fn)
       result = super(fn)
-      result[:experiment_params] = {flank_5: result[:experiment_params].grep(/^5/).first[1..-1] }
+      exp_params = result[:experiment_params]
+      result[:experiment_params] = {
+        flank_5: exp_params.grep(/^5/).take_the_only[1..-1],
+      }
       result
     end
   end
