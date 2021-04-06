@@ -28,6 +28,16 @@ module DatasetNameParser
         slice_type: slice_type, extension: extension,
       }
     end
+
+    def parse_with_metadata(dataset_fn, metadata_by_experiment_id)
+      dataset_info = self.parse(dataset_fn)
+      experiment_id = dataset_info[:experiment_id]
+      experiment_meta = metadata_by_experiment_id[ experiment_id ].to_h
+      plasmid = $plasmid_by_number[ experiment_meta[:plasmid_id] ].to_h
+      experiment_meta[:plasmid] = plasmid
+      dataset_info[:experiment_meta] = experiment_meta
+      dataset_info
+    end
   end
 
   class PBMParser < BaseParser
@@ -43,7 +53,6 @@ module DatasetNameParser
   end
 end
 
-# PBM
 def collect_pbm_metadata(data_folder:, source_folder:)
   parser = DatasetNameParser::PBMParser.new
   metadata = PBM::SampleMetadata.each_in_file('source_data_meta/PBM/PBM.tsv').to_a
@@ -54,13 +63,7 @@ def collect_pbm_metadata(data_folder:, source_folder:)
     Dir.glob("#{data_folder}/#{slice_type}_#{outcome}/*")
   }
   dataset_files.map{|dataset_fn|
-    dataset_info = parser.parse(dataset_fn)
-    experiment_id = dataset_info[:experiment_id]
-    experiment_meta = metadata_by_experiment_id[ experiment_id ].to_h
-    plasmid = $plasmid_by_number[ experiment_meta[:plasmid_id] ].to_h
-    
-    dataset_info[:experiment_meta] = experiment_meta.merge({plasmid: plasmid})
-
+    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
     source_files = Dir.glob("#{source_folder}/#{experiment_meta[:pbm_assay_num]}_*").map{|fn|
       File.absolute_path(fn)
     }
