@@ -1,7 +1,4 @@
-def take_the_only(vs)
-  raise "Size of #{vs} should be 1 but was #{vs.size}" unless vs.size == 1
-  vs[0]
-end
+require_relative '../shared/lib/utils'
 
 def num_rows(filename, has_header: true)
   num_lines = File.readlines(filename).map(&:strip).reject(&:empty?).size
