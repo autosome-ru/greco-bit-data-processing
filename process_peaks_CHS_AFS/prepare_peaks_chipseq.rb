@@ -23,7 +23,7 @@ tfs_at_start = experiment_infos.map(&:tf).uniq
 raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
 experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
 
-experiment_infos.each(&:make_confirmed_peaks!)
+experiment_infos.each{|info| info.make_confirmed_peaks!(source_folder: SOURCE_FOLDER) }
 
 # experiment_infos.each{|peak_info|
 #     FileUtils.rm(peak_info.confirmed_peaks_fn)  if File.exist?(peak_info.confirmed_peaks_fn) && num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
