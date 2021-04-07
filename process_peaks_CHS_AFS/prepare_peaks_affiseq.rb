@@ -46,7 +46,7 @@ tf_infos = experiment_infos.group_by{|info| info.tf }.map{|tf, tf_group|
 
 tf_infos.each{|tf_info| split_train_val!(tf_info) }
 tf_infos.each{|tf_info| cleanup_bad_datasets!(tf_info, min_peaks: 50) }
-store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/complete_data_stats.tsv")
+store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/complete_data_stats.tsv", source_folder: SOURCE_FOLDER)
 store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)
 
 tfs_at_finish = Dir.glob("#{RESULTS_FOLDER}/Train_intervals/*").map{|fn| File.basename(fn).split('.').first }.uniq

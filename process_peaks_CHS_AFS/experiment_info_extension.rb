@@ -10,8 +10,8 @@ module ExperimentInfoExtension
     "#{RESULTS_FOLDER}/complete_data/#{basename}.interval"
   end
 
-  def num_peaks_for_peakcaller(peak_caller)
-    peaks_fn = peak_fn_for_peakcaller(peak_caller, SOURCE_FOLDER)
+  def num_peaks_for_peakcaller(peak_caller, source_folder)
+    peaks_fn = peak_fn_for_peakcaller(peak_caller, source_folder)
     File.exist?(peaks_fn) ? num_rows(peaks_fn, has_header: true) : nil
   end
 

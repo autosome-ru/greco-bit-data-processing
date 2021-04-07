@@ -51,7 +51,7 @@ def split_train_val!(tf_info)
   }
 end
 
-def store_confirmed_peak_stats(tf_infos, filename)
+def store_confirmed_peak_stats(tf_infos, filename, source_folder:)
   File.open(filename, 'w') {|fw|
     header = ['peak_id', 'tf', 'peak_type', 'is_best', 'num_confirmed_peaks', *PEAK_CALLERS.map{|peak_caller| "num_peaks:#{peak_caller}" }, 'filename']
     fw.puts(header.join("\t"))
@@ -59,13 +59,27 @@ def store_confirmed_peak_stats(tf_infos, filename)
 
       tf_info[:best_peak].yield_self{|peak_info|
         next  unless File.exist?(peak_info.confirmed_peaks_fn)
-        row = [peak_info.peak_id, tf_info[:tf], peak_info.type, 'best', peak_info.num_confirmed_peaks, *PEAK_CALLERS.map{|peak_caller| peak_info.num_peaks_for_peakcaller(peak_caller) }, peak_info.confirmed_peaks_fn ]
+        row = [
+          peak_info.peak_id, tf_info[:tf], peak_info.type, 'best',
+          peak_info.num_confirmed_peaks,
+          *PEAK_CALLERS.map{|peak_caller|
+            peak_info.num_peaks_for_peakcaller(peak_caller, source_folder: source_folder)
+          },
+          peak_info.confirmed_peaks_fn,
+         ]
         fw.puts(row.join("\t"))
       }
 
       tf_info[:rest_peaks].each{|peak_info|
         next  unless File.exist?(peak_info.confirmed_peaks_fn)
-        row = [peak_info.peak_id, tf_info[:tf], peak_info.type, 'not_best', peak_info.num_confirmed_peaks, *PEAK_CALLERS.map{|peak_caller| peak_info.num_peaks_for_peakcaller(peak_caller) }, peak_info.confirmed_peaks_fn ]
+        row = [
+          peak_info.peak_id, tf_info[:tf], peak_info.type, 'not_best',
+          peak_info.num_confirmed_peaks,
+          *PEAK_CALLERS.map{|peak_caller|
+            peak_info.num_peaks_for_peakcaller(peak_caller, source_folder: source_folder)
+          },
+          peak_info.confirmed_peaks_fn,
+        ]
         fw.puts(row.join("\t"))
       }
     }
