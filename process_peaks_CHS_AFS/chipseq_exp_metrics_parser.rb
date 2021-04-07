@@ -48,14 +48,14 @@ ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :peaks, :
     bn.split('.')[2]
   end
 
-  def peak_fn_for_peakcaller(peak_caller)
+  def peak_fn_for_peakcaller(peak_caller, source_folder)
     case type
     when 'control'
       raise "No peak file for control #{peak_id}"
     when 'single_end'
-      "#{SOURCE_FOLDER}/peaks-intervals-se_control/#{peak_caller}/#{peak_id}.interval"
+      "#{source_folder}/peaks-intervals-se_control/#{peak_caller}/#{peak_id}.interval"
     when 'paired_end'
-      "#{SOURCE_FOLDER}/peaks-intervals/#{peak_caller}/#{peak_id}.interval"
+      "#{source_folder}/peaks-intervals/#{peak_caller}/#{peak_id}.interval"
     else
       raise "Unknown type `#{type}` for #{peak_id}"
     end

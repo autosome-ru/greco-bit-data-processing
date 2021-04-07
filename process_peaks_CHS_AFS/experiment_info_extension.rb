@@ -2,7 +2,7 @@ require 'fileutils'
 module ExperimentInfoExtension
   def peak_fn_for_main_caller
     MAIN_PEAK_CALLERS.map{|peak_caller|
-      peak_fn_for_peakcaller(peak_caller)
+      peak_fn_for_peakcaller(peak_caller, SOURCE_FOLDER)
     }.detect{|fn| File.exist?(fn) }
   end
 
@@ -11,7 +11,7 @@ module ExperimentInfoExtension
   end
 
   def num_peaks_for_peakcaller(peak_caller)
-    peaks_fn = peak_fn_for_peakcaller(peak_caller)
+    peaks_fn = peak_fn_for_peakcaller(peak_caller, SOURCE_FOLDER)
     File.exist?(peaks_fn) ? num_rows(peaks_fn, has_header: true) : nil
   end
 
@@ -21,7 +21,7 @@ module ExperimentInfoExtension
 
   def make_confirmed_peaks!
     supporting_intervals_file_infos = SUPPLEMENTARY_PEAK_CALLERS.map{|peak_caller|
-      peaks_fn = peak_fn_for_peakcaller(peak_caller)
+      peaks_fn = peak_fn_for_peakcaller(peak_caller, SOURCE_FOLDER)
       {filename: peaks_fn, name: peak_caller}
     }.select{|info| File.exist?(info[:filename]) }
 
@@ -43,7 +43,7 @@ module ExperimentInfoExtension
     supporting_intervals_file.unlink
   end
 
-  def peak_fn_for_peakcaller(peak_caller)
+  def peak_fn_for_peakcaller(peak_caller, source_folder)
     raise NotImplementedError
   end
 
