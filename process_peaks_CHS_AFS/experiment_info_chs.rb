@@ -1,3 +1,6 @@
+require_relative 'utils'
+require_relative 'experiment_info_extension'
+
 ExperimentInfo = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :peaks, :type, :plate_id) do
   include ExperimentInfoExtension
 

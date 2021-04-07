@@ -3,7 +3,7 @@ require 'tempfile'
 require_relative 'utils'
 require_relative 'peak_preparation_utils'
 require_relative 'experiment_info_extension'
-require_relative 'chipseq_exp_metrics_parser'
+require_relative 'experiment_info_chs'
 
 PEAK_CALLERS = ['macs2-pemode', 'macs2-nomodel', 'cpics', 'gem', 'sissrs']
 MAIN_PEAK_CALLERS = ['macs2-pemode', 'macs2-nomodel']
