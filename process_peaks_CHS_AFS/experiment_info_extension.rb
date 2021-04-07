@@ -1,7 +1,7 @@
 require 'fileutils'
 module ExperimentInfoExtension
-  def peak_fn_for_main_caller(source_folder)
-    MAIN_PEAK_CALLERS.map{|peak_caller|
+  def peak_fn_for_main_caller(source_folder, main_peak_callers:)
+    main_peak_callers.map{|peak_caller|
       peak_fn_for_peakcaller(peak_caller, source_folder)
     }.detect{|fn| File.exist?(fn) }
   end
@@ -19,8 +19,8 @@ module ExperimentInfoExtension
     File.exist?(confirmed_peaks_fn) ? num_rows(confirmed_peaks_fn, has_header: true) : 0
   end
 
-  def make_confirmed_peaks!(source_folder:)
-    supporting_intervals_file_infos = SUPPLEMENTARY_PEAK_CALLERS.map{|peak_caller|
+  def make_confirmed_peaks!(source_folder:, main_peak_callers:, supplementary_peak_callers:)
+    supporting_intervals_file_infos = supplementary_peak_callers.map{|peak_caller|
       peaks_fn = peak_fn_for_peakcaller(peak_caller, source_folder)
       {filename: peaks_fn, name: peak_caller}
     }.select{|info| File.exist?(info[:filename]) }
@@ -30,16 +30,17 @@ module ExperimentInfoExtension
         row + [info[:name]]
       }
     }
-    return  if num_rows(peak_fn_for_main_caller(source_folder), has_header: true) == 0
+    main_peak_fn = peak_fn_for_main_caller(source_folder, main_peak_callers: main_peak_callers)
+    return  if num_rows(main_peak_fn, has_header: true) == 0
     return  if supporting_intervals.size == 0
 
     supporting_intervals_file = Tempfile.new("#{peak_id}.supplementary_callers.bed").tap(&:close)
     store_table(supporting_intervals_file.path, supporting_intervals)
     # make_merged_intervals(supporting_intervals_file.path, supporting_intervals)
 
-    header = `head -1 #{peak_fn_for_main_caller(source_folder)}`.chomp
+    header = `head -1 #{main_peak_fn}`.chomp
     system("echo '#{header}' '\t' supporting_peakcallers  > #{confirmed_peaks_fn}")
-    system("./bedtools intersect -loj -a #{peak_fn_for_main_caller(source_folder)} -b #{supporting_intervals_file.path} | sort -k1,9 | ./bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct | awk -F '\t' -e '$10 != \".\"' | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
+    system("./bedtools intersect -loj -a #{main_peak_fn} -b #{supporting_intervals_file.path} | sort -k1,9 | ./bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct | awk -F '\t' -e '$10 != \".\"' | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
     supporting_intervals_file.unlink
   end
 

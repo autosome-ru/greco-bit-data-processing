@@ -23,7 +23,13 @@ tfs_at_start = experiment_infos.map(&:tf).uniq
 raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
 experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
 
-experiment_infos.each{|info| info.make_confirmed_peaks!(source_folder: SOURCE_FOLDER) }
+experiment_infos.each{|info|
+  info.make_confirmed_peaks!(
+    source_folder: SOURCE_FOLDER,
+    main_peak_callers: MAIN_PEAK_CALLERS,
+    supplementary_peak_callers: SUPPLEMENTARY_PEAK_CALLERS,
+  )
+}
 
 # experiment_infos.each{|peak_info|
 #     FileUtils.rm(peak_info.confirmed_peaks_fn)  if File.exist?(peak_info.confirmed_peaks_fn) && num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
@@ -45,7 +51,12 @@ tf_infos = experiment_infos.group_by(&:tf).map{|tf, infos|
 tf_infos.each{|tf_info| split_train_val!(tf_info) }
 tf_infos.each{|tf_info| cleanup_bad_datasets!(tf_info, min_peaks: 50) }
 
-store_confirmed_peak_stats(tf_infos, "#{RESULTS_FOLDER}/complete_data_stats.tsv", source_folder: SOURCE_FOLDER)
+store_confirmed_peak_stats(
+  tf_infos,
+  "#{RESULTS_FOLDER}/complete_data_stats.tsv",
+  source_folder: SOURCE_FOLDER,
+  peak_callers: PEAK_CALLERS,
+)
 store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)
 
 tfs_at_finish = Dir.glob("#{RESULTS_FOLDER}/Train_intervals/*").map{|fn| File.basename(fn).split('.').first }.uniq
