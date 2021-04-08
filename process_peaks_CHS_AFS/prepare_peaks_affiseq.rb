@@ -19,7 +19,7 @@ option_parser.parse!(ARGV)
 SOURCE_FOLDER = ARGV[0] # 'source_data/affiseq'
 RESULTS_FOLDER = ARGV[1] # 'results/affiseq_Lysate'
 
-experiment_infos = ExperimentInfo.each_from_file("#{__dir__}/../source_data_meta/AFS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+experiment_infos = ExperimentInfoAFS.each_from_file("#{__dir__}/../source_data_meta/AFS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/complete_data")
 
 experiment_infos.select!{|info| info.type == experiment_type }  if experiment_type
@@ -58,7 +58,10 @@ store_confirmed_peak_stats(
   source_folder: SOURCE_FOLDER,
   peak_callers: PEAK_CALLERS,
 )
-store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)
+store_train_val_stats(
+  tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id,
+  get_peak_id: ->(fn){ ExperimentInfoAFS.peak_id_from_basename(File.basename(fn, '.interval')) }
+)
 
 tfs_at_finish = Dir.glob("#{RESULTS_FOLDER}/Train_intervals/*").map{|fn| File.basename(fn).split('.').first }.uniq
 File.write("#{RESULTS_FOLDER}/skipped_tfs.txt", (tfs_at_start - tfs_at_finish).sort.join("\n"))

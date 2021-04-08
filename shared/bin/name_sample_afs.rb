@@ -64,7 +64,7 @@ module AffiseqPeaks
     $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
     metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
-    experiment_infos = ExperimentInfo.each_from_file("#{__dir__}/../../source_data_meta/AFS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+    experiment_infos = ExperimentInfoAFS.each_from_file("#{__dir__}/../../source_data_meta/AFS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
 
     peak_id = File.basename(sample_fn).split(".")[3]
     cycle = Integer(File.basename(sample_fn).split(".")[2].sub(/^Cycle/, ""))

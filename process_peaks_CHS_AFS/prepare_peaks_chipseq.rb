@@ -15,7 +15,7 @@ RESULTS_FOLDER = ARGV[1] # 'results/chipseq'
 
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/complete_data")
 
-experiment_infos = ExperimentInfo.each_from_file("#{__dir__}/../source_data_meta/CHS/metrics_by_exp.tsv").reject{|info|
+experiment_infos = ExperimentInfoCHS.each_from_file("#{__dir__}/../source_data_meta/CHS/metrics_by_exp.tsv").reject{|info|
   info.type == 'control'
 }.to_a
 tfs_at_start = experiment_infos.map(&:tf).uniq
@@ -57,7 +57,10 @@ store_confirmed_peak_stats(
   source_folder: SOURCE_FOLDER,
   peak_callers: PEAK_CALLERS,
 )
-store_train_val_stats(tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id)
+store_train_val_stats(
+  tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id,
+  get_peak_id: ->(fn){ ExperimentInfoCHS.peak_id_from_basename(File.basename(fn, '.interval')) }
+)
 
 tfs_at_finish = Dir.glob("#{RESULTS_FOLDER}/Train_intervals/*").map{|fn| File.basename(fn).split('.').first }.uniq
 
