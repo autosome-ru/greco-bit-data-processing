@@ -2,6 +2,14 @@ require 'fileutils'
 
 DESTINATION_ROOT = '/home_local/vorontsovie/greco-bit-data-processing/release_6_motifs'
 
+def read_matrix(fn)
+  bn = File.basename(fn, File.extname(fn))
+  lns = File.readlines(fn).map(&:chomp)
+  header = lns[0].start_with?('>') ? lns.shift[1..-1].strip : bn
+  matrix = lns.map{|l| l.split("\t") }
+  {motif: header, matrix: matrix}
+end
+
 def write_matrix(fn, motif)
   File.open(fn, 'w'){|fw|
     fw.puts ">#{motif[:motif]}"
@@ -226,7 +234,7 @@ def rename_ofornes_motifs!(dataset_by_id)
     dst_fn = full_motif_name(fn, dataset_by_id,
       team_info_proc: ->(team_info){ team_info.sub(/^JASPAR_/, 'JASPAR.') }
     )
-    FileUtils.cp(fn, "#{destination_motifs_folder}/#{dst_fn}")
+    write_matrix("#{destination_motifs_folder}/#{dst_fn}", read_matrix(fn))
   }
 end
 
