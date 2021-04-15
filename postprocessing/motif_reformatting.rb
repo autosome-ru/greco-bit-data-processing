@@ -207,7 +207,7 @@ def motifname_corrected_basename(fn, replacement_proc: ->(x){ x })
   bn = File.basename(fn, ext)
   *rest, motif_name = bn.split('@')
   motif_name = replacement_proc.call(motif_name)
-  [*rest, motif_name].join("@")
+  [*rest, motif_name].join("@") + ext
 end
 
 
