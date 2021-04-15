@@ -1,4 +1,4 @@
-PATTERN = /^(?<tf>[^.]+)\.(?<dataset>.+)\.(?<type>pbm|selex|affiseq|chipseq)\.(?<subset>train)\.(?<tool>[^.]+)\.(?<motif_subname>[^.]+)$/
+BN_PATTERN = /^(?<tf>[^.@]+\.[^.@]+)@(?<exp_type>HTS.IVT|HTS.Lys|AFS.IVT|AFS.Lys|PBM|SMS|CHS)@(?<dataset>[-+a-z]+)@(?<tool>[^@.]+\.[^@.]+)@(?<motif_subname>[^@.]+)$/
 PPM_TOLERANCE = 0.05
 filelist = ARGV
 filelist.select{|fn|
@@ -11,7 +11,7 @@ filelist.select{|fn|
   content = File.readlines(fn).map(&:chomp)
   header = content.first
   report << "Filename has incorrect extension `#{ext}`"  unless ['.pcm', '.ppm', '.pwm'].include?(ext)
-  report << "Filename doesn't match pattern <tf>.<some.dataset.infos>.{pbm,selex,affiseq,chipseq}.train.<tool>.<motif_name_wo_dots>"  unless bn_wo_ext.match(PATTERN)
+  report << "Filename doesn't match pattern tf.construct@{PBM,CHS,SMS,HTS.IVT,HTS.Lys,AFS.Lys,AFS.IVT}@dataset_id@team.tool@motif_name_wo_dots"  unless bn_wo_ext.match(BN_PATTERN)
   report << "Header `#{header}` doesn't follow pattern >motif_name[ optional infos]"  unless (header == ">#{bn_wo_ext}") || header.start_with?(">#{bn_wo_ext} ")
   begin
     matrix = content.drop(1).map{|l| l.split }.map{|r| r.map{|x| Float(x) } }
