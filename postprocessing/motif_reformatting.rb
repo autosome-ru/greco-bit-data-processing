@@ -201,6 +201,16 @@ def construct_corrected_basename(fn)
   ["#{tf}.#{construction}", *rest].join("@")
 end
 
+def motifname_corrected_basename(fn, replacement_proc: ->(x){ x })
+  ext = File.extname(fn)
+  raise  unless ['.ppm', '.pcm', '.pfm'].include?(ext)
+  bn = File.basename(fn, ext)
+  *rest, motif_name = bn.split('@')
+  motif_name = replacement_proc.call(motif_name)
+  [*rest, motif_name].join("@")
+end
+
+
 # Fix bug in Jan's motif names due to a bug in our dataset names (missing `construction` in PBMs)
 def rename_jangrau_pbm!
   source_motifs_folder = '/home_local/jangrau/models'
@@ -211,9 +221,25 @@ def rename_jangrau_pbm!
     FileUtils.mkdir_p(dst)
     Dir.glob("#{src}/*").each{|fn|
       corrected_bn = construct_corrected_basename(fn)
+      corrected_bn = motifname_corrected_basename(corrected_bn,
+        replacement_proc: ->(name){ name.sub('e1.5', 'e1,5') }
+      )
       dst_fn = "#{dst}/#{corrected_bn}"
       FileUtils.cp(fn, dst_fn)
     }
+  }
+end
+
+def rename_jangrau_hts!
+  src = '/home_local/jangrau/models/HTS'
+  dst = "#{DESTINATION_ROOT}/jangrau/HTS"
+  FileUtils.mkdir_p(dst)
+  Dir.glob("#{src}/*").each{|fn|
+    corrected_bn = motifname_corrected_basename(fn,
+      replacement_proc: ->(name){ name.sub('e1.5', 'e1,5') }
+    )
+    dst_fn = "#{dst}/#{corrected_bn}"
+    FileUtils.cp(fn, dst_fn)
   }
 end
 
@@ -264,6 +290,7 @@ reformat_hughes_autoseed_hts!(dataset_by_id)
 reformat_hughes_autoseed_sms!(dataset_by_id)
 
 rename_jangrau_pbm!
+rename_jangrau_hts!
 rename_ofornes_motifs!(dataset_by_id)
 
 reformat_pavelkrav_motifs!

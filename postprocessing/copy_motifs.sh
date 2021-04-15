@@ -9,8 +9,8 @@ cp -Tr /home_local/arsen_l/greco-bit/motifs/motif_collection_release_6.2021-02-1
 cp -Tr /home_local/vorontsovie/greco-bit-data-processing/process_PBM/release_6_motifs/pcms  ${MOTIFS_DESTINATION}/VIGG/PBM
 
 mkdir -p ${MOTIFS_DESTINATION}/jangrau/
-cp -r /home_local/jangrau/models/{AFS,CHS,SMS,SMS.published,HTS}  ${MOTIFS_DESTINATION}/jangrau
+cp -r /home_local/jangrau/models/{AFS,CHS,SMS,SMS.published}  ${MOTIFS_DESTINATION}/jangrau
 
-# Jan Grau PBMs, Oriol Fornes? Timothy Hughes and Pavel Kravchenko data
+# Jan Grau PBM-s and HTS-s, Oriol Fornes? Timothy Hughes and Pavel Kravchenko data
 #   are processed in motif_reformatting.rb
 ruby ${CUR_DIRNAME}/motif_reformatting.rb
