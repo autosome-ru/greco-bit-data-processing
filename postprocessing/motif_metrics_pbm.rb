@@ -23,7 +23,7 @@ validation_datasets = [
 
 datasets_by_tf = validation_datasets.group_by{|fn|
   tf = File.basename(fn).split('.').first
-  TF_NAME_MAPPING.fetch(tf, tf)
+  tf
 }
 
 tfs = motifs_by_tf.keys & datasets_by_tf.keys
