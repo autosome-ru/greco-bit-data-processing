@@ -13,7 +13,7 @@ end
 
 def read_pavelkrav_matrix(fn)
   bn = File.basename(fn, File.extname(fn))
-  mat = File.readlines(fn).map{|l| l.chomp.split("\t") }
+  mat = File.readlines(fn).map{|l| l.chomp.split }
   raise unless mat.size == 4
   {motif: bn, matrix: mat.transpose}
 end
