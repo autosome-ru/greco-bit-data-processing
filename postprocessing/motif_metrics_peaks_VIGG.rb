@@ -7,8 +7,8 @@ DATA_PATH = File.absolute_path(ARGV[0]) # '/home_local/vorontsovie/greco-data/re
 MOTIFS_PATH = File.absolute_path(ARGV[1]) # 'data/all_motifs'
 ASSEMBLY_PATH = '/home_local/vorontsovie/greco-processing/assembly/'
 
-ppms = Dir.glob("#{MOTIFS_PATH}/*.ppm")
-pcms = Dir.glob("#{MOTIFS_PATH}/*.pcm")
+ppms = Dir.glob("#{MOTIFS_PATH}/**/*.ppm")
+pcms = Dir.glob("#{MOTIFS_PATH}/**/*.pcm")
 motifs = [ppms, pcms].flatten.map{|fn| File.absolute_path(fn) }
 motifs_by_tf = motifs.group_by{|fn|
   tf = File.basename(fn).split('.').first
