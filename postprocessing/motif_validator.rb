@@ -1,6 +1,6 @@
 BN_PATTERN = /^(?<tf>[^.@]+\.[^.@]+)@(?<exp_type>HTS.IVT|HTS.Lys|AFS.IVT|AFS.Lys|PBM.ME|SMS|CHS)@(?<dataset>[-+a-z]+)@(?<tool>[^@.]+\.[^@.]+)@(?<motif_subname>[^@.]+)$/
 PPM_TOLERANCE = 0.05
-filelist = ARGV
+filelist = $stdin.readlines.map(&:chomp)
 filelist.select{|fn|
   File.file?(fn)
 }.each{|fn|
