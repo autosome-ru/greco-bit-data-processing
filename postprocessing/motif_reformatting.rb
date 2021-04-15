@@ -11,6 +11,13 @@ def write_matrix(fn, motif)
   }
 end
 
+def read_pavelkrav_matrix(fn)
+  bn = File.basename(fn, File.extname(fn))
+  mat = File.readlines(fn).map{|l| l.chomp.split("\t") }
+  raise unless mat.size == 4
+  {motif: bn, matrix: mat.transpose}
+end
+
 def read_hughes_ppm_matrix(fn)
   lns = File.readlines(fn).map(&:strip).reject(&:empty?)
   raise unless lns[0].start_with?("Gene\t")
@@ -223,6 +230,22 @@ def rename_ofornes_motifs!(dataset_by_id)
   }
 end
 
+def reformat_pavelkrav_motifs!
+  [
+    {source_motifs_folder: '/home_local/pavelkrav/GRECO_2_iter_pcms/CHS',
+     destination_motifs_folder: "#{DESTINATION_ROOT}/VIGG/CHS"},
+    {source_motifs_folder: '/home_local/pavelkrav/GRECO_2_iter_pcms/AFS',
+     destination_motifs_folder: "#{DESTINATION_ROOT}/VIGG/AFS.Peaks"},
+  ].each do |folders|
+    FileUtils.mkdir_p folders[:destination_motifs_folder]
+    Dir.glob("#{folders[:source_motifs_folder]}/*").each{|fn|
+      bn = File.basename(fn)
+      dest_fn = "#{folders[:destination_motifs_folder]}/#{bn}"
+      write_matrix(dest_fn, read_pavelkrav_matrix(fn))
+    }
+  end
+end
+
 dataset_by_id = get_dataset_id_mapping
 
 reformat_hughes_afs_chs_sms!
@@ -231,3 +254,5 @@ reformat_hughes_autoseed_sms!(dataset_by_id)
 
 rename_jangrau_pbm!
 rename_ofornes_motifs!(dataset_by_id)
+
+reformat_pavelkrav_motifs!
