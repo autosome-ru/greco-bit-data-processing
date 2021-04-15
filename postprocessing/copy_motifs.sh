@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+CUR_DIRNAME=$(dirname $(readlink -f $0))
 MOTIFS_DESTINATION=/home_local/vorontsovie/greco-bit-data-processing/release_6_motifs
 
 mkdir -p ${MOTIFS_DESTINATION}/VIGG/
@@ -10,4 +12,4 @@ mkdir -p ${MOTIFS_DESTINATION}/jangrau/
 cp -r /home_local/jangrau/models/{AFS,CHS,SMS,SMS.published,HTS}  ${MOTIFS_DESTINATION}/jangrau
 
 # Jan Grau PBMs, Oriol Fornes and Timothy Hughes data are processed in motif_reformatting.rb
-ruby motif_reformatting.rb
+ruby ${CUR_DIRNAME}/motif_reformatting.rb
