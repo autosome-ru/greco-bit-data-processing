@@ -74,8 +74,11 @@ def reformat_hughes_afs_chs_sms!
         begin
           bn = File.basename(fn, '.ppm')
           tf_info, exp_type, _, main_info = bn.split('@')
-          _, ds_name, motif_name = main_info.split('.')
-          _, motif_name = motif_name.split('_')
+          # ...@Peaks.sunny-harlequin-dodo.Train_meme2
+          # ...@Reads.breezy-magnolia-lion.Train.meme3
+          _, ds_name, *_rest, motif_name = main_info.split('.')
+
+          motif_name = motif_name.split('_').last
           new_fn = "#{tf_info}@#{exp_type}@#{ds_name}@Hughes.#{tool}@#{motif_name}.ppm"
           
           raise  unless File.dirname(fn).start_with?("#{source_motifs_folder}/")
