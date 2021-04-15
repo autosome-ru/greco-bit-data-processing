@@ -32,7 +32,7 @@ tfs.each{|tf|
     dataset_bn = File.basename(dataset)
     dataset_txt = File.absolute_path("./tmp/#{dataset_bn}")
 
-    cmd_1 = "cat #{dataset} | ruby extract_chip_sequences.rb --linker-length 6 > #{dataset_txt}"
+    cmd_1 = "cat #{dataset} | ruby #{__dir__}/extract_chip_sequences.rb --linker-length 6 > #{dataset_txt}"
     system(cmd_1)
 
     motifs_by_tf[tf].each{|motif|
