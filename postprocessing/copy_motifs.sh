@@ -1,0 +1,13 @@
+MOTIFS_DESTINATION=/home_local/vorontsovie/greco-bit-data-processing/release_6_motifs
+
+mkdir -p ${MOTIFS_DESTINATION}/VIGG/
+cp -Tr /home_local/pavelkrav/GRECO_2_iter_pcms/CHS  ${MOTIFS_DESTINATION}/VIGG/CHS
+cp -Tr /home_local/pavelkrav/GRECO_2_iter_pcms/AFS  ${MOTIFS_DESTINATION}/VIGG/AFS.Peaks
+cp -r /home_local/arsen_l/greco-bit/motifs/motif_collection_release_6.2021-02-13/{HTS,SMS,AFS.Reads}/pcms  ${MOTIFS_DESTINATION}/VIGG/
+cp -Tr /home_local/vorontsovie/greco-bit-data-processing/process_PBM/release_6_motifs/pcms  ${MOTIFS_DESTINATION}/VIGG/PBM
+
+mkdir -p ${MOTIFS_DESTINATION}/jangrau/
+cp -r /home_local/jangrau/models/{AFS,CHS,SMS,SMS.published,HTS}  ${MOTIFS_DESTINATION}/jangrau
+
+# Jan Grau PBMs, Oriol Fornes and Timothy Hughes data are processed in motif_reformatting.rb
+ruby motif_reformatting.rb
