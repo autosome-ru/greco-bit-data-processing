@@ -82,7 +82,7 @@ tfs.each{|tf|
         " --volume #{dataset_fq}:/seq.fastq.gz:ro " \
         " --volume #{motif}:/motif#{ext}:ro " \
         " vorontsovie/pwmeval_selex:1.0.1 " \
-        " --seq-length 40 --non-redundant --top #{top_fraction} --bin 1000 " \
+        " --non-redundant --top #{top_fraction} --bin 1000 " \
         " --pseudo-weight 0.0001 --flank-5 #{flank_5} --flank-3 #{flank_3} " \
         " --seed 1 "
       puts cmd_2
