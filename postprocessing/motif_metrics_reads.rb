@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'optparse'
+require_relative '../shared/lib/utils'
 
 Signal.trap("PIPE", "EXIT")
 
@@ -28,7 +29,6 @@ FileUtils.mkdir_p './tmp/'
 
 validation_datasets = [
   Dir.glob("#{DATA_PATH}/HTS/Val_reads/*"),
-  Dir.glob("#{DATA_PATH}/HTS/Val_reads/*"),
   Dir.glob("#{DATA_PATH}/AFS.Reads/Val_reads/*"),
   Dir.glob("#{DATA_PATH}/SMS/Val_reads/*"),
   Dir.glob("#{DATA_PATH}/SMS.published/Val_reads/*"),
@@ -42,17 +42,36 @@ datasets_by_tf = validation_datasets.group_by{|fn|
 tfs = motifs_by_tf.keys & datasets_by_tf.keys
 tfs.each{|tf|
   tf_datasets = datasets_by_tf[tf]
-  # concatenate cycles
-  # e.g. ZNF997.Lysate.Cycle3.TA40NGTTAGC.BatchAATA.selex.val.fastq.gz
+  # concatenate cycles of the same experiment
+  # e.g. AHCTF1.DBD@HTS.IVT@YWC_B_GG40NCGTAGT.C1.5ACGACGCTCTTCCGATCTGG.3CGTAGTAGATCGGAAGAGCA@Reads.chummy-taupe-coati.Val.fastq.gz
   dataset_groups = tf_datasets.group_by{|dataset|
-    File.basename(dataset).sub(/\.C\d+\./, '.AllCycles.')
+    bn = File.basename(dataset)
+    tf_info, exp_type, exp_info, ds_info = bn.split('@')
+    exp_id, *rest = exp_info.split('.')
+    rest_wo_cycle = rest.reject{|f| f.match? /^C\d$/ }
+    [tf_info, exp_type, [exp_id, *rest_wo_cycle].join('.'), ].join('@')
   }
   dataset_groups.each{|grp, datasets|
-    flank_5 = grp.match(/\.5(?<flank_5>[ACGT]+)[.@]/)[:flank_5]
-    flank_3 = grp.match(/\.3(?<flank_3>[ACGT]+)[.@]/)[:flank_3]
+    _grp_tf_info, _grp_exp_type, _grp_exp_info = grp.split('@')
+    _grp_exp_id, *grp_rest = exp_info.split('.')
+    flank_5 = grp_rest.select{|f| f.match? /^5[ACGT]+$/ }.take_the_only[1..-1]
+    flank_3 = grp_rest.select{|f| f.match? /^3[ACGT]+$/ }.take_the_only[1..-1]
+
+    dataset_infos = datasets.map{|ds|
+      _tf_info, _exp_type, exp_info, ds_info = bn.split('@')
+      _exp_id, *rest = exp_info.split('.')
+      cycle = rest.select{|f| f.match? /^C\d$/ }.take_the_only
+      ds_id = ds_info.split('.')[1]
+      {cycle: cycle, dataset_id: ds_id}
+    }.sort_by{|info| Integer(info[:cycle][1..-1]) }
     
-    dataset_fq = File.absolute_path("./tmp/#{grp}")
-    cmd_1 = "zcat #{datasets.join(' ')} | gzip -c > #{dataset_fq}"
+    cycles = dataset_infos.map{|info| info[:cycle] }.join('+')
+    dataset_ids = dataset_infos.map{|info| info[:dataset_id] }.join('+')
+
+    joined_data_fn = "#{grp}.#{cycles}@Reads.#{dataset_ids}.Val.fastq.gz"
+
+    dataset_fq = File.absolute_path("./tmp/#{joined_data_fn}")
+    cmd_1 = "zcat #{datasets.join(' ')} | gzip -c > #{joined_data_fn}"
     system(cmd_1)
 
     motifs_by_tf[tf].each{|motif|
