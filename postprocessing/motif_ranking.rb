@@ -52,14 +52,19 @@ def read_tfs_curration(filename)
   }
 end
 
-## fix bug: different TF names for the same TF (e.g. CxxC4 --> CXXC4, zf-CXXC4 --> CXXC4)
-TF_NAME_MAPPING = File.readlines('tf_name_mapping.txt').map{|l| l.chomp.split("\t") }.to_h
-
-## fix bug: pbm_roclog and pbm_prlog are equivalent to pbm_roc and pbm_log
+## pbm_roclog and pbm_prlog are roughly equivalent to pbm_roc and pbm_log
 METRIC_NAMES_BY_TYPE = {
   chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC], #, :chipseq_vigg_logROC],
-  affiseq_IVT: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC], # :affiseq_IVT_vigg_logROC],
-  affiseq_Lysate: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC], # :affiseq_Lysate_vigg_logROC],
+  affiseq_IVT: [
+    # :affiseq_IVT_vigg_logROC,
+    :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, # peak metrics
+    :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,        # read metrics
+  ],
+  affiseq_Lysate: [
+    # :affiseq_Lysate_vigg_logROC,
+    :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, # peak metrics
+    :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,        # read metrics
+  ],
   selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
   selex_Lysate: [:selex_10_Lysate_ROC, :selex_50_Lysate_ROC],
   pbm: [
@@ -67,7 +72,8 @@ METRIC_NAMES_BY_TYPE = {
     :pbm_qn_zscore_mers, :pbm_qn_zscore_logmers,
     :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr,
     :pbm_sd_qn_mers, :pbm_sd_qn_logmers,
-  ]
+  ],
+  smileseq: [:smileseq_10_ROC, :smileseq_50_ROC],
 }
 
 METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
@@ -76,8 +82,13 @@ METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
 
 BASIC_RETAINED_METRICS = [
   :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, #:chipseq_vigg_logROC,
+  # AFS peak metrics
   :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, #:affiseq_IVT_vigg_logROC,
   :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, #:affiseq_Lysate_vigg_logROC,
+  # AFS read metrics
+  :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,
+  :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,
+  # HTS read metrics
   :selex_10_IVT_ROC, :selex_50_IVT_ROC,
   :selex_10_Lysate_ROC, :selex_50_Lysate_ROC,
   # :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers, :pbm_qn_zscore_logmers,
@@ -117,38 +128,42 @@ BASIC_RETAINED_METRICS = [
 #   }
 # }
 
-tfs_curration = read_tfs_curration('data/curation_tfs_vigg.tsv')
+tfs_curration = read_tfs_curration('source_data_meta/shared/curation_tfs_vigg.tsv')
 
 all_metric_infos = [
-  ['results/parsed_chipseq_affiseq_metrics.tsv', [:chipseq_pwmeval_ROC], ->(x){ x.match?(/\.chipseq\./) }],
-  ['results/parsed_chipseq_affiseq_metrics.tsv', [:affiseq_IVT_pwmeval_ROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.IVT\./) }],
-  ['results/parsed_chipseq_affiseq_metrics.tsv', [:affiseq_Lysate_pwmeval_ROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.Lysate\./) }],
+  ['release_6_metrics/formatted_peaks.tsv', [:chipseq_pwmeval_ROC], ->(x){ x.match?(/@CHS@/) }],
+  ['release_6_metrics/formatted_peaks.tsv', [:affiseq_IVT_pwmeval_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+  ['release_6_metrics/formatted_peaks.tsv', [:affiseq_Lysate_pwmeval_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
 
-  ['results/parsed_vigg_peaks_metrics.tsv', [:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/\.chipseq\./) }],
-  ['results/parsed_vigg_peaks_metrics.tsv', [:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.IVT\./) }],
-  ['results/parsed_vigg_peaks_metrics.tsv', [:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/\.affiseq\./) && x.match?(/\.Lysate\./) }],
+  ['release_6_metrics/formatted_vigg_peaks.tsv', [:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
+  ['release_6_metrics/formatted_vigg_peaks.tsv', [:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+  ['release_6_metrics/formatted_vigg_peaks.tsv', [:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
 
-  ['results/parsed_selex_0.1_metrics.tsv', [:selex_10_IVT_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.IVT\./) }],
-  ['results/parsed_selex_0.1_metrics.tsv', [:selex_10_Lysate_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.Lysate\./) }],
+  ['release_6_metrics/formatted_reads_0.1.tsv', [:selex_10_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
+  ['release_6_metrics/formatted_reads_0.1.tsv', [:selex_10_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
+  ['release_6_metrics/formatted_reads_0.1.tsv', [:affiseq_10_IVT_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+  ['release_6_metrics/formatted_reads_0.1.tsv', [:affiseq_10_Lysate_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+  ['release_6_metrics/formatted_reads_0.1.tsv', [:smileseq_10_ROC], ->(x){ x.match?(/@SMS@/) }],
 
-  ['results/parsed_selex_0.5_metrics.tsv', [:selex_50_IVT_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.IVT\./) }],
-  ['results/parsed_selex_0.5_metrics.tsv', [:selex_50_Lysate_ROC], ->(x){ x.match?(/\.selex\./) && x.match?(/\.Lysate\./) }],
+  ['release_6_metrics/formatted_reads_0.5.tsv', [:selex_50_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
+  ['release_6_metrics/formatted_reads_0.5.tsv', [:selex_50_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
+  ['release_6_metrics/formatted_reads_0.5.tsv', [:affiseq_50_IVT_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+  ['release_6_metrics/formatted_reads_0.5.tsv', [:affiseq_50_Lysate_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+  ['release_6_metrics/formatted_reads_0.5.tsv', [:smileseq_50_ROC], ->(x){ x.match?(/@SMS@/) }],
 
-  ['results/parsed_pbm_metrics.tsv', [:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers,  :pbm_qn_zscore_logmers], ->(x){ x.match?(/\.quantNorm_zscore\./) }],
-  ['results/parsed_pbm_metrics.tsv', [:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers], ->(x){ x.match?(/\.spatialDetrend_quantNorm\./) }],
-].flat_map{|fn, metric_names, condition|
+  ['release_6_metrics/formatted_pbm.tsv', [:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers,  :pbm_qn_zscore_logmers], ->(x){ x.match?(/@QNZS\./) }],
+  ['release_6_metrics/formatted_pbm.tsv', [:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers], ->(x){ x.match?(/@SDQN\./) }],
+].flat_map{|fn, metric_names, dataset_condition|
   File.readlines(fn).drop(1).flat_map{|line|
     line.chomp!
     dataset, motif, *values = line.split("\t")
     dataset_tf = dataset.split('.')[0]
     motif_tf = motif.split('.')[0]
-    dataset_tf = TF_NAME_MAPPING.fetch(dataset_tf, dataset_tf)
-    motif_tf = TF_NAME_MAPPING.fetch(motif_tf, motif_tf)
     raise  unless dataset_tf == motif_tf
     metric_names.zip(values).map{|metric_name, value|
       {dataset: dataset, motif: motif, value: Float(value), metric_name: metric_name, tf: dataset_tf, original_line: line, filename: File.basename(fn) }
     }.select{|info|
-      condition.call(info[:dataset])
+      dataset_condition.call(info[:dataset])
     }
   }
 }.select{|info|
@@ -201,7 +216,7 @@ motif_metrics_combined = all_metric_infos.group_by{|info|
    info[:metric_name]
   }.flat_map{|metric_name, metric_infos|
     motif_ranks = Hash.new{|h,k| h[k] = [] }
-    
+
     metric_infos.group_by{|info|
       info[:dataset]
     }.each{|dataset, infos|
@@ -209,7 +224,7 @@ motif_metrics_combined = all_metric_infos.group_by{|info|
         motif_ranks[ info[:motif] ] << {dataset: info[:dataset], rank: rank, value: info[:value]}
       }
     }
-    
+
     motif_ranks.map{|motif, rank_infos|
       ranks = rank_infos.map{|rank_info| rank_info[:rank] }
       [motif, rank_infos, product_mean(ranks)]
@@ -250,9 +265,13 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC).compact)
 
     # motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).compact)
-    motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC).compact)
+    motif_ranks[:affiseq_IVT_peaks] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC).compact)
+    motif_ranks[:affiseq_IVT_reads] = product_mean(motif_ranks.values_at(:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC).compact)
+    motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_peaks, :affiseq_IVT_reads).compact)
     # motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).compact)
-    motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC).compact)
+    motif_ranks[:affiseq_Lysate_peaks] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC).compact)
+    motif_ranks[:affiseq_Lysate_reads] = product_mean(motif_ranks.values_at(:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC).compact)
+    motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_peaks, :affiseq_Lysate_reads).compact)
     motif_ranks[:affiseq] = product_mean(motif_ranks.values_at(:affiseq_IVT, :affiseq_Lysate).compact)
     #
     motif_ranks[:selex_IVT] = product_mean(motif_ranks.values_at(:selex_10_IVT_ROC, :selex_50_IVT_ROC).compact)
@@ -263,17 +282,24 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     motif_ranks[:pbm_qn_zscore] = product_mean(motif_ranks.values_at(:pbm_qn_zscore_roc, :pbm_qn_zscore_pr).compact)
     motif_ranks[:pbm] = product_mean(motif_ranks.values_at(:pbm_sd_qn, :pbm_qn_zscore).compact)
     #
-    motif_ranks[:combined] = product_mean(motif_ranks.values_at(:chipseq, :affiseq, :selex, :pbm).compact)
+    motif_ranks[:smileseq] = product_mean(motif_ranks.values_at(:smileseq_10_ROC, :smileseq_50_ROC).compact)
+    #
+    motif_ranks[:combined] = product_mean(motif_ranks.values_at(:chipseq, :affiseq, :selex, :pbm, :smileseq).compact)
     ################
 
     ################
     # motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).flatten
     motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC).flatten
-    
-    # motif_values[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).flatten
-    motif_values[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC).flatten
-    # motif_values[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).flatten
-    motif_values[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC).flatten
+
+    # motif_values[:affiseq_IVT_peaks] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).flatten
+    motif_values[:affiseq_IVT_peaks] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC).flatten
+    motif_values[:affiseq_IVT_reads] = motif_values.values_at(:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC).flatten
+    motif_values[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_peaks, :affiseq_IVT_reads).flatten
+
+    # motif_values[:affiseq_Lysate_peaks] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).flatten
+    motif_values[:affiseq_Lysate_peaks] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC).flatten
+    motif_values[:affiseq_Lysate_reads] = motif_values.values_at(:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC).flatten
+    motif_values[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_peaks, :affiseq_Lysate_reads).flatten
     motif_values[:affiseq] = motif_values.values_at(:affiseq_IVT, :affiseq_Lysate).flatten
     #
     motif_values[:selex_IVT] = motif_values.values_at(:selex_10_IVT_ROC, :selex_50_IVT_ROC).flatten
@@ -287,6 +313,8 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     motif_values[:pbm_sd_qn_pr] = motif_values.values_at(:pbm_sd_qn_pr).flatten
     motif_values[:pbm_qn_zscore_pr] = motif_values.values_at(:pbm_qn_zscore_pr).flatten
     motif_values[:pbm_pr] = motif_values.values_at(:pbm_sd_qn_pr, :pbm_qn_zscore_pr).flatten
+
+    motif_values[:smileseq] = motif_values.values_at(:smileseq_10_ROC, :smileseq_50_ROC).flatten
     #
     # motif_values[:combined] = motif_values.values_at(:chipseq_ROC, :affiseq_ROC, :selex, :pbm).flatten
     ################
@@ -305,14 +333,19 @@ motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks, motif_
 }
 
 metrics_order = [
-  :combined, :chipseq, :affiseq, :selex, :pbm,
+  :combined, :chipseq, :affiseq, :selex, :pbm, :smileseq,
   :affiseq_IVT, :affiseq_Lysate,
   :selex_IVT, :selex_Lysate,
   :pbm_sd_qn, :pbm_qn_zscore,
 
   :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, #:chipseq_vigg_logROC,
+
   :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, #:affiseq_IVT_vigg_logROC,
+  :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,
+
   :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, #:affiseq_Lysate_vigg_logROC,
+  :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,
+
   :selex_10_IVT_ROC, :selex_50_IVT_ROC,
   :selex_10_Lysate_ROC, :selex_50_Lysate_ROC,
 
@@ -346,7 +379,7 @@ File.open('results/motif_metrics.html', 'w'){|fw|
         theme: 'blue',
         widgets: ['zebra', 'group'],
         widgetOptions: {
-          group_collapsible : true, 
+          group_collapsible : true,
           group_collapsed   : true,
           group_saveGroups  : true,
           group_enforceSort : true,
@@ -363,7 +396,7 @@ File.open('results/motif_metrics.html', 'w'){|fw|
           },
 
         },
-        sortList: [[0,0], [2,0]] 
+        sortList: [[0,0], [2,0]]
       });
     });
     </script>
@@ -562,7 +595,7 @@ metrics_order.each{|metric_name|
       fw.puts row.map{|x| "<td>#{x}</td>" }.join
       fw.puts '</tr>'
     }
-    
+
 
     fw.puts <<-EOS
     </tbody></table>
