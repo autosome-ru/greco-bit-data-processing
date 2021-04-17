@@ -73,7 +73,7 @@ tfs.each{|tf|
 
     dataset_fq = File.absolute_path("./tmp/#{joined_data_fn}")
     cmd_1 = "zcat #{datasets.join(' ')} | gzip -c > #{joined_data_fn}"
-    system(cmd_1)
+    puts(cmd_1)
 
     motifs_by_tf[tf].each{|motif|
       ext = File.extname(motif)
@@ -86,7 +86,7 @@ tfs.each{|tf|
         " --non-redundant --top #{top_fraction} --bin 1000 " \
         " --pseudo-weight 0.0001 --flank-5 #{flank_5} --flank-3 #{flank_3} " \
         " --seed 1 || echo"
-      puts cmd_2
+      puts(cmd_2)
     }
   }
 }
