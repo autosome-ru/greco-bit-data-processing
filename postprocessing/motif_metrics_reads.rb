@@ -69,15 +69,15 @@ tfs.each{|tf|
     cycles = dataset_infos.flat_map{|info| info[:cycles] }.join('+')
     dataset_ids = dataset_infos.map{|info| info[:dataset_id] }.join('+')
 
-    joined_data_fn = "#{grp}.#{cycles}@Reads.#{dataset_ids}.Val.fastq.gz"
+    joined_data_bn = "#{grp}.#{cycles}@Reads.#{dataset_ids}.Val.fastq.gz"
 
-    dataset_fq = File.absolute_path("./tmp/#{joined_data_fn}")
-    cmd_1 = "zcat #{datasets.join(' ')} | gzip -c > #{joined_data_fn}"
+    dataset_fq = File.absolute_path("./tmp/#{joined_data_bn}")
+    cmd_1 = "zcat #{datasets.join(' ')} | gzip -c > #{dataset_fq}"
     puts(cmd_1)
 
     motifs_by_tf[tf].each{|motif|
       ext = File.extname(motif)
-      cmd_2 = "echo -ne '#{grp}\t#{motif}\t'; " \
+      cmd_2 = "echo -ne '#{joined_data_bn}\t#{motif}\t'; " \
         "docker run --rm " \
         " --security-opt apparmor=unconfined " \
         " --volume #{dataset_fq}:/seq.fastq.gz:ro " \
