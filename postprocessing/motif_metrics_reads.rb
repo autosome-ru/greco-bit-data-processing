@@ -69,7 +69,7 @@ tfs.each{|tf|
     cycles = dataset_infos.flat_map{|info| info[:cycles] }.join('+')
     dataset_ids = dataset_infos.map{|info| info[:dataset_id] }.join('+')
 
-    joined_data_bn = "#{grp}.#{cycles}@Reads.#{dataset_ids}.Val.fastq.gz"
+    joined_data_bn = (cycles.empty? ? grp : "#{grp}.#{cycles}") + "@Reads.#{dataset_ids}.Val.fastq.gz"
 
     dataset_fq = File.absolute_path("./tmp/#{joined_data_bn}")
     cmd_1 = "zcat #{datasets.join(' ')} | gzip -c > #{dataset_fq}"
