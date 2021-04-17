@@ -58,6 +58,7 @@ tfs.each{|tf|
     flank_3 = grp_rest.select{|f| f.match? /^3[ACGT]+$/ }.take_the_only[1..-1]
 
     dataset_infos = datasets.map{|ds|
+      bn = File.basename(dataset)
       _tf_info, _exp_type, exp_info, ds_info = bn.split('@')
       _exp_id, *rest = exp_info.split('.')
       cycle = rest.select{|f| f.match? /^C\d$/ }.take_the_only
