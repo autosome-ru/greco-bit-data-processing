@@ -61,12 +61,12 @@ tfs.each{|tf|
       bn = File.basename(dataset)
       _tf_info, _exp_type, exp_info, ds_info = bn.split('@')
       _exp_id, *rest = exp_info.split('.')
-      cycle = rest.select{|f| f.match? /^C\d$/ }.take_the_only
+      cycles = rest.select{|f| f.match? /^C\d$/ }
       ds_id = ds_info.split('.')[1]
-      {cycle: cycle, dataset_id: ds_id}
+      {cycles: cycles, dataset_id: ds_id}
     }.sort_by{|info| Integer(info[:cycle][1..-1]) }
     
-    cycles = dataset_infos.map{|info| info[:cycle] }.join('+')
+    cycles = dataset_infos.flat_map{|info| info[:cycles] }.join('+')
     dataset_ids = dataset_infos.map{|info| info[:dataset_id] }.join('+')
 
     joined_data_fn = "#{grp}.#{cycles}@Reads.#{dataset_ids}.Val.fastq.gz"
