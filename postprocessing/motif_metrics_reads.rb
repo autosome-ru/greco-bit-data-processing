@@ -84,7 +84,7 @@ tfs.each{|tf|
         " vorontsovie/pwmeval_selex:1.0.1 " \
         " --non-redundant --top #{top_fraction} --bin 1000 " \
         " --pseudo-weight 0.0001 --flank-5 #{flank_5} --flank-3 #{flank_3} " \
-        " --seed 1 "
+        " --seed 1 || echo"
       puts cmd_2
     }
   }

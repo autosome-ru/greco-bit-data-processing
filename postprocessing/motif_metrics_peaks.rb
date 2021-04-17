@@ -47,7 +47,7 @@ tfs.each{|tf|
         " --volume #{dataset_narrowPeak}:/peaks.narrowPeak:ro " \
         " --volume #{motif}:/motif#{ext}:ro " \
         " vorontsovie/pwmeval_chipseq:1.0.3 " \
-        "  --assembly-name hg38  --top 1000 "
+        "  --assembly-name hg38  --top 1000 || echo"
       puts cmd_2
     }
   }

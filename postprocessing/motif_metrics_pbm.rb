@@ -43,7 +43,7 @@ tfs.each{|tf|
         " --volume #{dataset_txt}:/pbm_data.txt:ro " \
         " --volume #{motif}:/motif#{ext}:ro " \
         " vorontsovie/pwmbench_pbm:1.3.0 " \
-        " all /pbm_data.txt /motif#{ext} "
+        " all /pbm_data.txt /motif#{ext} || echo"
       puts cmd_2
     }
   }
