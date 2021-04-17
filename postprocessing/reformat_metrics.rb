@@ -2,32 +2,32 @@ require 'json'
 
 conversion_tasks = [
   {
-    src: 'results/pbm_metrics.txt',
-    dst: 'results/parsed_pbm_metrics.tsv',
-    metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
-    parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
+    src: 'release_6_metrics/peaks.tsv',
+    dst: 'release_6_metrics/formatted_peaks.tsv',
+    metrics: ['AUCROC'],
+    parser: ->(info, metrics){ info }
   },
   {
-    src: 'results/vigg_peaks_metrics.txt',
-    dst: 'results/parsed_vigg_peaks_metrics.tsv',
+    src: 'release_6_metrics/vigg_peaks.tsv',
+    dst: 'release_6_metrics/formatted_vigg_peaks.tsv',
     metrics: ['roc_auc', 'logroc_auc'],
     parser: ->(info, metrics){ JSON.parse(info)["metrics"].values_at(*metrics) }
   },
   {
-    src: 'results/chipseq_affiseq_metrics.txt',
-    dst: 'results/parsed_chipseq_affiseq_metrics.tsv',
+    src: 'release_6_metrics/pbm.tsv',
+    dst: 'release_6_metrics/formatted_pbm.tsv',
+    metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
+    parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
+  },
+  {
+    src: 'release_6_metrics/reads_0.1.tsv',
+    dst: 'release_6_metrics/formatted_reads_0.1.tsv',
     metrics: ['AUCROC'],
     parser: ->(info, metrics){ info }
   },
   {
-    src: 'results/selex_0.1_metrics.txt',
-    dst: 'parsed_selex_0.1_metrics.tsv',
-    metrics: ['AUCROC'],
-    parser: ->(info, metrics){ info }
-  },
-  {
-    src: 'results/selex_0.5_metrics.txt',
-    dst: 'parsed_selex_0.5_metrics.tsv',
+    src: 'release_6_metrics/reads_0.5.tsv',
+    dst: 'release_6_metrics/formatted_reads_0.5.tsv',
     metrics: ['AUCROC'],
     parser: ->(info, metrics){ info }
   },
