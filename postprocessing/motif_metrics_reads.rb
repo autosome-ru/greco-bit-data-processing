@@ -52,8 +52,8 @@ tfs.each{|tf|
     [tf_info, exp_type, [exp_id, *rest_wo_cycle].join('.'), ].join('@')
   }
   dataset_groups.each{|grp, datasets|
-    _grp_tf_info, _grp_exp_type, _grp_exp_info = grp.split('@')
-    _grp_exp_id, *grp_rest = exp_info.split('.')
+    _grp_tf_info, _grp_exp_type, grp_exp_info = grp.split('@')
+    _grp_exp_id, *grp_rest = grp_exp_info.split('.')
     flank_5 = grp_rest.select{|f| f.match? /^5[ACGT]+$/ }.take_the_only[1..-1]
     flank_3 = grp_rest.select{|f| f.match? /^3[ACGT]+$/ }.take_the_only[1..-1]
 
