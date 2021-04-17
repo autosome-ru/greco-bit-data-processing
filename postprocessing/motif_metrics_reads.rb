@@ -64,7 +64,7 @@ tfs.each{|tf|
       cycles = rest.select{|f| f.match? /^C\d$/ }
       ds_id = ds_info.split('.')[1]
       {cycles: cycles, dataset_id: ds_id}
-    }.sort_by{|info| Integer(info[:cycle][1..-1]) }
+    }.sort_by{|info| info[:cycles][0] || 'C1' }
     
     cycles = dataset_infos.flat_map{|info| info[:cycles] }.join('+')
     dataset_ids = dataset_infos.map{|info| info[:dataset_id] }.join('+')
