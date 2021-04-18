@@ -81,6 +81,7 @@ METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
 }.to_h
 
 BASIC_RETAINED_METRICS = [
+  # CHS peak metrics
   :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, #:chipseq_vigg_logROC,
   :chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt,
 
@@ -89,12 +90,19 @@ BASIC_RETAINED_METRICS = [
   :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, #:affiseq_Lysate_vigg_logROC,
   :affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt,
   :affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt,
+
   # AFS read metrics
   :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,
   :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,
+
   # HTS read metrics
   :selex_10_IVT_ROC, :selex_50_IVT_ROC,
   :selex_10_Lysate_ROC, :selex_50_Lysate_ROC,
+
+  # SMS read metrics
+  :smileseq_10_ROC, :smileseq_50_ROC,
+
+  # PBM metrics
   # :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers, :pbm_qn_zscore_logmers,
   # :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers,
   :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
