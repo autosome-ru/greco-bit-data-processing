@@ -188,7 +188,7 @@ all_metric_infos = [
   tf = info[:tf]
   metric_name = info[:metric_name]
   metric_type = METRIC_TYPE_BY_NAME[metric_name]
-  tfs_curration[tf][:verdicts][metric_type]
+  tfs_curration[tf][:verdicts][metric_type] rescue true
 }
 
 module Enumerable
@@ -253,7 +253,7 @@ motif_metrics_combined = all_metric_infos.group_by{|info|
   }
 }
 
-
+FileUtils.mkdir_p('results')
 File.open('results/metrics.tsv', 'w') do |fw|
   header = ['tf', 'metric', 'motif', 'dataset_combined_rank', 'rank_details']
   column_order = [:tf, :metric_name, :motif, :dataset_combined_rank, :rank_details]
