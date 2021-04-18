@@ -82,9 +82,13 @@ METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
 
 BASIC_RETAINED_METRICS = [
   :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, #:chipseq_vigg_logROC,
+  :chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt,
+
   # AFS peak metrics
   :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, #:affiseq_IVT_vigg_logROC,
   :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, #:affiseq_Lysate_vigg_logROC,
+  :affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt,
+  :affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt,
   # AFS read metrics
   :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,
   :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,
@@ -138,6 +142,10 @@ all_metric_infos = [
   ['release_6_metrics/formatted_vigg_peaks.tsv', [:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
   ['release_6_metrics/formatted_vigg_peaks.tsv', [:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
   ['release_6_metrics/formatted_vigg_peaks.tsv', [:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+
+  ['release_6_metrics/formatted_peaks_centrimo.tsv', [:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
+  ['release_6_metrics/formatted_peaks_centrimo.tsv', [:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
+  ['release_6_metrics/formatted_peaks_centrimo.tsv', [:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
 
   ['release_6_metrics/formatted_reads_0.1.tsv', [:selex_10_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
   ['release_6_metrics/formatted_reads_0.1.tsv', [:selex_10_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
@@ -262,14 +270,14 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
 
     ################
     # motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).compact)
-    motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC).compact)
+    motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt).compact)
 
     # motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).compact)
-    motif_ranks[:affiseq_IVT_peaks] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC).compact)
+    motif_ranks[:affiseq_IVT_peaks] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt).compact)
     motif_ranks[:affiseq_IVT_reads] = product_mean(motif_ranks.values_at(:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC).compact)
     motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_peaks, :affiseq_IVT_reads).compact)
     # motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).compact)
-    motif_ranks[:affiseq_Lysate_peaks] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC).compact)
+    motif_ranks[:affiseq_Lysate_peaks] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt).compact)
     motif_ranks[:affiseq_Lysate_reads] = product_mean(motif_ranks.values_at(:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC).compact)
     motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_peaks, :affiseq_Lysate_reads).compact)
     motif_ranks[:affiseq] = product_mean(motif_ranks.values_at(:affiseq_IVT, :affiseq_Lysate).compact)
@@ -338,12 +346,12 @@ metrics_order = [
   :selex_IVT, :selex_Lysate,
   :pbm_sd_qn, :pbm_qn_zscore,
 
-  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, #:chipseq_vigg_logROC,
+  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt, :chipseq_centrimo_neglog_evalue, #:chipseq_vigg_logROC,
 
-  :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, #:affiseq_IVT_vigg_logROC,
+  :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt, :affiseq_IVT_centrimo_neglog_evalue, #:affiseq_IVT_vigg_logROC,
   :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,
 
-  :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, #:affiseq_Lysate_vigg_logROC,
+  :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt, :affiseq_Lysate_centrimo_neglog_evalue, #:affiseq_Lysate_vigg_logROC,
   :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,
 
   :selex_10_IVT_ROC, :selex_50_IVT_ROC,
