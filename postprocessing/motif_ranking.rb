@@ -353,22 +353,24 @@ motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks, motif_
 metrics_order = [
   :combined, :chipseq, :affiseq, :selex, :pbm, :smileseq,
   :affiseq_IVT, :affiseq_Lysate,
-  :selex_IVT, :selex_Lysate,
+  # :selex_IVT, :selex_Lysate,
   :pbm_sd_qn, :pbm_qn_zscore,
 
   :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt, :chipseq_centrimo_neglog_evalue, #:chipseq_vigg_logROC,
 
   :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt, :affiseq_IVT_centrimo_neglog_evalue, #:affiseq_IVT_vigg_logROC,
-  :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,
+  # :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,
 
   :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt, :affiseq_Lysate_centrimo_neglog_evalue, #:affiseq_Lysate_vigg_logROC,
-  :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,
+  # :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,
 
-  :selex_10_IVT_ROC, :selex_50_IVT_ROC,
-  :selex_10_Lysate_ROC, :selex_50_Lysate_ROC,
+  # :selex_10_IVT_ROC, :selex_50_IVT_ROC,
+  # :selex_10_Lysate_ROC, :selex_50_Lysate_ROC,
 
   :pbm_sd_qn_roc, :pbm_sd_qn_pr,
   :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
+
+  # :smileseq_10_ROC, :smileseq_50_ROC,
 ]
 
 File.open('results/motif_metrics.tsv', 'w'){|fw|
