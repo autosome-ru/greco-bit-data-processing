@@ -1,5 +1,12 @@
 require 'json'
 
+def log10_str(str)
+  pattern = /^(?<significand>\d+(\.\d*)?)([eE](?<exponent>[-+]?\d+))?$/
+  match = str.match(pattern)
+  raise "#{str} is not a positive number; can't calculate log10"  unless match
+  Math.log10(Float(match[:significand])) + (match[:exponent] ? Integer(match[:exponent]) : 0)
+end
+
 conversion_tasks = [
   {
     src: 'release_6_metrics/peaks.tsv',
@@ -19,17 +26,33 @@ conversion_tasks = [
     metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
     parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
   },
+  # {
+  #   src: 'release_6_metrics/reads_0.1.tsv',
+  #   dst: 'release_6_metrics/formatted_reads_0.1.tsv',
+  #   metrics: ['AUCROC'],
+  #   parser: ->(info, metrics){ info }
+  # },
+  # {
+  #   src: 'release_6_metrics/reads_0.5.tsv',
+  #   dst: 'release_6_metrics/formatted_reads_0.5.tsv',
+  #   metrics: ['AUCROC'],
+  #   parser: ->(info, metrics){ info }
+  # },
   {
-    src: 'release_6_metrics/reads_0.1.tsv',
-    dst: 'release_6_metrics/formatted_reads_0.1.tsv',
-    metrics: ['AUCROC'],
-    parser: ->(info, metrics){ info }
-  },
-  {
-    src: 'release_6_metrics/reads_0.5.tsv',
-    dst: 'release_6_metrics/formatted_reads_0.5.tsv',
-    metrics: ['AUCROC'],
-    parser: ->(info, metrics){ info }
+    src: 'release_6_metrics/peaks_centrimo.tsv',
+    dst: 'release_6_metrics/formatted_peaks_centrimo.tsv',
+    metrics: ['log10(E-value)','concentration_30nt'],
+    parser: ->(info, metrics){
+      if info.empty?
+        [nil, nil]
+      else
+        log_evalue = log10_str(info['evalue'])
+        concentration_30 = info[:concentrations].detect{|metric|
+          metric[:window_size] == "30"
+        }[:concentration]
+        [log_evalue, concentration_30]
+      end
+    }
   },
 ]
 
