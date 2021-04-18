@@ -41,16 +41,17 @@ conversion_tasks = [
   {
     src: 'release_6_metrics/peaks_centrimo.tsv',
     dst: 'release_6_metrics/formatted_peaks_centrimo.tsv',
-    metrics: ['log10(E-value)','concentration_30nt'],
+    metrics: ['-log10(E-value)','concentration_30nt'],
     parser: ->(info, metrics){
-      if info.empty?
+      if !info || info.empty?
         [nil, nil]
       else
+        info = JSON.parse(info)
         log_evalue = log10_str(info['evalue'])
-        concentration_30 = info[:concentrations].detect{|metric|
-          metric[:window_size] == "30"
-        }[:concentration]
-        [log_evalue, concentration_30]
+        concentration_30 = info['concentrations'].detect{|metric|
+          metric['window_size'] == 30
+        }['concentration']
+        [log_evalue.zero? ? 0 : -log_evalue, concentration_30]
       end
     }
   },
