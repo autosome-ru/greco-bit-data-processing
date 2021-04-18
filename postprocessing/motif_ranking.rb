@@ -169,7 +169,7 @@ all_metric_infos = [
     motif_tf = motif.split('.')[0]
     raise  unless dataset_tf == motif_tf
     metric_names.zip(values).map{|metric_name, value|
-      {dataset: dataset, motif: motif, value: Float(value), metric_name: metric_name, tf: dataset_tf, original_line: line, filename: File.basename(fn) }
+      {dataset: dataset, motif: motif, value: value && Float(value), metric_name: metric_name, tf: dataset_tf, original_line: line, filename: File.basename(fn) }
     }.select{|info|
       dataset_condition.call(info[:dataset])
     }
