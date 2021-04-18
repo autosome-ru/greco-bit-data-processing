@@ -305,15 +305,15 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
 
     ################
     # motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_vigg_logROC).flatten
-    motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC).flatten
+    motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt).flatten
 
     # motif_values[:affiseq_IVT_peaks] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC).flatten
-    motif_values[:affiseq_IVT_peaks] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC).flatten
+    motif_values[:affiseq_IVT_peaks] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt).flatten
     motif_values[:affiseq_IVT_reads] = motif_values.values_at(:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC).flatten
     motif_values[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_peaks, :affiseq_IVT_reads).flatten
 
     # motif_values[:affiseq_Lysate_peaks] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC).flatten
-    motif_values[:affiseq_Lysate_peaks] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC).flatten
+    motif_values[:affiseq_Lysate_peaks] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt).flatten
     motif_values[:affiseq_Lysate_reads] = motif_values.values_at(:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC).flatten
     motif_values[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_peaks, :affiseq_Lysate_reads).flatten
     motif_values[:affiseq] = motif_values.values_at(:affiseq_IVT, :affiseq_Lysate).flatten
