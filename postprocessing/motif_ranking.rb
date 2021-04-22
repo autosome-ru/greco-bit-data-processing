@@ -362,7 +362,7 @@ motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks, motif_
 metrics_order = [
   :combined, :chipseq, :affiseq, :selex, :pbm, :smileseq,
   :affiseq_IVT, :affiseq_Lysate,
-  # :selex_IVT, :selex_Lysate,
+  :selex_IVT, :selex_Lysate,
   :pbm_sd_qn, :pbm_qn_zscore,
 
   :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt, :chipseq_centrimo_neglog_evalue, #:chipseq_vigg_logROC,
