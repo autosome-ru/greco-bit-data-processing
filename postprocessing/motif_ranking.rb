@@ -195,7 +195,8 @@ module Enumerable
   def rank_by(start_with: 1, order: :large_better, &block)
     raise  unless block_given?
     raise  unless [:large_better, :small_better].include?(order)
-    sorted_collection = self.sort_by(&block).yield_self{|coll| (order == :large_better) ? coll.reverse : coll }
+    compactified_collection = self.select(&block)
+    sorted_collection = compactified_collection.sort_by(&block).yield_self{|coll| (order == :large_better) ? coll.reverse : coll }
     sorted_collection.each_with_index.map{|obj, idx|
       [(idx + start_with), obj]
     }
@@ -203,10 +204,12 @@ module Enumerable
 end
 
 def product_mean(values)
+  values = values.compact
   values.size == 0 ? nil : values.inject(1.0, &:*) ** (1.0 / values.size)
 end
 
 def basic_stats(vals)
+  vals = vals.compact
   (vals.size >= 2) ? "#{vals.mean&.round(2)} ± #{vals.stddev&.round(2)}" : vals.mean&.round(2)
 end
 
