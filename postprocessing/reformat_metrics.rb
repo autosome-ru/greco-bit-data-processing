@@ -26,12 +26,12 @@ conversion_tasks = [
     metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
     parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
   },
-  # {
-  #   src: 'release_6_metrics/reads_0.1.tsv',
-  #   dst: 'release_6_metrics/formatted_reads_0.1.tsv',
-  #   metrics: ['AUCROC'],
-  #   parser: ->(info, metrics){ info }
-  # },
+  {
+    src: 'release_6_metrics/reads_0.1.tsv',
+    dst: 'release_6_metrics/formatted_reads_0.1.tsv',
+    metrics: ['AUCROC'],
+    parser: ->(info, metrics){ info }
+  },
   # {
   #   src: 'release_6_metrics/reads_0.5.tsv',
   #   dst: 'release_6_metrics/formatted_reads_0.5.tsv',
