@@ -404,15 +404,17 @@ File.open('results/motif_metrics.tsv', 'w'){|fw|
   }
 }
 
-def get_binding(metrics_order, motif_rankings)
-  binding
+class MotifMetricsFormatter
+  def initialize(metrics_order, motif_rankings); @metrics_order, @motif_rankings = metrics_order, motif_rankings; end
+  def get_binding; binding; end
 end
 
 FileUtils.cp_r(File.absolute_path('websrc', __dir__), 'results/websrc')
 File.open('results/motif_metrics.html', 'w'){|fw|
-  header = ['tf', 'motif', 'rank_overall', *metrics_order.map{|metric| "rank_#{metric}"} ]
-  renderer = ERB.new('templates/motif_metrics.html.erb')
-  fw.puts renderer.result( get_binding(metrics_order, motif_rankings) )
+  template_fn = File.absolute_path('templates/motif_metrics.html.erb', __dir__)
+  renderer = ERB.new( File.read(template_fn) )
+  formatter = MotifMetricsFormatter.new(metrics_order, motif_rankings)
+  fw.puts renderer.result(formatter.get_binding)
 }
 
 ##########################################################

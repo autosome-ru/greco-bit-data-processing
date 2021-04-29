@@ -34,19 +34,29 @@ $(function() {
 </script>
 <link rel="stylesheet" type="text/css" href="websrc/style.css">
 </head><body>
-<table class="tablesorter tablesorter-blue"><thead><tr>
-<th class="group-word">TF</th>
-<th>logo</th>
-<th>overall rank</th>
-<% metrics_order.each do |metric| %>
-  <th>#{metric} rank</th>
-<% end %>
-<th>motif</th>
-</tr></thead><tbody>
-<% motif_rankings.each do |tf, motif, overall_rank, motif_ranks, motif_values| %>
-   <% motif_bn = File.basename(motif, File.extname(motif)) %>
-   <% row = [tf, "<img src='../logo/#{motif_bn}.png' />", overall_rank, *motif_ranks.values_at(*metrics_order).map{|x| x&.round(2) }, motif] %>
-   <tr><%= row.map{|x| "<td>#{x}</td>" }.join %></tr>
-<% end %>
-</tbody></table>
+<table class="tablesorter tablesorter-blue">
+  <thead><tr>
+    <th class="group-word">TF</th>
+    <th>logo</th>
+    <th>overall rank</th>
+    <% @metrics_order.each do |metric| %>
+      <th><%= metric %> rank</th>
+    <% end %>
+    <th>motif</th>
+  </tr></thead>
+  <tbody>
+    <% @motif_rankings.each do |tf, motif, overall_rank, motif_ranks, motif_values| %>
+      <tr>
+        <% motif_bn = File.basename(motif, File.extname(motif)) %>
+        <td><%= tf %></td>
+        <td><img src='../logo/<%= motif_bn %>.png' /></td>
+        <td><%= overall_rank %></td>
+        <% @metrics_order.each do |metric_name| %>
+          <td><%= motif_ranks[metric_name]&.round(2) %></td>
+        <% end %>
+        <td><%= motif %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 </body></html>
