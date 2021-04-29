@@ -142,47 +142,69 @@ BASIC_RETAINED_METRICS = [
 
 tfs_curration = read_tfs_curration('source_data_meta/shared/curation_tfs_vigg.tsv')
 
-all_metric_infos = [
-  ['release_6_metrics/formatted_peaks.tsv', [:chipseq_pwmeval_ROC], ->(x){ x.match?(/@CHS@/) }],
-  ['release_6_metrics/formatted_peaks.tsv', [:affiseq_IVT_pwmeval_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
-  ['release_6_metrics/formatted_peaks.tsv', [:affiseq_Lysate_pwmeval_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+metrics_readers_configs = {
+  'release_6_metrics/formatted_peaks.tsv' => [
+    [[:chipseq_pwmeval_ROC], ->(x){ x.match?(/@CHS@/) }],
+    [[:affiseq_IVT_pwmeval_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:affiseq_Lysate_pwmeval_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+  ],
+  'release_6_metrics/formatted_vigg_peaks.tsv' => [
+    [[:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
+    [[:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+  ],
+  'release_6_metrics/formatted_peaks_centrimo.tsv' => [
+    [[:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
+    [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
+  ],
+  'release_6_metrics/formatted_reads_0.1.tsv' => [
+    [[:selex_10_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
+    [[:selex_10_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
+    [[:affiseq_10_IVT_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:affiseq_10_Lysate_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+    [[:smileseq_10_ROC], ->(x){ x.match?(/@SMS@/) }],
+  ],
+  'release_6_metrics/formatted_reads_0.5.tsv' => [
+    [[:selex_50_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
+    [[:selex_50_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
+    [[:affiseq_50_IVT_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:affiseq_50_Lysate_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+    [[:smileseq_50_ROC], ->(x){ x.match?(/@SMS@/) }],
+  ],
+  'release_6_metrics/formatted_pbm.tsv' => [
+    [[:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers,  :pbm_qn_zscore_logmers], ->(x){ x.match?(/@QNZS\./) }],
+    [[:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers], ->(x){ x.match?(/@SDQN\./) }],
+  ],
+}
 
-  ['release_6_metrics/formatted_vigg_peaks.tsv', [:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
-  ['release_6_metrics/formatted_vigg_peaks.tsv', [:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
-  ['release_6_metrics/formatted_vigg_peaks.tsv', [:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+def read_metrics(metrics_readers_configs)
+  metrics_readers_configs.flat_map{|fn, fn_parsers|
+    infos = File.readlines(fn).drop(1).map{|line|
+      line.chomp!
+      dataset, motif, *values = line.split("\t")
+      dataset_tf = dataset.split('.')[0]
+      motif_tf = motif.split('.')[0]
+      raise  unless dataset_tf == motif_tf
+      tf = dataset_tf
+      values = values.map{|val| val && Float(val) }
+      {dataset: dataset, motif: motif, tf: tf, values: values, original_line: line, filename: File.basename(fn)}
+    }
 
-  ['release_6_metrics/formatted_peaks_centrimo.tsv', [:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
-  ['release_6_metrics/formatted_peaks_centrimo.tsv', [:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
-  ['release_6_metrics/formatted_peaks_centrimo.tsv', [:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
-
-  ['release_6_metrics/formatted_reads_0.1.tsv', [:selex_10_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
-  ['release_6_metrics/formatted_reads_0.1.tsv', [:selex_10_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
-  ['release_6_metrics/formatted_reads_0.1.tsv', [:affiseq_10_IVT_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
-  ['release_6_metrics/formatted_reads_0.1.tsv', [:affiseq_10_Lysate_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
-  ['release_6_metrics/formatted_reads_0.1.tsv', [:smileseq_10_ROC], ->(x){ x.match?(/@SMS@/) }],
-
-  ['release_6_metrics/formatted_reads_0.5.tsv', [:selex_50_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
-  ['release_6_metrics/formatted_reads_0.5.tsv', [:selex_50_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
-  ['release_6_metrics/formatted_reads_0.5.tsv', [:affiseq_50_IVT_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
-  ['release_6_metrics/formatted_reads_0.5.tsv', [:affiseq_50_Lysate_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
-  ['release_6_metrics/formatted_reads_0.5.tsv', [:smileseq_50_ROC], ->(x){ x.match?(/@SMS@/) }],
-
-  ['release_6_metrics/formatted_pbm.tsv', [:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers,  :pbm_qn_zscore_logmers], ->(x){ x.match?(/@QNZS\./) }],
-  ['release_6_metrics/formatted_pbm.tsv', [:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers], ->(x){ x.match?(/@SDQN\./) }],
-].flat_map{|fn, metric_names, dataset_condition|
-  File.readlines(fn).drop(1).flat_map{|line|
-    line.chomp!
-    dataset, motif, *values = line.split("\t")
-    dataset_tf = dataset.split('.')[0]
-    motif_tf = motif.split('.')[0]
-    raise  unless dataset_tf == motif_tf
-    metric_names.zip(values).map{|metric_name, value|
-      {dataset: dataset, motif: motif, value: value && Float(value), metric_name: metric_name, tf: dataset_tf, original_line: line, filename: File.basename(fn) }
-    }.select{|info|
-      dataset_condition.call(info[:dataset])
+    fn_parsers.flat_map{|metric_names, dataset_condition|
+      infos.select{|info|
+          dataset_condition.call(info[:dataset])
+      }.flat_map{|info|
+        common_info = info.reject{|k,v| k == :values }
+        metric_names.zip(values).map{|metric_name, value|
+          common_info.merge({value: value, metric_name: metric_name})
+        }
+      }
     }
   }
-}.select{|info|
+end
+
+all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
   BASIC_RETAINED_METRICS.include?(info[:metric_name])
 }.select{|info|
   tf = info[:tf]
