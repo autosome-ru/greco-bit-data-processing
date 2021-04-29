@@ -68,10 +68,10 @@ METRIC_NAMES_BY_TYPE = {
   selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
   selex_Lysate: [:selex_10_Lysate_ROC, :selex_50_Lysate_ROC],
   pbm: [
-    :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
-    :pbm_qn_zscore_mers, :pbm_qn_zscore_logmers,
-    :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr,
-    :pbm_sd_qn_mers, :pbm_sd_qn_logmers,
+    :pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr,
+    :pbm_qnzs_mers, :pbm_qnzs_logmers,
+    :pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr,
+    :pbm_sdqn_mers, :pbm_sdqn_logmers,
   ],
   smileseq: [:smileseq_10_ROC, :smileseq_50_ROC],
 }
@@ -103,10 +103,10 @@ BASIC_RETAINED_METRICS = [
   :smileseq_10_ROC, :smileseq_50_ROC,
 
   # PBM metrics
-  # :pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers, :pbm_qn_zscore_logmers,
-  # :pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers,
-  :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
-  :pbm_sd_qn_roc, :pbm_sd_qn_pr,
+  # :pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_mers, :pbm_qnzs_logmers,
+  # :pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr, :pbm_sdqn_mers, :pbm_sdqn_logmers,
+  :pbm_qnzs_roc, :pbm_qnzs_pr,
+  :pbm_sdqn_roc, :pbm_sdqn_pr,
 ]
   # :combined, :affiseq_ROC, :selex_ROC, :pbm,
   # :affiseq_IVT_pwmeval_ROC, :affiseq_Lysate_pwmeval_ROC, :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
@@ -122,19 +122,19 @@ BASIC_RETAINED_METRICS = [
 #       selex_10_Lysate_ROC: true,
 #     },
 #     pbm: {
-#       pbm_qn_zscore: {
-#         pbm_qn_zscore_asis: true,
-#         pbm_qn_zscore_log: true,
-#         pbm_qn_zscore_exp: true,
-#         pbm_qn_zscore_roc: true,
-#         pbm_qn_zscore_pr: true,
+#       pbm_qnzs: {
+#         pbm_qnzs_asis: true,
+#         pbm_qnzs_log: true,
+#         pbm_qnzs_exp: true,
+#         pbm_qnzs_roc: true,
+#         pbm_qnzs_pr: true,
 #       },
-#       pbm_sd_qn: {
-#         pbm_sd_qn_asis: true,
-#         pbm_sd_qn_log: true,
-#         pbm_sd_qn_exp: true,
-#         pbm_sd_qn_roc: true,
-#         pbm_sd_qn_pr: true,
+#       pbm_sdqn: {
+#         pbm_sdqn_asis: true,
+#         pbm_sdqn_log: true,
+#         pbm_sdqn_exp: true,
+#         pbm_sdqn_roc: true,
+#         pbm_sdqn_pr: true,
 #       }
 #     }
 #   }
@@ -173,8 +173,8 @@ metrics_readers_configs = {
     [[:smileseq_50_ROC], ->(x){ x.match?(/@SMS@/) }],
   ],
   'release_6_metrics/formatted_pbm.tsv' => [
-    [[:pbm_qn_zscore_asis, :pbm_qn_zscore_log, :pbm_qn_zscore_exp, :pbm_qn_zscore_roc, :pbm_qn_zscore_pr, :pbm_qn_zscore_mers,  :pbm_qn_zscore_logmers], ->(x){ x.match?(/@QNZS\./) }],
-    [[:pbm_sd_qn_asis, :pbm_sd_qn_log, :pbm_sd_qn_exp, :pbm_sd_qn_roc, :pbm_sd_qn_pr, :pbm_sd_qn_mers, :pbm_sd_qn_logmers], ->(x){ x.match?(/@SDQN\./) }],
+    [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
+    [[:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr, :pbm_sdqn_mers, :pbm_sdqn_logmers], ->(x){ x.match?(/@SDQN\./) }],
   ],
 }
 
@@ -318,9 +318,9 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     motif_ranks[:selex_Lysate] = product_mean(motif_ranks.values_at(:selex_10_Lysate_ROC, :selex_50_Lysate_ROC).compact)
     motif_ranks[:selex] = product_mean(motif_ranks.values_at(:selex_IVT, :selex_Lysate).compact)
 
-    motif_ranks[:pbm_sd_qn] = product_mean(motif_ranks.values_at(:pbm_sd_qn_roc, :pbm_sd_qn_pr).compact)
-    motif_ranks[:pbm_qn_zscore] = product_mean(motif_ranks.values_at(:pbm_qn_zscore_roc, :pbm_qn_zscore_pr).compact)
-    motif_ranks[:pbm] = product_mean(motif_ranks.values_at(:pbm_sd_qn, :pbm_qn_zscore).compact)
+    motif_ranks[:pbm_sdqn] = product_mean(motif_ranks.values_at(:pbm_sdqn_roc, :pbm_sdqn_pr).compact)
+    motif_ranks[:pbm_qnzs] = product_mean(motif_ranks.values_at(:pbm_qnzs_roc, :pbm_qnzs_pr).compact)
+    motif_ranks[:pbm] = product_mean(motif_ranks.values_at(:pbm_sdqn, :pbm_qnzs).compact)
 
     motif_ranks[:smileseq] = product_mean(motif_ranks.values_at(:smileseq_10_ROC, :smileseq_50_ROC).compact)
 
@@ -344,13 +344,13 @@ motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat
     motif_values[:selex_Lysate] = motif_values.values_at(:selex_10_Lysate_ROC, :selex_50_Lysate_ROC).flatten
     motif_values[:selex] = motif_values.values_at(:selex_IVT, :selex_Lysate).flatten
 
-    motif_values[:pbm_sd_qn_roc] = motif_values.values_at(:pbm_sd_qn_roc).flatten
-    motif_values[:pbm_qn_zscore_roc] = motif_values.values_at(:pbm_qn_zscore_roc).flatten
-    motif_values[:pbm_roc] = motif_values.values_at(:pbm_sd_qn_roc, :pbm_qn_zscore_roc).flatten
+    motif_values[:pbm_sdqn_roc] = motif_values.values_at(:pbm_sdqn_roc).flatten
+    motif_values[:pbm_qnzs_roc] = motif_values.values_at(:pbm_qnzs_roc).flatten
+    motif_values[:pbm_roc] = motif_values.values_at(:pbm_sdqn_roc, :pbm_qnzs_roc).flatten
 
-    motif_values[:pbm_sd_qn_pr] = motif_values.values_at(:pbm_sd_qn_pr).flatten
-    motif_values[:pbm_qn_zscore_pr] = motif_values.values_at(:pbm_qn_zscore_pr).flatten
-    motif_values[:pbm_pr] = motif_values.values_at(:pbm_sd_qn_pr, :pbm_qn_zscore_pr).flatten
+    motif_values[:pbm_sdqn_pr] = motif_values.values_at(:pbm_sdqn_pr).flatten
+    motif_values[:pbm_qnzs_pr] = motif_values.values_at(:pbm_qnzs_pr).flatten
+    motif_values[:pbm_pr] = motif_values.values_at(:pbm_sdqn_pr, :pbm_qnzs_pr).flatten
 
     motif_values[:smileseq] = motif_values.values_at(:smileseq_10_ROC, :smileseq_50_ROC).flatten
 
@@ -374,7 +374,7 @@ metrics_order = [
   :combined, :chipseq, :affiseq, :selex, :pbm, :smileseq,
   :affiseq_IVT, :affiseq_Lysate,
   :selex_IVT, :selex_Lysate,
-  :pbm_sd_qn, :pbm_qn_zscore,
+  :pbm_sdqn, :pbm_qnzs,
 
   :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt, :chipseq_centrimo_neglog_evalue, #:chipseq_vigg_logROC,
 
@@ -387,8 +387,8 @@ metrics_order = [
   :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
   :selex_50_IVT_ROC, :selex_50_Lysate_ROC,
 
-  :pbm_sd_qn_roc, :pbm_sd_qn_pr,
-  :pbm_qn_zscore_roc, :pbm_qn_zscore_pr,
+  :pbm_sdqn_roc, :pbm_sdqn_pr,
+  :pbm_qnzs_roc, :pbm_qnzs_pr,
 
   :smileseq_10_ROC, :smileseq_50_ROC,
 ]
@@ -620,7 +620,7 @@ metrics_order.each{|metric_name|
       if BASIC_RETAINED_METRICS.include?(metric_name)
         vals = motif_metric_infos.map{|info| info[:value] }
       else
-        if [:pbm, :pbm_sd_qn, :pbm_qn_zscore].include?(metric_name)
+        if [:pbm, :pbm_sdqn, :pbm_qnzs].include?(metric_name)
           vals_roc = motif_values.fetch("#{metric_name}_roc".to_sym).compact
           vals_pr = motif_values.fetch("#{metric_name}_pr".to_sym).compact
           vals_summary = "ROC: #{basic_stats(vals_roc)}; PR: #{basic_stats(vals_pr)}"
