@@ -141,7 +141,8 @@ BASIC_RETAINED_METRICS = [
 #   }
 # }
 
-tfs_curration = read_tfs_curration('source_data_meta/shared/curation_tfs_vigg.tsv')
+# tfs_curration = read_tfs_curration('source_data_meta/shared/curation_tfs_vigg.tsv')
+tfs_curration = {}
 
 metrics_readers_configs = {
   'release_6_metrics/formatted_peaks.tsv' => [
