@@ -404,69 +404,77 @@ File.open('results/motif_metrics.tsv', 'w'){|fw|
   }
 }
 
-class MotifMetricsFormatter
+class MotifMetricsFormatterData
   def initialize(metrics_order, motif_rankings); @metrics_order, @motif_rankings = metrics_order, motif_rankings; end
   def get_binding; binding; end
 end
+
+class SingleMetricsFormatterData
+  def initialize(metric_name, rows); @metric_name, @rows = metric_name, rows; end
+  def get_binding; binding; end
+end
+
+##########################################################
 
 FileUtils.cp_r(File.absolute_path('websrc', __dir__), 'results/websrc')
 File.open('results/motif_metrics.html', 'w'){|fw|
   template_fn = File.absolute_path('templates/motif_metrics.html.erb', __dir__)
   renderer = ERB.new( File.read(template_fn) )
-  formatter = MotifMetricsFormatter.new(metrics_order, motif_rankings)
-  fw.puts renderer.result(formatter.get_binding)
+  formatter_data = MotifMetricsFormatterData.new(metrics_order, motif_rankings)
+  fw.puts renderer.result(formatter_data.get_binding)
 }
 
 ##########################################################
+
 FileUtils.mkdir_p "results/metrics_by_TF/"
 motif_rankings.group_by{|tf,*rest| tf }.each do |tf, motif_rankings_part|
-File.open("results/metrics_by_TF/#{tf}.html", 'w'){|fw|
-  header = ['tf', 'motif', 'rank_overall', *metrics_order.map{|metric| "rank_#{metric}"} ]
-  fw.puts <<-EOS
-    <html><head>
-    <meta charset="utf-8">
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js" integrity="sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.blue.min.css" integrity="sha512-jJ9r3lTLaH5XXa9ZOsCQU8kLvxdAVzyTWO/pnzdZrshJQfnw1oevJFpoyCDr7K1lqt1hUgqoxA5e2PctVtlSTg==" crossorigin="anonymous" />
-    <script>
-    $(function() {
-      $("table.tablesorter").tablesorter({
-        theme: 'blue',
-        widgets: ['zebra'],
-        sortList: [[0,0], [2,0]]
-      });
-    });
-    </script>
-    <style>
-    img{max-width: 400px;}
-    </style></head><body>
-    <table class="tablesorter tablesorter-blue"><thead><tr>
-    <th class="group-word">TF</th>
-    <th>logo</th>
-    <th>overall rank</th>
-    EOS
-  metrics_order.each{|metric| fw.puts "<th>#{metric} rank</th>"}
-  fw.puts <<-EOS
-    <th>motif</th>
-    </tr></thead><tbody>
-  EOS
-
-  motif_rankings_part.each{|tf, motif, overall_rank, motif_ranks, motif_values|
-    motif_bn = File.basename(motif, File.extname(motif))
-    row = [tf, "<img src='../../logo/#{motif_bn}.png' />", overall_rank, *motif_ranks.values_at(*metrics_order).map{|x| x&.round(2) }, motif]
-    fw.puts('<tr>' + row.map{|x| "<td>#{x}</td>" }.join + '</tr>')
+  File.open("results/metrics_by_TF/#{tf}.html", 'w'){|fw|
+    template_fn = File.absolute_path('templates/metrics_for_tf.html.erb', __dir__)
+    renderer = ERB.new( File.read(template_fn) )
+    formatter_data = MotifMetricsFormatterData.new(metrics_order, motif_rankings_part)
+    fw.puts renderer.result(formatter_data.get_binding)
   }
-
-  fw.puts <<-EOS
-    </tbody></table>
-    </body></html>
-    EOS
-}
 end
-
 
 ##########################################################
 
+FileUtils.mkdir_p('results/metrics/')
+
+metrics_order.each{|metric_name|
+  motif_metrics_subset = all_metric_infos.select{|info| info[:metric_name] == metric_name }
+  
+  rows = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
+    ranks[metric_name]
+  }.map{|tf, motif, overall_rank, ranks, motif_values|
+    motif_bn = File.basename(motif, File.extname(motif))
+    motif_metric_infos = motif_metrics_subset.select{|info| info[:motif] == motif }
+    if BASIC_RETAINED_METRICS.include?(metric_name)
+      vals = motif_metric_infos.map{|info| info[:value] }
+    else
+      if [:pbm, :pbm_sdqn, :pbm_qnzs].include?(metric_name)
+        vals_roc = motif_values.fetch("#{metric_name}_roc".to_sym).compact
+        vals_pr = motif_values.fetch("#{metric_name}_pr".to_sym).compact
+        vals_summary = "ROC: #{basic_stats(vals_roc)}; PR: #{basic_stats(vals_pr)}"
+      elsif metric_name == :combined
+        vals_summary = ''
+      else
+        vals = motif_values.fetch(metric_name).compact
+        vals_summary = basic_stats(vals)
+      end
+    end
+    row = [tf, overall_rank, ranks[metric_name].round(2), vals_summary, "<img src='../../logo/#{motif_bn}.png' />", motif]
+    row
+  }
+
+  File.open("results/metrics/#{metric_name}.html", 'w'){|fw|
+    template_fn = File.absolute_path('templates/metrics_info.html.erb', __dir__)
+    renderer = ERB.new( File.read(template_fn) )
+    formatter_data = SingleMetricsFormatterData.new(metric_name, rows)
+    fw.puts renderer.result(formatter_data.get_binding)
+  }
+}
+
+##########################################################
 
 winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
   overall_rank == 1
@@ -479,68 +487,3 @@ winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_val
 }.to_h
 
 puts winning_tools
-
-FileUtils.mkdir_p('results/metrics/')
-
-metrics_order.each{|metric_name|
-  motif_metrics_subset = all_metric_infos.select{|info| info[:metric_name] == metric_name }
-  File.open("results/metrics/#{metric_name}.html", 'w'){|fw|
-    fw.puts <<-EOS
-    <html><head>
-    <meta charset="utf-8">
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js" integrity="sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.blue.min.css" integrity="sha512-jJ9r3lTLaH5XXa9ZOsCQU8kLvxdAVzyTWO/pnzdZrshJQfnw1oevJFpoyCDr7K1lqt1hUgqoxA5e2PctVtlSTg==" crossorigin="anonymous" />
-    <script>
-    $(function() {
-      $("table.tablesorter").tablesorter({
-        theme: 'blue',
-        widgets: ['zebra']
-      });
-    });
-    </script>
-    <style>
-    img{max-width: 400px;}
-    </style></head><body>
-    <table class="tablesorter tablesorter-blue"><thead><tr>
-    <th>TF</th>
-    <th>overall rank</th>
-    <th>#{metric_name} rank</th>
-    <th style="min-width:100px;">value</th>
-    <th>logo</th>
-    <th>motif</th>
-    </tr></thead><tbody>
-    EOS
-
-    motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
-      ranks[metric_name]
-    }.each{|tf, motif, overall_rank, ranks, motif_values|
-      motif_bn = File.basename(motif, File.extname(motif))
-      fw.puts '<tr>'
-      motif_metric_infos = motif_metrics_subset.select{|info| info[:motif] == motif }
-      if BASIC_RETAINED_METRICS.include?(metric_name)
-        vals = motif_metric_infos.map{|info| info[:value] }
-      else
-        if [:pbm, :pbm_sdqn, :pbm_qnzs].include?(metric_name)
-          vals_roc = motif_values.fetch("#{metric_name}_roc".to_sym).compact
-          vals_pr = motif_values.fetch("#{metric_name}_pr".to_sym).compact
-          vals_summary = "ROC: #{basic_stats(vals_roc)}; PR: #{basic_stats(vals_pr)}"
-        elsif metric_name == :combined
-          vals_summary = ''
-        else
-          vals = motif_values.fetch(metric_name).compact
-          vals_summary = basic_stats(vals)
-        end
-      end
-      row = [tf, overall_rank, ranks[metric_name].round(2), vals_summary, "<img src='../../logo/#{motif_bn}.png' />", motif]
-      fw.puts row.map{|x| "<td>#{x}</td>" }.join
-      fw.puts '</tr>'
-    }
-
-
-    fw.puts <<-EOS
-    </tbody></table>
-    </body></html>
-    EOS
-  }
-}

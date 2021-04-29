@@ -1,0 +1,37 @@
+<html><head>
+<meta charset="utf-8">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js" integrity="sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.blue.min.css" integrity="sha512-jJ9r3lTLaH5XXa9ZOsCQU8kLvxdAVzyTWO/pnzdZrshJQfnw1oevJFpoyCDr7K1lqt1hUgqoxA5e2PctVtlSTg==" crossorigin="anonymous" />
+<script>
+$(function() {
+  $("table.tablesorter").tablesorter({
+    theme: 'blue',
+    widgets: ['zebra']
+  });
+});
+</script>
+<style>
+  img { max-width: 400px; }
+</style></head>
+<body>
+  <table class="tablesorter tablesorter-blue">
+    <thead><tr>
+      <th>TF</th>
+      <th>overall rank</th>
+      <th><%= @metric_name %> rank</th>
+      <th style="min-width:100px;">value</th>
+      <th>logo</th>
+      <th>motif</th>
+    </tr></thead>
+    <tbody>
+
+      <tr>
+      <% @rows.each do |x| %>
+        <td><%= x %></td>
+      <% end %>
+      </tr>
+
+    </tbody>
+  </table>
+</body></html>

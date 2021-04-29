@@ -1,0 +1,44 @@
+<html><head>
+<meta charset="utf-8">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js" integrity="sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.blue.min.css" integrity="sha512-jJ9r3lTLaH5XXa9ZOsCQU8kLvxdAVzyTWO/pnzdZrshJQfnw1oevJFpoyCDr7K1lqt1hUgqoxA5e2PctVtlSTg==" crossorigin="anonymous" />
+<script>
+$(function() {
+  $("table.tablesorter").tablesorter({
+    theme: 'blue',
+    widgets: ['zebra'],
+    sortList: [[0,0], [2,0]]
+  });
+});
+</script>
+<style>
+  img { max-width: 400px; }
+</style></head>
+<body>
+<table class="tablesorter tablesorter-blue">
+  <thead><tr>
+    <th class="group-word">TF</th>
+    <th>logo</th>
+    <th>overall rank</th>
+    <% @metrics_order.each do |metric| %>
+      <th><%= metric %> rank</th>
+    <% end %>
+    <th>motif</th>
+  </tr></thead>
+  <tbody>
+    <% @motif_rankings.each do |tf, motif, overall_rank, motif_ranks, motif_values| %>
+      <tr>
+        <% motif_bn = File.basename(motif, File.extname(motif)) %>
+        <td><%= tf %></td>
+        <td><img src='../../logo/<%= motif_bn %>.png' /></td>
+        <td><%= overall_rank %></td>
+        <% @metrics_order.each do |metric_name| %>
+          <td><%= motif_ranks[metric_name]&.round(2) %></td>
+        <% end %>
+        <td><%= motif %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+</body></html>
