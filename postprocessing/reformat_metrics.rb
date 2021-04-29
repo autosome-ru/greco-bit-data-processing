@@ -32,12 +32,12 @@ conversion_tasks = [
     metrics: ['AUCROC'],
     parser: ->(info, metrics){ info }
   },
-  # {
-  #   src: 'release_6_metrics/reads_0.5.tsv',
-  #   dst: 'release_6_metrics/formatted_reads_0.5.tsv',
-  #   metrics: ['AUCROC'],
-  #   parser: ->(info, metrics){ info }
-  # },
+  {
+    src: 'release_6_metrics/reads_0.5.tsv',
+    dst: 'release_6_metrics/formatted_reads_0.5.tsv',
+    metrics: ['AUCROC'],
+    parser: ->(info, metrics){ info }
+  },
   {
     src: 'release_6_metrics/peaks_centrimo.tsv',
     dst: 'release_6_metrics/formatted_peaks_centrimo.tsv',
