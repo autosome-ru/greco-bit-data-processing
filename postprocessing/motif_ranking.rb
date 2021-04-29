@@ -196,7 +196,7 @@ def read_metrics(metrics_readers_configs)
           dataset_condition.call(info[:dataset])
       }.flat_map{|info|
         common_info = info.reject{|k,v| k == :values }
-        metric_names.zip(values).map{|metric_name, value|
+        metric_names.zip(info[:values]).map{|metric_name, value|
           common_info.merge({value: value, metric_name: metric_name})
         }
       }
