@@ -12,6 +12,26 @@ module Enumerable
     m = mean
     (self.map{|x| (x-m) ** 2 }.sum(0.0) / (size - 1)) ** 0.5
   end
+
+  def rank_by(start_with: 1, order: :large_better, &block)
+    raise  unless block_given?
+    raise  unless [:large_better, :small_better].include?(order)
+    compactified_collection = self.select(&block)
+    sorted_collection = compactified_collection.sort_by(&block).yield_self{|coll| (order == :large_better) ? coll.reverse : coll }
+    sorted_collection.each_with_index.map{|obj, idx|
+      [(idx + start_with), obj]
+    }
+  end
+end
+
+def product_mean(values)
+  values = values.compact
+  values.size == 0 ? nil : values.inject(1.0, &:*) ** (1.0 / values.size)
+end
+
+def basic_stats(vals)
+  vals = vals.compact
+  (vals.size >= 2) ? "#{vals.mean&.round(2)} ± #{vals.stddev&.round(2)}" : vals.mean&.round(2)
 end
 
 def treat_status(status)
@@ -27,6 +47,32 @@ def treat_status(status)
   else
     raise 'Unknown status'
   end
+end
+
+def read_metrics(metrics_readers_configs)
+  metrics_readers_configs.flat_map{|fn, fn_parsers|
+    infos = File.readlines(fn).drop(1).map{|line|
+      line.chomp!
+      dataset, motif, *values = line.split("\t")
+      dataset_tf = dataset.split('.')[0]
+      motif_tf = motif.split('.')[0]
+      raise  unless dataset_tf == motif_tf
+      tf = dataset_tf
+      values = values.map{|val| val && Float(val) }
+      {dataset: dataset, motif: motif, tf: tf, values: values, original_line: line, filename: File.basename(fn)}
+    }
+
+    fn_parsers.flat_map{|metric_names, dataset_condition|
+      infos.select{|info|
+          dataset_condition.call(info[:dataset])
+      }.flat_map{|info|
+        common_info = info.reject{|k,v| k == :values }
+        metric_names.zip(info[:values]).map{|metric_name, value|
+          common_info.merge({value: value, metric_name: metric_name})
+        }
+      }
+    }
+  }
 end
 
 def read_tfs_curration(filename)
@@ -52,6 +98,44 @@ def read_tfs_curration(filename)
       reason: reason,
     }
   }
+end
+
+def get_motif_ranks(motif_infos, metric_combinations)
+  basic_ranks = motif_infos.map{|info|
+    [info[:metric_name], info[:dataset_combined_rank]]
+  }.to_h
+
+  ranks_tree = Node.construct_tree(metric_combinations)
+  ranks_tree.each_node_upwards do |node|
+    metric_name = node.key
+    if node.leaf?
+      node.value = basic_ranks[metric_name]
+    else
+      children_ranks = node.children.map{|k, child| child.value }
+      node.value = product_mean(children_ranks.compact)
+    end
+  end
+
+  ranks_tree.each_node.map{|node| [node.key, node.value] }.to_h
+end
+
+def get_motif_values(motif_infos, metric_combinations)
+  basic_values = motif_infos.map{|info|
+    [info[:metric_name], info[:rank_infos].map{|rank_info| rank_info[:value] }]
+  }.to_h
+
+  values_tree = Node.construct_tree(metric_combinations)
+  values_tree.each_node_upwards do |node|
+    metric_name = node.key
+    if node.leaf?
+      node.value = basic_values[metric_name]
+    else
+      children_values = node.children.map{|k, child| child.value }
+      node.value = children_values.flatten.compact
+    end
+  end
+
+  values_tree.each_node.map{|node| [node.key, node.value] }.to_h
 end
 
 ## pbm_roclog and pbm_prlog are roughly equivalent to pbm_roc and pbm_log
@@ -184,75 +268,12 @@ metrics_readers_configs = {
   ],
 }
 
-def read_metrics(metrics_readers_configs)
-  metrics_readers_configs.flat_map{|fn, fn_parsers|
-    infos = File.readlines(fn).drop(1).map{|line|
-      line.chomp!
-      dataset, motif, *values = line.split("\t")
-      dataset_tf = dataset.split('.')[0]
-      motif_tf = motif.split('.')[0]
-      raise  unless dataset_tf == motif_tf
-      tf = dataset_tf
-      values = values.map{|val| val && Float(val) }
-      {dataset: dataset, motif: motif, tf: tf, values: values, original_line: line, filename: File.basename(fn)}
-    }
-
-    fn_parsers.flat_map{|metric_names, dataset_condition|
-      infos.select{|info|
-          dataset_condition.call(info[:dataset])
-      }.flat_map{|info|
-        common_info = info.reject{|k,v| k == :values }
-        metric_names.zip(info[:values]).map{|metric_name, value|
-          common_info.merge({value: value, metric_name: metric_name})
-        }
-      }
-    }
-  }
-end
-
 all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
   tf = info[:tf]
   metric_name = info[:metric_name]
   metric_type = METRIC_TYPE_BY_NAME[metric_name]
   tfs_curration[tf][:verdicts][metric_type] rescue true
 }
-
-module Enumerable
-  def rank_by(start_with: 1, order: :large_better, &block)
-    raise  unless block_given?
-    raise  unless [:large_better, :small_better].include?(order)
-    compactified_collection = self.select(&block)
-    sorted_collection = compactified_collection.sort_by(&block).yield_self{|coll| (order == :large_better) ? coll.reverse : coll }
-    sorted_collection.each_with_index.map{|obj, idx|
-      [(idx + start_with), obj]
-    }
-  end
-end
-
-def product_mean(values)
-  values = values.compact
-  values.size == 0 ? nil : values.inject(1.0, &:*) ** (1.0 / values.size)
-end
-
-def basic_stats(vals)
-  vals = vals.compact
-  (vals.size >= 2) ? "#{vals.mean&.round(2)} ± #{vals.stddev&.round(2)}" : vals.mean&.round(2)
-end
-
-# def combine_metrics(tree, leaf_block: ->(k,v){puts "leaf #{x}"; x}, combine_block: ->(tree){ puts "combine #{tree}"; tree })
-#   p tree
-#   if tree.size == 1
-#     k = tree.keys.first
-#     v = tree[k]
-#     return leaf_block.call(k,v)  if !v.is_a?(Enumerable)
-#   end
-#   # raise  unless block_given?
-#   tree_combined = tree.map{|parent, child|
-#     combine_metrics(child, leaf_block: leaf_block, combine_block: combine_block)
-#   }.to_h
-#   combine_block.call(tree_combined)
-# end
-# combine_metrics(METRIC_COMBINATIONS)
 
 motif_metrics_combined = all_metric_infos.group_by{|info|
   info[:tf]
@@ -294,49 +315,10 @@ File.open('results/metrics.tsv', 'w') do |fw|
 end
 
 
-
-
 motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat_map{|tf, tf_infos|
   tf_infos.group_by{|info| info[:motif] }.map{|motif, motif_infos|
-
-    basic_ranks = motif_infos.map{|info|
-      [info[:metric_name], info[:dataset_combined_rank]]
-    }.to_h
-
-    ranks_tree = Node.construct_tree(METRIC_COMBINATIONS)
-    ranks_tree.each_node_upwards do |node|
-      metric_name = node.key
-      if node.leaf?
-        node.value = basic_ranks[metric_name]
-      else
-        children_ranks = node.children.map{|k, child| child.value }
-        node.value = product_mean(children_ranks.compact)
-      end
-    end
-
-    motif_ranks = ranks_tree.each_node.map{|node| [node.key, node.value] }.to_h
-
-    ################
-
-    basic_values = motif_infos.map{|info|
-      [info[:metric_name], info[:rank_infos].map{|rank_info| rank_info[:value] }]
-    }.to_h
-
-    values_tree = Node.construct_tree(METRIC_COMBINATIONS)
-    values_tree.each_node_upwards do |node|
-      metric_name = node.key
-      if node.leaf?
-        node.value = basic_values[metric_name]
-      else
-        children_values = node.children.map{|k, child| child.value }
-        node.value = children_values.flatten.compact
-      end
-    end
-
-    motif_values = values_tree.each_node.map{|node| [node.key, node.value] }.to_h
-
-    ################
-
+    motif_ranks = get_motif_ranks(motif_infos, METRIC_COMBINATIONS)
+    motif_values = get_motif_values(motif_infos, METRIC_COMBINATIONS)
     [tf, motif, motif_ranks, motif_values]
   }
 }
@@ -363,6 +345,22 @@ File.open('results/motif_metrics.tsv', 'w'){|fw|
   }
 }
 
+##########################################################
+
+winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
+  overall_rank == 1
+}.map{|tf, motif, *rest|
+  motif.match(/\w+@\w+/)[0]
+}.each_with_object(Hash.new(0)){|tool, hsh|
+  hsh[tool] += 1
+}.sort_by{|k,v|
+  -v
+}.to_h
+
+puts winning_tools
+
+##########################################################
+
 class MotifMetricsFormatterData
   def initialize(metrics_order, motif_rankings); @metrics_order, @motif_rankings = metrics_order, motif_rankings; end
   def get_binding; binding; end
@@ -386,10 +384,10 @@ File.open('results/motif_metrics.html', 'w'){|fw|
 ##########################################################
 
 FileUtils.mkdir_p "results/metrics_by_TF/"
+template_fn = File.absolute_path('templates/metrics_for_tf.html.erb', __dir__)
+renderer = ERB.new( File.read(template_fn) )
 motif_rankings.group_by{|tf,*rest| tf }.each do |tf, motif_rankings_part|
   File.open("results/metrics_by_TF/#{tf}.html", 'w'){|fw|
-    template_fn = File.absolute_path('templates/metrics_for_tf.html.erb', __dir__)
-    renderer = ERB.new( File.read(template_fn) )
     formatter_data = MotifMetricsFormatterData.new(metrics_order, motif_rankings_part)
     fw.puts renderer.result(formatter_data.get_binding)
   }
@@ -398,6 +396,9 @@ end
 ##########################################################
 
 FileUtils.mkdir_p('results/metrics/')
+
+template_fn = File.absolute_path('templates/metrics_info.html.erb', __dir__)
+renderer = ERB.new( File.read(template_fn) )
 
 metrics_order.each{|metric_name|
   motif_metrics_subset = all_metric_infos.select{|info| info[:metric_name] == metric_name }
@@ -426,23 +427,7 @@ metrics_order.each{|metric_name|
   }
 
   File.open("results/metrics/#{metric_name}.html", 'w'){|fw|
-    template_fn = File.absolute_path('templates/metrics_info.html.erb', __dir__)
-    renderer = ERB.new( File.read(template_fn) )
     formatter_data = SingleMetricsFormatterData.new(metric_name, rows)
     fw.puts renderer.result(formatter_data.get_binding)
   }
 }
-
-##########################################################
-
-winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
-  overall_rank == 1
-}.map{|tf, motif, *rest|
-  motif.match(/\w+@\w+/)[0]
-}.each_with_object(Hash.new(0)){|tool, hsh|
-  hsh[tool] += 1
-}.sort_by{|k,v|
-  -v
-}.to_h
-
-puts winning_tools
