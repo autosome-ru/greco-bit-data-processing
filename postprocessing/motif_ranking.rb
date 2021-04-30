@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'erb'
+require_relative 'tree'
 
 module Enumerable
   def mean
@@ -111,35 +112,38 @@ BASIC_RETAINED_METRICS = [
 ]
   # :combined, :affiseq_ROC, :selex_ROC, :pbm,
   # :affiseq_IVT_pwmeval_ROC, :affiseq_Lysate_pwmeval_ROC, :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
-# METRIC_COMBINATIONS = {
-#   combined: {
-#     chipseq_pwmeval_ROC: true,
-#     affiseq_ROC: {
-#       affiseq_IVT_pwmeval_ROC: true,
-#       affiseq_Lysate_pwmeval_ROC: true,
-#     },
-#     selex_ROC: {
-#       selex_10_IVT_ROC: true,
-#       selex_10_Lysate_ROC: true,
-#     },
-#     pbm: {
-#       pbm_qnzs: {
-#         pbm_qnzs_asis: true,
-#         pbm_qnzs_log: true,
-#         pbm_qnzs_exp: true,
-#         pbm_qnzs_roc: true,
-#         pbm_qnzs_pr: true,
-#       },
-#       pbm_sdqn: {
-#         pbm_sdqn_asis: true,
-#         pbm_sdqn_log: true,
-#         pbm_sdqn_exp: true,
-#         pbm_sdqn_roc: true,
-#         pbm_sdqn_pr: true,
-#       }
-#     }
-#   }
-# }
+
+METRIC_COMBINATIONS = {
+  combined: {
+    chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt],
+    affiseq: {
+      affiseq_IVT: {
+        affiseq_IVT_peaks: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt],
+        affiseq_IVT_reads: [:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC],
+      },
+      affiseq_Lysate: {
+        affiseq_Lysate_peaks: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt],
+        affiseq_Lysate_reads: [:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC],
+      },
+    },
+    selex: {
+      selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
+      selex_Lysate: [:selex_10_Lysate_ROC, :selex_50_Lysate_ROC],
+    },
+    pbm: {
+      pbm_sdqn: [:pbm_sdqn_roc, :pbm_sdqn_pr],
+      pbm_qnzs: [:pbm_qnzs_roc, :pbm_qnzs_pr],
+    },
+    smileseq: [:smileseq_10_ROC, :smileseq_50_ROC],
+  },
+  dropped: {
+    dropped_peak_metrics: [:chipseq_vigg_logROC, :affiseq_IVT_vigg_logROC, :affiseq_Lysate_vigg_logROC],
+    dropped_pbm_qnzs: [:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_mers, :pbm_qnzs_logmers],
+    dropped_pbm_sdqn: [:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_mers, :pbm_sdqn_logmers],
+    pbm_roc: [:pbm_sdqn_roc, :pbm_qnzs_roc],
+    pbm_pr:  [:pbm_sdqn_pr,  :pbm_qnzs_pr],
+  }
+}
 
 # tfs_curration = read_tfs_curration('source_data_meta/shared/curation_tfs_vigg.tsv')
 tfs_curration = {}
@@ -207,8 +211,6 @@ def read_metrics(metrics_readers_configs)
 end
 
 all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
-  BASIC_RETAINED_METRICS.include?(info[:metric_name])
-}.select{|info|
   tf = info[:tf]
   metric_name = info[:metric_name]
   metric_type = METRIC_TYPE_BY_NAME[metric_name]
@@ -291,73 +293,50 @@ File.open('results/metrics.tsv', 'w') do |fw|
   }
 end
 
+
+
+
 motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat_map{|tf, tf_infos|
   tf_infos.group_by{|info| info[:motif] }.map{|motif, motif_infos|
-    motif_ranks = motif_infos.map{|info|
+
+    basic_ranks = motif_infos.map{|info|
       [info[:metric_name], info[:dataset_combined_rank]]
     }.to_h
-    combined_rank = product_mean(motif_ranks.values.compact)
 
-    motif_values = motif_infos.map{|info|
+    ranks_tree = Node.construct_tree(METRIC_COMBINATIONS)
+    ranks_tree.each_node_upwards do |node|
+      metric_name = node.key
+      if node.leaf?
+        node.value = basic_ranks[metric_name]
+      else
+        children_ranks = node.children.map{|k, child| child.value }
+        node.value = product_mean(children_ranks.compact)
+      end
+    end
+
+    motif_ranks = ranks_tree.each_node.map{|node| [node.key, node.value] }.to_h
+
+    ################
+
+    basic_values = motif_infos.map{|info|
       [info[:metric_name], info[:rank_infos].map{|rank_info| rank_info[:value] }]
     }.to_h
-    ## METRIC_COMBINATIONS.each
+
+    values_tree = Node.construct_tree(METRIC_COMBINATIONS)
+    values_tree.each_node_upwards do |node|
+      metric_name = node.key
+      if node.leaf?
+        node.value = basic_values[metric_name]
+      else
+        children_values = node.children.map{|k, child| child.value }
+        node.value = children_values.flatten.compact
+      end
+    end
+
+    motif_values = values_tree.each_node.map{|node| [node.key, node.value] }.to_h
 
     ################
-    motif_ranks[:chipseq] = product_mean(motif_ranks.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt).compact)
 
-    motif_ranks[:affiseq_IVT_peaks] = product_mean(motif_ranks.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt).compact)
-    motif_ranks[:affiseq_IVT_reads] = product_mean(motif_ranks.values_at(:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC).compact)
-    motif_ranks[:affiseq_IVT] = product_mean(motif_ranks.values_at(:affiseq_IVT_peaks, :affiseq_IVT_reads).compact)
-
-    motif_ranks[:affiseq_Lysate_peaks] = product_mean(motif_ranks.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt).compact)
-    motif_ranks[:affiseq_Lysate_reads] = product_mean(motif_ranks.values_at(:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC).compact)
-    motif_ranks[:affiseq_Lysate] = product_mean(motif_ranks.values_at(:affiseq_Lysate_peaks, :affiseq_Lysate_reads).compact)
-
-    motif_ranks[:affiseq] = product_mean(motif_ranks.values_at(:affiseq_IVT, :affiseq_Lysate).compact)
-
-    motif_ranks[:selex_IVT] = product_mean(motif_ranks.values_at(:selex_10_IVT_ROC, :selex_50_IVT_ROC).compact)
-    motif_ranks[:selex_Lysate] = product_mean(motif_ranks.values_at(:selex_10_Lysate_ROC, :selex_50_Lysate_ROC).compact)
-    motif_ranks[:selex] = product_mean(motif_ranks.values_at(:selex_IVT, :selex_Lysate).compact)
-
-    motif_ranks[:pbm_sdqn] = product_mean(motif_ranks.values_at(:pbm_sdqn_roc, :pbm_sdqn_pr).compact)
-    motif_ranks[:pbm_qnzs] = product_mean(motif_ranks.values_at(:pbm_qnzs_roc, :pbm_qnzs_pr).compact)
-    motif_ranks[:pbm] = product_mean(motif_ranks.values_at(:pbm_sdqn, :pbm_qnzs).compact)
-
-    motif_ranks[:smileseq] = product_mean(motif_ranks.values_at(:smileseq_10_ROC, :smileseq_50_ROC).compact)
-
-    motif_ranks[:combined] = product_mean(motif_ranks.values_at(:chipseq, :affiseq, :selex, :pbm, :smileseq).compact)
-    ################
-
-    ################
-    motif_values[:chipseq] = motif_values.values_at(:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt).flatten
-
-    motif_values[:affiseq_IVT_peaks] = motif_values.values_at(:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt).flatten
-    motif_values[:affiseq_IVT_reads] = motif_values.values_at(:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC).flatten
-    motif_values[:affiseq_IVT] = motif_values.values_at(:affiseq_IVT_peaks, :affiseq_IVT_reads).flatten
-
-    motif_values[:affiseq_Lysate_peaks] = motif_values.values_at(:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt).flatten
-    motif_values[:affiseq_Lysate_reads] = motif_values.values_at(:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC).flatten
-    motif_values[:affiseq_Lysate] = motif_values.values_at(:affiseq_Lysate_peaks, :affiseq_Lysate_reads).flatten
-
-    motif_values[:affiseq] = motif_values.values_at(:affiseq_IVT, :affiseq_Lysate).flatten
-
-    motif_values[:selex_IVT] = motif_values.values_at(:selex_10_IVT_ROC, :selex_50_IVT_ROC).flatten
-    motif_values[:selex_Lysate] = motif_values.values_at(:selex_10_Lysate_ROC, :selex_50_Lysate_ROC).flatten
-    motif_values[:selex] = motif_values.values_at(:selex_IVT, :selex_Lysate).flatten
-
-    motif_values[:pbm_sdqn_roc] = motif_values.values_at(:pbm_sdqn_roc).flatten
-    motif_values[:pbm_qnzs_roc] = motif_values.values_at(:pbm_qnzs_roc).flatten
-    motif_values[:pbm_roc] = motif_values.values_at(:pbm_sdqn_roc, :pbm_qnzs_roc).flatten
-
-    motif_values[:pbm_sdqn_pr] = motif_values.values_at(:pbm_sdqn_pr).flatten
-    motif_values[:pbm_qnzs_pr] = motif_values.values_at(:pbm_qnzs_pr).flatten
-    motif_values[:pbm_pr] = motif_values.values_at(:pbm_sdqn_pr, :pbm_qnzs_pr).flatten
-
-    motif_values[:smileseq] = motif_values.values_at(:smileseq_10_ROC, :smileseq_50_ROC).flatten
-
-    # motif_values[:combined] = motif_values.values_at(:chipseq_ROC, :affiseq_ROC, :selex, :pbm).flatten
-    ################
     [tf, motif, motif_ranks, motif_values]
   }
 }
@@ -372,28 +351,7 @@ motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks, motif_
   }
 }
 
-metrics_order = [
-  :combined, :chipseq, :affiseq, :selex, :pbm, :smileseq,
-  :affiseq_IVT, :affiseq_Lysate,
-  :selex_IVT, :selex_Lysate,
-  :pbm_sdqn, :pbm_qnzs,
-
-  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt, :chipseq_centrimo_neglog_evalue, #:chipseq_vigg_logROC,
-
-  :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt, :affiseq_IVT_centrimo_neglog_evalue, #:affiseq_IVT_vigg_logROC,
-  :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,
-
-  :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt, :affiseq_Lysate_centrimo_neglog_evalue, #:affiseq_Lysate_vigg_logROC,
-  :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,
-
-  :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
-  :selex_50_IVT_ROC, :selex_50_Lysate_ROC,
-
-  :pbm_sdqn_roc, :pbm_sdqn_pr,
-  :pbm_qnzs_roc, :pbm_qnzs_pr,
-
-  :smileseq_10_ROC, :smileseq_50_ROC,
-]
+metrics_order = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
 
 File.open('results/motif_metrics.tsv', 'w'){|fw|
   header = ['tf', 'motif', 'rank_overall', *metrics_order.map{|metric| "rank_#{metric}"} ]
@@ -443,7 +401,7 @@ FileUtils.mkdir_p('results/metrics/')
 
 metrics_order.each{|metric_name|
   motif_metrics_subset = all_metric_infos.select{|info| info[:metric_name] == metric_name }
-  
+
   rows = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
     ranks[metric_name]
   }.map{|tf, motif, overall_rank, ranks, motif_values|
