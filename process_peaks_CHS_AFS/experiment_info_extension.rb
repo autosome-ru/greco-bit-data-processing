@@ -19,7 +19,7 @@ module ExperimentInfoExtension
     File.exist?(confirmed_peaks_fn) ? num_rows(confirmed_peaks_fn, has_header: true) : 0
   end
 
-  def make_confirmed_peaks!(source_folder:, main_peak_callers:, supplementary_peak_callers:)
+  def confirmed_peaks_transformations(source_folder:, main_peak_callers:, supplementary_peak_callers:)
     supporting_intervals_file_infos = supplementary_peak_callers.map{|peak_caller|
       peaks_fn = peak_fn_for_peakcaller(peak_caller, source_folder)
       {filename: peaks_fn, name: peak_caller}
@@ -30,18 +30,44 @@ module ExperimentInfoExtension
         row + [info[:name]]
       }
     }
-    main_peak_fn = peak_fn_for_main_caller(source_folder, main_peak_callers: main_peak_callers)
-    return  if num_rows(main_peak_fn, has_header: true) == 0
-    return  if supporting_intervals.size == 0
+    main_peaks_fn = peak_fn_for_main_caller(source_folder, main_peak_callers: main_peak_callers)
+    return []  if num_rows(main_peaks_fn, has_header: true) == 0
+    return []  if supporting_intervals.size == 0
+    transformations = []
+    transformations << {
+      main_peaks_fn: main_peaks_fn,
+      resulting_peaks_fn: confirmed_peaks_fn,
+      supporting_intervals: supporting_intervals,
+      tempfile_fn: "#{peak_id}.supplementary_callers.bed"
+    }
+    transformations
+  end
 
-    supporting_intervals_file = Tempfile.new("#{peak_id}.supplementary_callers.bed").tap(&:close)
-    store_table(supporting_intervals_file.path, supporting_intervals)
-    # make_merged_intervals(supporting_intervals_file.path, supporting_intervals)
+  def make_confirmed_peaks!(source_folder:, main_peak_callers:, supplementary_peak_callers:)
+    confirmed_peaks_transformations(
+      source_folder: source_folder,
+      main_peak_callers: main_peak_callers,
+      supplementary_peak_callers: supplementary_peak_callers
+    ).each{|transformation|
+      main_peaks_fn = transformation[:main_peaks_fn]
+      resulting_peaks_fn = transformation[:resulting_peaks_fn]
 
-    header = `head -1 #{main_peak_fn}`.chomp
-    system("echo '#{header}' '\t' supporting_peakcallers  > #{confirmed_peaks_fn}")
-    system("./bedtools intersect -loj -a #{main_peak_fn} -b #{supporting_intervals_file.path} | sort -k1,9 | ./bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct | awk -F '\t' -e '$10 != \".\"' | sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/' >> #{confirmed_peaks_fn}")
-    supporting_intervals_file.unlink
+      supporting_intervals_file = Tempfile.new( transformation[:tempfile_fn] ).tap(&:close)
+      store_table(supporting_intervals_file.path, transformation[:supporting_intervals])
+      # make_merged_intervals(supporting_intervals_file.path, transformation[:supporting_intervals])
+
+      header = `head -1 #{main_peaks_fn}`.chomp
+      system("echo '#{header}' '\t' supporting_peakcallers  > #{resulting_peaks_fn}")
+      cmd = [
+        "./bedtools intersect -loj -a #{main_peaks_fn} -b #{supporting_intervals_file.path}",
+        "sort -k1,9",
+        "./bedtools groupby -g 1,2,3,4,5,6,7,8,9 -c 13 -o distinct",
+        "awk -F '\t' -e '$10 != \".\"'",
+        "sed -re 's/^([0-9]+|[XYM])\\t/chr\\1\\t/'",
+      ].join(" | ")
+      system("#{cmd} >> #{resulting_peaks_fn}")
+      supporting_intervals_file.unlink
+    }
   end
 
   def peak_fn_for_peakcaller(peak_caller, source_folder)
