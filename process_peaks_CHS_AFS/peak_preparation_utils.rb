@@ -1,5 +1,6 @@
 require 'tempfile'
 require 'fileutils'
+require 'shellwords'
 
 def make_merged_intervals(filename, intervals)
   intervals_unsorted = Tempfile.new("intervals_unsorted.bed").tap(&:close)
@@ -23,31 +24,37 @@ def cleanup_bad_datasets!(tf_info, results_folder, min_peaks: 50)
   end
 end
 
-def split_train_val!(tf_info, results_folder)
-  return  unless File.exist?( tf_info[:best_peak].confirmed_peaks_fn )
-
-  best_peak_file = Tempfile.new("#{tf_info[:best_peak].basename}.interval").tap(&:close)
-  FileUtils.cp(tf_info[:best_peak].confirmed_peaks_fn, best_peak_file.path)
+def split_train_val_transformations(tf_info, results_folder)
+  result = []
+  return  result  unless File.exist?( tf_info[:best_peak].confirmed_peaks_fn )
 
   # train & basic validation
-  train_fn = "#{results_folder}/Train_intervals/#{tf_info[:best_peak].basename}.train.interval"
-  validation_fn = "#{results_folder}/Val_intervals/#{tf_info[:best_peak].basename}.basic_val.interval"
-  system "ruby #{__dir__}/split_train_val.rb #{best_peak_file.path} #{train_fn} #{validation_fn}"
-  best_peak_file.unlink
-
+  best_peak_info = tf_info[:best_peak]
+  results << {
+    original_fn: best_peak_info.confirmed_peaks_fn,
+    train_fn: "#{results_folder}/Train_intervals/#{best_peak_info.basename}.train.interval"
+    validation_fn: "#{results_folder}/Val_intervals/#{best_peak_info.basename}.basic_val.interval"
+  }
 
   sorted_rest_peaks_infos = tf_info[:rest_peaks].sort_by{|peak_info|
     num_rows(peak_info.confirmed_peaks_fn, has_header: true)
   }.reverse
 
   sorted_rest_peaks_infos.each_with_index{|peak_info, idx|
-    rest_peak_file = Tempfile.new("#{peak_info.basename}.interval").tap(&:close)
-    FileUtils.cp(peak_info.confirmed_peaks_fn, rest_peak_file.path)
+    results << {
+      original_fn: peak_info.confirmed_peaks_fn,
+      train_fn: nil,
+      validation_fn: "#{results_folder}/Val_intervals/#{peak_info.basename}.advanced_val_#{idx + 1}.interval"
+    }
+  }
+end
 
-    train_fn = '/dev/null'
-    validation_fn = "#{results_folder}/Val_intervals/#{peak_info.basename}.advanced_val_#{idx + 1}.interval"
-    system "ruby #{__dir__}/split_train_val.rb #{rest_peak_file.path} #{train_fn} #{validation_fn}"
-    rest_peak_file.unlink
+def split_train_val!(tf_info, results_folder)
+  split_train_val_transformations(tf_info, results_folder).each{|transformation|
+    original_fn = transformation[:original_fn]
+    train_fn = transformation[:train_fn] || '/dev/null'
+    validation_fn = transformation[:validation_fn] || '/dev/null'
+    system "ruby #{__dir__}/split_train_val.rb #{original_fn.shellescape} #{train_fn.shellescape} #{validation_fn.shellescape}"
   }
 end
 
