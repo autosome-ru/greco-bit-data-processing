@@ -32,8 +32,8 @@ def split_train_val_transformations(tf_info, results_folder)
   best_peak_info = tf_info[:best_peak]
   results << {
     original_fn: best_peak_info.confirmed_peaks_fn,
-    train_fn: "#{results_folder}/Train_intervals/#{best_peak_info.basename}.train.interval"
-    validation_fn: "#{results_folder}/Val_intervals/#{best_peak_info.basename}.basic_val.interval"
+    train_fn: "#{results_folder}/Train_intervals/#{best_peak_info.basename}.train.interval",
+    validation_fn: "#{results_folder}/Val_intervals/#{best_peak_info.basename}.basic_val.interval",
   }
 
   sorted_rest_peaks_infos = tf_info[:rest_peaks].sort_by{|peak_info|
@@ -44,7 +44,7 @@ def split_train_val_transformations(tf_info, results_folder)
     results << {
       original_fn: peak_info.confirmed_peaks_fn,
       train_fn: nil,
-      validation_fn: "#{results_folder}/Val_intervals/#{peak_info.basename}.advanced_val_#{idx + 1}.interval"
+      validation_fn: "#{results_folder}/Val_intervals/#{peak_info.basename}.advanced_val_#{idx + 1}.interval",
     }
   }
 end
