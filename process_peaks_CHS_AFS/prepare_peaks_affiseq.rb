@@ -50,8 +50,8 @@ tf_infos = experiment_infos.group_by{|info| info.tf }.map{|tf, tf_group|
   {tf: tf, best_peak: tf_group.max_by(&:num_confirmed_peaks), rest_peaks: []}
 }
 
-tf_infos.each{|tf_info| split_train_val!(tf_info) }
-tf_infos.each{|tf_info| cleanup_bad_datasets!(tf_info, min_peaks: 50) }
+tf_infos.each{|tf_info| split_train_val!(tf_info, RESULTS_FOLDER) }
+tf_infos.each{|tf_info| cleanup_bad_datasets!(tf_info, RESULTS_FOLDER, min_peaks: 50) }
 store_confirmed_peak_stats(
   tf_infos,
   "#{RESULTS_FOLDER}/complete_data_stats.tsv",
@@ -59,7 +59,7 @@ store_confirmed_peak_stats(
   peak_callers: PEAK_CALLERS,
 )
 store_train_val_stats(
-  tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id,
+  tf_infos, "#{RESULTS_FOLDER}/train_val_peaks_stats.tsv", experiment_by_peak_id, RESULTS_FOLDER,
   get_peak_id: ->(fn){ ExperimentInfoAFS.peak_id_from_basename(File.basename(fn, '.interval')) }
 )
 

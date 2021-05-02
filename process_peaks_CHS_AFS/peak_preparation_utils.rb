@@ -8,11 +8,11 @@ def make_merged_intervals(filename, intervals)
   intervals_unsorted.unlink
 end
 
-def cleanup_bad_datasets!(tf_info, min_peaks: 50)
+def cleanup_bad_datasets!(tf_info, results_folder, min_peaks: 50)
   tf = tf_info[:tf]
-  train_fns = Dir.glob("#{RESULTS_FOLDER}/Train_intervals/#{tf}.*.train.interval")
-  basic_validation_fns = Dir.glob("#{RESULTS_FOLDER}/Val_intervals/#{tf}.*.basic_val.interval")
-  advanced_validation_fns = Dir.glob("#{RESULTS_FOLDER}/Val_intervals/#{tf}.*.advanced_val_*.interval")
+  train_fns = Dir.glob("#{results_folder}/Train_intervals/#{tf}.*.train.interval")
+  basic_validation_fns = Dir.glob("#{results_folder}/Val_intervals/#{tf}.*.basic_val.interval")
+  advanced_validation_fns = Dir.glob("#{results_folder}/Val_intervals/#{tf}.*.advanced_val_*.interval")
 
   train_ok = (train_fns.size == 1) && (num_rows(train_fns.first, has_header: true) >= min_peaks)
   basic_validation_ok = (basic_validation_fns.size == 1) && (num_rows(basic_validation_fns.first, has_header: true) >= min_peaks)
@@ -23,15 +23,15 @@ def cleanup_bad_datasets!(tf_info, min_peaks: 50)
   end
 end
 
-def split_train_val!(tf_info)
+def split_train_val!(tf_info, results_folder)
   return  unless File.exist?( tf_info[:best_peak].confirmed_peaks_fn )
 
   best_peak_file = Tempfile.new("#{tf_info[:best_peak].basename}.interval").tap(&:close)
   FileUtils.cp(tf_info[:best_peak].confirmed_peaks_fn, best_peak_file.path)
 
   # train & basic validation
-  train_fn = "#{RESULTS_FOLDER}/Train_intervals/#{tf_info[:best_peak].basename}.train.interval"
-  validation_fn = "#{RESULTS_FOLDER}/Val_intervals/#{tf_info[:best_peak].basename}.basic_val.interval"
+  train_fn = "#{results_folder}/Train_intervals/#{tf_info[:best_peak].basename}.train.interval"
+  validation_fn = "#{results_folder}/Val_intervals/#{tf_info[:best_peak].basename}.basic_val.interval"
   system "ruby #{__dir__}/split_train_val.rb #{best_peak_file.path} #{train_fn} #{validation_fn}"
   best_peak_file.unlink
 
@@ -45,7 +45,7 @@ def split_train_val!(tf_info)
     FileUtils.cp(peak_info.confirmed_peaks_fn, rest_peak_file.path)
 
     train_fn = '/dev/null'
-    validation_fn = "#{RESULTS_FOLDER}/Val_intervals/#{peak_info.basename}.advanced_val_#{idx + 1}.interval"
+    validation_fn = "#{results_folder}/Val_intervals/#{peak_info.basename}.advanced_val_#{idx + 1}.interval"
     system "ruby #{__dir__}/split_train_val.rb #{rest_peak_file.path} #{train_fn} #{validation_fn}"
     rest_peak_file.unlink
   }
@@ -87,28 +87,28 @@ def store_confirmed_peak_stats(tf_infos, filename, source_folder:, peak_callers:
 end
 
 # get_peak_id: ->(fn){ ... }
-def store_train_val_stats(tf_infos, filename, experiment_by_peak_id, get_peak_id:)
+def store_train_val_stats(tf_infos, filename, experiment_by_peak_id, results_folder, get_peak_id:)
   File.open(filename, 'w') {|fw|
     header = ['peak_id', 'tf', 'type', 'train/validation_intervals', 'num_peaks', 'filename', 'raw_datasets', 'raw_files']
     fw.puts(header.join("\t"))
     tf_infos.each{|tf_info|
       # peak_info = tf_info[:best_peak]
       tf = tf_info[:tf]
-      Dir.glob("#{RESULTS_FOLDER}/Train_intervals/#{tf}.*.train.interval").each{|train_fn|
+      Dir.glob("#{results_folder}/Train_intervals/#{tf}.*.train.interval").each{|train_fn|
         train_peak_id = get_peak_id.call(train_fn)
         peak_info = experiment_by_peak_id[train_peak_id]
         row = [train_peak_id, tf, peak_info.type, 'train', num_rows(train_fn, has_header: true), train_fn, peak_info.raw_datasets, peak_info.raw_files]
         fw.puts(row.join("\t"))
       }
 
-      Dir.glob("#{RESULTS_FOLDER}/Val_intervals/#{tf}.*.basic_val.interval").each{|basic_validation_fn|
+      Dir.glob("#{results_folder}/Val_intervals/#{tf}.*.basic_val.interval").each{|basic_validation_fn|
         validation_peak_id = get_peak_id.call(basic_validation_fn)
         peak_info = experiment_by_peak_id[validation_peak_id]
         row = [validation_peak_id, tf, peak_info.type, 'basic_validation', num_rows(basic_validation_fn, has_header: true), basic_validation_fn, peak_info.raw_datasets, peak_info.raw_files]
         fw.puts(row.join("\t"))
       }
 
-      Dir.glob("#{RESULTS_FOLDER}/Val_intervals/#{tf}.*.advanced_val_*.interval").each{|advanced_validation_fn|
+      Dir.glob("#{results_folder}/Val_intervals/#{tf}.*.advanced_val_*.interval").each{|advanced_validation_fn|
         validation_peak_id = get_peak_id.call(advanced_validation_fn)
         peak_info = experiment_by_peak_id[validation_peak_id]
         row = [validation_peak_id, tf, peak_info.type, 'advanced_validation', num_rows(advanced_validation_fn, has_header: true), advanced_validation_fn, peak_info.raw_datasets, peak_info.raw_files]
