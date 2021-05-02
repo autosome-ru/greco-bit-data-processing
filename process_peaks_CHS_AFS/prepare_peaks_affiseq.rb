@@ -20,6 +20,10 @@ SOURCE_FOLDER = ARGV[0] # 'source_data/affiseq'
 RESULTS_FOLDER = ARGV[1] # 'results/affiseq_Lysate'
 
 experiment_infos = ExperimentInfoAFS.each_from_file("#{__dir__}/../source_data_meta/AFS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+experiment_infos.each{|info|
+  info.confirmed_peaks_folder = "#{RESULTS_FOLDER}/complete_data"
+}
+
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/complete_data")
 
 experiment_infos.select!{|info| info.type == experiment_type }  if experiment_type

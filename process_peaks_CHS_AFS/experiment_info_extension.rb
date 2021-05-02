@@ -6,8 +6,12 @@ module ExperimentInfoExtension
     }.detect{|fn| File.exist?(fn) }
   end
 
+  def basename; raise NotImplementedError; end
+  def confirmed_peaks_folder; @confirmed_peaks_folder || raise("No value specified"); end
+  attr_writer :confirmed_peaks_folder
+
   def confirmed_peaks_fn
-    "#{RESULTS_FOLDER}/complete_data/#{basename}.interval"
+    "#{confirmed_peaks_folder}/#{basename}.interval"
   end
 
   def num_peaks_for_peakcaller(peak_caller, source_folder)

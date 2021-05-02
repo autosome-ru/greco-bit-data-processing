@@ -15,9 +15,11 @@ RESULTS_FOLDER = ARGV[1] # 'results/chipseq'
 
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/complete_data")
 
-experiment_infos = ExperimentInfoCHS.each_from_file("#{__dir__}/../source_data_meta/CHS/metrics_by_exp.tsv").reject{|info|
-  info.type == 'control'
-}.to_a
+experiment_infos = ExperimentInfoCHS.each_from_file("#{__dir__}/../source_data_meta/CHS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+experiment_infos.each{|info|
+  info.confirmed_peaks_folder = "#{RESULTS_FOLDER}/complete_data"
+}
+
 tfs_at_start = experiment_infos.map(&:tf).uniq
 
 raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
