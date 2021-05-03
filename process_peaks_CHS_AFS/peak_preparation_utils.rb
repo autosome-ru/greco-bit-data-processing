@@ -26,7 +26,7 @@ end
 
 def split_train_val_transformations(tf_info, results_folder)
   results = []
-  return  result  unless File.exist?( tf_info[:best_peak].confirmed_peaks_fn )
+  return  results  unless File.exist?( tf_info[:best_peak].confirmed_peaks_fn )
 
   # train & basic validation
   best_peak_info = tf_info[:best_peak]
