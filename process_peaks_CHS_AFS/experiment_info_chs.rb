@@ -20,19 +20,19 @@ ExperimentInfoCHS = Struct.new(
     qc_estFragLen, qc_FRiP_MACS2_NOMODEL, qc_FRiP_MACS2_PEMODE, qc_FRiP_SISSRS, qc_NRF, qc_NSC, qc_PBC1, qc_PBC2, qc_RSC,
       peak_count_macs2_nomodel, peak_count_macs2_pemode, align_count, align_percent = *metrics
 
-    qc_estFragLen = Integer(qc_estFragLen),
-    qc_FRiP_MACS2_NOMODEL = qc_FRiP_MACS2_NOMODEL.yield_self{|v| Float(v) rescue v },
-    qc_FRiP_MACS2_PEMODE = qc_FRiP_MACS2_PEMODE.yield_self{|v| Float(v) rescue v },
-    qc_FRiP_SISSRS = qc_FRiP_SISSRS.yield_self{|v| Float(v) rescue v },
-    qc_NRF = Float(qc_NRF),
-    qc_NSC = Float(qc_NSC),
-    qc_PBC1 = Float(qc_PBC1),
-    qc_PBC2 = Float(qc_PBC2),
-    qc_RSC = Float(qc_RSC),
-    peak_count_macs2_nomodel = peak_count_macs2_nomodel.yield_self{|v| Integer(v) rescue v },
-    peak_count_macs2_pemode = peak_count_macs2_pemode.yield_self{|v| Integer(v) rescue v },
-    align_count = align_count.yield_self{|v| Integer(v) rescue v },
-    align_percent = Float(align_percent),
+    qc_estFragLen = Integer(qc_estFragLen)
+    qc_FRiP_MACS2_NOMODEL = qc_FRiP_MACS2_NOMODEL.yield_self{|v| Float(v) rescue v }
+    qc_FRiP_MACS2_PEMODE = qc_FRiP_MACS2_PEMODE.yield_self{|v| Float(v) rescue v }
+    qc_FRiP_SISSRS = qc_FRiP_SISSRS.yield_self{|v| Float(v) rescue v }
+    qc_NRF = Float(qc_NRF)
+    qc_NSC = Float(qc_NSC)
+    qc_PBC1 = Float(qc_PBC1)
+    qc_PBC2 = Float(qc_PBC2)
+    qc_RSC = Float(qc_RSC)
+    peak_count_macs2_nomodel = peak_count_macs2_nomodel.yield_self{|v| Integer(v) rescue v }
+    peak_count_macs2_pemode = peak_count_macs2_pemode.yield_self{|v| Integer(v) rescue v }
+    align_count = align_count.yield_self{|v| Integer(v) rescue v }
+    align_percent = Float(align_percent)
 
     plate_ids = raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq
     if plate_ids.size == 1
