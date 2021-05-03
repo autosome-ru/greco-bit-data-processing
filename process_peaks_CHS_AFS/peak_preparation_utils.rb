@@ -25,7 +25,7 @@ def cleanup_bad_datasets!(tf_info, results_folder, min_peaks: 50)
 end
 
 def split_train_val_transformations(tf_info, results_folder)
-  result = []
+  results = []
   return  result  unless File.exist?( tf_info[:best_peak].confirmed_peaks_fn )
 
   # train & basic validation
@@ -47,6 +47,7 @@ def split_train_val_transformations(tf_info, results_folder)
       validation_fn: "#{results_folder}/Val_intervals/#{peak_info.basename}.advanced_val_#{idx + 1}.interval",
     }
   }
+  results
 end
 
 def split_train_val!(tf_info, results_folder)
