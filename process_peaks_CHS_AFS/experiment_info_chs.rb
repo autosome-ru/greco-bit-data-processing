@@ -1,16 +1,39 @@
 require_relative 'utils'
 require_relative 'experiment_info_extension'
 
-ExperimentInfoCHS = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :peaks, :type, :plate_id) do
+ExperimentInfoCHS = Struct.new(
+  :experiment_id, :peak_id, :tf, :raw_files, :peaks, :type, :plate_id,
+  :qc_estFragLen, :qc_FRiP_MACS2_NOMODEL, :qc_FRiP_MACS2_PEMODE, :qc_FRiP_SISSRS, :qc_NRF, :qc_NSC, :qc_PBC1, :qc_PBC2, :qc_RSC,
+  :peak_count_macs2_nomodel, :peak_count_macs2_pemode, :align_count, :align_percent,
+) do
   include ExperimentInfoExtension
 
   def self.from_string(str)
-    row = str.chomp.split("\t")
+    row = str.chomp.split("\t", 17)
+    raise  unless row.size == 17
 
     experiment_id = row[0]
     tf = row[1]
     raw_files = row[2]
     peaks = row[3].split(';')
+    metrics = row[4..-1].map{|x| x && x.sub(",", ".").gsub("\u00a0", "") } # \u+00a0 -- nbsp
+    qc_estFragLen, qc_FRiP_MACS2_NOMODEL, qc_FRiP_MACS2_PEMODE, qc_FRiP_SISSRS, qc_NRF, qc_NSC, qc_PBC1, qc_PBC2, qc_RSC,
+      peak_count_macs2_nomodel, peak_count_macs2_pemode, align_count, align_percent = *metrics
+
+    qc_estFragLen = Integer(qc_estFragLen),
+    qc_FRiP_MACS2_NOMODEL = qc_FRiP_MACS2_NOMODEL.yield_self{|v| Float(v) rescue v },
+    qc_FRiP_MACS2_PEMODE = qc_FRiP_MACS2_PEMODE.yield_self{|v| Float(v) rescue v },
+    qc_FRiP_SISSRS = qc_FRiP_SISSRS.yield_self{|v| Float(v) rescue v },
+    qc_NRF = Float(qc_NRF),
+    qc_NSC = Float(qc_NSC),
+    qc_PBC1 = Float(qc_PBC1),
+    qc_PBC2 = Float(qc_PBC2),
+    qc_RSC = Float(qc_RSC),
+    peak_count_macs2_nomodel = peak_count_macs2_nomodel.yield_self{|v| Integer(v) rescue v },
+    peak_count_macs2_pemode = peak_count_macs2_pemode.yield_self{|v| Integer(v) rescue v },
+    align_count = align_count.yield_self{|v| Integer(v) rescue v },
+    align_percent = Float(align_percent),
+
     plate_ids = raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq
     if plate_ids.size == 1
       plate_id = plate_ids[0]
@@ -39,7 +62,11 @@ ExperimentInfoCHS = Struct.new(:experiment_id, :peak_id, :tf, :raw_files, :peaks
       end
     end
 
-    self.new(experiment_id, peak_id, tf, raw_files, peaks, type, plate_id)
+    self.new(
+      experiment_id, peak_id, tf, raw_files, peaks, type, plate_id,
+      qc_estFragLen, qc_FRiP_MACS2_NOMODEL, qc_FRiP_MACS2_PEMODE, qc_FRiP_SISSRS, qc_NRF, qc_NSC, qc_PBC1, qc_PBC2, qc_RSC,
+      peak_count_macs2_nomodel, peak_count_macs2_pemode, align_count, align_percent
+    )
   end
 
   # GLI4.Plate_2_G12_S191.PEAKS991005
