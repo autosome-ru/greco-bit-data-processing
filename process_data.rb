@@ -8,7 +8,7 @@ require_relative 'shared/lib/match_metadata'
 def process_sms_unpublished!
   $stderr.puts "Process unpublished SMiLE-seq data"
 
-  metadata_fn = "source_data_meta/SMS/unpublished/SMiLE_seq_metadata_temp_17DEC2020_newData.tsv"
+  metadata_fn = "source_data_meta/SMS/unpublished/SMS.tsv"
   barcodes_fn = "source_data_meta/SMS/unpublished/smileseq_barcode_file.txt"
   samples_glob = "source_data/SMS/reads/unpublished/*.fastq"
   results_folder = "source_data_prepared/SMS/reads/"
@@ -18,8 +18,10 @@ def process_sms_unpublished!
 
   samples = Dir.glob(samples_glob).map{|fn| SMSUnpublished::Sample.from_filename(fn) }
   metadata = SMSUnpublished::SampleMetadata.each_in_file(metadata_fn).to_a
+
+  # first key to be transformed: "UT380-502-1" --> "UT380-502". Barcode and SSID help to distinguish samples
   sample_key = ->(sample){ [sample.experiment_id.split('-')[0,2].join('-'), sample.barcode_index, sample.sequencing_id] }
-  meta_key = ->(meta){ [meta.experiment_id, meta.barcode_index, meta.ssid] }
+  meta_key = ->(meta){ [meta.experiment_id.split('-')[0,2].join('-'), meta.barcode_index, meta.ssid] }
   samples = unique_samples_by(samples, &sample_key)
   metadata = unique_metadata_by(metadata, &meta_key)
   sample_triples = left_join_by(samples, metadata,
