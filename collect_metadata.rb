@@ -5,6 +5,8 @@ require_relative 'shared/lib/plasmid_metadata'
 require_relative 'shared/lib/random_names'
 require_relative 'process_PBM/pbm_metadata'
 require_relative 'process_reads_HTS_SMS_AFS/hts'
+require_relative 'process_reads_HTS_SMS_AFS/sms_published'
+require_relative 'process_reads_HTS_SMS_AFS/sms_unpublished'
 require_relative 'process_peaks_CHS_AFS/chipseq_metadata'
 require_relative 'process_peaks_CHS_AFS/experiment_info_chs'
 
@@ -36,8 +38,10 @@ module DatasetNameParser
       dataset_info = self.parse(dataset_fn)
       experiment_id = dataset_info[:experiment_id]
       experiment_meta = metadata_by_experiment_id[ experiment_id ].to_h
-      plasmid = $plasmid_by_number[ experiment_meta[:plasmid_id] ].to_h
-      experiment_meta[:plasmid] = plasmid
+      if experiment_meta.has_key?(:plasmid_id)
+        plasmid = $plasmid_by_number[ experiment_meta[:plasmid_id] ].to_h
+        experiment_meta[:plasmid] = plasmid
+      end
       dataset_info[:experiment_meta] = experiment_meta
       dataset_info
     end
@@ -80,6 +84,20 @@ module DatasetNameParser
       result
     end
   end
+
+  class SMSParser < BaseParser
+    # {tf}.{construct_type}@SMS@{experiment_id}@{processing_type}.{uuid}.{slice_type}.{extension}
+    # AHCTF1.DBD@SMS@UT380-009.5TAAGAGACAGCGTATGAATC.3CTGTCTCTTATACACATCTC@Reads.wiggy-alizarin-albatross.Train.fastq.gz
+    def parse(fn)
+      result = super(fn)
+      exp_params = result[:experiment_params]
+      result[:experiment_params] = {
+        flank_5: exp_params.grep(/^5/).take_the_only[1..-1],
+        flank_3: exp_params.grep(/^3/).take_the_only[1..-1],
+      }
+      result
+    end
+  end
 end
 
 def collect_pbm_metadata(data_folder:, source_folder:)
@@ -115,6 +133,53 @@ def collect_hts_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
     cycle = dataset_info[:experiment_params][:cycle]
     ds_basename = dataset_info[:experiment_meta][:"cycle_#{cycle}_filename"]
     ds_filename = File.absolute_path("#{source_folder}/#{ds_basename}")
+    if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
+      raise "Missing file #{ds_filename} for #{dataset_fn}"
+    end
+    dataset_info[:source_files] = [ds_filename]
+    dataset_info
+  }
+end
+
+def collect_sms_published_metadata(data_folder:, source_folder:, allow_broken_symlinks: false)
+  parser = DatasetNameParser::SMSParser.new
+  metadata = SMSPublished::SampleMetadata.each_in_file('source_data_meta/SMS/published/SMS_published.tsv').to_a
+  metadata_by_experiment_id = metadata.index_by(&:experiment_id)
+
+  dataset_files = ['Train', 'Val'].flat_map{|slice_type|
+    Dir.glob("#{data_folder}/#{slice_type}_reads/*")
+  }
+  dataset_files.map{|dataset_fn|
+    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
+    # ds_basename = dataset_info[:experiment_meta][:"cycle_#{cycle}_filename"]
+    ds_filename = Dir.glob("#{source_folder}/#{dataset_info[:experiment_id]}_*").take_the_only
+    ds_filename = File.absolute_path(ds_filename)
+    if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
+      raise "Missing file #{ds_filename} for #{dataset_fn}"
+    end
+    dataset_info[:source_files] = [ds_filename]
+    dataset_info
+  }
+end
+
+def collect_sms_unpublished_metadata(data_folder:, source_folder:, allow_broken_symlinks: false)
+  parser = DatasetNameParser::SMSParser.new
+  metadata = SMSUnpublished::SampleMetadata.each_in_file('source_data_meta/SMS/unpublished/SMS.tsv').to_a
+  metadata_by_experiment_id = metadata.index_by(&:experiment_id)
+
+  dataset_files = ['Train', 'Val'].flat_map{|slice_type|
+    Dir.glob("#{data_folder}/#{slice_type}_reads/*")
+  }
+  dataset_files.map{|dataset_fn|
+    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
+    exp_id = dataset_info[:experiment_id].split('-')[0,2].join('-')
+    experiment_meta = dataset_info[:experiment_meta]
+    ssid = experiment_meta[:ssid]
+    barcode = experiment_meta[:barcode_index]
+    barcode = "BC%02d" % barcode.match(/^BC(?<number>\d+)$/)[:number]
+    # p "#{source_folder}/#{exp_id}_*_#{ssid}_#{barcode}.fastq"
+    ds_filename = Dir.glob("#{source_folder}/#{exp_id}_*_#{ssid}_#{barcode}.fastq").take_the_only
+    ds_filename = File.absolute_path(ds_filename)
     if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
@@ -172,12 +237,23 @@ hts_metadata_list = collect_hts_metadata(
 
 chs_metadata_list = collect_chs_metadata(
   data_folder: "#{RELEASE_FOLDER}/CHS/",
-  source_folder: "#{SOURCE_FOLDER}/CHS/.../",
+  source_folder: "#{SOURCE_FOLDER}/CHS/",
   allow_broken_symlinks: true
 )
 
+sms_published_metadata_list = collect_sms_published_metadata(
+  data_folder: "#{RELEASE_FOLDER}/SMS.published/",
+  source_folder: "#{SOURCE_FOLDER}/SMS/reads/published",
+  allow_broken_symlinks: true
+)
 
-metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list
+sms_unpublished_metadata_list = collect_sms_unpublished_metadata(
+  data_folder: "#{RELEASE_FOLDER}/SMS/",
+  source_folder: "#{SOURCE_FOLDER}/SMS/reads/unpublished",
+  allow_broken_symlinks: true
+)
+
+metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list
 
 metadata_list.each{|metadata|
   puts metadata.to_json
