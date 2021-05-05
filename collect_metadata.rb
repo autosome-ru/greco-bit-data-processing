@@ -3,12 +3,14 @@ require_relative 'shared/lib/utils'
 require_relative 'shared/lib/index_by'
 require_relative 'shared/lib/plasmid_metadata'
 require_relative 'shared/lib/random_names'
+require_relative 'shared/lib/affiseq_metadata.rb'
 require_relative 'process_PBM/pbm_metadata'
 require_relative 'process_reads_HTS_SMS_AFS/hts'
 require_relative 'process_reads_HTS_SMS_AFS/sms_published'
 require_relative 'process_reads_HTS_SMS_AFS/sms_unpublished'
 require_relative 'process_peaks_CHS_AFS/chipseq_metadata'
 require_relative 'process_peaks_CHS_AFS/experiment_info_chs'
+require_relative 'process_peaks_CHS_AFS/experiment_info_afs'
 
 RELEASE_FOLDER = '/home_local/vorontsovie/greco-data/release_6.2021-02-13'
 SOURCE_FOLDER = '/home_local/vorontsovie/greco-bit-data-processing/source_data'
@@ -25,8 +27,8 @@ module DatasetNameParser
       processing_type, uuid, slice_type, extension = processing_type_uuid_etc.split('.')
       {
         dataset_name: bn,
-        dataset_id: uuid, 
-        tf: tf, construct_type: construct_type, 
+        dataset_id: uuid,
+        tf: tf, construct_type: construct_type,
         experiment_type: exp_type, experiment_subtype: exp_subtype,
         experiment_id: exp_id, experiment_params: exp_params,
         processing_type: processing_type,
@@ -61,22 +63,22 @@ module DatasetNameParser
   end
 
   class HTSParser < BaseParser
-    # {tf}.{construct_type}@HTS.{experiment_subtype}@{experiment_id}.C{cycle}.5{flank_5}.3{flank_3}@{processing_type}.{uuid}.{slice_type}.{extension}
+    # {tf}.{construct_type}@HTS.{experiment_subtype}@{experiment_id}.C{cycle}.5{flank_5}.3{flank_3}@Reads.{uuid}.{slice_type}.{extension}
     # ZNF770.FL@HTS.Lys@AAT_A_GG40NGTGAGA.C3.5ACGACGCTCTTCCGATCTGG.3GTGAGAAGATCGGAAGAGCA@Reads.freaky-cyan-buffalo.Train.fastq.gz
     def parse(fn)
       result = super(fn)
       exp_params = result[:experiment_params]
       result[:experiment_params] = {
+        cycle:   exp_params.grep(/^C\d$/).take_the_only[1..-1].yield_self{|x| Integer(x) },
         flank_5: exp_params.grep(/^5/).take_the_only[1..-1],
         flank_3: exp_params.grep(/^3/).take_the_only[1..-1],
-        cycle:   exp_params.grep(/^C\d$/).take_the_only[1..-1].yield_self{|x| Integer(x) },
       }
       result
     end
   end
 
   class CHSParser < BaseParser
-    # {tf}.{construct_type}@CHS.{experiment_subtype}@{experiment_id}@{processing_type}.{uuid}.{slice_type}.{extension}
+    # {tf}.{construct_type}@CHS@{experiment_id}@Peaks.{uuid}.{slice_type}.{extension}
     # C11orf95.FL@CHS@THC_0197@Peaks.sunny-celadon-boar.Train.peaks
     def parse(fn)
       result = super(fn)
@@ -86,7 +88,7 @@ module DatasetNameParser
   end
 
   class SMSParser < BaseParser
-    # {tf}.{construct_type}@SMS@{experiment_id}@{processing_type}.{uuid}.{slice_type}.{extension}
+    # {tf}.{construct_type}@SMS@{experiment_id}@Reads.{uuid}.{slice_type}.{extension}
     # AHCTF1.DBD@SMS@UT380-009.5TAAGAGACAGCGTATGAATC.3CTGTCTCTTATACACATCTC@Reads.wiggy-alizarin-albatross.Train.fastq.gz
     def parse(fn)
       result = super(fn)
@@ -94,6 +96,19 @@ module DatasetNameParser
       result[:experiment_params] = {
         flank_5: exp_params.grep(/^5/).take_the_only[1..-1],
         flank_3: exp_params.grep(/^3/).take_the_only[1..-1],
+      }
+      result
+    end
+  end
+
+  class AFSPeaksParser < BaseParser
+    # {tf}.{construct_type}@AFS.{experiment_subtype}@{experiment_id}@Peaks.{uuid}.{slice_type}.{extension}
+    # ZFP3.FL@AFS.Lys@AATA_AffSeq_E5_ZFP3.C3@Peaks.nerdy-razzmatazz-cichlid.Train.peaks
+    def parse(fn)
+      result = super(fn)
+      exp_params = result[:experiment_params]
+      result[:experiment_params] = {
+        cycle:   exp_params.grep(/^C\d$/).take_the_only[1..-1].yield_self{|x| Integer(x) },
       }
       result
     end
@@ -214,7 +229,45 @@ def collect_chs_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
     plate_id = dataset_info[:experiment_meta][:data_file_id]
     exp_info = experiment_by_plate_id[plate_id].to_h
     dataset_info[:source_files] = ((exp_info && exp_info[:raw_files]) || '').split(';')
-    dataset_info.merge({experiment_info: exp_info})
+    dataset_info[:experiment_info] = exp_info
+    dataset_info
+  }
+end
+
+def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlinks: false)
+  parser = DatasetNameParser::AFSPeaksParser.new
+  metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
+  metadata_by_experiment_id = metadata.index_by(&:experiment_id)
+
+  experiment_infos = ExperimentInfoAFS.each_from_file("source_data_meta/AFS/metrics_by_exp.tsv").reject{|info|
+    info.type == 'control'
+  }.to_a
+  experiment_infos.each{|info|
+    info.confirmed_peaks_folder = "./results_databox_afs_#{info.type}/complete_data"
+  }
+
+  # keys like ["GLI4", "Lys", "Cycle1"]
+  experiment_by_tf_and_cycle = experiment_infos.index_by{|exp|
+    [exp.tf, exp.type[0,3], exp.cycle_number]
+  }
+
+  # experiment_by_plate_id = experiment_infos.index_by{|info|
+  #   info.plate_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_\d_pf(\+\d_pf)?$/,"").sub(/_[ACGT]{6}$/, "")
+  # }
+  # raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
+  # experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
+
+
+  dataset_files = ['Train', 'Val'].product(['intervals', 'sequences']).flat_map{|slice_type, outcome|
+    Dir.glob("#{data_folder}/#{slice_type}_#{outcome}/*")
+  }
+  dataset_files.map{|dataset_fn|
+    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
+    exp_key = dataset_info.yield_self{|d| [d[:tf], d[:experiment_subtype], "Cycle#{d[:experiment_params][:cycle]}"] }
+    exp_info = experiment_by_tf_and_cycle[exp_key].to_h
+    dataset_info[:source_files] = ((exp_info && exp_info[:raw_files]) || '').split(';')
+    dataset_info[:experiment_info] = exp_info
+    dataset_info
   }
 end
 
@@ -224,7 +277,7 @@ $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
 pbm_metadata_list = ['SDQN', 'QNZS'].flat_map{|processing_type|
   collect_pbm_metadata(
-    data_folder: "#{RELEASE_FOLDER}/PBM.#{processing_type}/", 
+    data_folder: "#{RELEASE_FOLDER}/PBM.#{processing_type}/",
     source_folder: "#{SOURCE_FOLDER}/PBM/chips/"
   )
 }
@@ -252,6 +305,13 @@ sms_unpublished_metadata_list = collect_sms_unpublished_metadata(
   source_folder: "#{SOURCE_FOLDER}/SMS/reads/unpublished",
   allow_broken_symlinks: true
 )
+
+afs_peaks_metadata_list = collect_afs_peaks_metadata(
+  data_folder: "#{RELEASE_FOLDER}/AFS.Peaks",
+  source_folder: "#{SOURCE_FOLDER}/AFS",
+  allow_broken_symlinks: true
+)
+
 
 metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list
 
