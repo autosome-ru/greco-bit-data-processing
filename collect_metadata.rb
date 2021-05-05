@@ -2,8 +2,9 @@ require 'json'
 require_relative 'shared/lib/utils'
 require_relative 'shared/lib/index_by'
 require_relative 'shared/lib/plasmid_metadata'
+require_relative 'shared/lib/insert_metadata'
 require_relative 'shared/lib/random_names'
-require_relative 'shared/lib/affiseq_metadata.rb'
+require_relative 'shared/lib/affiseq_metadata'
 require_relative 'process_PBM/pbm_metadata'
 require_relative 'process_reads_HTS_SMS_AFS/hts'
 require_relative 'process_reads_HTS_SMS_AFS/sms_published'
@@ -41,7 +42,10 @@ module DatasetNameParser
       experiment_id = dataset_info[:experiment_id]
       experiment_meta = metadata_by_experiment_id[ experiment_id ].to_h
       if experiment_meta.has_key?(:plasmid_id)
-        plasmid = $plasmid_by_number[ experiment_meta[:plasmid_id] ].to_h
+        plasmid_id = experiment_meta[:plasmid_id]
+        plasmid = $plasmid_by_number[ plasmid_id ].to_h
+        insert = $insert_by_plasmid_id[ plasmid_id ]
+        plasmid[:insert] = insert.to_h
         experiment_meta[:plasmid] = plasmid
       end
       dataset_info[:experiment_meta] = experiment_meta
@@ -289,6 +293,12 @@ end
 plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
 $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
+insert_metadata = InsertMetadata.each_in_file('source_data_meta/shared/Inserts.tsv').to_a
+raise 'Non-unique plasmid ids for inserts'  if insert_metadata.map(&:plasmid_numbers).flatten.yield_self{|vs| vs.size != vs.uniq.size }
+$insert_by_plasmid_id = insert_metadata.flat_map{|insert|
+  insert.plasmid_numbers.map{|plasmid_id| [plasmid_id, insert] }
+}.to_h
+
 
 pbm_metadata_list = ['SDQN', 'QNZS'].flat_map{|processing_type|
   collect_pbm_metadata(
@@ -326,7 +336,6 @@ afs_peaks_metadata_list = collect_afs_peaks_metadata(
   source_folder: "#{SOURCE_FOLDER}/AFS",
   allow_broken_symlinks: true
 )
-
 
 metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list
 
