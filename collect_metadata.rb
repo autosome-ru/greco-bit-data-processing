@@ -101,6 +101,21 @@ module DatasetNameParser
     end
   end
 
+  class AFSReadsParser < BaseParser
+    # {tf}.{construct_type}@AFS.{experiment_subtype}@{experiment_id}@Reads.{uuid}.{slice_type}.{extension}
+    # GLI4.DBD@AFS.IVT@AATBA_AffSeq_A9_GLI4.C1.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Reads.greasy-lilac-clam.Train.fastq.gz
+    def parse(fn)
+      result = super(fn)
+      exp_params = result[:experiment_params]
+      result[:experiment_params] = {
+        cycle:   exp_params.grep(/^C\d$/).take_the_only[1..-1].yield_self{|x| Integer(x) },
+        flank_5: exp_params.grep(/^5/).take_the_only[1..-1],
+        flank_3: exp_params.grep(/^3/).take_the_only[1..-1],
+      }
+      result
+    end
+  end
+
   class AFSPeaksParser < BaseParser
     # {tf}.{construct_type}@AFS.{experiment_subtype}@{experiment_id}@Peaks.{uuid}.{slice_type}.{extension}
     # ZFP3.FL@AFS.Lys@AATA_AffSeq_E5_ZFP3.C3@Peaks.nerdy-razzmatazz-cichlid.Train.peaks
@@ -313,7 +328,7 @@ afs_peaks_metadata_list = collect_afs_peaks_metadata(
 )
 
 
-metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list
+metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list
 
 metadata_list.each{|metadata|
   puts metadata.to_json
