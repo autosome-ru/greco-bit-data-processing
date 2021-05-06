@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'erb'
 require_relative 'tree'
 
 module Enumerable
@@ -166,37 +165,6 @@ METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
   metric_names.map{|metric_name| [metric_name, metric_type] }
 }.to_h
 
-BASIC_RETAINED_METRICS = [
-  # CHS peak metrics
-  :chipseq_pwmeval_ROC, :chipseq_vigg_ROC, #:chipseq_vigg_logROC,
-  :chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt,
-
-  # AFS peak metrics
-  :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, #:affiseq_IVT_vigg_logROC,
-  :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, #:affiseq_Lysate_vigg_logROC,
-  :affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt,
-  :affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt,
-
-  # # AFS read metrics
-  :affiseq_10_IVT_ROC, :affiseq_10_Lysate_ROC,
-  :affiseq_50_IVT_ROC, :affiseq_50_Lysate_ROC,
-
-  # # HTS read metrics
-  :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
-  :selex_50_IVT_ROC, :selex_50_Lysate_ROC,
-
-  # # SMS read metrics
-  :smileseq_10_ROC, :smileseq_50_ROC,
-
-  # PBM metrics
-  # :pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_mers, :pbm_qnzs_logmers,
-  # :pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr, :pbm_sdqn_mers, :pbm_sdqn_logmers,
-  :pbm_qnzs_roc, :pbm_qnzs_pr,
-  :pbm_sdqn_roc, :pbm_sdqn_pr,
-]
-  # :combined, :affiseq_ROC, :selex_ROC, :pbm,
-  # :affiseq_IVT_pwmeval_ROC, :affiseq_Lysate_pwmeval_ROC, :selex_10_IVT_ROC, :selex_10_Lysate_ROC,
-
 METRIC_COMBINATIONS = {
   combined: {
     chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt],
@@ -358,76 +326,3 @@ winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_val
 }.to_h
 
 puts winning_tools
-
-##########################################################
-
-class MotifMetricsFormatterData
-  def initialize(metrics_order, motif_rankings); @metrics_order, @motif_rankings = metrics_order, motif_rankings; end
-  def get_binding; binding; end
-end
-
-class SingleMetricsFormatterData
-  def initialize(metric_name, rows); @metric_name, @rows = metric_name, rows; end
-  def get_binding; binding; end
-end
-
-##########################################################
-
-FileUtils.cp_r(File.absolute_path('websrc', __dir__), 'results/websrc')
-File.open('results/motif_metrics.html', 'w'){|fw|
-  template_fn = File.absolute_path('templates/motif_metrics.html.erb', __dir__)
-  renderer = ERB.new( File.read(template_fn) )
-  formatter_data = MotifMetricsFormatterData.new(metrics_order, motif_rankings)
-  fw.puts renderer.result(formatter_data.get_binding)
-}
-
-##########################################################
-
-FileUtils.mkdir_p "results/metrics_by_TF/"
-template_fn = File.absolute_path('templates/metrics_for_tf.html.erb', __dir__)
-renderer = ERB.new( File.read(template_fn) )
-motif_rankings.group_by{|tf,*rest| tf }.each do |tf, motif_rankings_part|
-  File.open("results/metrics_by_TF/#{tf}.html", 'w'){|fw|
-    formatter_data = MotifMetricsFormatterData.new(metrics_order, motif_rankings_part)
-    fw.puts renderer.result(formatter_data.get_binding)
-  }
-end
-
-##########################################################
-
-FileUtils.mkdir_p('results/metrics/')
-
-template_fn = File.absolute_path('templates/metrics_info.html.erb', __dir__)
-renderer = ERB.new( File.read(template_fn) )
-
-metrics_order.each{|metric_name|
-  motif_metrics_subset = all_metric_infos.select{|info| info[:metric_name] == metric_name }
-
-  rows = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
-    ranks[metric_name]
-  }.map{|tf, motif, overall_rank, ranks, motif_values|
-    motif_bn = File.basename(motif, File.extname(motif))
-    motif_metric_infos = motif_metrics_subset.select{|info| info[:motif] == motif }
-    if BASIC_RETAINED_METRICS.include?(metric_name)
-      vals = motif_metric_infos.map{|info| info[:value] }
-    else
-      if [:pbm, :pbm_sdqn, :pbm_qnzs].include?(metric_name)
-        vals_roc = motif_values.fetch("#{metric_name}_roc".to_sym).compact
-        vals_pr = motif_values.fetch("#{metric_name}_pr".to_sym).compact
-        vals_summary = "ROC: #{basic_stats(vals_roc)}; PR: #{basic_stats(vals_pr)}"
-      elsif metric_name == :combined
-        vals_summary = ''
-      else
-        vals = motif_values.fetch(metric_name).compact
-        vals_summary = basic_stats(vals)
-      end
-    end
-    row = [tf, overall_rank, ranks[metric_name].round(2), vals_summary, "<img src='../../logo/#{motif_bn}.png' />", motif]
-    row
-  }
-
-  File.open("results/metrics/#{metric_name}.html", 'w'){|fw|
-    formatter_data = SingleMetricsFormatterData.new(metric_name, rows)
-    fw.puts renderer.result(formatter_data.get_binding)
-  }
-}
