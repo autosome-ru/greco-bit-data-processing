@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'json'
 require_relative 'tree'
 
 module Enumerable
@@ -20,6 +21,11 @@ module Enumerable
     sorted_collection.each_with_index.map{|obj, idx|
       [(idx + start_with), obj]
     }
+  end
+
+  # analog for ruby 2.7+
+  def tally
+    self.each_with_object(Hash.new(0)){|v, hsh| hsh[v] += 1 }
   end
 end
 
@@ -46,6 +52,14 @@ def treat_status(status)
   else
     raise 'Unknown status'
   end
+end
+
+def experiment_id(dataset)
+  dataset.split('@')[2].split('.')[0]
+end
+
+def motif_tf(motif)
+  motif.split('@').first.split('.').first
 end
 
 def read_metrics(metrics_readers_configs)
@@ -101,7 +115,7 @@ end
 
 def get_motif_ranks(motif_infos, metric_combinations)
   basic_ranks = motif_infos.map{|info|
-    [info[:metric_name], info[:dataset_combined_rank]]
+    [info[:metric_name], info[:rank]]
   }.to_h
 
   ranks_tree = Node.construct_tree(metric_combinations)
@@ -114,8 +128,7 @@ def get_motif_ranks(motif_infos, metric_combinations)
       node.value = product_mean(children_ranks.compact)
     end
   end
-
-  ranks_tree.each_node.map{|node| [node.key, node.value] }.to_h
+  ranks_tree.each_node.reject(&:root?).map{|node| [node.key, node.value] }.to_h
 end
 
 def get_motif_values(motif_infos, metric_combinations)
@@ -197,6 +210,9 @@ METRIC_COMBINATIONS = {
   }
 }
 
+METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
+DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.reject(&:leaf?).map(&:key).reject(&:nil?)
+
 # tfs_curration = read_tfs_curration('source_data_meta/shared/curation_tfs_vigg.tsv')
 tfs_curration = {}
 
@@ -243,86 +259,100 @@ all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
   tfs_curration[tf][:verdicts][metric_type] rescue true
 }
 
-motif_metrics_combined = all_metric_infos.group_by{|info|
-  info[:tf]
-}.flat_map{|tf, tf_metrics|
-  tf_metrics.group_by{|info|
-   info[:metric_name]
-  }.flat_map{|metric_name, metric_infos|
-    motif_ranks = Hash.new{|h,k| h[k] = [] }
 
-    metric_infos.group_by{|info|
-      info[:dataset]
-    }.each{|dataset, infos|
-      infos.rank_by(order: :large_better, start_with: 1){|info| info[:value] }.each{|rank, info|
-        motif_ranks[ info[:motif] ] << {dataset: info[:dataset], rank: rank, value: info[:value]}
-      }
-    }
+# what is called a dataset here is actually a validation group
+ranked_motif_metrics = all_metric_infos.group_by{|info|
+  [info[:tf], info[:dataset], info[:metric_name]]
+}.flat_map{|(tf, dataset, metric_name), tf_metrics|
+  tf_metrics.rank_by(order: :large_better, start_with: 1){|info|
+    info[:value]
+  }.map{|rank, info|
+    info.merge(rank: rank)
+  }
+}
 
-    motif_ranks.map{|motif, rank_infos|
-      ranks = rank_infos.map{|rank_info| rank_info[:rank] }
-      [motif, rank_infos, product_mean(ranks)]
-    }.sort_by{|motif, rank_infos, agg_rank|
-      agg_rank
-    }.map{|motif, rank_infos, agg_rank|
-      rank_details = rank_infos.map{|info| "#{info[:dataset]}: #{info[:rank]}" }.join(', ')
-      {tf: tf, metric_name: metric_name, motif: motif, dataset_combined_rank: agg_rank, rank_details: rank_details, rank_infos: rank_infos}
+extended_motif_metrics = ranked_motif_metrics.group_by{|info|
+  info[:dataset] # validation group
+}.flat_map{|dataset, dataset_infos|
+  extended_infos = dataset_infos.group_by{|info|
+    info[:motif]
+  }.flat_map{|motif, motif_infos|
+    raise "Some metrics has several values for dataset #{dataset}"  unless motif_infos.map{|info| info[:metric_name] }.tally.all?{|k,v| v == 1 }
+    combination_pattern = {"val_group": METRIC_COMBINATIONS[:combined]}
+    combined_ranks = get_motif_ranks(motif_infos, combination_pattern).compact
+    {motif: motif, dataset: dataset, ranks: combined_ranks, metric_infos: motif_infos}
+  }
+
+  [*DERIVED_METRICS_ORDER, :val_group].each{|metric_name|
+    extended_infos.rank_by{|info|
+      info[:ranks][metric_name]
+    }.each{|rank, info|
+      info[:ranks][metric_name] = rank
     }
   }
+
+  extended_infos
+}
+
+exp_extended_motif_metrics = extended_motif_metrics.group_by{|info|
+  experiment_id(info[:dataset])
+}.flat_map{|exp_id, experiment_infos|
+  extended_infos = experiment_infos.group_by{|info|
+    info[:motif]
+  }.map{|motif, motif_infos|
+    val_group_ranks = motif_infos.map{|info| info[:ranks][:val_group] }
+    experimentwise_rank = product_mean(val_group_ranks)
+    
+    new_ranks = {experiment: experimentwise_rank}
+    motif_infos.each{|info|
+      # new_ranks = info[:ranks].map{|k,v| ["#{k}:#{info[:dataset]}", v] }.to_h
+      new_ranks[ info[:dataset] ] = info[:ranks]
+    }
+    
+    {motif: motif, experiment_id: exp_id, ranks: new_ranks}
+  }
+
+  [:experiment].each{|metric_name|
+    extended_infos.rank_by{|info|
+      info[:ranks][metric_name]
+    }.each{|rank, info|
+      info[:ranks][metric_name] = rank
+    }
+  }
+
+  extended_infos
+}
+
+
+fully_extended_motif_metrics = exp_extended_motif_metrics.group_by{|info|
+  motif_tf(info[:motif])
+}.flat_map{|tf, tf_infos|
+  extended_infos = tf_infos.group_by{|info|
+    info[:motif]
+  }.flat_map{|motif, motif_infos|
+    experiment_ranks = motif_infos.map{|info| info[:ranks][:experiment] }
+    combined_rank = product_mean(experiment_ranks)
+    
+    new_ranks = {combined: combined_rank}
+    motif_infos.each{|info|
+      # new_ranks = info[:ranks].map{|k,v| ["#{k}:#{info[:dataset]}", v] }.to_h
+      new_ranks[ info[:experiment_id] ] = info[:ranks]
+    }
+    
+    {motif: motif, ranks: new_ranks}
+  }
+
+  [:combined].each{|metric_name|
+    extended_infos.rank_by{|info|
+      info[:ranks][metric_name]
+    }.each{|rank, info|
+      info[:ranks][metric_name] = rank
+    }
+  }
+
+  extended_infos
 }
 
 FileUtils.mkdir_p('results')
-File.open('results/metrics.tsv', 'w') do |fw|
-  header = ['tf', 'metric', 'motif', 'dataset_combined_rank', 'rank_details']
-  column_order = [:tf, :metric_name, :motif, :dataset_combined_rank, :rank_details]
-  fw.puts header.join("\t")
-  motif_metrics_combined.each{|info|
-    row = info.values_at(*column_order)
-    fw.puts row.join("\t")
-  }
-end
-
-
-motif_centered_metrics = motif_metrics_combined.group_by{|info| info[:tf] }.flat_map{|tf, tf_infos|
-  tf_infos.group_by{|info| info[:motif] }.map{|motif, motif_infos|
-    motif_ranks = get_motif_ranks(motif_infos, METRIC_COMBINATIONS)
-    motif_values = get_motif_values(motif_infos, METRIC_COMBINATIONS)
-    [tf, motif, motif_ranks, motif_values]
-  }
-}
-
-motif_rankings = motif_centered_metrics.group_by{|tf, motif, motif_ranks, motif_values|
-  tf
-}.sort.flat_map{|tf, tf_metrics|
-  tf_metrics.rank_by(order: :small_better, start_with: 1){|tf, motif, motif_ranks, motif_values|
-    motif_ranks[:combined]
-  }.map{|overall_rank, (tf, motif, motif_ranks, motif_values)|
-    [tf, motif, overall_rank, motif_ranks, motif_values]
-  }
-}
-
-metrics_order = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
-
-File.open('results/motif_metrics.tsv', 'w'){|fw|
-  header = ['tf', 'motif', 'rank_overall', *metrics_order.map{|metric| "rank_#{metric}"} ]
-  fw.puts(header.join("\t"))
-
-  motif_rankings.each{|tf, motif, overall_rank, motif_ranks, motif_values|
-    row = [tf, motif, overall_rank, motif_ranks.values_at(*metrics_order).map{|x| x&.round(2) }]
-    fw.puts(row.join("\t"))
-  }
-}
-
-##########################################################
-
-winning_tools = motif_rankings.select{|tf, motif, overall_rank, ranks, motif_values|
-  overall_rank == 1
-}.map{|tf, motif, *rest|
-  motif.match(/\w+@\w+/)[0]
-}.each_with_object(Hash.new(0)){|tool, hsh|
-  hsh[tool] += 1
-}.sort_by{|k,v|
-  -v
-}.to_h
-
-puts winning_tools
+File.write('results/metrics.json', ranked_motif_metrics.to_json)
+File.write('results/ranks.json', fully_extended_motif_metrics.to_json)
