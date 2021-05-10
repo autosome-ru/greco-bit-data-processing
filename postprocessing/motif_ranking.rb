@@ -58,6 +58,14 @@ def experiment_id(dataset)
   dataset.split('@')[2].split('.')[0]
 end
 
+def experiment_fulltype(dataset) # PBM.HK, AFS.Lys etc
+  dataset.split('@')[1]
+end
+
+def experiment_processing_type(dataset) # Peaks
+  dataset.split('@')[3].split('.')[0]
+end
+
 def motif_tf(motif)
   motif.split('@').first.split('.').first
 end
@@ -71,8 +79,14 @@ def read_metrics(metrics_readers_configs)
       motif_tf = motif.split('.')[0]
       raise  unless dataset_tf == motif_tf
       tf = dataset_tf
+      # experiment_type = experiment_fulltype(dataset)
+      # experiment = experiment_id(dataset)
       values = values.map{|val| val && Float(val) }
-      {dataset: dataset, motif: motif, tf: tf, values: values, original_line: line, filename: File.basename(fn)}
+      {
+        dataset: dataset, motif: motif, tf: tf,
+        # experiment_type: experiment_type, experiment: experiment,
+        values: values, original_line: line, filename: File.basename(fn),
+      }
     }
 
     fn_parsers.flat_map{|metric_names, dataset_condition|
@@ -150,6 +164,75 @@ def get_motif_values(motif_infos, metric_combinations)
   values_tree.each_node.map{|node| [node.key, node.value] }.to_h
 end
 
+def make_metrics_hierarchy(infos, grouping_vars, &block)
+  if grouping_vars.empty?
+    block_given? ? infos.map(&block) : infos
+  else
+    grouping_var = grouping_vars[0]
+    infos.group_by{|info|
+      info[grouping_var]
+    }.transform_values{|infos_subgroup|
+      make_metrics_hierarchy(infos_subgroup, grouping_vars.drop(1), &block)
+    }
+  end
+end
+
+def take_ranks(hierarchy_of_ranked_metrics)
+  case hierarchy_of_ranked_metrics
+  when Array
+    # transform [ {:metric_name=>:pbm_qnzs_asis, :value=>0.14, :rank=>9}, {:metric_name=>:pbm_qnzs_log, :value=>0.5, :rank=>7}, ... ]
+    # into {pbm_qnzs_asis: 9, pbm_qnzs_log: 7, pbm_qnzs_roc: 9}
+    vals = hierarchy_of_ranked_metrics.map{|info| [info[:metric_name], info[:rank]] }
+    raise "Non-unique metric names `#{vals}`"  unless vals.map(&:first).yield_self{|ks| ks.size == ks.uniq.size }
+    vals.to_h
+  when Hash
+    # {tf_1 => ..., tf_2 => ...}  -->  {tf_1 => take_ranks(...), tf_2 => take_ranks(...) }
+    hierarchy_of_ranked_metrics.transform_values{|subhierarchy| take_ranks(subhierarchy) }
+  else
+    raise "Incorrect type"
+  end
+end
+
+# deepest first
+def all_paths_dfs(hierarchy, path: [], &block)
+  return enum_for(:all_paths_dfs, hierarchy, path: path)  unless block_given?
+  if hierarchy.is_a?(Hash)
+    hierarchy.each{|k, subhierarchy|
+      all_paths_dfs(subhierarchy, path: path + [k], &block)
+    }
+    yield({path: path, leaf: false})
+  else
+    yield({path: path, leaf: true})
+  end
+end
+
+# paths lying in any of motif hierarchies, from longest to shortest
+def possible_inner_paths(motif_ranks_hierarchies)
+  possible_paths = motif_ranks_hierarchies.flat_map{|motif, hierarchy|
+    all_paths_dfs(hierarchy).to_a
+  }.uniq
+
+  possible_paths.select{|path_info|
+    !path_info[:leaf]
+  }.map{|info| info[:path] }.sort_by(&:size).reverse
+end
+
+def combine_ranks(hierarchy_of_metrics, metric_path: nil)
+  ranks = hierarchy_of_metrics.reject{|k,v| k == :combined }.values.compact
+
+  if ranks.all?(Numeric)
+    # {:pbm_qnzs_asis=>97, :pbm_qnzs_log=>97,:pbm_qnzs_exp=>84, :pbm_qnzs_roc=>83, :pbm_qnzs_pr=>59}
+    hierarchy_of_metrics.merge(combined: product_mean(ranks))
+    # TODO:  rearrange !!!
+  else
+    # {tf_1 => {...}, tf_2 => {...}} or {"PBM.HK" => {...}, "AFS.Lys" => {...}} or {"QNZS" => {...}, "SDQN" => {...}} etc
+    # Smth like {tf_1 => {...}, tf_2 => {...}, combined: 42} is also accepted. In this case key `combined` will be recalculated
+    augmented_hierarchy_of_metrics = hierarchy_of_metrics.transform_values{|subhierarchy| combine_ranks(subhierarchy) }
+    ranks = augmented_hierarchy_of_metrics.map{|_, subhierarchy| subhierarchy[:combined] }.compact
+    augmented_hierarchy_of_metrics.merge({combined: product_mean(ranks)})
+  end
+end
+
 ## pbm_roclog and pbm_prlog are roughly equivalent to pbm_roc and pbm_log
 METRIC_NAMES_BY_TYPE = {
   chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC], #, :chipseq_vigg_logROC],
@@ -181,20 +264,16 @@ METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
 METRIC_COMBINATIONS = {
   combined: {
     chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt],
-    affiseq: {
-      affiseq_IVT: {
-        affiseq_IVT_peaks: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt],
-        affiseq_IVT_reads: [:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC],
-      },
-      affiseq_Lysate: {
-        affiseq_Lysate_peaks: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt],
-        affiseq_Lysate_reads: [:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC],
-      },
+    affiseq_IVT: {
+      affiseq_IVT_peaks: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt],
+      affiseq_IVT_reads: [:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC],
     },
-    selex: {
-      selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
-      selex_Lysate: [:selex_10_Lysate_ROC, :selex_50_Lysate_ROC],
+    affiseq_Lysate: {
+      affiseq_Lysate_peaks: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt],
+      affiseq_Lysate_reads: [:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC],
     },
+    selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
+    selex_Lysate: [:selex_10_Lysate_ROC, :selex_50_Lysate_ROC],
     pbm: {
       pbm_sdqn: [:pbm_sdqn_roc, :pbm_sdqn_pr],
       pbm_qnzs: [:pbm_qnzs_roc, :pbm_qnzs_pr],
@@ -259,6 +338,15 @@ all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
   tfs_curration[tf][:verdicts][metric_type] rescue true
 }
 
+all_metric_infos = all_metric_infos.map{|info|
+  dataset = info[:dataset]
+  additional_info = {
+    processing_type: experiment_processing_type(dataset),
+    experiment: experiment_id(dataset),
+    experiment_type: experiment_fulltype(dataset),
+  }
+  info.merge(additional_info)
+}
 
 # what is called a dataset here is actually a validation group
 ranked_motif_metrics = all_metric_infos.group_by{|info|
@@ -271,88 +359,46 @@ ranked_motif_metrics = all_metric_infos.group_by{|info|
   }
 }
 
-extended_motif_metrics = ranked_motif_metrics.group_by{|info|
-  info[:dataset] # validation group
-}.flat_map{|dataset, dataset_infos|
-  extended_infos = dataset_infos.group_by{|info|
-    info[:motif]
-  }.flat_map{|motif, motif_infos|
-    raise "Some metrics has several values for dataset #{dataset}"  unless motif_infos.map{|info| info[:metric_name] }.tally.all?{|k,v| v == 1 }
-    combination_pattern = {"val_group": METRIC_COMBINATIONS[:combined]}
-    combined_ranks = get_motif_ranks(motif_infos, combination_pattern).compact
-    {motif: motif, dataset: dataset, ranks: combined_ranks, metric_infos: motif_infos}
-  }
 
-  [*DERIVED_METRICS_ORDER, :val_group].each{|metric_name|
-    extended_infos.rank_by{|info|
-      info[:ranks][metric_name]
-    }.each{|rank, info|
-      info[:ranks][metric_name] = rank
-    }
-  }
-
-  extended_infos
+hierarchy_of_metrics = make_metrics_hierarchy(ranked_motif_metrics, [:tf, :motif, :experiment_type, :experiment, :dataset, :processing_type]){|info|
+  {metric_name: info[:metric_name], value: info[:value], rank: info[:rank]}
 }
 
-exp_extended_motif_metrics = extended_motif_metrics.group_by{|info|
-  experiment_id(info[:dataset])
-}.flat_map{|exp_id, experiment_infos|
-  extended_infos = experiment_infos.group_by{|info|
-    info[:motif]
-  }.map{|motif, motif_infos|
-    val_group_ranks = motif_infos.map{|info| info[:ranks][:val_group] }
-    experimentwise_rank = product_mean(val_group_ranks)
-    
-    new_ranks = {experiment: experimentwise_rank}
-    motif_infos.each{|info|
-      # new_ranks = info[:ranks].map{|k,v| ["#{k}:#{info[:dataset]}", v] }.to_h
-      new_ranks[ info[:dataset] ] = info[:ranks]
-    }
-    
-    {motif: motif, experiment_id: exp_id, ranks: new_ranks}
-  }
-
-  [:experiment].each{|metric_name|
-    extended_infos.rank_by{|info|
-      info[:ranks][metric_name]
-    }.each{|rank, info|
-      info[:ranks][metric_name] = rank
-    }
-  }
-
-  extended_infos
+hierarchy_of_metrics_wo_ranks = make_metrics_hierarchy(ranked_motif_metrics, [:tf, :motif, :experiment_type, :experiment, :dataset, :processing_type]){|info|
+  {metric_name: info[:metric_name], value: info[:value]}
 }
 
-
-fully_extended_motif_metrics = exp_extended_motif_metrics.group_by{|info|
-  motif_tf(info[:motif])
-}.flat_map{|tf, tf_infos|
-  extended_infos = tf_infos.group_by{|info|
+augmented_rank_hierarchy = ranked_motif_metrics.group_by{|info| info[:tf] }.transform_values{|tf_infos|
+  tf_infos.group_by{|info|
     info[:motif]
-  }.flat_map{|motif, motif_infos|
-    experiment_ranks = motif_infos.map{|info| info[:ranks][:experiment] }
-    combined_rank = product_mean(experiment_ranks)
-    
-    new_ranks = {combined: combined_rank}
-    motif_infos.each{|info|
-      # new_ranks = info[:ranks].map{|k,v| ["#{k}:#{info[:dataset]}", v] }.to_h
-      new_ranks[ info[:experiment_id] ] = info[:ranks]
-    }
-    
-    {motif: motif, ranks: new_ranks}
+  }.transform_values{|motif_infos|
+    motif_metrics_hierarchy = make_metrics_hierarchy(motif_infos, [:experiment_type, :experiment, :dataset, :processing_type])
+    take_ranks(motif_metrics_hierarchy)
   }
-
-  [:combined].each{|metric_name|
-    extended_infos.rank_by{|info|
-      info[:ranks][metric_name]
-    }.each{|rank, info|
-      info[:ranks][metric_name] = rank
+}.each{|_tf, motif_ranks_hierarchies|
+  possible_inner_paths(motif_ranks_hierarchies).each{|path|
+    motif_ranks_hierarchies.map{|motif, hierarchy|
+      path.empty? ? hierarchy : hierarchy.dig(*path)
+    }.compact.map{|node|
+      vals = node.select{|k,v| k != :combined }.values.compact
+      if vals.all?(Numeric)
+        combined_rank = product_mean(vals)
+      else
+        combined_rank = product_mean(vals.map{|val| val[:combined] })
+      end
+      {node: node, combined_rank: combined_rank}
+    }.sort_by{|node_info|
+      node_info[:combined_rank]
+    }.chunk{|node_info|
+      node_info[:combined_rank]
+    }.each_with_index{|(_val, node_infos), index|
+      node_infos.each{|node_info|
+        node_info[:node][:combined] = index + 1
+      }
     }
   }
-
-  extended_infos
 }
 
 FileUtils.mkdir_p('results')
-File.write('results/metrics.json', ranked_motif_metrics.to_json)
-File.write('results/ranks.json', fully_extended_motif_metrics.to_json)
+File.write('results/metrics.json', hierarchy_of_metrics_wo_ranks.to_json)
+File.write('results/ranks.json', augmented_rank_hierarchy.to_json)
