@@ -1,5 +1,5 @@
 require 'mysql2'
-require_relative 'shared/lib/utils'
+require_relative 'utils'
 
 def get_experiment_infos(client)
     # Table `hub` 
