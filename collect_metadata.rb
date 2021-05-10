@@ -49,6 +49,15 @@ module DatasetNameParser
         insert = $insert_by_plasmid_id[ plasmid_id ]
         plasmid[:insert] = insert.to_h
         experiment_meta[:plasmid] = plasmid
+      elsif experiment_meta.has_key?(:insert_id)
+        insert_id = experiment_meta[:insert_id]
+        inserts = $inserts_by_insert_id[ insert_id ] || []
+        keys = inserts.map(&:to_h).flat_map(&:keys).uniq
+        joint_insert = keys.map{|k|
+          v = inserts.map{|insert| insert[k] }.uniq.join('; ')
+          [k,v]
+        }.to_h
+        experiment_meta[:plasmid] = {insert: joint_insert}
       end
       dataset_info[:experiment_meta] = experiment_meta
       dataset_info
@@ -345,6 +354,7 @@ raise 'Non-unique plasmid ids for inserts'  if insert_metadata.map(&:plasmid_num
 $insert_by_plasmid_id = insert_metadata.flat_map{|insert|
   insert.plasmid_numbers.map{|plasmid_id| [plasmid_id, insert] }
 }.to_h
+$inserts_by_insert_id = insert_metadata.group_by(&:insert_id)
 
 
 pbm_metadata_list = ['SDQN', 'QNZS'].flat_map{|processing_type|
