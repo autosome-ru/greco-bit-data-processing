@@ -60,7 +60,8 @@ def get_experiment_infos(db_connection):
     return [{'experiment': rec[0], 'alignment': rec[1], 'reads': rec[2]} for rec in records]
 
 def infos_by_alignment(records):
-    records_by_experiment = itertools.groupby(records, lambda rec: rec['experiment'])
+    sorted_records = sorted(records, key=lambda rec: rec['experiment'])
+    records_by_experiment = itertools.groupby(sorted_records, lambda rec: rec['experiment'])
     experiments = []
     alignment_by_experiment = {}
     reads_by_experiment = {}

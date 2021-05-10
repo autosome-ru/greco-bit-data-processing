@@ -12,9 +12,11 @@ require_relative 'process_reads_HTS_SMS_AFS/sms_unpublished'
 require_relative 'process_peaks_CHS_AFS/chipseq_metadata'
 require_relative 'process_peaks_CHS_AFS/experiment_info_chs'
 require_relative 'process_peaks_CHS_AFS/experiment_info_afs'
+require_relative 'process_peaks_CHS_AFS/afs_peaks_biouml_meta'
 
 RELEASE_FOLDER = '/home_local/vorontsovie/greco-data/release_6.2021-02-13'
 SOURCE_FOLDER = '/home_local/vorontsovie/greco-bit-data-processing/source_data'
+MYSQL_CONFIG = {host: 'localhost', username: 'vorontsovie', password: 'password', database: 'greco_affyseq'}
 
 module DatasetNameParser
   class BaseParser
@@ -270,13 +272,6 @@ def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlin
     [exp.tf, exp.type[0,3], exp.cycle_number]
   }
 
-  # experiment_by_plate_id = experiment_infos.index_by{|info|
-  #   info.plate_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_\d_pf(\+\d_pf)?$/,"").sub(/_[ACGT]{6}$/, "")
-  # }
-  # raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
-  # experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
-
-
   dataset_files = ['Train', 'Val'].product(['intervals', 'sequences']).flat_map{|slice_type, outcome|
     Dir.glob("#{data_folder}/#{slice_type}_#{outcome}/*")
   }
@@ -286,6 +281,58 @@ def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlin
     exp_info = experiment_by_tf_and_cycle[exp_key].to_h
     dataset_info[:source_files] = ((exp_info && exp_info[:raw_files]) || '').split(';')
     dataset_info[:experiment_info] = exp_info
+    dataset_info
+  }
+end
+
+def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false)
+  client = Mysql2::Client.new(MYSQL_CONFIG)
+
+  records = get_experiment_infos(client)
+  experiments, alignment_by_experiment, reads_by_experiment = infos_by_alignment(records)
+
+  parser = DatasetNameParser::AFSReadsParser.new
+  metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
+  metadata_by_experiment_id = metadata.index_by(&:experiment_id)
+
+  experiment_infos = ExperimentInfoAFS.each_from_file("source_data_meta/AFS/metrics_by_exp.tsv").reject{|info|
+    info.type == 'control'
+  }.to_a
+  experiment_infos.each{|info|
+    info.confirmed_peaks_folder = "./results_databox_afs_#{info.type}/complete_data"
+  }
+
+  # keys like ["GLI4", "Lys", "Cycle1"]
+  experiment_by_tf_and_cycle = experiment_infos.index_by{|exp|
+    [exp.tf, exp.type[0,3], exp.cycle_number]
+  }
+
+  dataset_files = ['Train', 'Val'].flat_map{|slice_type|
+    Dir.glob("#{data_folder}/#{slice_type}_reads/*")
+  }
+  dataset_files.map{|dataset_fn|
+    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
+    cycle = dataset_info[:experiment_params][:cycle]
+    ds_basename = dataset_info[:experiment_meta][:"cycle_#{cycle}_filename"]
+
+    exp_key = dataset_info.yield_self{|d| [d[:tf], d[:experiment_subtype], "Cycle#{d[:experiment_params][:cycle]}"] }
+    exp_info = experiment_by_tf_and_cycle[exp_key].to_h
+    exp_id = exp_info[:experiment_id]
+    reads_fns = reads_by_experiment[exp_id]
+
+    original_files = ((exp_info && exp_info[:raw_files]) || '').split(';')
+
+    peak_files = reads_fns.map{|reads_fn|
+      ds_filename = File.absolute_path("#{source_folder}/#{reads_fn}.fastq.gz")
+      if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
+        raise "Missing file #{ds_filename} for #{dataset_fn}"
+      end
+      ds_filename
+    }
+
+    dataset_info[:source_files] = {peak_files: peak_files, original_files: original_files}
+    dataset_info[:experiment_info] = exp_info
+
     dataset_info
   }
 end
@@ -337,7 +384,13 @@ afs_peaks_metadata_list = collect_afs_peaks_metadata(
   allow_broken_symlinks: true
 )
 
-metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list
+afs_reads_metadata_list = collect_afs_reads_metadata(
+  data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
+  source_folder: "#{SOURCE_FOLDER}/AFS/fastq",
+  allow_broken_symlinks: true
+)
+
+metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list + afs_reads_metadata_list
 
 metadata_list.each{|metadata|
   puts metadata.to_json

@@ -1,5 +1,6 @@
 source 'https://rubygems.org/'
 gem 'sqlite3'
+gem 'mysql2'
 gem 'bioinform'
 gem 'sequence_logo'
 gem 'parallel'
