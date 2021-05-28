@@ -77,8 +77,8 @@ tfs.each{|tf|
 
     motifs_by_tf[tf].each{|motif|
       ext = File.extname(motif)
-      script = "#{__dir__}/run_PWMEval-SELEX_metrics.sh"
-      cmd_2 = "#{script} #{ File.absolute_path(dataset_fq) } #{ File.absolute_path(motif) } #{top_fraction} #{flank_5} #{flank_3}"
+      script = File.absolute_path("#{__dir__}/run_PWMEval-SELEX_metrics.sh")
+      cmd_2 = "#{script} #{dataset_fq} #{ File.absolute_path(motif) } #{top_fraction} #{flank_5} #{flank_3}"
       puts(cmd_2)
     }
   }
