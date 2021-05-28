@@ -77,15 +77,7 @@ tfs.each{|tf|
 
     motifs_by_tf[tf].each{|motif|
       ext = File.extname(motif)
-      cmd_2 = "echo -ne '#{joined_data_bn}\t#{motif}\t'; " \
-        "docker run --rm " \
-        " --security-opt apparmor=unconfined " \
-        " --volume #{dataset_fq}:/seq.fastq.gz:ro " \
-        " --volume #{motif}:/motif#{ext}:ro " \
-        " vorontsovie/pwmeval_selex:1.0.2 " \
-        " --non-redundant --top #{top_fraction} --bin 1000 --maxnum-reads 500000 " \
-        " --pseudo-weight 0.0001 --flank-5 #{flank_5} --flank-3 #{flank_3} " \
-        " --seed 1 || echo"
+      cmd_2 = "./run_PWMEval-SELEX_metrics.sh #{joined_data_bn} #{motif} #{top_fraction} #{flank_5} #{flank_3}"
       puts(cmd_2)
     }
   }
