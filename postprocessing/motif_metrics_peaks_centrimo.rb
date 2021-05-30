@@ -35,7 +35,7 @@ tfs.each{|tf|
         " --volume #{ASSEMBLY_PATH}:/assembly/ " \
         " --volume #{dataset}:/peaks.narrowPeak:ro " \
         " --volume #{motif}:/motif#{ext}:ro " \
-        " vorontsovie/centrimo_bench:1.1.2 " \
+        " vorontsovie/centrimo_bench:1.1.3 " \
         "  --assembly-name hg38 " \
         "  --peak-format 1,2,3,summit:abs:4 " \
         "  --json " \
