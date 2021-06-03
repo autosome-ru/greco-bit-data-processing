@@ -267,9 +267,16 @@ METRIC_COMBINATIONS = {
 METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
 DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.reject(&:leaf?).map(&:key).reject(&:nil?)
 
-curation_info = read_curation_info('source_data_meta/shared/curations.tsv')
-dataset_curation = get_datasets_curation(curation_info)
-# dataset_curation = {}
+raise 'Specify resulting metrics file'  unless results_metrics_fn = ARGV[0]  # 'results/metrics.json'
+raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[1]  # 'results/ranks.json'
+raise 'Specify curation filename or `no`'  unless curation_fn = ARGV[2] # 'source_data_meta/shared/curations.tsv'
+if curation_fn == 'no'
+  dataset_curation = nil
+  $stderr.puts('Warning: no curation is used')
+else
+  curation_info = read_curation_info(curation_fn)
+  dataset_curation = get_datasets_curation(curation_info)
+end
 
 metrics_readers_configs = {
   'release_6_metrics/formatted_peaks.tsv' => [
@@ -309,7 +316,11 @@ metrics_readers_configs = {
 
 all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
   exp_id = experiment_id(info[:dataset])
-  dataset_curation.has_key?(exp_id) ? dataset_curation[exp_id] : false # non-curated are dropped
+  if dataset_curation
+    dataset_curation.has_key?(exp_id) ? dataset_curation[exp_id] : false # non-curated are dropped
+  else
+    true  # without curation take everything
+  end
 }
 
 all_metric_infos = all_metric_infos.map{|info|
@@ -374,5 +385,5 @@ augmented_rank_hierarchy = ranked_motif_metrics.group_by{|info| info[:tf] }.tran
 }
 
 FileUtils.mkdir_p('results')
-File.write('results/metrics.json', hierarchy_of_metrics_wo_ranks.to_json)
-File.write('results/ranks.json', augmented_rank_hierarchy.to_json)
+File.write(results_metrics_fn, hierarchy_of_metrics_wo_ranks.to_json)
+File.write(results_ranks_fn, augmented_rank_hierarchy.to_json)
