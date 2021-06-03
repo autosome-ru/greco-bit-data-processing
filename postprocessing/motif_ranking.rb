@@ -236,34 +236,6 @@ def combine_ranks(hierarchy_of_metrics, metric_path: nil)
   end
 end
 
-## pbm_roclog and pbm_prlog are roughly equivalent to pbm_roc and pbm_log
-METRIC_NAMES_BY_TYPE = {
-  chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC], #, :chipseq_vigg_logROC],
-  affiseq_IVT: [
-    # :affiseq_IVT_vigg_logROC,
-    :affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, # peak metrics
-    :affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC,        # read metrics
-  ],
-  affiseq_Lysate: [
-    # :affiseq_Lysate_vigg_logROC,
-    :affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, # peak metrics
-    :affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC,        # read metrics
-  ],
-  selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
-  selex_Lysate: [:selex_10_Lysate_ROC, :selex_50_Lysate_ROC],
-  pbm: [
-    :pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr,
-    :pbm_qnzs_mers, :pbm_qnzs_logmers,
-    :pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr,
-    :pbm_sdqn_mers, :pbm_sdqn_logmers,
-  ],
-  smileseq: [:smileseq_10_ROC, :smileseq_50_ROC],
-}
-
-METRIC_TYPE_BY_NAME = METRIC_NAMES_BY_TYPE.flat_map{|metric_type, metric_names|
-  metric_names.map{|metric_name| [metric_name, metric_type] }
-}.to_h
-
 METRIC_COMBINATIONS = {
   combined: {
     chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt],
@@ -336,9 +308,6 @@ metrics_readers_configs = {
 }
 
 all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
-  tf = info[:tf]
-  metric_name = info[:metric_name]
-  metric_type = METRIC_TYPE_BY_NAME[metric_name]
   exp_id = experiment_id(info[:dataset])
   dataset_curation.has_key?(exp_id) ? dataset_curation[exp_id] : false # non-curated are dropped
 }
