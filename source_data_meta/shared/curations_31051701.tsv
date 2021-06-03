@@ -1,0 +1,145 @@
+8	Arttu	PBM13673	good	MKX	
+9	Arttu	PBM13677	good	MSANTD1	
+10	Arttu	PBM13679	good	MSANTD4	
+11	Arttu	PBM13714	good	JRK	
+12	Arttu	PBM13720	good	LEUTX	
+13	Arttu	PBM13740	bad	KCNIP3	
+14	Arttu	PBM13780	dunno	MBD1	
+15	Arttu	PBM13833	bad	KDM5B	
+16	Arttu	PBM13871	dunno	MSANTD1	
+17	Arttu	PBM13872	dunno	MBD3	
+18	Arttu	PBM13873	bad	MBD4	
+19	Arttu	PBM13874	bad	MBD6	
+20	Arttu	PBM13877	bad	MTERF2	
+21	Arttu	PBM13878	bad	MTERF3	
+22	Arttu	PBM13929	good	MBNL2	
+23	Arttu	PBM13932	bad	JRK	
+24	Arttu	PBM13938	good	KDM2A	
+25	Arttu	PBM13943	dunno	MKX	
+26	Arttu	PBM13971	good	MBD1	
+27	Arttu	PBM14317	good	MAX	
+28	Arttu	PBM14323	good	LEUTX	
+29	Arttu	PBM14345	good	JUNB	
+30	Arttu	PBM14348	good	LHX6	
+31	Arttu	PBM14349	good	LEF1	
+32	Arttu	PBM14357	good	JUN	
+33	Arttu	SRR3405057	good	JUN	
+34	Arttu	SRR3405060	bad	JUNB	
+35	Arttu	SRR3405061	good	JUND	
+36	Arttu	SRR3405063	good	LEF1	
+37	Arttu	SRR3405064	good	LHX6	
+38	Arttu	SRR3405065	good	MAX	
+39	Arttu	THC_0239	good	JRK	
+40	Arttu	THC_0247	good	JRK	
+41	Arttu	UT380-093	bad	JRK	
+42	Arttu	UT380-095	bad	KAT7	
+43	Arttu	UT380-096	bad	KAT7	
+44	Arttu	UT380-098	bad	KDM2A	
+45	Arttu	UT380-100	dunno	KIN	
+46	Arttu	UT380-103	bad	LEUTX	
+47	Arttu	UT380-104	bad	MAZ	
+48	Arttu	UT380-105-1	dunno	MBD1	
+49	Arttu	UT380-105-2	good	MBD1	
+50	Arttu	UT380-106	dunno	MBD1	
+51	Arttu	UT380-108	bad	MBD4	
+52	Arttu	UT380-109	bad	MBD4	
+53	Arttu	UT380-115	dunno	MSANTD4	
+54	Arttu	YWC_B_CA40NAGCGTA	good	JRK	
+55	Ilya	PBM13684	good	AEBP1	
+56	Ilya	PBM13841	good	C11orf95	
+57	Ilya	PBM14359	good	GCM1	
+58	Ilya	SRR3405056	good	GCM1	
+59	Ilya	THC_0189	good	C11orf95	
+60	Ilya	THC_0197	good	C11orf95	
+61	Ilya	YWC_A_GT40NGCGTGT	good	C11orf95	
+62	Vanja	AATA_AffSeq_A5_SNAI1	bad	SNAI1	
+63	Vanja	AATBA_AffSeq_B9_SNAI1	good	SNAI1	
+64	Vanja	AATB_A_AG40NTCGACT	good	SNAI1	
+65	Vanja	AAT_A_AC40NGCTGCT	bad	SNAI1	
+66	Vanja	PBM13778	good	SP140	
+67	Vanja	PBM13939	good	TET3	
+68	Vanja	PBM13973	good	SP140	
+69	Vanja	PBM14318	good	SRY	
+70	Vanja	PBM14450	good	SOX5	
+71	Vanja	SI0141	good	SNAI1	
+72	Vanja	SRR3405087	good	SOX5	
+73	Vanja	SRR3405088	good	SOX6	
+74	Vanja	SRR3405090	good	SRY	
+75	Vanja	SRR3405091	good	SRY	
+76	Vanja	THC_0090	good	SP140L	
+77	Vanja	UT380-202	good	SP140	
+78	Vanja	UT380-204	bad	SP140L	
+79	Vanja	UT380-212-1	bad	TET3	
+80	Vanja	UT380-212-2	good	TET3	
+84	Ilya	UT380-287	bad	ZNF131	Even top-rated motifs have ~0.5 ROC AUC
+85	Ilya	\N	\N	ZNF131	Tools derive quite similar motif on one dataset
+86	Ilya	UT380-288	good	ZNF131	
+87	Arttu	PBM13879	bad	MTERF4	\N
+88	Arttu	PBM14377	good	MYF6	\N
+89	Arttu	PBM13680	good	MYPOP	\N
+90	Arttu	PBM13880	bad	MYPOP	\N
+91	Arttu	PBM13899	bad	MYRFL	
+92	Arttu	PBM13681	bad	MYSM1	
+93	Arttu	UT380-124	bad	MYSM1	
+94	Arttu	UT380-123	bad	MYSM1	
+95	Arttu	UT380-126	bad	MYT1	Weak and does not look like paralogs
+96	Arttu	UT380-125	bad	MYT1	Weak and does not look like paralogs
+97	Arttu	THC_0171	good	NACC2	
+98	Arttu	THC_0131	good	NACC2	
+99	Arttu	THC_0179	good	NACC2	
+100	Arttu	PBM13741	good	NACC2	
+101	Arttu	YWC_B_TG40NTGTGTT	good	NACC2	
+102	Arttu	UT380-127-2	good	NACC2	
+103	Arttu	UT380-127-1	bad	NACC2	
+104	Arttu	PBM13674	dunno	NANOGNB	partial match to previously known site but signal seems weak
+105	Arttu	PBM13843	bad	NCOA1	
+106	Arttu	PBM13844	bad	NCOA2	Has some similarity to NCOA1, maybe a low specificity DBD
+107	Arttu	PBM13845	bad	NCOA3	Has some similarity to paralogs
+108	Arttu	PBM14452	bad	NFKB1	
+111	Arttu	SRR3405069	good	NFKB1	Expected site
+112	Arttu	PBM13900	bad	NFX1	
+113	Arttu	UT380-133	bad	NFX1	
+114	Arttu	PBM13901	bad	NFXL1	
+115	Arttu	UT380-135	bad	NFXL1	
+116	Arttu	PBM13742	bad	NKRF	
+117	Arttu	PBM13356	bad	NME2	
+118	Arttu	UT380-138	bad	NME2	
+119	Arttu	PBM14355	good	NR1H4	Site is a typical nuclear receptor target site
+120	Arttu	PBM14360	good	NR4A2	
+121	Arttu	SRR3405072	good	NR4A2	
+122	Arttu	SRR3405073	good	OKT4	This protein has wrong name, its HNGC name is POU5F1 that is also known as OCT4
+123	Arttu	PBM13743	bad	PA2G4	
+124	Arttu	PBM14356	good	PAX7	
+125	Arttu	SRR3405074	good	PAX7	
+126	Arttu	PBM13744	bad	PCGF2	
+127	Arttu	PBM13745	bad	PCGF6	
+128	Arttu	UT380-143	bad	PEG3	
+129	Arttu	UT380-142	bad	PEG3	
+130	Arttu	PBM13783	bad	PHF19	
+131	Arttu	PBM13782	bad	PHF19	
+132	Arttu	PBM13836	good	PHF21A	It is an AT-hook and expected to bind to low information content crap like this
+133	Arttu	YWC_B_AA40NCCGCGT	bad	PHF21A	
+134	Arttu	UT380-144-1	bad	PHF21A	
+135	Arttu	UT380-144-2	bad	PHF21A	
+136	Arttu	THC_0144	dunno	PHF21A	TF binds very low information content target sequence
+137	Arttu	THC_0081	good	ZBED5	
+138	Arttu	PBM13711	good	ZBED5	
+139	Arttu	YWC_A_GA40NTGTATC	good	ZBED5	
+140	Arttu	UT380-245-1	bad	ZBED5	
+141	Arttu	UT380-245-2	bad	ZBED5	
+142	Arttu	THC_0073	good	ZBED9	
+143	Arttu	THC_0116	good	ZBED9	
+144	Arttu	PBM13712	good	ZBED9	
+145	Arttu	YWC_A_GG40NGTGAGA	bad	ZBED9	
+146	Arttu	UT380-247	bad	ZBED9	
+147	Arttu	UT380-248	bad	ZBTB24	
+148	Arttu	UT380-249	bad	ZBTB40	
+149	Arttu	UT380-251	bad	ZBTB41	
+150	Arttu	UT380-250	bad	ZBTB41	
+151	Arttu	AATA_AffSeq_D7_ZNF384	good	ZNF384	
+152	Arttu	AAT_A_CT40NTACGTT	good	ZNF384	
+153	Arttu	AATB_A_GG40NTAGTTT	good	ZNF384	
+154	Arttu	SI0524	good	ZNF384	
+155	Arttu	UT380-336	bad	ZNF385C	
+156	Arttu	UT380-337	good	ZNF395	
+157	Arttu	UT380-338	good	ZNF395	
