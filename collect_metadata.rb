@@ -146,6 +146,7 @@ module DatasetNameParser
 end
 
 def num_reads(filename)
+  return nil  if !File.exist?(filename)
   ext = File.extname(File.basename(filename, '.gz'))
   if ['.fastq', '.fq'].include?(ext)
     result = `./seqkit fq2fa #{filename} -w 0 | fgrep --count '>'`
@@ -154,6 +155,15 @@ def num_reads(filename)
     result = `./seqkit seq #{filename} -w 0 | fgrep --count '>'`
     Integer(result)
   end
+rescue
+  nil
+end
+
+def num_peaks(filename)
+  return nil  if !File.exist?(filename)
+  File.readlines(filename).map(&:strip).reject{|l| l.start_with?('#') }.reject(&:empty?).count
+rescue
+  nil
 end
 
 def collect_pbm_metadata(data_folder:, source_folder:)
@@ -171,7 +181,7 @@ def collect_pbm_metadata(data_folder:, source_folder:)
       File.absolute_path(fn)
     }
     raise "No source files for dataset #{dataset_fn}"  if source_files.empty?
-    dataset_info[:source_files] = source_files
+    dataset_info[:source_files] = source_files.map{|fn| {filename: fn, type: 'source'} }
     dataset_info
   }
 end
@@ -192,7 +202,7 @@ def collect_hts_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
     if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
-    dataset_info[:source_files] = [ds_filename]
+    dataset_info[:source_files] = [ds_filename].map{|fn| {filename: fn, coverage: num_reads(fn), type: 'source'} }
     dataset_info
   }
 end
@@ -213,8 +223,7 @@ def collect_sms_published_metadata(data_folder:, source_folder:, allow_broken_sy
     if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
-    dataset_info[:source_files] = [ds_filename]
-    dataset_info[:coverage] = num_reads(ds_filename)
+    dataset_info[:source_files] = [ds_filename].map{|fn| {filename: fn, coverage: num_reads(fn), type: 'source'} }
     dataset_info
   }
 end
@@ -240,7 +249,7 @@ def collect_sms_unpublished_metadata(data_folder:, source_folder:, allow_broken_
     if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
-    dataset_info[:source_files] = [ds_filename]
+    dataset_info[:source_files] = [ds_filename].map{|fn| {filename: fn, coverage: num_reads(fn), type: 'source'} }
     dataset_info
   }
 end
@@ -270,7 +279,13 @@ def collect_chs_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
     dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
     plate_id = dataset_info[:experiment_meta][:data_file_id]
     exp_info = experiment_by_plate_id[plate_id].to_h
-    dataset_info[:source_files] = ((exp_info && exp_info[:raw_files]) || '').split(';')
+    reads_files = ((exp_info && exp_info[:raw_files]) || '').split(';').map{|fn|
+      {filename: fn, coverage: num_reads(fn), type: 'source'}
+    }
+    peaks_files  = exp_info.fetch(:peaks, []).map{|fn|
+      {filename: fn, num_peaks: num_peaks(fn), type: 'intermediate'}
+    }
+    dataset_info[:source_files] = reads_files + peaks_files
     dataset_info[:experiment_info] = exp_info
     dataset_info
   }
@@ -300,7 +315,18 @@ def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlin
     dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
     exp_key = dataset_info.yield_self{|d| [d[:tf], d[:experiment_subtype], "Cycle#{d[:experiment_params][:cycle]}"] }
     exp_info = experiment_by_tf_and_cycle[exp_key].to_h
-    dataset_info[:source_files] = ((exp_info && exp_info[:raw_files]) || '').split(';')
+    original_files = ((exp_info && exp_info[:raw_files]) || '').split(';')
+    original_files = original_files.map{|fn| File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn) }
+
+    reads_files = original_files.map{|fn|
+      {filename: fn, coverage: num_reads(fn), type: 'source'}
+    }
+
+    peak_id = exp_info[:peak_id]
+    peaks_files  = Dir.glob("/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/peaks-interval/*/#{peak_id}.interval").map{|fn|
+      {filename: fn, num_peaks: num_peaks(fn), type: 'intermediate'}
+    }
+    dataset_info[:source_files] = reads_files + peaks_files
     dataset_info[:experiment_info] = exp_info
     dataset_info
   }
@@ -342,16 +368,28 @@ def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlin
     reads_fns = reads_by_experiment[exp_id]
 
     original_files = ((exp_info && exp_info[:raw_files]) || '').split(';')
+    original_files = original_files.map{|fn| File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn) }
 
-    peak_files = reads_fns.map{|reads_fn|
+    peak_reads_files = reads_fns.map{|reads_fn|
       ds_filename = File.absolute_path("#{source_folder}/#{reads_fn}.fastq.gz")
       if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
         raise "Missing file #{ds_filename} for #{dataset_fn}"
       end
       ds_filename
+    }.map{|fn|
+      {filename: fn, coverage: num_reads(fn), type: 'intermediate'}
+    }
+    # dataset_info[:source_files] = {peak_files: peak_files, original_files: original_files, type: 'source'}
+
+    reads_files = original_files.map{|fn|
+      {filename: fn, coverage: num_reads(fn), type: 'source'}
     }
 
-    dataset_info[:source_files] = {peak_files: peak_files, original_files: original_files}
+    peak_id = exp_info[:peak_id]
+    peaks_files  = Dir.glob("/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/peaks-interval/*/#{peak_id}.interval").map{|fn|
+      {filename: fn, num_peaks: num_peaks(fn), type: 'intermediate'}
+    }
+    dataset_info[:source_files] = reads_files + peaks_files + peak_reads_files
     dataset_info[:experiment_info] = exp_info
 
     dataset_info
