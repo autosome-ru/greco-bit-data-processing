@@ -148,10 +148,10 @@ end
 def num_reads(filename)
   ext = File.extname(File.basename(filename, '.gz'))
   if ['.fastq', '.fq'].include?(ext)
-    result = system("./seqkit fq2fa #{filename} -w 0 | fgrep --count '>'")
+    result = `./seqkit fq2fa #{filename} -w 0 | fgrep --count '>'`
     Integer(result)
   else
-    result = system("./seqkit seq #{filename} -w 0 | fgrep --count '>'")
+    result = `./seqkit seq #{filename} -w 0 | fgrep --count '>'`
     Integer(result)
   end
 end
@@ -193,7 +193,6 @@ def collect_hts_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
     dataset_info[:source_files] = [ds_filename]
-    dataset_info[:coverage] = num_reads(ds_filename)
     dataset_info
   }
 end
@@ -215,6 +214,7 @@ def collect_sms_published_metadata(data_folder:, source_folder:, allow_broken_sy
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
     dataset_info[:source_files] = [ds_filename]
+    dataset_info[:coverage] = num_reads(ds_filename)
     dataset_info
   }
 end
