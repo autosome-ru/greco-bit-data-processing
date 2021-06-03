@@ -39,20 +39,21 @@ def basic_stats(vals)
   (vals.size >= 2) ? "#{vals.mean&.round(2)} ± #{vals.stddev&.round(2)}" : vals.mean&.round(2)
 end
 
-def treat_status(status)
-  case status
-  when '-'
+def treat_vote(vote)
+  case vote
+  when 'good'
+    1
+  when 'bad'
+    -1
+  when 'dunno'
+    0
+  when ''
     nil
-  when /^Nay/
-    false
-  when /^Yay/
-    true
-  when 'TBD', 'Borderline'
-    true  ## To fix
   else
-    raise 'Unknown status'
+    raise "Unknown vote `#{vote}`"
   end
 end
+
 
 def experiment_id(dataset)
   dataset.split('@')[2].split('.')[0]
@@ -102,29 +103,31 @@ def read_metrics(metrics_readers_configs)
   }
 end
 
-def read_tfs_curration(filename)
-  File.readlines(filename).drop(1).each_with_object(Hash.new){|l, result|
-    row = l.chomp.split("\t")
-    tf, motifs_count, *verdicts, reason = *row
-
-    chipseq_verdict, pbm_verdict, \
-        affiseq_IVT_verdict, affiseq_Lysate_verdict, \
-        selex_IVT_verdict, selex_Lysate_verdict, \
-        final_verdict = verdicts.map{|val| treat_status(val) }
-    result[tf] = {
-      verdicts: { # If datasets of a certain type passed curration
-        chipseq: chipseq_verdict,
-        affiseq_IVT: affiseq_IVT_verdict,
-        affiseq_Lysate: affiseq_Lysate_verdict,
-        selex_IVT: selex_IVT_verdict,
-        selex_Lysate: selex_Lysate_verdict,
-        pbm: pbm_verdict,
-        final: final_verdict,
-      },
-      motifs_count: Integer(motifs_count),
-      reason: reason,
-    }
+def read_curation_info(filename)
+  # ID (db-specific)
+  # curator
+  # Exp name (can be empty)
+  # vote (enum: good/bad/dunno, can be empty if comment is set)
+  # tf (tf_name)
+  # comment (if exp_name is empty this comment is not for dataset but for tf)
+  File.readlines(filename).map{|l|
+    row = l.chomp.split("\t", 6)
+    id, curator, exp_name, vote, tf, comment = *row.map{|x| x == '\N' ? '' : x}
+    exp_name = exp_name.empty? ? nil : exp_name
+    comment = comment.empty? ? nil : comment
+    vote = treat_vote(vote)
+    {id: Integer(id), curator: curator, exp_name: exp_name, vote: vote, tf: tf, comment: comment}
   }
+end
+
+def get_datasets_curation(curation_info)
+  curation_info.select{|info|
+    info[:exp_name] && info[:vote]
+  }.group_by{|info|
+    info[:exp_name]
+  }.transform_values{|infos|
+    infos.map{|info| info[:vote] }
+  }.transform_values{|votes| votes.sum > 0 }
 end
 
 def get_motif_ranks(motif_infos, metric_combinations)
@@ -292,8 +295,9 @@ METRIC_COMBINATIONS = {
 METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
 DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.reject(&:leaf?).map(&:key).reject(&:nil?)
 
-# tfs_curration = read_tfs_curration('source_data_meta/shared/curation_tfs_vigg.tsv')
-tfs_curration = {}
+curation_info = read_curation_info('source_data_meta/shared/curations.tsv')
+dataset_curation = get_datasets_curation(curation_info)
+# dataset_curation = {}
 
 metrics_readers_configs = {
   'release_6_metrics/formatted_peaks.tsv' => [
@@ -335,7 +339,8 @@ all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
   tf = info[:tf]
   metric_name = info[:metric_name]
   metric_type = METRIC_TYPE_BY_NAME[metric_name]
-  tfs_curration[tf][:verdicts][metric_type] rescue true
+  exp_id = experiment_id(info[:dataset])
+  dataset_curation.has_key?(exp_id) ? dataset_curation[exp_id] : false # non-curated are dropped
 }
 
 all_metric_infos = all_metric_infos.map{|info|
