@@ -10,6 +10,7 @@ module Chipseq
 
     def construct_type; $plasmid_by_number[plasmid_id].construct_type; end
     def normalized_id
+      # drops _R1_001.fastq.gz and _R2_001.fastq.gz suffixes
       data_file_id && data_file_id.sub(/\.fastq\.gz$/, "").sub(/_001$/, "").sub(/_R\d$/, "")
     end
 

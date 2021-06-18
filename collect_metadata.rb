@@ -42,7 +42,8 @@ module DatasetNameParser
     def parse_with_metadata(dataset_fn, metadata_by_experiment_id)
       dataset_info = self.parse(dataset_fn)
       experiment_id = dataset_info[:experiment_id]
-      experiment_meta = metadata_by_experiment_id[ experiment_id ].to_h
+      experiment_meta = metadata_by_experiment_id[ experiment_id ]
+      experiment_meta = experiment_meta.to_h.merge(_original_meta: experiment_meta)
       if experiment_meta.has_key?(:plasmid_id)
         plasmid_id = experiment_meta[:plasmid_id]
         plasmid = $plasmid_by_number[ plasmid_id ].to_h
@@ -266,7 +267,7 @@ def collect_chs_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
     info.confirmed_peaks_folder = "./results_databox_chs/complete_data"
   }
   experiment_by_plate_id = experiment_infos.index_by{|info|
-    info.plate_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_\d_pf(\+\d_pf)?$/,"").sub(/_[ACGT]{6}$/, "")
+    info.normalized_id
   }
   # raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
   # experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
@@ -277,7 +278,7 @@ def collect_chs_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
   }
   dataset_files.map{|dataset_fn|
     dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
-    plate_id = dataset_info[:experiment_meta][:data_file_id]
+    plate_id = dataset_info[:experiment_meta][:_original_meta].normalized_id
     exp_info = experiment_by_plate_id[plate_id].to_h
     reads_files = ((exp_info && exp_info[:raw_files]) || '').split(';').map{|fn|
       {filename: fn, coverage: num_reads(fn), type: 'source'}
@@ -451,6 +452,7 @@ afs_reads_metadata_list = collect_afs_reads_metadata(
 )
 
 metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list + afs_reads_metadata_list
+metadata_list = metadata_list.map{|info| info.reject{|k,v| k == :_original_meta } }
 
 metadata_list.each{|metadata|
   puts metadata.to_json
