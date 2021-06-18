@@ -189,7 +189,9 @@ end
 
 def num_peaks(filename)
   return nil  if !File.exist?(filename)
-  File.readlines(filename).map(&:strip).reject{|l| l.start_with?('#') }.reject(&:empty?).count
+  result = File.readlines(filename).map(&:strip).reject{|l| l.start_with?('#') }.reject(&:empty?).count
+  store_to_spo_cache(filename, 'num_peaks', result)
+  result
 rescue
   nil
 end
