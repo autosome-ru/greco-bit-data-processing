@@ -164,13 +164,13 @@ end
 
 def load_from_spo_cache(s,p)
   @spo_db ||= create_spo_cache('dataset_stats_spo_cache.db')
-  json_o, = @spo_db.execute("SELECT json_value FROM spo_store WHERE s = ? AND p = ?", [s,p])
+  json_o, = @spo_db.execute("SELECT json_value FROM spo_store WHERE entity = ? AND property = ?", [s,p])
   json_o ? JSON.parse(json_o) : nil
 end
 
 def num_reads(filename)
   return nil  if !File.exist?(filename)
-  return cached_result  if cached_result = load_spo_cache(filename, 'num_reads')
+  return cached_result  if cached_result = load_from_spo_cache(filename, 'num_reads')
   ext = File.extname(File.basename(filename, '.gz'))
   if ['.fastq', '.fq'].include?(ext)
     result = `./seqkit fq2fa #{filename} -w 0 | fgrep --count '>'`
