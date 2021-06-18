@@ -1,4 +1,5 @@
 require 'json'
+require 'sqlite3'
 require_relative 'shared/lib/utils'
 require_relative 'shared/lib/index_by'
 require_relative 'shared/lib/plasmid_metadata'
@@ -146,15 +147,41 @@ module DatasetNameParser
   end
 end
 
+def create_spo_cache(db_filename)
+  db ||= SQLite3::Database.new(db_filename)
+  db.execute(<<-EOS
+    CREATE TABLE IF NOT EXISTS spo_store(id INTEGER PRIMARY KEY AUTOINCREMENT, entity TEXT, property TEXT, json_value TEXT);
+    CREATE UNIQUE INDEX IF NOT EXISTS sp_uniq ON spo_store(entity, property);
+    EOS
+  )
+  db
+end
+
+def store_to_spo_cache(s,p,o)
+  @spo_db ||= create_spo_cache('dataset_stats_spo_cache.db')
+  @spo_db.execute("INSERT INTO spo_store(entity, property, json_value) VALUES (?,?,?)", [s,p,JSON.dump(o)] )
+end
+
+def load_from_spo_cache(s,p)
+  @spo_db ||= create_spo_cache('dataset_stats_spo_cache.db')
+  json_o, = @spo_db.execute("SELECT json_value FROM spo_store WHERE s = ? AND p = ?", [s,p])
+  json_o ? JSON.parse(json_o) : nil
+end
+
 def num_reads(filename)
   return nil  if !File.exist?(filename)
+  return cached_result  if cached_result = load_spo_cache(filename, 'num_reads')
   ext = File.extname(File.basename(filename, '.gz'))
   if ['.fastq', '.fq'].include?(ext)
     result = `./seqkit fq2fa #{filename} -w 0 | fgrep --count '>'`
-    Integer(result)
+    result = Integer(result)
+    store_to_spo_cache(filename, 'num_reads', result)
+    result
   else
     result = `./seqkit seq #{filename} -w 0 | fgrep --count '>'`
-    Integer(result)
+    result = Integer(result)
+    store_to_spo_cache(filename, 'num_reads', result)
+    result
   end
 rescue
   nil
