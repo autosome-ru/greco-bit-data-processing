@@ -164,13 +164,18 @@ end
 
 def load_from_spo_cache(s,p)
   @spo_db ||= create_spo_cache('dataset_stats_spo_cache.db')
-  json_o, = @spo_db.execute("SELECT json_value FROM spo_store WHERE entity = ? AND property = ?", [s,p])
-  json_o ? JSON.parse(json_o) : nil
+  results = @spo_db.execute("SELECT json_value FROM spo_store WHERE entity = ? AND property = ?", [s,p])
+  raise 'Uniqueness constraint violated'  if results.size > 1
+  return nil  if results.empty?
+  result = results[0]
+  json_value = result[0]
+  JSON.parse(json_value)
 end
 
 def num_reads(filename)
   return nil  if !File.exist?(filename)
-  return cached_result  if cached_result = load_from_spo_cache(filename, 'num_reads')
+  cached_result = load_from_spo_cache(filename, 'num_reads')
+  return cached_result  if cached_result
   ext = File.extname(File.basename(filename, '.gz'))
   if ['.fastq', '.fq'].include?(ext)
     result = `./seqkit fq2fa #{filename} -w 0 | fgrep --count '>'`
@@ -482,7 +487,9 @@ afs_reads_metadata_list = collect_afs_reads_metadata(
 )
 
 metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list + afs_reads_metadata_list
-metadata_list = metadata_list.map{|info| info.reject{|k,v| k == :_original_meta } }
+metadata_list.each{|info|
+  info[:experiment_meta].delete(:_original_meta)
+}
 
 metadata_list.each{|metadata|
   puts metadata.to_json
