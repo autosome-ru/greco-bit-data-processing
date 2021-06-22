@@ -40,21 +40,21 @@ module Selex
   SampleMetadata = Struct.new(*[
         :experiment_id, :plasmid_id, :gene_name,
         :experiment_subtype, :dna_library_id,
-        :cycle_1_filename, :cycle_2_filename, :cycle_3_filename,
+        :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename,
         :well_on_plate,
       ], keyword_init: true) do
 
     def self.header_row;
       [
         'Experiment ID', 'Plasmid ID', 'Gene name', 'IVT or Lysate', 'DNA library ID',
-        'Cycle 1 filename', 'Cycle 2 filename', 'Cycle 3 filename', 'Well on the 96 well plate',
+        'Cycle 1 filename', 'Cycle 2 filename', 'Cycle 3 filename', 'Cycle 4 filename', 'Well on the 96 well plate',
       ]
     end
 
     def data_row
       self.to_h.values_at(*[
         :experiment_id, :plasmid_id, :gene_name, :experiment_subtype, :dna_library_id,
-        :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :well_on_plate,
+        :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename, :well_on_plate,
       ])
     end
 
@@ -70,7 +70,7 @@ module Selex
       # Example:
       ## Experiment ID Plasmid ID  Gene name IVT or Lysate DNA library ID  Cycle 1 - file ID Cycle 2 - file ID Cycle 3 - file ID Well on the 96 well plate
       ## YWC_A_AC40NTCCTTG pTH13929  ZBED2 IVT AC40NTCCTTG_v1  ZBED2_AC40NTCCTTG_IVT_BatchYWCA1_Cycle1_R1.fastq.gz ZBED2_AC40NTCCTTG_IVT_BatchYWCA2_Cycle2_R1.fastq.gz ZBED2_AC40NTCCTTG_IVT_BatchYWCA3_Cycle3_R1.fastq.gz A12
-      experiment_id, plasmid_id, gene_name, experiment_subtype, dna_library_id, cycle_1_filename, cycle_2_filename, cycle_3_filename, well_on_plate = line.chomp.split("\t")
+      experiment_id, plasmid_id, gene_name, experiment_subtype, dna_library_id, cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename, well_on_plate = line.chomp.split("\t")
       raise "Unknown experiment subtype `#{experiment_subtype}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
       experiment_subtype = experiment_subtype[0,3]
       raise  unless dna_library_id.match?(/^[ACGT]+\d+N[ACGT]+_v1$/)
@@ -84,6 +84,7 @@ module Selex
         cycle_1_filename: filename_or_nil.(cycle_1_filename),
         cycle_2_filename: filename_or_nil.(cycle_2_filename),
         cycle_3_filename: filename_or_nil.(cycle_3_filename),
+        cycle_4_filename: filename_or_nil.(cycle_4_filename),
         well_on_plate: well_on_plate,
       )
     end
