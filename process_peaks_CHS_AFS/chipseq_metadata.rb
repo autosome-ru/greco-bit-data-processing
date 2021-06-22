@@ -5,7 +5,7 @@ require_relative '../shared/lib/random_names'
 module Chipseq
   SampleMetadata = Struct.new(*[
         :experiment_id, :plasmid_id, :gene_id, :sample_id, :sample_label,
-        :chip_or_input, :replicate, :comments, :data_file_id, :sequencing_facility,
+        :chip_or_input, :replicate, :comments, :data_file_id, :sequencing_facility, :batch,
       ], keyword_init: true) do
 
     def construct_type; $plasmid_by_number[plasmid_id].construct_type; end
@@ -25,6 +25,7 @@ module Chipseq
         sample_id: sample_id, sample_label: sample_label,
         chip_or_input: chip_or_input, replicate: Integer(replicate), comments: comments,
         data_file_id: data_file_id, sequencing_facility: sequencing_facility,
+        batch: batch,
       )
     end
 
