@@ -34,7 +34,7 @@ samples_glob = "source_data/SMS/reads/unpublished/*.fastq"
 results_folder = "source_data_prepared/SMS/reads"
 
 barcodes = SMSUnpublished.read_barcodes(barcodes_fn)
-barcode_proc = ->(sample_metadata){ barcodes[sample_metadata.barcode_index] }
+barcode_proc = ->(sample_metadata){ sample_metadata.barcode_change || barcodes[sample_metadata.barcode_index] }
 
 samples = Dir.glob(samples_glob).map{|fn| SMSUnpublished::Sample.from_filename(fn) }
 metadata = SMSUnpublished::SampleMetadata.each_in_file(metadata_fn).to_a

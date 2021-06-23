@@ -35,9 +35,9 @@ module SMSUnpublished
   end
 
   # Hughes ID is same as insert_id
-  SampleMetadata = Struct.new(*[:experiment_id, :tf, :construct_type, :barcode_index, :hughes_id, :tf_family, :ssid, :hgnc, :clone_suffix, :clone_suffix_pt2, :instance_of_hgnc, :insert_id], keyword_init: true) do
-    def self.header_row; ['Experiment ID', 'TF', 'Construct type', 'Barcode', 'Hughes ID', 'TF family', 'SSID', 'HGNC', 'Clone suffix', 'Clone suffix Pt2', 'Instance of the HGNC']; end
-    def data_row; to_h.values_at(*[:experiment_id, :tf, :construct_type, :barcode_index, :hughes_id, :tf_family, :ssid, :hgnc, :clone_suffix, :clone_suffix_pt2, :instance_of_hgnc]); end
+  SampleMetadata = Struct.new(*[:experiment_id, :tf, :construct_type, :barcode_index, :hughes_id, :tf_family, :ssid, :barcode_change, :length_nt, :biobasic_insert_sequence, :insert_id], keyword_init: true) do
+    def self.header_row; ['Experiment ID', 'TF', 'Construct type', 'Barcode', 'Hughes ID', 'TF family', 'SSID', 'BC change', 'Length nt', 'BioBasic Insert Sequence']; end
+    def data_row; to_h.values_at(*[:experiment_id, :tf, :construct_type, :barcode_index, :hughes_id, :tf_family, :ssid, :barcode_change, :length_nt, :biobasic_insert_sequence]); end
     def experiment_type; 'SMS'; end
     def cycle; nil; end
 
@@ -45,13 +45,13 @@ module SMSUnpublished
       # Example:
       ## BBI_ID  Hughes_ID TF_family SSID  Barcode
       ## UT380-009 AHCTF1.DBD  AT hook SS001 BC01
-      bbi_id, hughes_id, tf_family, ssid, barcode_index, hgnc, clone_suffix, clone_suffix_pt2, instance_of_hgnc = line.chomp.split("\t")
+      bbi_id, hughes_id, tf_family, ssid, barcode_index, barcode_change, length_nt, biobasic_insert_sequence  = line.chomp.split("\t")
       tf, *rest = hughes_id.split('.')  # hughes_id examples: `MBD4`, `BHLHA9.FL`, `CASZ1.DBD.1`
       construct_type = (rest.size >= 1) ? rest[0] : 'NA'
       self.new(experiment_id: bbi_id, tf: tf, construct_type: construct_type,
         barcode_index: barcode_index.sub(/^BC0*(\d+)$/, 'BC\1'), # BC07 --> BC7
         hughes_id: hughes_id, tf_family: tf_family, ssid: ssid,
-        hgnc: hgnc, clone_suffix: clone_suffix, clone_suffix_pt2: clone_suffix_pt2, instance_of_hgnc: instance_of_hgnc,
+        barcode_change: barcode_change.empty? ?  nil : barcode_change, length_nt: length_nt, biobasic_insert_sequence: biobasic_insert_sequence,
         insert_id: hughes_id)
     end
 
