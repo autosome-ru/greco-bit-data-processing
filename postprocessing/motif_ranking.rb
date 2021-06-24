@@ -47,7 +47,7 @@ def treat_vote(vote)
     -1
   when 'dunno'
     0
-  when ''
+  when '', 'None'
     nil
   else
     raise "Unknown vote `#{vote}`"
