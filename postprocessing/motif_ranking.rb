@@ -104,19 +104,18 @@ def read_metrics(metrics_readers_configs)
 end
 
 def read_curation_info(filename)
-  # ID (db-specific)
   # curator
   # Exp name (can be empty)
   # vote (enum: good/bad/dunno, can be empty if comment is set)
   # tf (tf_name)
   # comment (if exp_name is empty this comment is not for dataset but for tf)
-  File.readlines(filename).map{|l|
-    row = l.chomp.split("\t", 6)
-    id, curator, exp_name, vote, tf, comment = *row.map{|x| x == '\N' ? '' : x}
+  File.readlines(filename).map(&:chomp).reject(&:empty?).map{|l|
+    row = l.split("\t", 5)
+    curator, exp_name, vote, tf, comment = *row.map{|x| x == '\N' ? '' : x}
     exp_name = exp_name.empty? ? nil : exp_name
     comment = comment.empty? ? nil : comment
     vote = treat_vote(vote)
-    {id: Integer(id), curator: curator, exp_name: exp_name, vote: vote, tf: tf, comment: comment}
+    {curator: curator, exp_name: exp_name, vote: vote, tf: tf, comment: comment}
   }
 end
 
