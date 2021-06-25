@@ -68,7 +68,7 @@ def process_hts!
     samples, metadata,
     ['cycle_1_filename', 'cycle_2_filename', 'cycle_3_filename', 'cycle_4_filename']
   )
-  report_unmatched!(samples, sample_triples)
+  # report_unmatched!(samples, sample_triples)
 
   ReadsProcessing.process!(Selex, results_folder, sample_triples, barcode_proc, num_threads: 20)
 end

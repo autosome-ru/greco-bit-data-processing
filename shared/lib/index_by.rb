@@ -46,3 +46,13 @@ def inner_join_by(collection_1, collection_2, drop_nil: true, key_proc_1: nil, k
   full_join_result = full_join_by(collection_1, collection_2, drop_nil: drop_nil, key_proc_1: key_proc_1, key_proc_2: key_proc_2, &key_proc)
   full_join_result.select{|k, obj_1, obj_2| obj_1 && obj_2 }
 end
+
+def left_unjoined_by(collection_1, collection_2, drop_nil: true, key_proc_1: nil, key_proc_2: nil, &key_proc)
+  full_join_result = full_join_by(collection_1, collection_2, drop_nil: drop_nil, key_proc_1: key_proc_1, key_proc_2: key_proc_2, &key_proc)
+  full_join_result.select{|k, obj_1, obj_2| obj_1 && !obj_2 }.map{|k, obj_1, _| [k, obj_1] }
+end
+
+def right_unjoined_by(collection_1, collection_2, drop_nil: true, key_proc_1: nil, key_proc_2: nil, &key_proc)
+  full_join_result = full_join_by(collection_1, collection_2, drop_nil: drop_nil, key_proc_1: key_proc_1, key_proc_2: key_proc_2, &key_proc)
+  full_join_result.select{|k, obj_1, obj_2| !obj_1 && obj_2 }.map{|k, _, obj_2| [k, obj_2] }
+end
