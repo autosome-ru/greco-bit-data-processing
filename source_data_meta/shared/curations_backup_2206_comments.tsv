@@ -1,0 +1,1614 @@
+Arttu	PBM13673	good	MKX	
+Arttu	PBM13677	good	MSANTD1	
+Arttu	PBM13679	good	MSANTD4	
+Arttu	PBM13714	good	JRK	
+Arttu	PBM13720	good	LEUTX	
+Arttu	PBM13740	bad	KCNIP3	
+Arttu	PBM13780	dunno	MBD1	
+Arttu	PBM13833	bad	KDM5B	
+Arttu	PBM13871	dunno	MSANTD1	
+Arttu	PBM13872	dunno	MBD3	
+Arttu	PBM13873	bad	MBD4	
+Arttu	PBM13874	bad	MBD6	
+Arttu	PBM13877	bad	MTERF2	
+Arttu	PBM13878	bad	MTERF3	
+Arttu	PBM13929	good	MBNL2	
+Arttu	PBM13932	bad	JRK	
+Arttu	PBM13938	good	KDM2A	
+Arttu	PBM13943	dunno	MKX	
+Arttu	PBM13971	good	MBD1	
+Arttu	PBM14317	good	MAX	
+Arttu	PBM14323	good	LEUTX	
+Arttu	PBM14345	good	JUNB	looks kind of nasty, this protein binds really as a heterodimer
+Arttu	PBM14348	good	LHX6	
+Arttu	PBM14349	good	LEF1	
+Arttu	PBM14357	good	JUN	
+Arttu	SRR3405057	good	JUN	
+Arttu	SRR3405060	bad	JUNB	
+Arttu	SRR3405061	good	JUND	
+Arttu	SRR3405063	good	LEF1	
+Arttu	SRR3405064	good	LHX6	
+Arttu	SRR3405065	good	MAX	
+Arttu	THC_0239	good	JRK	
+Arttu	THC_0247	good	JRK	
+Arttu	UT380-093	bad	JRK	
+Arttu	UT380-095	bad	KAT7	
+Arttu	UT380-096	bad	KAT7	
+Arttu	UT380-098	bad	KDM2A	
+Arttu	UT380-100	dunno	KIN	
+Arttu	UT380-103	bad	LEUTX	
+Arttu	UT380-104	bad	MAZ	
+Arttu	UT380-105-1	dunno	MBD1	
+Arttu	UT380-105-2	good	MBD1	
+Arttu	UT380-106	dunno	MBD1	
+Arttu	UT380-108	bad	MBD4	
+Arttu	UT380-109	bad	MBD4	
+Arttu	UT380-115	dunno	MSANTD4	
+Arttu	YWC_B_CA40NAGCGTA	good	JRK	
+Ilya	PBM13684	good	AEBP1	
+Ilya	PBM13841	good	C11orf95	
+Ilya	PBM14359	good	GCM1	
+Ilya	SRR3405056	good	GCM1	
+Ilya	THC_0189	good	C11orf95	
+Ilya	THC_0197	good	C11orf95	
+Ilya	YWC_A_GT40NGCGTGT	good	C11orf95	
+Vanja	AATA_AffSeq_A5_SNAI1	bad	SNAI1	
+Vanja	AATBA_AffSeq_B9_SNAI1	good	SNAI1	
+Vanja	AATB_A_AG40NTCGACT	good	SNAI1	
+Vanja	AAT_A_AC40NGCTGCT	bad	SNAI1	
+Vanja	PBM13778	good	SP140	
+Vanja	PBM13939	good	TET3	
+Vanja	PBM13973	good	SP140	
+Vanja	PBM14318	good	SRY	
+Vanja	PBM14450	good	SOX5	
+Vanja	SI0141	bad	SNAI1	
+Vanja	SRR3405087	good	SOX5	
+Vanja	SRR3405088	good	SOX6	
+Vanja	SRR3405090	good	SRY	
+Vanja	SRR3405091	good	SRY	
+Vanja	THC_0090	good	SP140L	
+Vanja	UT380-202	good	SP140	
+Vanja	UT380-204	bad	SP140L	
+Vanja	UT380-212-1	bad	TET3	
+Vanja	UT380-212-2	good	TET3	
+Ilya	UT380-287	bad	ZNF131	Even top-rated motifs have ~0.5 ROC AUC
+Ilya	None	None	ZNF131	Tools derive quite similar motif on one dataset
+Ilya	UT380-288	good	ZNF131	
+Arttu	PBM13879	bad	MTERF4	None
+Arttu	PBM14377	good	MYF6	None
+Arttu	PBM13680	good	MYPOP	None
+Arttu	PBM13880	bad	MYPOP	None
+Arttu	PBM13899	bad	MYRFL	
+Arttu	PBM13681	bad	MYSM1	
+Arttu	UT380-124	bad	MYSM1	
+Arttu	UT380-123	bad	MYSM1	
+Arttu	UT380-126	bad	MYT1	Weak and does not look like paralogs
+Arttu	UT380-125	bad	MYT1	Weak and does not look like paralogs
+Arttu	THC_0171	good	NACC2	
+Arttu	THC_0131	good	NACC2	
+Arttu	THC_0179	good	NACC2	
+Arttu	PBM13741	good	NACC2	
+Arttu	YWC_B_TG40NTGTGTT	good	NACC2	
+Arttu	UT380-127-2	good	NACC2	
+Arttu	UT380-127-1	bad	NACC2	
+Arttu	PBM13674	dunno	NANOGNB	partial match to previously known site but signal seems weak
+Arttu	PBM13843	bad	NCOA1	
+Arttu	PBM13844	bad	NCOA2	Has some similarity to NCOA1, maybe a low specificity DBD
+Arttu	PBM13845	bad	NCOA3	Has some similarity to paralogs
+Arttu	PBM14452	bad	NFKB1	
+Arttu	SRR3405069	good	NFKB1	Expected site
+Arttu	PBM13900	bad	NFX1	
+Arttu	UT380-133	bad	NFX1	
+Arttu	PBM13901	bad	NFXL1	
+Arttu	UT380-135	bad	NFXL1	
+Arttu	PBM13742	bad	NKRF	
+Arttu	PBM13356	bad	NME2	
+Arttu	UT380-138	bad	NME2	
+Arttu	PBM14355	good	NR1H4	Site is a typical nuclear receptor target site
+Arttu	PBM14360	good	NR4A2	
+Arttu	SRR3405072	good	NR4A2	
+Arttu	SRR3405073	good	OKT4	This protein has wrong name, its HNGC name is POU5F1 that is also known as OCT4
+Arttu	PBM13743	bad	PA2G4	
+Arttu	PBM14356	good	PAX7	
+Arttu	SRR3405074	good	PAX7	
+Arttu	PBM13744	bad	PCGF2	
+Arttu	PBM13745	bad	PCGF6	
+Arttu	UT380-143	bad	PEG3	
+Arttu	UT380-142	bad	PEG3	
+Arttu	PBM13783	bad	PHF19	
+Arttu	PBM13782	bad	PHF19	
+Arttu	PBM13836	good	PHF21A	It is an AT-hook and expected to bind to low information content crap like this
+Arttu	YWC_B_AA40NCCGCGT	bad	PHF21A	
+Arttu	UT380-144-1	bad	PHF21A	
+Arttu	UT380-144-2	bad	PHF21A	
+Arttu	THC_0144	dunno	PHF21A	TF binds very low information content target sequence
+Arttu	THC_0081	good	ZBED5	
+Arttu	PBM13711	good	ZBED5	
+Arttu	YWC_A_GA40NTGTATC	good	ZBED5	
+Arttu	UT380-245-1	bad	ZBED5	
+Arttu	UT380-245-2	bad	ZBED5	
+Arttu	THC_0073	good	ZBED9	
+Arttu	THC_0116	good	ZBED9	
+Arttu	PBM13712	good	ZBED9	
+Arttu	YWC_A_GG40NGTGAGA	bad	ZBED9	One of the usual suspect signals
+Arttu	UT380-247	bad	ZBED9	
+Arttu	UT380-248	bad	ZBTB24	
+Arttu	UT380-249	bad	ZBTB40	
+Arttu	UT380-251	bad	ZBTB41	
+Arttu	UT380-250	bad	ZBTB41	
+Arttu	AATA_AffSeq_D7_ZNF384	good	ZNF384	
+Arttu	AAT_A_CT40NTACGTT	good	ZNF384	
+Arttu	AATB_A_GG40NTAGTTT	good	ZNF384	
+Arttu	SI0524	good	ZNF384	
+Arttu	UT380-336	bad	ZNF385C	
+Arttu	UT380-337	good	ZNF395	
+Arttu	UT380-338	good	ZNF395	
+Rozy	SI0571	dunno	ZNF382	
+Rozy	SI0051	dunno	ZNF382	
+Rozy	SI0057	dunno	ZNF382	
+Rozy	SI0110	dunno	ZNF382	
+Arttu	PBM13559	good	CGGBP1	
+Arttu	UT380-037	bad	CGGBP1	
+Arttu	YWC_B_TA40NTCACTC	bad	CHAMP1	
+Arttu	THC_0246	bad	CHAMP1	
+Arttu	PBM13581	bad	CHAMP1	
+Arttu	UT380-038	bad	CHAMP1	
+Arttu	PBM13688	bad	CHCHD3	
+Arttu	PBM13583	bad	CPXCR1	
+Arttu	PBM13582	bad	CPXCR1	
+Arttu	UT380-041	bad	CPXCR1	
+Arttu	PBM13580	good	CREB3L3	
+Rozy	AATB_A_GA40NTTCCTA	bad	ZNF382	
+Arttu	PBM13579	bad	CREB3L3	
+Rozy	AAT_A_AT40NTCTGTC	dunno	ZNF382	
+Rozy	AATA_AffSeq_B6_ZNF382	bad	ZNF382	
+Arttu	UT380-042	good	CREB3L3	
+Rozy	AATBA_AffSeq_E11_ZNF382	dunno	ZNF382	
+Arttu	PBM13611	dunno	CSRNP1	Potential low specificity DNA binding protein
+Arttu	PBM13612	dunno	CSRNP1	Potential low specificity DNA binding protein
+Arttu	PBM13613	dunno	CSRNP2	Potential low specificity DNA binding protein
+Arttu	PBM13614	dunno	CSRNP2	Potential low specificity DNA binding protein
+Arttu	PBM13615	dunno	CSRNP3	Potential low specificity DNA binding protein
+Arttu	SRR3405078	good	CTCF	
+Arttu	PBM14451	dunno	CTCF	has a tiny bit of enrichment for correct sense. Result makes sense as target site is much too long
+Arttu	THC_0235	good	CXXC4	Low specificity DBD
+Arttu	THC_0243	good	CXXC4	Low specificity DBD
+Arttu	PBM13936	good	CXXC4	Low specificity DBD
+Arttu	PBM13586	good	CXXC4	Low specificity DBD
+Arttu	YWC_B_TG40NTGATCT	good	CXXC4	Low specificity DBD
+Arttu	PBM13616	bad	DACH1	
+Arttu	UT380-051	bad	DACH1	
+Arttu	UT380-050	bad	DACH1	
+Arttu	PBM13618	dunno	DACH2	Low specificity DBD
+Arttu	PBM13617	dunno	DACH2	Low specificity DBD
+Arttu	PBM13610	dunno	DMRTB1	Low specificity DBD
+Arttu	PBM13609	dunno	DMRTB1	Low specificity DBD
+Arttu	UT380-055	bad	DMRTB1	
+Arttu	PBM13678	good	DMTF1	
+Arttu	UT380-056-1	bad	DMTF1	
+Arttu	UT380-056-2	bad	DMTF1	
+Arttu	UT380-057	bad	DMTF1	
+Arttu	UT380-064	good	ELF3	Expected site
+Rozy	THC_0088	bad	GLYR1	
+Rozy	THC_0148	bad	GLYR1	
+Rozy	THC_0184	bad	GLYR1	
+Rozy	PBM13642	good	GLYR1	
+Rozy	PBM13641	good	GLYR1	
+Rozy	PBM14697	good	GLYR1	
+Arttu	PBM13707	good	FAM200B	
+Arttu	UT380-066-1	good	FAM200B	
+Arttu	UT380-066-2	good	FAM200B	
+Arttu	THC_0248	good	FBXL19	Low specificity TF
+Rozy	YWC_B_TC40NGGCTGT	dunno	GLYR1	
+Arttu	THC_0240	good	FBXL19	Low specificity TF
+Arttu	PBM13937	good	FBXL19	Low specificity TF
+Rozy	UT380-077	good	GLYR1	
+Arttu	YWC_B_AG40NTGGCTA	good	FBXL19	Low specificity TF
+Arttu	UT380-068-1	good	FBXL19	Low specificity TF
+Arttu	UT380-068-2	good	FBXL19	Low specificity TF
+Arttu	PBM14351	good	FLI1	Expected site
+Arttu	PBM13940	good	FLYWCH1	
+Arttu	UT380-071	bad	FLYWCH1	
+Arttu	PBM14347	good	FOSL2	Motif is effectively just the bZIP half site, maybe this is one that binds badly as a homodimer
+Arttu	SRR3405112	good	FOSL2	Motif is effectively just the bZIP half site, maybe this is one that binds badly as a homodimer
+Arttu	SRR3405124	good	FOXP2	Expected site
+Arttu	PBM14352	good	GABPA	Expected site
+Arttu	SRR3405148	good	GATA3	Expected site
+Arttu	PBM13643	bad	GATAD2A	
+Arttu	UT380-073	bad	GATAD2A	
+Arttu	PBM13645	bad	GATAD2B	
+Arttu	PBM13644	bad	GATAD2B	
+Arttu	UT380-075	bad	GATAD2B	
+Arttu	PBM14359	good	GCM1	Expected site
+Arttu	SRR3405056	good	GCM1	Expected site
+Arttu	SI0368	good	GLI4	
+Arttu	AATB_A_AA40NTATCGC	good	GLI4	
+Arttu	AAT_A_CT40NCTACTT	good	GLI4	
+Arttu	AATA_AffSeq_D5_GLI4	good	GLI4	
+Arttu	AATBA_AffSeq_A9_GLI4	bad	GLI4	
+Arttu	PBM13651	bad	GLMP	
+Arttu	PBM13642	good	GLYR1	
+Arttu	PBM13641	good	GLYR1	
+Arttu	PBM14697	good	GLYR1	
+Arttu	YWC_B_TC40NGGCTGT	bad	GLYR1	
+Arttu	UT380-077	bad	GLYR1	
+Arttu	PBM13738	good	GPBP1	
+Arttu	PBM13781	good	GPBP1	
+Arttu	PBM13739	bad	GPBP1L1	
+Arttu	PBM13646	good	GRHL3	
+Arttu	UT380-082	bad	GRHL3	
+Arttu	UT380-084	bad	GTF2IRD2	
+Arttu	UT380-083	bad	GTF2IRD2	
+Arttu	PBM13942	bad	GTF2IRD2B	
+Arttu	UT380-086	bad	GTF2IRD2B	
+Arttu	UT380-085	bad	GTF2IRD2B	
+Arttu	PBM13976	good	HMG20A	As expected it looks like a low specificity DBD 
+Arttu	UT380-087	bad	HMG20A	
+Arttu	PBM13647	good	HMG20A	As expected it looks like a low specificity DBD 
+Arttu	PBM13648	bad	HMG20A	
+Arttu	PBM13719	bad	HMGN3	
+Arttu	PBM13649	bad	HSFX1	
+Arttu	PBM13870	bad	HSFX1	
+Arttu	UT380-090	bad	HSFX1	
+Arttu	PBM13650	bad	HSFX2	
+Arttu	PBM13676	bad	HSFX2	
+Arttu	UT380-092	dunno	JAZF1	Potentially a low specificity DBD
+Arttu	SRR3405059	bad	JUN	
+Arttu	UT380-149	good	POGK	Weak but matches SELEX motif that should be uploaded in the next batch
+Arttu	UT380-148	dunno	POGK	weak
+Arttu	PBM13713	bad	POGK	
+Arttu	PBM14346	bad	POU5F1	
+Arttu	UT380-150	good	POU5F1	
+Arttu	PBM13869	bad	POU5F2	
+Arttu	UT380-153	good	PRDM10	
+Arttu	UT380-152	bad	PRDM10	
+Arttu	UT380-154	good	PRDM13	
+Arttu	UT380-155	bad	PRDM13	
+Arttu	UT380-157	bad	PRDM2	
+Arttu	UT380-156	bad	PRDM2	
+Arttu	UT380-158	good	PRDM5	
+Arttu	UT380-159	bad	PRDM5	
+Arttu	UT380-161	bad	PRDM8	
+Arttu	UT380-160	bad	PRDM8	
+Arttu	PBM13747	bad	PREB	
+Arttu	PBM13784	bad	PREB	
+Arttu	PBM14324	good	PURB	
+Arttu	PBM14454	good	PURB	
+Arttu	PBM13748	good	PURB	
+Arttu	UT380-165	bad	PURB	
+Arttu	PBM13749	bad	PURG	
+Arttu	PBM13750	bad	RAG1	
+Arttu	PBM14354	good	RARA	expected site
+Arttu	SRR3405076	good	RARA	expected site
+Arttu	PBM13902	bad	RFX8	
+Arttu	PBM13903	bad	RFX8	
+Arttu	PBM14353	good	RORB	
+Arttu	SRR3405080	good	RORB	
+Arttu	SRR3405079	good	RORB	
+Arttu	SRR3405081	good	RORC	
+Arttu	PBM14321	good	RXRA	
+Arttu	SRR3405082	good	RXRA	
+Arttu	PBM13751	good	SAFB	
+Arttu	PBM13752	bad	SAFB2	
+Arttu	PBM13769	bad	SCMH1	
+Arttu	PBM13837	bad	SCML4	
+Arttu	PBM13838	good	SETBP1	PBM experiment displays specificity of the protein's AT-hooks
+Arttu	PBM13840	dunno	SETBP1	
+Arttu	YWC_B_AG40NACCATA	bad	SETBP1	
+Arttu	UT380-187	bad	SETBP1	
+Arttu	UT380-185-2	bad	SETBP1	
+Arttu	UT380-185-1	bad	SETBP1	
+Arttu	UT380-185-3	bad	SETBP1	
+Arttu	PBM13839	bad	SETBP1	
+Arttu	THC_0196	good	SETBP1	Main motifs do not correspond to the AT-hook
+Arttu	PBM13876	bad	SETDB2	
+Arttu	UT380-188	bad	SETDB2	
+Arttu	UT380-189	bad	SETDB2	
+Arttu	UT380-190	bad	SGSM2	
+Arttu	YWC_A_TT40NTAGCAG	bad	SGSM2	
+Arttu	PBM13708	bad	SGSM2	
+Arttu	UT380-194	bad	SMYD3	
+Arttu	PBM13770	good	SMYD3	Potential low specificity DBD
+Arttu	PBM14325	bad	SMYD3	
+Arttu	AATB_A_AG40NTCGACT	good	SNAI1	Expected target site
+Arttu	SI0141	bad	SNAI1	
+Arttu	AAT_A_AC40NGCTGCT	bad	SNAI1	Signal is for NFI nonspecific carryover from the production cell
+Arttu	AATA_AffSeq_A5_SNAI1	bad	SNAI1	
+Arttu	AATBA_AffSeq_B9_SNAI1	good	SNAI1	
+Arttu	PBM13771	bad	SNAPC2	
+Arttu	PBM13846	bad	SOHLH1	
+Arttu	PBM13847	bad	SOHLH1	
+Arttu	PBM14319	good	SOX15	Expected site
+Arttu	SRR3405085	good	SOX17	Expected site
+Arttu	PBM14378	good	SOX2	Expected site
+Arttu	SRR3405086	good	SOX2	Expected site
+Arttu	PBM14450	good	SOX5	Expected site
+Arttu	SRR3405087	good	SOX5	Expected site
+Arttu	SRR3405088	good	SOX6	Expected site
+Arttu	PBM13776	bad	SP100	
+Arttu	PBM13972	bad	SP100	
+Arttu	UT380-198	bad	SP100	
+Arttu	PBM13777	bad	SP110	
+Arttu	PBM13778	good	SP140	Low specificity DBD
+Arttu	PBM13973	good	SP140	Low specificity DBD
+Arttu	YWC_B_GC40NTCTCTT	bad	SP140	
+Arttu	UT380-202	bad	SP140	Low specificity DBD
+Arttu	THC_0193	dunno	SP140	
+Arttu	THC_0185	dunno	SP140	
+Arttu	YWC_B_GT40NTGTGGA	good	SP140L	Low specificity DBD
+Arttu	THC_0090	good	SP140L	Low specificity DBD
+Arttu	THC_0072	good	SP140L	Low specificity DBD
+Arttu	PBM13779	good	SP140L	Low specificity DBD
+Arttu	PBM13904	bad	SP140L	
+Arttu	UT380-204	bad	SP140L	
+Arttu	PBM14318	good	SRY	Expected site
+Arttu	SRR3405090	good	SRY	Expected site
+Arttu	SRR3405091	good	SRY	Expected site
+Arttu	PBM13905	bad	TBPL1	
+Arttu	PBM13772	good	TCF20	AT-hook
+Arttu	SRR3405092	good	TCF7	Expected site
+Arttu	UT380-208	bad	TERB1	
+Arttu	UT380-209	bad	TERB1	
+Arttu	PBM13682	dunno	TERB1	Maybe a low specificity DBD
+Arttu	PBM13898	good	TERF1	
+Arttu	PBM13897	bad	TERF1	
+Arttu	PBM13773	bad	TET2	
+Arttu	PBM13939	good	TET3	Low specificity DBD
+Arttu	UT380-212-2	dunno	TET3	
+Arttu	UT380-212-1	bad	TET3	
+Arttu	SRR3405093	good	TFE3	Expected site
+Arttu	SRR3405094	good	TFE3	Expected site
+Arttu	PBM13906	bad	THAP10	
+Arttu	PBM13907	bad	THAP10	
+Arttu	UT380-213	bad	THAP10	
+Arttu	PBM13909	bad	THAP11	
+Arttu	PBM13908	bad	THAP11	
+Arttu	UT380-214	bad	THAP11	
+Arttu	PBM13910	bad	THAP2	
+Arttu	UT380-215	bad	THAP2	
+Arttu	PBM13911	bad	THAP4	
+Arttu	PBM13912	bad	THAP4	
+Arttu	PBM13962	bad	THAP5	
+Arttu	PBM13961	bad	THAP5	
+Arttu	UT380-218	bad	THAP5	
+Arttu	PBM13963	bad	THAP6	
+Arttu	UT380-219	bad	THAP6	
+Arttu	PBM13964	bad	THAP7	
+Arttu	PBM13965	bad	THAP7	
+Arttu	UT380-220	bad	THAP7	
+Arttu	PBM13966	bad	THAP8	
+Arttu	PBM13967	bad	THAP8	
+Arttu	UT380-221	bad	THAP8	
+Arttu	PBM13774	bad	THYN1	
+Arttu	YWC_B_GA40NTTCCTA	good	TIGD3	
+Arttu	UT380-225	good	TIGD3	
+Arttu	PBM13715	good	TIGD3	Partial site, motif is too long for PBM
+Arttu	PBM13933	good	TIGD3	Partial site, motif is too long for PBM
+Arttu	THC_0104	good	TIGD3	
+Arttu	THC_0146	good	TIGD3	
+Arttu	UT380-227	good	TIGD4	
+Arttu	UT380-226	good	TIGD4	
+Arttu	PBM13716	bad	TIGD4	
+Arttu	PBM13934	bad	TIGD4	
+Arttu	UT380-229	good	TIGD5	
+Arttu	UT380-228	good	TIGD5	
+Arttu	PBM13935	good	TIGD7	
+Arttu	PBM13717	good	TIGD7	
+Arttu	YWC_B_GG40NTAGTTT	bad	TIGD7	
+Arttu	UT380-230	bad	TIGD7	
+Arttu	THC_0194	dunno	TIGD7	very interesting case as ChIP-seq finds a motif that is discrepant with PBM. CAGCTG is bHLH like
+Arttu	PBM13775	bad	TMF1	
+Arttu	PBM13675	good	TPRX1	
+Arttu	PBM13944	good	TPRX1	
+Arttu	UT380-233-2	good	TPRX1	
+Arttu	UT380-233-1	good	TPRX1	
+Arttu	UT380-238	bad	TSHZ2	
+Arttu	UT380-237	bad	TSHZ2	
+Arttu	PBM13683	bad	TTF1	
+Arttu	UT380-239	bad	TTF1	
+Arttu	UT380-240	bad	TTF1	
+Arttu	PBM13848	good	USF3	expected motif
+Arttu	UT380-241	None	USF3	expected motif
+Arttu	PBM14350	good	VDR	
+Arttu	SRR3405095	good	VDR	As excpected but oddly doesn't have a dimeric model
+Arttu	SRR3405096	good	VSX1	
+Arttu	PBM14358	good	YY1	Expected site
+Arttu	SRR3405097	good	YY1	Expected site
+Arttu	SRR3405098	dunno	YY1	weak experiment
+Arttu	YWC_A_AC40NTCCTTG	bad	ZBED2	
+Arttu	UT380-242	good	ZBED2	
+Arttu	PBM13709	good	ZBED2	
+Arttu	THC_0101	good	ZBED2	
+Arttu	PBM13710	bad	ZBED3	
+Arttu	UT380-243	bad	ZBED3	
+Arttu	UT380-244	good	ZBED4	
+Arttu	PBM13975	good	ZBED4	
+Arttu	PBM13842	dunno	ZBED4	weak experiments
+Arttu	THC_0245	good	ZBED4	
+Arttu	THC_0237	good	ZBED4	
+Arttu	THC_0083	bad	ZBED5	Looks bad when compared against the replicate and otherf datasets
+Arttu	PBM14453	dunno	ZC3H8	Potential low specificity DBD
+Arttu	PBM13486	dunno	ZC3H8	Potential low specificity DBD
+Arttu	UT380-260	bad	ZC3H8	
+Arttu	UT380-262	bad	ZFAT	
+Arttu	UT380-263	bad	ZFAT	
+Arttu	SRR3405113	good	ZFP1	Looks specific
+Arttu	SRR3405111	good	ZFP14	
+Arttu	AATB_A_CA40NTCGATG	bad	ZFP28	
+Arttu	AAT_A_TC40NTAAGTG	bad	ZFP28	
+Arttu	AATA_AffSeq_G8_ZFP28	bad	ZFP28	
+Arttu	AATBA_AffSeq_C9_ZFP28	bad	ZFP28	
+Arttu	SI0343	good	ZFP28	
+Arttu	SI0216	good	ZFP28	
+Arttu	SI0180	good	ZFP3	
+Arttu	AATB_A_CG40NGTTATT	good	ZFP3	
+Arttu	AAT_A_GC40NAGAGTT	good	ZFP3	
+Arttu	AATA_AffSeq_E5_ZFP3	dunno	ZFP3	HT-SELEX explains the peaks better that Affiseq
+Arttu	AATBA_AffSeq_D9_ZFP3	good	ZFP3	chummy-amethyst-skunk is nice and the other one garbage
+Arttu	SRR3405105	dunno	ZFP82	looks distinct but has low information content
+Arttu	UT380-265	good	ZFP91	
+Arttu	UT380-264	good	ZFP91	
+Arttu	PBM13941	good	ZGLP1	Validated also by an earlier HT-SELEX experiment
+Arttu	PBM13718	good	ZGLP1	Validated also by an earlier HT-SELEX experiment
+Arttu	UT380-269	bad	ZGLP1	
+Arttu	PBM13931	bad	ZGPAT	
+Arttu	PBM13930	bad	ZGPAT	
+Arttu	UT380-270	bad	ZGPAT	
+Arttu	UT380-271	bad	ZGPAT	
+Arttu	UT380-275	dunno	ZHX2	
+Arttu	PBM13866	bad	ZHX2	
+Arttu	PBM13865	bad	ZHX2	
+Arttu	PBM13868	bad	ZHX3	
+Arttu	PBM13867	bad	ZHX3	
+Arttu	UT380-278	bad	ZHX3	
+Arttu	SI0545	good	ZIM3	
+Arttu	AATB_A_GA40NCTGATT	bad	ZIM3	
+Arttu	AAT_A_AT40NCGGGTT	good	ZIM3	
+Arttu	AATA_AffSeq_B7_ZIM3	good	ZIM3	
+Arttu	AATBA_AffSeq_E9_ZIM3	bad	ZIM3	
+Arttu	SRR3405103	good	ZKSCAN1	
+Arttu	UT380-280	bad	ZKSCAN4	
+Arttu	UT380-279	bad	ZKSCAN4	
+Arttu	UT380-285	bad	ZNF107	
+Arttu	UT380-286	bad	ZNF107	
+Arttu	UT380-284	bad	ZNF107	
+Arttu	AAT_A_TT40NTACAGC	bad	ZNF121	One of the experiments gives non-unique crap and the other one NFI
+Arttu	SI0266	good	ZNF121	
+Arttu	SI0218	good	ZNF121	
+Arttu	AATB_A_GG40NCGTAGT	bad	ZNF121	
+Arttu	AATBA_AffSeq_F9_ZNF121	dunno	ZNF121	ChIP-seq PWM gives nice ROC in Affiseq even though motifs are crap
+Arttu	AATA_AffSeq_H6_ZNF121	bad	ZNF121	Other one is NFI and the other one crap
+Arttu	UT380-288	good	ZNF131	Motif looks real as it isn't any of the expected bugs and reads have diversity
+Arttu	UT380-287	bad	ZNF131	
+Arttu	AAT_A_AC40NTGTTAC	good	ZNF134	
+Arttu	SI0427	good	ZNF134	
+Arttu	AATB_A_TA40NCGTCGG	bad	ZNF134	
+Arttu	AATA_AffSeq_A7_ZNF134	good	ZNF134	
+Arttu	AATBA_AffSeq_G9_ZNF134	dunno	ZNF134	binds to a microsatellite type sequence. This might actually be interesting
+Arttu	SRR3405109	bad	ZNF135	
+Arttu	UT380-289	bad	ZNF14	
+Arttu	SI0340	good	ZNF140	
+Arttu	AATB_A_TC40NGGCTGT	bad	ZNF140	
+Arttu	AATBA_AffSeq_H9_ZNF140	bad	ZNF140	
+Arttu	UT380-290	dunno	ZNF142	GATA-like signal that disagrees with the replicate
+Arttu	UT380-291	dunno	ZNF142	bHLH or CREB3 bZIP -like signal that disagrees with the replicate
+Arttu	SI0410	good	ZNF146	
+Arttu	AATB_A_AA40NCCGCGT	bad	ZNF146	
+Arttu	AATBA_AffSeq_A10_ZNF146	dunno	ZNF146	Enrichment for a microsatellite sequence that also enriches in ChIP-seq
+Arttu	AATB_A_AG40NACCATA	bad	ZNF16	
+Arttu	AAT_A_TT40NTAGCAG	good	ZNF16	
+Arttu	AAT_A_CT40NGTTGGG	good	ZNF16	
+Arttu	AATA_AffSeq_H7_ZNF16	good	ZNF16	skinny-ruby-moth is nice while the other animal is nasty
+Arttu	AATBA_AffSeq_B10_ZNF16	bad	ZNF16	
+Arttu	UT380-293	bad	ZNF160	
+Arttu	UT380-292	bad	ZNF160	
+Arttu	SI0563	good	ZNF18	
+Arttu	AAT_A_GT40NTTGGTG	good	ZNF18	
+Arttu	AATA_AffSeq_F5_ZNF18	good	ZNF18	
+Arttu	AAT_A_AT40NAGCCTC	bad	ZNF189	NFI-signal
+Arttu	SI0201	good	ZNF189	Main motifs are ETS-like and likely not real targets for this TF
+Arttu	AATB_A_CA40NTGCCGT	bad	ZNF189	
+Arttu	AATA_AffSeq_B5_ZNF189	bad	ZNF189	NFI-signal
+Arttu	AATBA_AffSeq_C10_ZNF189	bad	ZNF189	
+Arttu	UT380-294	bad	ZNF20	
+Arttu	UT380-298	bad	ZNF208	
+Arttu	UT380-296	bad	ZNF208	
+Arttu	UT380-297	bad	ZNF208	
+Arttu	UT380-299	bad	ZNF215	
+Arttu	UT380-300	bad	ZNF215	
+Arttu	AAT_A_TT40NCTCGTC	good	ZNF22	
+Arttu	AAT_A_GC40NATTTGC	bad	ZNF22	
+Arttu	SI0064	bad	ZNF22	
+Arttu	AATB_A_CG40NACGGTT	bad	ZNF22	One of the usual suspect signals
+Arttu	AATA_AffSeq_E6_ZNF22	bad	ZNF22	Enrichment mostly for NFI
+Arttu	AATBA_AffSeq_D10_ZNF22	bad	ZNF22	
+Arttu	UT380-302	bad	ZNF226	
+Arttu	UT380-301	bad	ZNF226	
+Arttu	UT380-305	bad	ZNF230	
+Arttu	UT380-306	bad	ZNF233	
+Arttu	SI0321	good	ZNF250	
+Arttu	AATB_A_GA40NGGTCAT	bad	ZNF250	
+Arttu	AAT_A_TC40NTTCCGG	bad	ZNF250	
+Arttu	AATA_AffSeq_G5_ZNF250	good	ZNF250	Peaks seem nice cloudy-green-dane, reads crap
+Arttu	AATBA_AffSeq_E10_ZNF250	bad	ZNF250	nonunique crap
+Ally	PBM13513	good	AHCTF1	
+Ally	PBM13522	good	AKAP8L	
+Ally	YWC_B_GG40NGGTTTA	dunno	AKAP8L	
+Ally	UT380-012	dunno	AKAP8L	
+Rozy	THC_0171	good	NACC2	
+Rozy	THC_0131	good	NACC2	
+Rozy	THC_0179	good	NACC2	
+Rozy	PBM13741	good	NACC2	
+Rozy	UT380-127-2	good	NACC2	
+Rozy	UT380-127-1	dunno	NACC2	
+Rozy	YWC_B_TG40NTGTGTT	good	NACC2	
+Rozy	SI0254	good	ZNF30	
+Rozy	SI0241	good	ZNF30	
+Rozy	SI0587	good	ZNF30	
+Rozy	AATB_A_AA40NAGTGGT	good	ZNF30	
+Rozy	AAT_A_GT40NCATTCT	good	ZNF30	
+Rozy	AATA_AffSeq_F6_ZNF30	dunno	ZNF30	
+Rozy	AATBA_AffSeq_A11_ZNF30	good	ZNF30	
+Rozy	THC_0189	good	C11orf95	
+Rozy	THC_0197	good	C11orf95	
+Rozy	PBM13841	good	C11orf95	
+Rozy	YWC_A_GT40NGCGTGT	dunno	C11orf95	
+Arttu	UT380-309	dunno	ZNF251	
+Arttu	SI0551	good	ZNF260	
+Arttu	AATB_A_GG40NGGTTTA	bad	ZNF260	
+Arttu	AAT_A_AT40NCCTTGG	good	ZNF260	
+Arttu	AATA_AffSeq_B8_ZNF260	good	ZNF260	
+Arttu	AATBA_AffSeq_F10_ZNF260	bad	ZNF260	
+Arttu	SI0039	good	ZNF264	
+Arttu	AATB_A_TA40NTCACTC	good	ZNF264	A bit weak but proces actually
+Arttu	AAT_A_CC40NCGTTTT	bad	ZNF264	Motifs look like NFI
+Arttu	AATA_AffSeq_C7_ZNF264	bad	ZNF264	
+Arttu	AATBA_AffSeq_G10_ZNF264	bad	ZNF264	Most of the motifs are derived from constant flanks AGATCGGAA
+Arttu	AAT_A_TG40NCCATTT	bad	ZNF280A	
+Arttu	SI0576	bad	ZNF280A	
+Arttu	AATA_AffSeq_H5_ZNF280A	bad	ZNF280A	Just NFI
+Arttu	AATBA_AffSeq_H10_ZNF280A	bad	ZNF280A	Flank signal motifs
+Arttu	SRR3405114	good	ZNF282	
+Arttu	SI0587	good	ZNF30	
+Arttu	SI0241	good	ZNF30	
+Arttu	SI0254	good	ZNF30	
+Arttu	AATB_A_AA40NAGTGGT	bad	ZNF30	
+Arttu	AAT_A_GT40NCATTCT	bad	ZNF30	NFI signals
+Arttu	AATA_AffSeq_F6_ZNF30	bad	ZNF30	NFI signals
+Arttu	AATBA_AffSeq_A11_ZNF30	bad	ZNF30	
+Arttu	SI0336	good	ZNF317	
+Arttu	SI0581	good	ZNF317	
+Arttu	AATB_A_AG40NGGAATC	bad	ZNF317	
+Arttu	AATBA_AffSeq_B11_ZNF317	bad	ZNF317	
+Arttu	SI0289	good	ZNF322	
+Arttu	AATB_A_CA40NAGCGTA	bad	ZNF322	
+Arttu	AAT_A_AC40NGATGTT	good	ZNF322	
+Arttu	AATA_AffSeq_A6_ZNF322	dunno	ZNF322	Motif seem to correspond to NFI signals
+Arttu	AATBA_AffSeq_C11_ZNF322	bad	ZNF322	
+Arttu	UT380-322	bad	ZNF326	
+Arttu	UT380-321	bad	ZNF326	
+Arttu	UT380-323	bad	ZNF335	
+Arttu	UT380-325	bad	ZNF335	
+Arttu	UT380-324	bad	ZNF335	
+Arttu	SI0227	good	ZNF35	
+Arttu	AATB_A_CG40NTCTTGA	good	ZNF35	
+Arttu	AAT_A_AC40NTCCTTG	good	ZNF35	
+Arttu	AAT_A_TC40NAATCTC	good	ZNF35	
+Arttu	AATA_AffSeq_G6_ZNF35	good	ZNF35	
+Arttu	AATBA_AffSeq_D11_ZNF35	good	ZNF35	
+Arttu	SI0571	good	ZNF382	
+Arttu	SI0051	good	ZNF382	
+Arttu	SI0057	good	ZNF382	
+Arttu	SI0110	good	ZNF382	
+Arttu	AATB_A_GA40NTTCCTA	bad	ZNF382	
+Arttu	AAT_A_AT40NTCTGTC	bad	ZNF382	
+Arttu	AATA_AffSeq_B6_ZNF382	bad	ZNF382	
+Arttu	AATBA_AffSeq_E11_ZNF382	bad	ZNF382	
+Arttu	AATBA_AffSeq_F11_ZNF384	bad	ZNF384	
+Arttu	SRR3405107	good	ZNF415	
+Arttu	SI0433	good	ZNF436	
+Arttu	AATB_A_TA40NAGGCTT	bad	ZNF436	
+Arttu	AAT_A_GC40NCACTTC	bad	ZNF436	
+Arttu	AATA_AffSeq_E7_ZNF436	good	ZNF436	
+Arttu	AATBA_AffSeq_G11_ZNF436	good	ZNF436	
+Arttu	AATB_A_TG40NTGATCT	bad	ZNF454	
+Arttu	AAT_A_CC40NTTGTTA	bad	ZNF454	
+Arttu	AATA_AffSeq_C6_ZNF454	bad	ZNF454	Just NFI
+Arttu	AATBA_AffSeq_H11_ZNF454	bad	ZNF454	
+Arttu	UT380-346	bad	ZNF469	
+Arttu	SI0271	good	ZNF490	
+Arttu	AATB_A_AA40NGTGGTC	bad	ZNF490	
+Arttu	AAT_A_GT40NGCGTGT	bad	ZNF490	
+Arttu	AATA_AffSeq_F7_ZNF490	bad	ZNF490	Flank contamination issues AGATCGGAAGAGCA
+Arttu	AATBA_AffSeq_A12_ZNF490	dunno	ZNF490	Some motifs give a good ROC on ChIP Flank crap AGATCGGAAGAGCA
+Arttu	UT380-354	good	ZNF493	
+Arttu	UT380-353	bad	ZNF493	
+Arttu	AATBA_AffSeq_B12_ZNF502	bad	ZNF502	Flank issues AGATCGGAAGAG
+Arttu	UT380-372	dunno	ZNF536	Low information content for a C2H2
+Arttu	UT380-373	dunno	ZNF536	Low information content for a C2H2
+Arttu	AATBA_AffSeq_C12_ZNF563	bad	ZNF563	Flank issues
+Arttu	SI0327	good	ZNF582	
+Arttu	AATB_A_CT40NCGGAGA	bad	ZNF582	
+Arttu	AAT_A_CG40NAATAGC	bad	ZNF582	NFI issues
+Arttu	AATA_AffSeq_C8_ZNF582	bad	ZNF582	NFI issues
+Arttu	AATBA_AffSeq_D12_ZNF582	dunno	ZNF582	This might have some signal but is messed up by flank issues
+Rozy	THC_0235	good	CXXC4	
+Rozy	THC_0243	good	CXXC4	
+Rozy	PBM13936	good	CXXC4	
+Rozy	PBM13586	good	CXXC4	
+Rozy	YWC_B_TG40NTGATCT	good	CXXC4	
+Rozy	THC_0248	good	FBXL19	
+Rozy	THC_0240	good	FBXL19	
+Rozy	PBM13937	good	FBXL19	
+Rozy	YWC_B_AG40NTGGCTA	good	FBXL19	
+Rozy	UT380-068-1	good	FBXL19	
+Rozy	UT380-068-2	good	FBXL19	
+Vanja	UT380-001	bad	AC008770	
+Vanja	PBM13518	bad	AC008770	
+Vanja	PBM13519	bad	AC008770	
+Vanja	PBM13520	bad	AC092835	
+Vanja	UT380-003	bad	AC092835	
+Vanja	UT380-002	bad	AC092835	
+Vanja	UT380-004	bad	ADNP	
+Vanja	PBM13526	bad	ADNP	
+Vanja	PBM13525	bad	ADNP	
+Vanja	PBM13527	bad	ADNP2	
+Vanja	PBM13528	bad	ADNP2	
+Vanja	UT380-006	bad	ADNP2	
+Vanja	PBM13684	dunno	AEBP1	
+Vanja	PBM13513	dunno	AHCTF1	
+Vanja	YWC_B_GG40NCGTAGT	dunno	AHCTF1	
+Vanja	UT380-009	dunno	AHCTF1	
+Vanja	UT380-011	dunno	AKAP8	
+Vanja	UT380-010	dunno	AKAP8	
+Vanja	PBM13521	dunno	AKAP8	
+Vanja	UT380-012	bad	AKAP8L	
+Vanja	YWC_B_GG40NGGTTTA	bad	AKAP8L	
+Vanja	PBM13522	dunno	AKAP8L	
+Vanja	PBM13514	dunno	AKNA	
+Vanja	PBM13835	dunno	AKNA	
+Vanja	UT380-015	dunno	AKNA	
+Vanja	UT380-014	dunno	AKNA	
+Vanja	PBM13523	bad	ANKZF1	
+Vanja	UT380-016	dunno	ANKZF1	
+Vanja	UT380-017	dunno	ANKZF1	
+Vanja	PBM13685	bad	ARHGAP35	
+Vanja	PBM13834	bad	ARID2	
+Vanja	PBM13524	dunno	ATMIN	
+Vanja	UT380-021	dunno	ATMIN	
+Vanja	UT380-020	dunno	ATMIN	
+Vanja	PBM13517	dunno	BATF2	
+Vanja	PBM13516	dunno	BATF2	
+Vanja	UT380-022	dunno	BATF2	
+Vanja	PBM13515	dunno	BHLHA9	
+Vanja	UT380-023	dunno	BHLHA9	
+Vanja	PBM13686	bad	BRF2	
+Vanja	YWC_A_GT40NGCGTGT	bad	C11orf95	
+Vanja	PBM13841	good	C11orf95	
+Vanja	THC_0197	good	C11orf95	
+Vanja	THC_0189	good	C11orf95	
+Vanja	PBM13554	dunno	CAMTA1	
+Vanja	PBM13555	bad	CAMTA2	
+Vanja	UT380-029	dunno	CASZ1	
+Vanja	UT380-028	dunno	CASZ1	
+Vanja	PBM13417	dunno	CCDC17	
+Vanja	UT380-032	dunno	CCDC17	
+Vanja	SRR3405054	good	CEBPB	
+Vanja	PBM13556	bad	CENPA	
+Vanja	PBM13687	bad	CENPS	
+Vanja	PBM13557	bad	CENPT	
+Vanja	PBM13558	bad	CENPX	
+Vanja	PBM13559	good	CGGBP1	
+Vanja	UT380-037	good	CGGBP1	
+Vanja	THC_0246	dunno	CHAMP1	
+Vanja	PBM13581	dunno	CHAMP1	
+Vanja	YWC_B_TA40NTCACTC	dunno	CHAMP1	
+Vanja	UT380-038	dunno	CHAMP1	
+Vanja	PBM13688	bad	CHCHD3	
+Vanja	PBM13583	dunno	CPXCR1	
+Vanja	PBM13582	dunno	CPXCR1	
+Vanja	UT380-041	dunno	CPXCR1	
+Vanja	PBM13579	dunno	CREB3L3	
+Vanja	PBM13580	good	CREB3L3	
+Vanja	UT380-042	good	CREB3L3	
+Vanja	None	None	CREB3L3	FL PBM disagrees with DBD PBM
+Vanja	PBM13611	bad	CSRNP1	
+Vanja	PBM13612	bad	CSRNP1	
+Vanja	PBM13613	bad	CSRNP2	
+Vanja	PBM13614	bad	CSRNP2	
+Vanja	PBM13615	bad	CSRNP3	
+Vanja	PBM14451	dunno	CTCF	
+Vanja	SRR3405078	dunno	CTCF	
+Vanja	None	None	CTCF	Surprisingly, very close the proper long motif even using PBMs
+Vanja	THC_0235	good	CXXC4	
+Vanja	THC_0243	good	CXXC4	
+Vanja	PBM13936	good	CXXC4	
+Vanja	PBM13586	good	CXXC4	
+Vanja	YWC_B_TG40NTGATCT	good	CXXC4	
+Vanja	PBM13616	bad	DACH1	
+Vanja	UT380-051	bad	DACH1	
+Vanja	UT380-050	bad	DACH1	
+Vanja	PBM13617	bad	DACH2	
+Vanja	PBM13618	bad	DACH2	
+Vanja	UT380-055	bad	DMRTB1	
+Vanja	PBM13609	bad	DMRTB1	
+Vanja	PBM13610	bad	DMRTB1	
+Vanja	PBM13678	dunno	DMTF1	
+Vanja	UT380-056-1	dunno	DMTF1	
+Vanja	UT380-056-2	dunno	DMTF1	
+Vanja	UT380-057	dunno	DMTF1	
+Vanja	PBM13577	bad	DNTTIP1	
+Vanja	PBM13578	bad	DNTTIP1	
+Vanja	PBM13737	bad	DR1	
+Vanja	PBM13619	bad	DRAP1	
+Vanja	PBM13584	bad	DZIP1	
+Vanja	UT380-062	bad	DZIP1	
+Vanja	UT380-063	bad	EEA1	
+Vanja	PBM13585	bad	EEA1	
+Vanja	UT380-064	good	ELF3	
+Vanja	UT380-065	bad	FAM170A	
+Vanja	PBM13707	good	FAM200B	
+Vanja	UT380-066-1	good	FAM200B	
+Vanja	UT380-066-2	good	FAM200B	
+Vanja	THC_0248	good	FBXL19	
+Vanja	THC_0240	good	FBXL19	
+Vanja	PBM13937	good	FBXL19	
+Vanja	YWC_B_AG40NTGGCTA	good	FBXL19	
+Vanja	UT380-068-1	good	FBXL19	
+Vanja	UT380-068-2	good	FBXL19	
+Vanja	UT380-070	bad	FIZ1	
+Vanja	PBM14351	good	FLI1	
+Vanja	PBM13940	dunno	FLYWCH1	
+Vanja	UT380-071	dunno	FLYWCH1	
+Vanja	PBM14347	good	FOSL2	
+Vanja	SRR3405112	good	FOSL2	
+Vanja	SRR3405124	good	FOXP2	
+Vanja	PBM14352	good	GABPA	
+Vanja	SRR3405148	good	GATA3	
+Vanja	PBM13643	bad	GATAD2A	
+Vanja	UT380-073	bad	GATAD2A	
+Vanja	PBM13645	bad	GATAD2B	
+Vanja	PBM13644	bad	GATAD2B	
+Vanja	UT380-075	bad	GATAD2B	
+Vanja	PBM14359	good	GCM1	
+Vanja	SRR3405056	good	GCM1	
+Vanja	AATB_A_AA40NTATCGC	bad	GLI4	
+Vanja	SI0368	good	GLI4	
+Vanja	AAT_A_CT40NCTACTT	good	GLI4	
+Vanja	AATA_AffSeq_D5_GLI4	good	GLI4	
+Vanja	AATBA_AffSeq_A9_GLI4	bad	GLI4	
+Vanja	PBM13651	bad	GLMP	
+Vanja	THC_0088	bad	GLYR1	
+Vanja	THC_0148	bad	GLYR1	
+Vanja	THC_0184	bad	GLYR1	
+Vanja	PBM13642	dunno	GLYR1	
+Vanja	PBM13641	dunno	GLYR1	
+Vanja	PBM14697	dunno	GLYR1	
+Vanja	YWC_B_TC40NGGCTGT	dunno	GLYR1	
+Vanja	UT380-077	dunno	GLYR1	
+Vanja	PBM13738	dunno	GPBP1	
+Vanja	PBM13781	dunno	GPBP1	
+Vanja	PBM13739	dunno	GPBP1L1	
+Vanja	PBM13646	good	GRHL3	
+Vanja	UT380-082	good	GRHL3	
+Vanja	UT380-084	dunno	GTF2IRD2	
+Vanja	UT380-083	dunno	GTF2IRD2	
+Vanja	PBM13942	dunno	GTF2IRD2B	
+Vanja	UT380-086	dunno	GTF2IRD2B	
+Vanja	UT380-085	dunno	GTF2IRD2B	
+Vanja	UT380-087	dunno	HMG20A	
+Vanja	PBM13976	dunno	HMG20A	
+Vanja	PBM13647	dunno	HMG20A	
+Vanja	PBM13648	dunno	HMG20A	
+Vanja	PBM13719	bad	HMGN3	
+Vanja	UT380-090	bad	HSFX1	
+Vanja	PBM13870	bad	HSFX1	
+Vanja	PBM13649	bad	HSFX1	
+Vanja	PBM13650	bad	HSFX2	
+Vanja	PBM13676	bad	HSFX2	
+Vanja	UT380-092	dunno	JAZF1	
+Vanja	THC_0247	good	JRK	
+Vanja	THC_0239	good	JRK	
+Vanja	PBM13714	good	JRK	
+Vanja	PBM13932	good	JRK	
+Vanja	YWC_B_CA40NAGCGTA	good	JRK	
+Vanja	UT380-093	bad	JRK	
+Vanja	SRR3405059	bad	JUN	
+Vanja	SRR3405057	good	JUN	
+Vanja	PBM14357	good	JUN	
+Vanja	PBM14345	good	JUNB	
+Vanja	SRR3405060	bad	JUNB	
+Vanja	SRR3405061	good	JUND	
+Vanja	UT380-096	dunno	KAT7	
+Vanja	UT380-095	dunno	KAT7	
+Vanja	PBM13740	bad	KCNIP3	
+Vanja	PBM13833	bad	KDM5B	
+Vanja	UT380-098	bad	KDM2A	
+Vanja	PBM13938	dunno	KDM2A	
+Vanja	UT380-100	dunno	KIN	
+Vanja	PBM14349	good	LEF1	
+Vanja	SRR3405063	good	LEF1	
+Vanja	UT380-103	bad	LEUTX	
+Vanja	PBM14323	good	LEUTX	GATA motif?
+Vanja	PBM13720	good	LEUTX	GATA motif?
+Vanja	PBM14348	good	LHX6	
+Vanja	SRR3405064	good	LHX6	
+Vanja	PBM14317	good	MAX	
+Vanja	SRR3405065	good	MAX	
+Vanja	UT380-104	bad	MAZ	
+Vanja	PBM13971	dunno	MBD1	
+Vanja	PBM13780	dunno	MBD1	
+Vanja	UT380-105-2	dunno	MBD1	
+Vanja	UT380-106	dunno	MBD1	
+Vanja	UT380-105-1	dunno	MBD1	
+Vanja	PBM13872	bad	MBD3	
+Vanja	PBM13873	dunno	MBD4	
+Vanja	UT380-109	dunno	MBD4	
+Vanja	UT380-108	dunno	MBD4	
+Vanja	PBM13874	bad	MBD6	
+Vanja	PBM13929	good	MBNL2	
+Vanja	PBM13943	bad	MKX	
+Vanja	PBM13673	dunno	MKX	
+Vanja	UT380-113	dunno	MKX	
+Vanja	PBM13677	bad	MSANTD1	
+Vanja	PBM13871	bad	MSANTD1	
+Vanja	UT380-115	good	MSANTD4	
+Vanja	PBM13679	good	MSANTD4	
+Vanja	PBM13877	dunno	MTERF2	
+Vanja	PBM13878	bad	MTERF3	
+Vanja	PBM13879	bad	MTERF4	
+Vanja	PBM14377	good	MYF6	
+Vanja	PBM13880	dunno	MYPOP	
+Vanja	PBM13680	good	MYPOP	
+Vanja	PBM13899	bad	MYRFL	
+Vanja	PBM13681	bad	MYSM1	
+Vanja	UT380-124	bad	MYSM1	
+Vanja	UT380-123	bad	MYSM1	
+Vanja	UT380-126	dunno	MYT1	
+Vanja	UT380-125	dunno	MYT1	
+Vanja	UT380-127-1	bad	NACC2	
+Vanja	UT380-127-2	good	NACC2	
+Vanja	YWC_B_TG40NTGTGTT	good	NACC2	
+Vanja	PBM13741	good	NACC2	
+Vanja	THC_0179	good	NACC2	
+Vanja	THC_0131	good	NACC2	
+Vanja	THC_0171	good	NACC2	
+Vanja	PBM13674	bad	NANOGNB	
+Vanja	PBM13843	bad	NCOA1	
+Vanja	PBM13844	bad	NCOA2	
+Vanja	PBM13845	bad	NCOA3	
+Vanja	PBM14452	good	NFKB1	
+Vanja	SRR3405069	good	NFKB1	
+Vanja	UT380-133	dunno	NFX1	
+Vanja	PBM13900	dunno	NFX1	
+Vanja	PBM13901	dunno	NFXL1	
+Vanja	UT380-135	dunno	NFXL1	
+Vanja	PBM13742	bad	NKRF	
+Vanja	PBM13356	bad	NME2	
+Vanja	UT380-138	bad	NME2	
+Vanja	PBM14355	good	NR1H4	
+Vanja	PBM14360	good	NR4A2	
+Vanja	SRR3405072	good	NR4A2	
+Vanja	SRR3405073	good	OKT4	
+Vanja	PBM13743	bad	PA2G4	
+Vanja	PBM14356	good	PAX7	
+Vanja	SRR3405074	good	PAX7	
+Vanja	PBM13744	bad	PCGF2	
+Vanja	PBM13745	bad	PCGF6	
+Vanja	UT380-143	dunno	PEG3	
+Vanja	UT380-142	dunno	PEG3	
+Vanja	PBM13783	bad	PHF19	
+Vanja	PBM13782	bad	PHF19	
+Vanja	THC_0144	dunno	PHF21A	
+Vanja	PBM13836	dunno	PHF21A	
+Vanja	YWC_B_AA40NCCGCGT	dunno	PHF21A	
+Vanja	UT380-144-1	dunno	PHF21A	
+Vanja	UT380-144-2	dunno	PHF21A	
+Vanja	PBM13875	bad	PIN1	
+Vanja	PBM13746	bad	PLSCR1	
+Vanja	UT380-149	dunno	POGK	
+Vanja	UT380-148	dunno	POGK	
+Vanja	PBM13713	bad	POGK	
+Vanja	UT380-150	good	POU5F1	
+Vanja	PBM14346	good	POU5F1	
+Vanja	PBM13869	bad	POU5F2	
+Vanja	UT380-152	dunno	PRDM10	
+Vanja	UT380-153	dunno	PRDM10	
+Vanja	UT380-155	dunno	PRDM13	
+Vanja	UT380-154	good	PRDM13	
+Vanja	UT380-157	bad	PRDM2	
+Vanja	UT380-156	bad	PRDM2	
+Vanja	UT380-158	dunno	PRDM5	
+Vanja	UT380-159	dunno	PRDM5	
+Vanja	UT380-161	bad	PRDM8	
+Vanja	UT380-160	bad	PRDM8	
+Vanja	PBM13747	bad	PREB	
+Vanja	PBM13784	bad	PREB	
+Vanja	UT380-165	good	PURB	
+Vanja	PBM13748	good	PURB	
+Vanja	PBM14454	good	PURB	
+Vanja	PBM14324	good	PURB	
+Vanja	PBM13749	bad	PURG	
+Vanja	PBM13750	bad	RAG1	
+Vanja	PBM14354	good	RARA	
+Vanja	SRR3405076	good	RARA	
+Vanja	PBM13902	bad	RFX8	
+Vanja	PBM13903	bad	RFX8	
+Vanja	SRR3405079	good	RORB	
+Vanja	SRR3405080	good	RORB	
+Vanja	PBM14353	good	RORB	
+Vanja	SRR3405081	good	RORC	
+Vanja	PBM14321	good	RXRA	
+Vanja	SRR3405082	good	RXRA	
+Vanja	PBM13751	bad	SAFB	
+Vanja	PBM13752	bad	SAFB2	
+Vanja	PBM13769	bad	SCMH1	
+Vanja	PBM13837	bad	SCML4	
+Vanja	UT380-185-3	dunno	SETBP1	
+Vanja	UT380-185-1	dunno	SETBP1	
+Vanja	UT380-185-2	dunno	SETBP1	
+Vanja	UT380-187	dunno	SETBP1	
+Vanja	YWC_B_AG40NACCATA	dunno	SETBP1	
+Vanja	PBM13840	bad	SETBP1	
+Vanja	PBM13838	bad	SETBP1	
+Vanja	PBM13839	bad	SETBP1	
+Vanja	THC_0196	dunno	SETBP1	
+Vanja	PBM13876	dunno	SETDB2	
+Vanja	UT380-188	dunno	SETDB2	
+Vanja	UT380-189	dunno	SETDB2	
+Vanja	THC_0180	bad	SGSM2	
+Vanja	THC_0132	bad	SGSM2	
+Vanja	PBM13708	bad	SGSM2	
+Vanja	YWC_A_TT40NTAGCAG	dunno	SGSM2	
+Vanja	UT380-190	dunno	SGSM2	
+Vanja	UT380-193	bad	SLC2A4RG	
+Vanja	PBM14325	bad	SMYD3	
+Vanja	PBM13770	bad	SMYD3	
+Vanja	UT380-194	bad	SMYD3	
+Vanja	PBM13771	bad	SNAPC2	
+Vanja	PBM13357	bad	SNAPC5	
+Vanja	PBM13847	bad	SOHLH1	
+Vanja	PBM13846	bad	SOHLH1	
+Vanja	PBM14319	good	SOX15	
+Vanja	SRR3405085	good	SOX17	
+Vanja	PBM14378	good	SOX2	
+Vanja	SRR3405086	good	SOX2	
+Vanja	PBM13776	bad	SP100	
+Vanja	PBM13972	bad	SP100	
+Vanja	UT380-198	bad	SP100	
+Vanja	PBM13777	bad	SP110	
+Vanja	THC_0193	good	SP140	
+Vanja	THC_0185	dunno	SP140	
+Vanja	YWC_B_GC40NTCTCTT	dunno	SP140	
+Vanja	THC_0072	good	SP140L	
+Vanja	PBM13779	good	SP140L	
+Vanja	PBM13904	bad	SP140L	
+Vanja	YWC_B_GT40NTGTGGA	good	SP140L	
+Vanja	PBM13905	bad	TBPL1	
+Vanja	PBM13772	bad	TCF20	
+Vanja	SRR3405092	good	TCF7	
+Vanja	UT380-209	dunno	TERB1	
+Vanja	UT380-208	dunno	TERB1	
+Vanja	PBM13682	bad	TERB1	
+Vanja	PBM13898	good	TERF1	
+Vanja	PBM13897	dunno	TERF1	
+Vanja	PBM13773	bad	TET2	
+Vanja	SRR3405093	good	TFE3	
+Vanja	SRR3405094	good	TFE3	
+Vanja	PBM13906	dunno	THAP10	
+Vanja	PBM13907	dunno	THAP10	
+Vanja	UT380-213	dunno	THAP10	
+Vanja	PBM13909	bad	THAP11	
+Vanja	PBM13908	bad	THAP11	
+Vanja	UT380-214	bad	THAP11	
+Vanja	PBM13910	bad	THAP2	
+Vanja	UT380-215	bad	THAP2	
+Vanja	PBM13911	bad	THAP4	
+Vanja	PBM13912	bad	THAP4	
+Vanja	PBM13962	bad	THAP5	
+Vanja	PBM13961	bad	THAP5	
+Vanja	UT380-218	bad	THAP5	
+Vanja	PBM13963	dunno	THAP6	
+Vanja	UT380-219	bad	THAP6	
+Vanja	UT380-220	dunno	THAP7	
+Vanja	PBM13965	bad	THAP7	
+Vanja	PBM13964	bad	THAP7	
+Vanja	UT380-221	bad	THAP8	
+Vanja	PBM13967	bad	THAP8	
+Vanja	PBM13966	bad	THAP8	
+Vanja	PBM13968	bad	THAP9	
+Vanja	PBM13774	bad	THYN1	
+Vanja	THC_0104	good	TIGD3	
+Vanja	THC_0146	good	TIGD3	
+Vanja	PBM13715	good	TIGD3	
+Vanja	PBM13933	good	TIGD3	
+Vanja	YWC_B_GA40NTTCCTA	good	TIGD3	
+Vanja	UT380-225	good	TIGD3	
+Vanja	PBM13934	good	TIGD4	
+Vanja	PBM13716	bad	TIGD4	
+Vanja	UT380-227	good	TIGD4	
+Vanja	UT380-226	good	TIGD4	
+Vanja	UT380-229	good	TIGD5	
+Vanja	UT380-228	good	TIGD5	
+Vanja	UT380-230	bad	TIGD7	
+Vanja	THC_0194	dunno	TIGD7	
+Vanja	PBM13935	dunno	TIGD7	
+Vanja	YWC_B_GG40NTAGTTT	dunno	TIGD7	
+Vanja	PBM13717	dunno	TIGD7	
+Vanja	PBM13775	bad	TMF1	
+Vanja	PBM13675	good	TPRX1	
+Vanja	PBM13944	good	TPRX1	
+Vanja	UT380-233-2	good	TPRX1	
+Vanja	UT380-233-1	good	TPRX1	
+Vanja	UT380-237	dunno	TSHZ2	
+Vanja	UT380-238	dunno	TSHZ2	
+Vanja	UT380-239	bad	TTF1	
+Vanja	UT380-240	bad	TTF1	
+Vanja	PBM13683	bad	TTF1	
+Vanja	PBM13848	good	USF3	
+Vanja	UT380-241	good	USF3	
+Vanja	SRR3405095	good	VDR	
+Vanja	PBM14350	good	VDR	
+Vanja	SRR3405096	good	VSX1	
+Vanja	SRR3405098	dunno	YY1	
+Vanja	SRR3405097	good	YY1	
+Vanja	PBM14358	good	YY1	
+Vanja	YWC_A_AC40NTCCTTG	bad	ZBED2	
+Vanja	UT380-242	good	ZBED2	
+Vanja	PBM13709	good	ZBED2	
+Vanja	THC_0101	good	ZBED2	
+Vanja	UT380-243	bad	ZBED3	
+Vanja	PBM13710	bad	ZBED3	
+Vanja	THC_0245	bad	ZBED4	
+Vanja	THC_0237	bad	ZBED4	
+Vanja	PBM13975	good	ZBED4	
+Vanja	PBM13842	good	ZBED4	
+Vanja	YWC_A_CG40NAATAGC	bad	ZBED4	
+Vanja	UT380-244	good	ZBED4	
+Vanja	THC_0083	bad	ZBED5	
+Vanja	THC_0081	good	ZBED5	
+Vanja	PBM13711	good	ZBED5	
+Vanja	YWC_A_GA40NTGTATC	good	ZBED5	
+Vanja	UT380-245-1	good	ZBED5	
+Vanja	UT380-245-2	good	ZBED5	
+Vanja	YWC_A_GG40NGTGAGA	bad	ZBED9	
+Vanja	PBM13712	bad	ZBED9	
+Vanja	THC_0116	dunno	ZBED9	
+Vanja	THC_0073	dunno	ZBED9	
+Vanja	UT380-247	dunno	ZBED9	
+Arttu	UT380-387	dunno	ZNF592	Maybe something
+Arttu	UT380-388	bad	ZNF592	
+Arttu	SI0474	good	ZNF596	Seems to bind to a GA microsatellite
+Arttu	AATA_AffSeq_D8_ZNF596	good	ZNF596	Seems to bind to a GA microsatellite
+Philipp	SRR3405092	dunno	TCF7	Primer contamination
+
+Arttu	AAT_A_GA40NTGTATC	bad	ZNF596	
+Philipp	SRR3405060	dunno	JUNB	Primer contamination
+Arttu	UT380-405	good	ZNF648	
+Arttu	UT380-406	good	ZNF648	
+Arttu	AATBA_AffSeq_E12_ZNF677	bad	ZNF677	Motifs correspond to flank AGATCGGAAGAGC
+Arttu	SRR3405110	good	ZNF682	
+Philipp	SRR3405059	dunno	JUN	Primer contamination
+
+Arttu	UT380-431	good	ZNF703	meme1 motif looks like a real TF target site
+Arttu	UT380-430	dunno	ZNF703	
+Arttu	SI0419	good	ZNF708	
+Arttu	AAT_A_CC40NGACATG	bad	ZNF708	
+Arttu	AATA_AffSeq_C5_ZNF708	bad	ZNF708	Signal in peaks is all NFI
+Arttu	SI0212	good	ZNF770	
+Arttu	AAT_A_GG40NGTGAGA	good	ZNF770	
+Arttu	AATB_A_GT40NACGATC	bad	ZNF770	
+Arttu	AATA_AffSeq_E8_ZNF770	good	ZNF770	
+Rozy	THC_0247	good	JRK	
+Rozy	THC_0239	good	JRK	
+Rozy	PBM13714	good	JRK	
+Rozy	PBM13932	good	JRK	
+Rozy	YWC_B_CA40NAGCGTA	good	JRK	
+Rozy	UT380-093	dunno	JRK	
+Rozy	THC_0180	bad	SGSM2	
+Rozy	THC_0132	bad	SGSM2	
+Rozy	PBM13708	bad	SGSM2	
+Rozy	YWC_A_TT40NTAGCAG	good	SGSM2	
+Rozy	UT380-190	dunno	SGSM2	
+Rozy	THC_0193	good	SP140	
+Rozy	THC_0185	dunno	SP140	
+Rozy	PBM13778	good	SP140	
+Rozy	PBM13973	good	SP140	
+Rozy	YWC_B_GC40NTCTCTT	good	SP140	
+Rozy	UT380-202	good	SP140	
+Rozy	THC_0090	good	SP140L	
+Rozy	THC_0072	good	SP140L	
+Rozy	PBM13779	good	SP140L	
+Rozy	PBM13904	dunno	SP140L	
+Rozy	YWC_B_GT40NTGTGGA	good	SP140L	
+Rozy	UT380-204	bad	SP140L	
+Rozy	THC_0104	good	TIGD3	
+Rozy	THC_0146	good	TIGD3	
+Rozy	PBM13715	good	TIGD3	
+Rozy	PBM13933	good	TIGD3	
+Rozy	YWC_B_GA40NTTCCTA	good	TIGD3	
+Rozy	UT380-225	good	TIGD3	
+Rozy	THC_0245	good	ZBED4	
+Rozy	THC_0237	good	ZBED4	
+Rozy	PBM13975	dunno	ZBED4	
+Rozy	PBM13842	bad	ZBED4	
+Rozy	YWC_A_CG40NAATAGC	bad	ZBED4	
+Rozy	UT380-244	dunno	ZBED4	
+Rozy	THC_0083	bad	ZBED5	
+Rozy	THC_0081	good	ZBED5	
+Rozy	PBM13711	good	ZBED5	
+Rozy	YWC_A_GA40NTGTATC	good	ZBED5	
+Rozy	UT380-245-1	good	ZBED5	
+Rozy	UT380-245-2	good	ZBED5	
+Rozy	THC_0073	good	ZBED9	
+Rozy	THC_0116	good	ZBED9	
+Rozy	PBM13712	good	ZBED9	
+Rozy	YWC_A_GG40NGTGAGA	bad	ZBED9	
+Rozy	UT380-247	bad	ZBED9	
+Rozy	SI0343	good	ZFP28	
+Rozy	SI0216	good	ZFP28	
+Rozy	AATB_A_CA40NTCGATG	bad	ZFP28	
+Rozy	AAT_A_TC40NTAAGTG	bad	ZFP28	
+Rozy	AATA_AffSeq_G8_ZFP28	dunno	ZFP28	
+Rozy	AATBA_AffSeq_C9_ZFP28	dunno	ZFP28	
+Rozy	SI0266	good	ZNF121	
+Rozy	SI0218	good	ZNF121	
+Rozy	AATB_A_GG40NCGTAGT	bad	ZNF121	
+Rozy	AAT_A_TT40NTACAGC	bad	ZNF121	
+Rozy	AATA_AffSeq_H6_ZNF121	dunno	ZNF121	
+Rozy	AATBA_AffSeq_F9_ZNF121	good	ZNF121	
+Rozy	SI0336	good	ZNF317	
+Rozy	SI0581	good	ZNF317	
+Rozy	AATB_A_AG40NGGAATC	bad	ZNF317	
+Rozy	AATBA_AffSeq_B11_ZNF317	dunno	ZNF317	
+Rozy	THC_0246	dunno	CHAMP1	
+Rozy	PBM13581	bad	CHAMP1	
+Rozy	YWC_B_TA40NTCACTC	bad	CHAMP1	
+Rozy	UT380-038	bad	CHAMP1	
+Vanja	UT380-248	bad	ZBTB24	
+Vanja	UT380-249	bad	ZBTB40	
+Vanja	UT380-251	dunno	ZBTB41	
+Vanja	UT380-250	dunno	ZBTB41	
+Vanja	UT380-253	dunno	ZBTB46	
+Vanja	UT380-252	dunno	ZBTB46	
+Vanja	UT380-255	dunno	ZBTB47	
+Vanja	UT380-254	dunno	ZBTB47	
+Vanja	PBM14453	dunno	ZC3H8	
+Vanja	PBM13486	dunno	ZC3H8	
+Vanja	UT380-260	dunno	ZC3H8	
+Vanja	UT380-262	dunno	ZFAT	
+Vanja	UT380-263	dunno	ZFAT	
+Vanja	SRR3405113	good	ZFP1	
+Vanja	SRR3405111	good	ZFP14	
+Vanja	AATA_AffSeq_G8_ZFP28	bad	ZFP28	
+Vanja	AATBA_AffSeq_C9_ZFP28	bad	ZFP28	
+Vanja	AATB_A_CA40NTCGATG	dunno	ZFP28	
+Vanja	AAT_A_TC40NTAAGTG	dunno	ZFP28	
+Vanja	SI0343	good	ZFP28	
+Vanja	SI0216	good	ZFP28	
+Vanja	SI0180	good	ZFP3	
+Vanja	AATB_A_CG40NGTTATT	good	ZFP3	
+Vanja	AAT_A_GC40NAGAGTT	good	ZFP3	
+Vanja	AATA_AffSeq_E5_ZFP3	good	ZFP3	
+Vanja	AATBA_AffSeq_D9_ZFP3	good	ZFP3	
+Vanja	SRR3405105	good	ZFP82	
+Vanja	UT380-265	good	ZFP91	
+Vanja	UT380-264	good	ZFP91	
+Vanja	UT380-266	good	ZFPM1	
+Vanja	UT380-267	good	ZFPM1	
+Vanja	UT380-268	dunno	ZFPM2	
+Vanja	UT380-269	bad	ZGLP1	
+Vanja	PBM13941	good	ZGLP1	
+Vanja	PBM13718	good	ZGLP1	
+Vanja	PBM13931	dunno	ZGPAT	
+Vanja	PBM13930	dunno	ZGPAT	
+Vanja	UT380-270	dunno	ZGPAT	
+Vanja	UT380-271	dunno	ZGPAT	
+Vanja	UT380-275	dunno	ZHX2	
+Vanja	PBM13865	dunno	ZHX2	
+Vanja	PBM13866	dunno	ZHX2	
+Vanja	UT380-278	dunno	ZHX3	
+Vanja	PBM13867	bad	ZHX3	
+Vanja	PBM13868	bad	ZHX3	
+Vanja	AATB_A_GA40NCTGATT	dunno	ZIM3	
+Vanja	SI0545	good	ZIM3	
+Vanja	AAT_A_AT40NCGGGTT	good	ZIM3	
+Vanja	AATA_AffSeq_B7_ZIM3	good	ZIM3	
+Vanja	AATBA_AffSeq_E9_ZIM3	bad	ZIM3	
+Vanja	SRR3405103	good	ZKSCAN1	
+Vanja	UT380-280	dunno	ZKSCAN4	
+Vanja	UT380-279	dunno	ZKSCAN4	
+Vanja	UT380-284	dunno	ZNF107	
+Vanja	UT380-286	dunno	ZNF107	
+Vanja	UT380-285	dunno	ZNF107	
+Vanja	SI0266	good	ZNF121	
+Vanja	SI0218	good	ZNF121	
+Vanja	AATB_A_GG40NCGTAGT	bad	ZNF121	
+Vanja	AAT_A_TT40NTACAGC	bad	ZNF121	
+Vanja	AATA_AffSeq_H6_ZNF121	bad	ZNF121	
+Vanja	AATBA_AffSeq_F9_ZNF121	bad	ZNF121	
+Vanja	UT380-288	good	ZNF131	
+Vanja	UT380-287	bad	ZNF131	
+Vanja	SI0427	good	ZNF134	
+Vanja	AAT_A_AC40NTGTTAC	good	ZNF134	
+Vanja	AATA_AffSeq_A7_ZNF134	good	ZNF134	
+Vanja	AATB_A_TA40NCGTCGG	dunno	ZNF134	
+Vanja	AATBA_AffSeq_G9_ZNF134	dunno	ZNF134	
+Vanja	SRR3405109	dunno	ZNF135	
+Vanja	UT380-289	dunno	ZNF14	
+Vanja	AATBA_AffSeq_H9_ZNF140	dunno	ZNF140	
+Vanja	AATB_A_TC40NGGCTGT	bad	ZNF140	
+Vanja	SI0340	good	ZNF140	
+Vanja	UT380-290	dunno	ZNF142	
+Vanja	UT380-291	good	ZNF142	
+Vanja	SI0410	good	ZNF146	
+Vanja	AATB_A_AA40NCCGCGT	dunno	ZNF146	
+Vanja	AATBA_AffSeq_A10_ZNF146	bad	ZNF146	
+Vanja	AAT_A_TT40NTAGCAG	good	ZNF16	
+Vanja	AAT_A_CT40NGTTGGG	good	ZNF16	
+Vanja	AATA_AffSeq_H7_ZNF16	good	ZNF16	
+Vanja	AATBA_AffSeq_B10_ZNF16	dunno	ZNF16	
+Vanja	AATB_A_AG40NACCATA	dunno	ZNF16	
+Vanja	UT380-293	dunno	ZNF160	
+Vanja	UT380-292	dunno	ZNF160	
+Vanja	AATA_AffSeq_F5_ZNF18	good	ZNF18	
+Vanja	AAT_A_GT40NTTGGTG	good	ZNF18	
+Vanja	SI0563	good	ZNF18	
+Vanja	AATA_AffSeq_B5_ZNF189	bad	ZNF189	
+Vanja	AATBA_AffSeq_C10_ZNF189	bad	ZNF189	
+Vanja	AAT_A_AT40NAGCCTC	dunno	ZNF189	
+Vanja	AATB_A_CA40NTGCCGT	dunno	ZNF189	
+Vanja	SI0201	dunno	ZNF189	
+Vanja	UT380-294	dunno	ZNF20	
+Vanja	UT380-298	bad	ZNF208	
+Vanja	UT380-296	bad	ZNF208	
+Vanja	UT380-297	bad	ZNF208	
+Vanja	UT380-299	dunno	ZNF215	
+Vanja	UT380-300	dunno	ZNF215	
+Vanja	AATA_AffSeq_E6_ZNF22	bad	ZNF22	
+Vanja	SI0064	dunno	ZNF22	
+Vanja	AATB_A_CG40NACGGTT	dunno	ZNF22	
+Vanja	AAT_A_TT40NCTCGTC	dunno	ZNF22	
+Vanja	AAT_A_GC40NATTTGC	dunno	ZNF22	
+Vanja	AATBA_AffSeq_D10_ZNF22	bad	ZNF22	
+Vanja	UT380-302	dunno	ZNF226	
+Vanja	UT380-301	dunno	ZNF226	
+Vanja	UT380-305	dunno	ZNF230	
+Vanja	UT380-306	dunno	ZNF233	
+Vanja	SI0321	good	ZNF250	
+Vanja	AATA_AffSeq_G5_ZNF250	good	ZNF250	
+Vanja	AATBA_AffSeq_E10_ZNF250	bad	ZNF250	
+Vanja	AATB_A_GA40NGGTCAT	bad	ZNF250	
+Vanja	AAT_A_TC40NTTCCGG	dunno	ZNF250	
+Vanja	UT380-309	dunno	ZNF251	
+Vanja	AAT_A_AT40NCCTTGG	good	ZNF260	
+Vanja	SI0551	good	ZNF260	
+Vanja	AATB_A_GG40NGGTTTA	dunno	ZNF260	
+Vanja	AATA_AffSeq_B8_ZNF260	good	ZNF260	
+Vanja	AATBA_AffSeq_F10_ZNF260	bad	ZNF260	
+Vanja	AAT_A_CC40NCGTTTT	dunno	ZNF264	
+Vanja	AATB_A_TA40NTCACTC	good	ZNF264	
+Vanja	SI0039	good	ZNF264	
+Vanja	AATA_AffSeq_C7_ZNF264	dunno	ZNF264	
+Vanja	AATBA_AffSeq_G10_ZNF264	dunno	ZNF264	
+Vanja	UT380-311	dunno	ZNF275	
+Vanja	AATA_AffSeq_H5_ZNF280A	bad	ZNF280A	
+Vanja	AAT_A_TG40NCCATTT	bad	ZNF280A	
+Vanja	AATBA_AffSeq_H10_ZNF280A	dunno	ZNF280A	
+Vanja	SI0576	dunno	ZNF280A	
+Vanja	UT380-314	bad	ZNF280D	
+Vanja	SRR3405114	good	ZNF282	
+Vanja	UT380-316	dunno	ZNF286B	
+Vanja	UT380-317	dunno	ZNF286B	
+Vanja	UT380-318	bad	ZNF292	
+Vanja	UT380-319	bad	ZNF292	
+Vanja	SI0254	good	ZNF30	
+Vanja	SI0241	good	ZNF30	
+Vanja	SI0587	good	ZNF30	
+Vanja	AATB_A_AA40NAGTGGT	dunno	ZNF30	
+Vanja	AAT_A_GT40NCATTCT	bad	ZNF30	
+Vanja	AATA_AffSeq_F6_ZNF30	bad	ZNF30	
+Vanja	AATBA_AffSeq_A11_ZNF30	dunno	ZNF30	
+Vanja	AATBA_AffSeq_B11_ZNF317	dunno	ZNF317	
+Vanja	AATB_A_AG40NGGAATC	dunno	ZNF317	
+Vanja	SI0581	good	ZNF317	
+Vanja	SI0336	good	ZNF317	
+Vanja	AATBA_AffSeq_C11_ZNF322	dunno	ZNF322	
+Vanja	AATA_AffSeq_A6_ZNF322	dunno	ZNF322	
+Vanja	AAT_A_AC40NGATGTT	dunno	ZNF322	
+Vanja	AATB_A_CA40NAGCGTA	dunno	ZNF322	
+Vanja	SI0289	good	ZNF322	
+Vanja	UT380-322	dunno	ZNF326	
+Vanja	UT380-321	dunno	ZNF326	
+Vanja	UT380-325	dunno	ZNF335	
+Vanja	UT380-324	dunno	ZNF335	
+Vanja	UT380-323	dunno	ZNF335	
+Vanja	SI0227	good	ZNF35	
+Vanja	AATB_A_CG40NTCTTGA	good	ZNF35	
+Vanja	AAT_A_AC40NTCCTTG	good	ZNF35	
+Vanja	AAT_A_TC40NAATCTC	good	ZNF35	
+Vanja	AATA_AffSeq_G6_ZNF35	good	ZNF35	
+Vanja	AATBA_AffSeq_D11_ZNF35	good	ZNF35	
+Vanja	UT380-329	dunno	ZNF358	
+Vanja	UT380-330	dunno	ZNF358	
+Vanja	UT380-331	dunno	ZNF362	
+Vanja	SI0571	good	ZNF382	
+Vanja	SI0051	good	ZNF382	
+Vanja	SI0057	good	ZNF382	
+Vanja	SI0110	good	ZNF382	
+Vanja	AAT_A_AT40NTCTGTC	bad	ZNF382	
+Vanja	AATB_A_GA40NTTCCTA	dunno	ZNF382	
+Vanja	AATA_AffSeq_B6_ZNF382	bad	ZNF382	
+Vanja	AATBA_AffSeq_E11_ZNF382	dunno	ZNF382	
+Vanja	AATBA_AffSeq_F11_ZNF384	dunno	ZNF384	
+Vanja	AATA_AffSeq_D7_ZNF384	good	ZNF384	
+Vanja	AAT_A_CT40NTACGTT	good	ZNF384	
+Vanja	AATB_A_GG40NTAGTTT	good	ZNF384	
+Vanja	SI0524	good	ZNF384	
+Vanja	UT380-336	bad	ZNF385C	
+Vanja	UT380-338	good	ZNF395	
+Vanja	UT380-337	good	ZNF395	
+Vanja	UT380-340	good	ZNF407	
+Vanja	UT380-339	bad	ZNF407	
+Vanja	SRR3405107	good	ZNF415	
+Vanja	UT380-341	bad	ZNF428	
+Vanja	UT380-342	dunno	ZNF43	
+Vanja	UT380-343	dunno	ZNF43	
+Vanja	AATBA_AffSeq_G11_ZNF436	good	ZNF436	
+Vanja	AATA_AffSeq_E7_ZNF436	good	ZNF436	
+Vanja	AAT_A_GC40NCACTTC	bad	ZNF436	
+Vanja	AATB_A_TA40NAGGCTT	bad	ZNF436	
+Vanja	SI0433	good	ZNF436	
+Vanja	UT380-345	bad	ZNF446	
+Vanja	AATB_A_TG40NTGATCT	bad	ZNF454	
+Vanja	AAT_A_CC40NTTGTTA	bad	ZNF454	
+Vanja	AATA_AffSeq_C6_ZNF454	bad	ZNF454	
+Vanja	AATBA_AffSeq_H11_ZNF454	bad	ZNF454	
+Vanja	UT380-346	bad	ZNF469	
+Vanja	UT380-347	bad	ZNF470	
+Vanja	UT380-349	bad	ZNF471	
+Vanja	UT380-351	bad	ZNF474	
+Vanja	UT380-352	bad	ZNF48	
+Vanja	SI0271	good	ZNF490	
+Vanja	AATB_A_AA40NGTGGTC	dunno	ZNF490	
+Vanja	AAT_A_GT40NGCGTGT	bad	ZNF490	
+Vanja	AATA_AffSeq_F7_ZNF490	bad	ZNF490	
+Vanja	AATBA_AffSeq_A12_ZNF490	bad	ZNF490	
+Vanja	UT380-353	dunno	ZNF493	
+Vanja	UT380-354	dunno	ZNF493	
+Vanja	AATBA_AffSeq_B12_ZNF502	dunno	ZNF502	
+Vanja	UT380-358	dunno	ZNF503	
+Vanja	UT380-359	dunno	ZNF503	
+Vanja	UT380-371	dunno	ZNF532	
+Vanja	UT380-370	dunno	ZNF532	
+Vanja	UT380-372	dunno	ZNF536	
+Vanja	UT380-373	dunno	ZNF536	
+Vanja	UT380-375	dunno	ZNF551	
+Vanja	UT380-374	dunno	ZNF551	
+Vanja	AATBA_AffSeq_C12_ZNF563	dunno	ZNF563	
+Vanja	UT380-376	dunno	ZNF568	
+Vanja	UT380-378	dunno	ZNF569	
+Vanja	UT380-380	dunno	ZNF57	
+Vanja	UT380-381	dunno	ZNF575	
+Vanja	UT380-382	dunno	ZNF578	
+Vanja	UT380-383	dunno	ZNF578	
+Vanja	UT380-384	bad	ZNF579	
+Vanja	SI0327	good	ZNF582	
+Vanja	AATB_A_CT40NCGGAGA	bad	ZNF582	
+Vanja	AAT_A_CG40NAATAGC	bad	ZNF582	
+Vanja	AATA_AffSeq_C8_ZNF582	bad	ZNF582	
+Vanja	AATBA_AffSeq_D12_ZNF582	dunno	ZNF582	
+Vanja	UT380-385	bad	ZNF587B	
+Vanja	UT380-388	dunno	ZNF592	
+Vanja	UT380-387	dunno	ZNF592	
+Vanja	SI0474	good	ZNF596	
+Vanja	AATA_AffSeq_D8_ZNF596	good	ZNF596	
+Vanja	AAT_A_GA40NTGTATC	dunno	ZNF596	
+Vanja	UT380-389	dunno	ZNF598	
+Vanja	UT380-392	dunno	ZNF606	
+Vanja	UT380-393	dunno	ZNF608	
+Vanja	UT380-394	dunno	ZNF609	
+Vanja	UT380-395	dunno	ZNF618	
+Vanja	UT380-397	dunno	ZNF623	
+Vanja	UT380-398	dunno	ZNF630	
+Vanja	UT380-399	dunno	ZNF630	
+Vanja	UT380-400	dunno	ZNF639	
+Vanja	UT380-401	dunno	ZNF644	
+Vanja	UT380-404	dunno	ZNF646	
+Vanja	UT380-405	good	ZNF648	
+Vanja	UT380-406	good	ZNF648	
+Vanja	UT380-407	dunno	ZNF654	
+Vanja	UT380-408	dunno	ZNF66	
+Vanja	UT380-409	dunno	ZNF665	
+Vanja	UT380-411	dunno	ZNF668	
+Vanja	UT380-412	dunno	ZNF668	
+Vanja	UT380-414	dunno	ZNF672	
+Vanja	UT380-415	dunno	ZNF676	
+Vanja	AATBA_AffSeq_E12_ZNF677	dunno	ZNF677	
+Vanja	UT380-416	dunno	ZNF678	
+Vanja	SRR3405110	good	ZNF682	
+Vanja	UT380-418	dunno	ZNF683	
+Vanja	UT380-417	dunno	ZNF683	
+Vanja	UT380-420	dunno	ZNF687	
+Vanja	UT380-421	bad	ZNF688	
+Vanja	UT380-422	dunno	ZNF689	
+Vanja	UT380-423	dunno	ZNF696	
+Vanja	UT380-424	dunno	ZNF699	
+Vanja	UT380-426	dunno	ZNF70	
+Vanja	UT380-427	dunno	ZNF700	
+Vanja	UT380-428	dunno	ZNF700	
+Vanja	UT380-431	dunno	ZNF703	
+Vanja	UT380-430	dunno	ZNF703	
+Vanja	UT380-432	dunno	ZNF705E	
+Vanja	UT380-433	dunno	ZNF706	
+Vanja	SI0419	good	ZNF708	
+Vanja	AAT_A_CC40NGACATG	bad	ZNF708	
+Vanja	AATA_AffSeq_C5_ZNF708	dunno	ZNF708	
+Vanja	UT380-434	dunno	ZNF709	
+Vanja	UT380-436	dunno	ZNF717	
+Vanja	UT380-435	dunno	ZNF717	
+Vanja	UT380-439	dunno	ZNF721	
+Vanja	UT380-438	dunno	ZNF721	
+Vanja	UT380-441	dunno	ZNF724	
+Vanja	UT380-442	dunno	ZNF724	
+Vanja	UT380-444	dunno	ZNF726	
+Vanja	UT380-443	bad	ZNF726	
+Vanja	UT380-446	dunno	ZNF728	
+Vanja	UT380-447	bad	ZNF728	
+Vanja	UT380-449	bad	ZNF729	
+Vanja	UT380-450	bad	ZNF729	
+Vanja	UT380-452	dunno	ZNF732	
+Vanja	UT380-451	dunno	ZNF732	
+Vanja	UT380-454	dunno	ZNF746	
+Vanja	UT380-453	dunno	ZNF746	
+Vanja	UT380-457	dunno	ZNF763	
+Vanja	UT380-458	dunno	ZNF768	
+Vanja	AATB_A_GT40NACGATC	bad	ZNF770	
+Vanja	SI0212	good	ZNF770	
+Vanja	AAT_A_GG40NGTGAGA	good	ZNF770	
+Vanja	AATA_AffSeq_E8_ZNF770	good	ZNF770	
+Vanja	AATBA_AffSeq_F12_ZNF770	good	ZNF770	
+Vanja	UT380-459	dunno	ZNF772	
+Vanja	UT380-460	dunno	ZNF773	
+Vanja	UT380-461	dunno	ZNF775	
+Vanja	SRR3405104	good	ZNF777	
+Vanja	UT380-462	good	ZNF780B	
+Vanja	UT380-463	bad	ZNF780B	
+Vanja	UT380-465	bad	ZNF781	
+Vanja	UT380-466	bad	ZNF788	
+Vanja	SI0496	good	ZNF8	
+Vanja	AATB_A_TA40NTTTGCG	dunno	ZNF8	
+Vanja	AAT_A_TC40NACGGGA	dunno	ZNF8	
+Vanja	AATA_AffSeq_G7_ZNF8	bad	ZNF8	
+Vanja	AATBA_AffSeq_G12_ZNF8	bad	ZNF8	
+Vanja	UT380-467	dunno	ZNF800	
+Vanja	UT380-468	dunno	ZNF800	
+Vanja	UT380-469	dunno	ZNF804A	
+Vanja	UT380-471	dunno	ZNF813	
+Vanja	UT380-470	bad	ZNF813	
+Vanja	UT380-472	bad	ZNF814	
+Vanja	UT380-474	dunno	ZNF827	
+Vanja	UT380-475	bad	ZNF827	
+Vanja	UT380-476	bad	ZNF83	
+Vanja	UT380-477	good	ZNF831	
+Vanja	UT380-479	bad	ZNF836	
+Vanja	UT380-482	good	ZNF841	
+Vanja	UT380-481	good	ZNF841	
+Vanja	UT380-486	dunno	ZNF845	
+Vanja	UT380-487	dunno	ZNF845	
+Vanja	UT380-495	dunno	ZNF878	
+Vanja	UT380-499	good	ZNF91	
+Vanja	UT380-500	bad	ZNF91	
+Vanja	UT380-501	dunno	ZNF92	
+Vanja	UT380-502-2	dunno	ZSCAN12	
+Vanja	UT380-503-1	dunno	ZSCAN12	
+Vanja	UT380-503-2	dunno	ZSCAN12	
+Vanja	UT380-502-1	dunno	ZSCAN12	
+Vanja	UT380-507	dunno	ZSCAN2	
+Vanja	UT380-506	dunno	ZSCAN2	
+Vanja	UT380-509	bad	ZSCAN25	
+Vanja	UT380-508	bad	ZSCAN25	
+Vanja	PBM14320	good	ZSCAN4	
+Vanja	SRR3405099	good	ZSCAN4	
+Vanja	UT380-512	dunno	ZXDA	
+Vanja	UT380-513	dunno	ZXDA	
+Vanja	UT380-515	good	ZXDB	
+Vanja	UT380-514	good	ZXDB	
+Vanja	UT380-516	good	ZXDC	
+Arttu	SRR3405104	good	ZNF777	
+Arttu	UT380-462	good	ZNF780B	
+Arttu	UT380-463	bad	ZNF780B	
+Arttu	SI0496	good	ZNF8	
+Arttu	AATB_A_TA40NTTTGCG	dunno	ZNF8	
+Arttu	AAT_A_TC40NACGGGA	dunno	ZNF8	
+Arttu	AATA_AffSeq_G7_ZNF8	bad	ZNF8	Just NFI
+Arttu	AATBA_AffSeq_G12_ZNF8	bad	ZNF8	Constant flank
+Arttu	UT380-477	good	ZNF831	Looks real
+Arttu	UT380-482	good	ZNF841	
+Arttu	UT380-481	dunno	ZNF841	
+Arttu	UT380-499	dunno	ZNF91	Maybe
+Arttu	UT380-500	bad	ZNF91	
+Arttu	UT380-502-2	bad	ZSCAN12	
+Arttu	UT380-503-1	bad	ZSCAN12	
+Arttu	UT380-503-2	bad	ZSCAN12	
+Arttu	UT380-502-1	bad	ZSCAN12	
+Arttu	UT380-507	bad	ZSCAN2	
+Arttu	UT380-506	bad	ZSCAN2	
+Arttu	UT380-509	bad	ZSCAN25	
+Arttu	PBM14320	good	ZSCAN4	Possibly models only a partial site or different znf array to the SMILE-seq
+Arttu	SRR3405099	dunno	ZSCAN4	Possibly models different znf array to the PBM
+Arttu	UT380-515	good	ZXDB	
+Arttu	UT380-514	good	ZXDB	
+Arttu	UT380-516	dunno	ZXDC	Has some similarity to ZXDB
+Arttu	PBM13519	dunno	AC008770	Maybe a low specificity DBD
+Arttu	PBM13518	dunno	AC008770	Maybe a low specificity DBD
+Arttu	UT380-001	dunno	AC008770	Maybe a low specificity DBD
+Arttu	UT380-003	good	AC092835	Weak ROC but looks very, very specific and supported by PBM
+Arttu	UT380-002	dunno	AC092835	
+Arttu	PBM13520	dunno	AC092835	ROC supports SmileSeq
+Arttu	PBM13527	dunno	ADNP2	Really interesting, best scored PWMs are learned from SmileSeq
+Arttu	PBM13528	dunno	ADNP2	Really interesting, best scored PWMs are learned from SmileSeq
+Arttu	UT380-006	dunno	ADNP2	
+Arttu	PBM13684	dunno	AEBP1	Maybe a low specificity DBD
+Arttu	PBM13513	good	AHCTF1	Ok, AT-hook motif
+Arttu	YWC_B_GG40NCGTAGT	dunno	AHCTF1	Likely a usual suspect
+Arttu	UT380-009	dunno	AHCTF1	Likely a usual suspect
+Arttu	UT380-011	dunno	AKAP8	Motif looks nice, but I think that I've seen it before
+Arttu	PBM13521	bad	AKAP8	
+Arttu	UT380-010	bad	AKAP8	
+Arttu	PBM13522	good	AKAP8L	
+Arttu	YWC_B_GG40NGGTTTA	bad	AKAP8L	
+Arttu	UT380-012	bad	AKAP8L	
+Arttu	PBM13514	bad	AKNA	Looks like an usual suspect
+Arttu	PBM13835	dunno	AKNA	Maybe, weak but AT-rich and thus could be a real site for this AT-hook
+Arttu	UT380-015	bad	AKNA	
+Arttu	UT380-014	bad	AKNA	
+Arttu	PBM13685	bad	ARHGAP35	Usual suspect
+Arttu	YWC_A_GT40NGCGTGT	bad	C11orf95	Artifact
+Arttu	THC_0189	good	C11orf95	
+Arttu	THC_0197	good	C11orf95	
+Arttu	PBM13841	good	C11orf95	
+Arttu	SRR3405054	good	CEBPB	Expected site
+Rozy	SI0368	good	GLI4	
+Rozy	AATB_A_AA40NTATCGC	bad	GLI4	
+Rozy	AAT_A_CT40NCTACTT	good	GLI4	
+Rozy	AATA_AffSeq_D5_GLI4	good	GLI4	
+Rozy	AATBA_AffSeq_A9_GLI4	bad	GLI4	
+Rozy	THC_0144	good	PHF21A	
+Rozy	PBM13836	good	PHF21A	
+Rozy	YWC_B_AA40NCCGCGT	dunno	PHF21A	
+Rozy	UT380-144-1	bad	PHF21A	
+Rozy	UT380-144-2	bad	PHF21A	
+Rozy	THC_0196	good	SETBP1	
+Rozy	PBM13839	bad	SETBP1	
+Rozy	PBM13838	good	SETBP1	
+Rozy	PBM13840	good	SETBP1	
+Rozy	YWC_B_AG40NACCATA	bad	SETBP1	
+Rozy	UT380-187	bad	SETBP1	
+Rozy	UT380-185-2	bad	SETBP1	
+Rozy	SI0141	bad	SNAI1	
+Rozy	AATB_A_AG40NTCGACT	good	SNAI1	
+Rozy	AAT_A_AC40NGCTGCT	bad	SNAI1	
+Rozy	AATA_AffSeq_A5_SNAI1	bad	SNAI1	
+Rozy	AATBA_AffSeq_B9_SNAI1	good	SNAI1	
+Rozy	THC_0194	good	TIGD7	
+Rozy	PBM13935	good	TIGD7	
+Rozy	PBM13717	good	TIGD7	
+Rozy	YWC_B_GG40NTAGTTT	good	TIGD7	
+Rozy	UT380-230	bad	TIGD7	
+Rozy	THC_0101	good	ZBED2	
+Rozy	PBM13709	good	ZBED2	
+Rozy	YWC_A_AC40NTCCTTG	bad	ZBED2	
+Rozy	UT380-242	good	ZBED2	
+Rozy	SI0180	good	ZFP3	
+Rozy	AATB_A_CG40NGTTATT	good	ZFP3	
+Rozy	AAT_A_GC40NAGAGTT	good	ZFP3	
+Rozy	AATA_AffSeq_E5_ZFP3	good	ZFP3	
+Rozy	AATBA_AffSeq_D9_ZFP3	dunno	ZFP3	
+Rozy	SI0545	good	ZIM3	
+Rozy	AATB_A_GA40NCTGATT	bad	ZIM3	
+Rozy	AAT_A_AT40NCGGGTT	good	ZIM3	
+Rozy	AATA_AffSeq_B7_ZIM3	good	ZIM3	
+Rozy	AATBA_AffSeq_E9_ZIM3	bad	ZIM3	
+Rozy	UT380-185-1	bad	SETBP1	
+Rozy	UT380-185-3	bad	SETBP1	
