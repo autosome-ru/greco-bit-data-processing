@@ -1,5 +1,5 @@
 mkdir -p source_data/HTS/reads
-find -L /home_local/mihaialbu/Codebook/SELEX/RawData/ -xtype f -iname '*.fastq.gz' \
+find -L /mnt/space/hughes/June1st2021/SELEX_RawData/ -xtype f -iname '*.fastq.gz' \
   | grep -vi AffSeq | grep -vi Control | grep -vi Unselected \
   | xargs -n1 -I{} ln -s {} source_data/HTS/reads/
 
