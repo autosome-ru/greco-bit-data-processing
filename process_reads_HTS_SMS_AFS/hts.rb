@@ -24,10 +24,10 @@ module Selex
     def self.from_filename(filename)
       basename = File.basename(File.basename(filename, '.gz'), '.fastq')
       tf, barcode_str, experiment_subtype, batch, cycle, reads_part = basename.split('_')
-      raise  unless reads_part == 'R1'
-      raise  unless batch.start_with?('Batch')
-      raise  unless cycle.start_with?('Cycle')
-      raise "Unknown experiment subtype `#{experiment_subtype}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
+      raise "Failed to parse filename `#{filename}`"  unless reads_part == 'R1'
+      raise "Failed to parse filename `#{filename}`"  unless batch.start_with?('Batch')
+      raise "Failed to parse filename `#{filename}`"  unless cycle.start_with?('Cycle')
+      raise "Unknown experiment subtype `#{experiment_subtype}` for filename `#{filename}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
       experiment_subtype = experiment_subtype[0,3]
       self.new(tf: tf, experiment_subtype: experiment_subtype,
         cycle: Integer(cycle.sub(/^Cycle/, '')),
