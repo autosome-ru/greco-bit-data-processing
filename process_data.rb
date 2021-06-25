@@ -66,7 +66,7 @@ def process_hts!
 
   sample_triples = match_triples_by_filenames(
     samples, metadata,
-    ['cycle_1_filename', 'cycle_2_filename', 'cycle_3_filename']
+    ['cycle_1_filename', 'cycle_2_filename', 'cycle_3_filename', 'cycle_4_filename']
   )
   report_unmatched!(samples, sample_triples)
 
