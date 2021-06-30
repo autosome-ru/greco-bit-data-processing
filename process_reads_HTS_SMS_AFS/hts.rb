@@ -21,9 +21,10 @@ module Selex
 
     # AHCTF1_GG40NCGTAGT_IVT_BatchYWCB_Cycle3_R1.fastq.gz
     # SNAI1_AC40NGCTGCT_Lysate_BatchAATA_Cycle2_R1.fastq.gz
+    # ZNF384-FL_GT40NGCGTGT_Ecoli_GST_BatchYWDA_Cycle2_R1.fastq.gz
     def self.from_filename(filename)
       basename = File.basename(File.basename(filename, '.gz'), '.fastq')
-      tf, barcode_str, experiment_subtype, batch, cycle, reads_part = basename.split('_')
+      tf, barcode_str, experiment_subtype, batch, cycle, reads_part = basename.sub('Ecoli_GST', 'Lysate').split('_')
       raise "Failed to parse filename `#{filename}`"  unless reads_part == 'R1'
       raise "Failed to parse filename `#{filename}`"  unless batch.start_with?('Batch')
       raise "Failed to parse filename `#{filename}`"  unless cycle.start_with?('Cycle')
@@ -73,7 +74,7 @@ module Selex
       experiment_id, plasmid_id, gene_name, experiment_subtype, dna_library_id, cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename, well_on_plate = line.chomp.split("\t")
       raise "Unknown experiment subtype `#{experiment_subtype}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
       experiment_subtype = experiment_subtype[0,3]
-      raise  unless dna_library_id.match?(/^[ACGT]+\d+N[ACGT]+_v1$/)
+      raise  unless [/^[ACGT]+\d+N[ACGT]+_v1$/, /^Toronto_[ACGT]+\d+N[ACGT]+0?_v1$/, ].any?{|pat| dna_library_id.match?(pat) }
       # barcode_str = dna_library_id.sub(/_v1$/, '') # GT40NGCGTGT_v1 --> GT40NGCGTGT
       # barcode = Selex.parse_barcode(barcode_str)
 
