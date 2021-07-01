@@ -29,20 +29,23 @@ end
 
 def match_triples_by_filenames(samples, metadata, metadata_keys)
   sample_keyproc = ->(smp){ File.basename(smp.filename) }
-  metadata_keys.flat_map{|meta_key|
+
+  metadata_keys.map{|meta_key|
     meta_keyproc = ->(meta){ meta.send(meta_key) }
     left_unjoined_by(samples, metadata, key_proc_1: sample_keyproc, key_proc_2: meta_keyproc).map{|k, sample|
       sample
     }
-  }.uniq.each{|sample|
+  }.reduce(&:intersection).each{|sample|
     $stderr.puts "Sample `#{sample}` has no metadata"
   }
+
   metadata_keys.flat_map{|meta_key|
     meta_keyproc = ->(meta){ meta.send(meta_key) }
     right_unjoined_by(samples, metadata, key_proc_1: sample_keyproc, key_proc_2: meta_keyproc).each{|k, meta|
       $stderr.puts "Metadata `#{meta.experiment_id}` has no matching file for key #{meta_key} = `#{k}`"
     }
   }
+
   metadata_keys.flat_map{|meta_key|
     meta_keyproc = ->(meta){ meta.send(meta_key) }
     inner_join_by(samples, metadata, key_proc_1: sample_keyproc, key_proc_2: meta_keyproc)
