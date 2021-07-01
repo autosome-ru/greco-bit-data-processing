@@ -38,6 +38,7 @@ module Selex
     end
   end
 
+  DNA_LIBRARY_PATTERN = /^(Toronto_)?(?<barcode>[ACGT]+\d+N[ACGT]+)0?_v1$/
   SampleMetadata = Struct.new(*[
         :experiment_id, :plasmid_id, :gene_name,
         :experiment_subtype, :dna_library_id,
@@ -60,7 +61,7 @@ module Selex
     end
 
     def barcode
-      Selex.parse_barcode( self.dna_library_id.split('_').first )
+      Selex.parse_barcode( DNA_LIBRARY_PATTERN.match(self.dna_library_id)[:barcode] )
     end
 
     def experiment_type; "HTS.#{experiment_subtype}"; end
@@ -74,7 +75,7 @@ module Selex
       experiment_id, plasmid_id, gene_name, experiment_subtype, dna_library_id, cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename, well_on_plate = line.chomp.split("\t")
       raise "Unknown experiment subtype `#{experiment_subtype}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
       experiment_subtype = experiment_subtype[0,3]
-      raise  unless [/^[ACGT]+\d+N[ACGT]+_v1$/, /^Toronto_[ACGT]+\d+N[ACGT]+0?_v1$/, ].any?{|pat| dna_library_id.match?(pat) }
+      raise  unless dna_library_id.match?(DNA_LIBRARY_PATTERN)
       # barcode_str = dna_library_id.sub(/_v1$/, '') # GT40NGCGTGT_v1 --> GT40NGCGTGT
       # barcode = Selex.parse_barcode(barcode_str)
 
