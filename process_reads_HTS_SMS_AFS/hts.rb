@@ -30,6 +30,7 @@ module Selex
       raise "Failed to parse filename `#{filename}`"  unless cycle.start_with?('Cycle')
       raise "Unknown experiment subtype `#{experiment_subtype}` for filename `#{filename}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
       experiment_subtype = experiment_subtype[0,3]
+      tf = tf.sub(/-(FL|DBD|DBDwLinker)(-\d)?$/, '')
       self.new(tf: tf, experiment_subtype: experiment_subtype,
         cycle: Integer(cycle.sub(/^Cycle/, '')),
         barcode: Selex.parse_barcode(barcode_str),
