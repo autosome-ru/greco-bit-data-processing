@@ -30,21 +30,25 @@ end
 def report_mismatches_triples_by_filenames(samples, metadata, metadata_keys)
   sample_keyproc = ->(smp){ File.basename(smp.filename) }
 
-  metadata_keys.map{|meta_key|
+  samples_wo_meta = metadata_keys.map{|meta_key|
     meta_keyproc = ->(meta){ meta.send(meta_key) }
-    left_unjoined_by(samples, metadata, key_proc_1: sample_keyproc, key_proc_2: meta_keyproc).map{|k, sample|
-      sample
-    }
-  }.reduce(&:&).each{|sample|
+    left_unjoined_by(samples, metadata, key_proc_1: sample_keyproc, key_proc_2: meta_keyproc).map{|k, sample| sample }
+  }.reduce(&:&)
+
+  samples_wo_meta.each{|sample|
     $stderr.puts "Sample `#{sample}` has no metadata"
   }
-
-  metadata_keys.flat_map{|meta_key|
+  ######
+  meta_wo_samples = metadata_keys.flat_map{|meta_key|
     meta_keyproc = ->(meta){ meta.send(meta_key) }
-    right_unjoined_by(samples, metadata, key_proc_1: sample_keyproc, key_proc_2: meta_keyproc).each{|k, meta|
-      $stderr.puts "Metadata `#{meta.experiment_id}` has no matching file for key #{meta_key} = `#{k}`"
-    }
+    right_unjoined_by(samples, metadata, key_proc_1: sample_keyproc, key_proc_2: meta_keyproc).map{|k,meta| {meta: meta, meta_key: meta_key, key: k} }
   }
+
+  meta_wo_samples.each{|info|
+    $stderr.puts "Metadata `#{info[:meta].experiment_id}` has no matching file for key #{info[:meta_key]} = `#{info[:key]}`"
+  }
+  ######
+  {samples_wo_meta: samples_wo_meta, meta_wo_samples: meta_wo_samples}
 end
 
 def match_triples_by_filenames(samples, metadata, metadata_keys)
