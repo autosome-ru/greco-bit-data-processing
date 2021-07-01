@@ -32,7 +32,14 @@ def process_sms_unpublished!
                                 key_proc_1: sample_key,
                                 key_proc_2: meta_key)
 
-  ReadsProcessing.process!(SMSUnpublished, results_folder, sample_triples, barcode_proc, num_threads: 20)
+  old_datasets_glob = "#{OLD_RELEASE}/SMS/{Train,Val}_reads/*.fastq.gz"
+  parser = DatasetNameParser::SMSParser.new
+  old_datasets = Dir.glob(old_datasets_glob).map{|fn| parser.parse(fn) }
+  old_experiments = old_datasets.map{|s| s[:experiment_id] }.uniq
+
+  novel_sample_triples = sample_triples.reject{|k, sample, meta| old_experiments.include?(meta.experiment_id) }
+
+  ReadsProcessing.process!(SMSUnpublished, results_folder, novel_sample_triples, barcode_proc, num_threads: 20)
 end
 
 def process_sms_published!
@@ -76,10 +83,10 @@ def process_hts!
   old_datasets = Dir.glob(old_datasets_glob).map{|fn| parser.parse(fn) }
   old_experiments = old_datasets.map{|s| s[:experiment_id] }.uniq
 
-  novel_metadata = metadata.reject{|meta| old_experiments.include?(meta.experiment_id) }
-  sample_triples = match_triples_by_filenames(samples, novel_metadata, metadata_keys)
+  sample_triples = match_triples_by_filenames(samples, metadata, metadata_keys)
+  novel_sample_triples = sample_triples.reject{|k, sample, meta| old_experiments.include?(meta.experiment_id) }
 
-  ReadsProcessing.process!(Selex, results_folder, sample_triples, barcode_proc, num_threads: 20)
+  ReadsProcessing.process!(Selex, results_folder, novel_sample_triples, barcode_proc, num_threads: 20)
 end
 
 plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
