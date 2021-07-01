@@ -35,7 +35,7 @@ def match_triples_by_filenames(samples, metadata, metadata_keys)
     left_unjoined_by(samples, metadata, key_proc_1: sample_keyproc, key_proc_2: meta_keyproc).map{|k, sample|
       sample
     }
-  }.reduce(&:intersection).each{|sample|
+  }.reduce(&:&).each{|sample|
     $stderr.puts "Sample `#{sample}` has no metadata"
   }
 
