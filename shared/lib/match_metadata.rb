@@ -27,7 +27,7 @@ def unique_metadata(metadata, warnings: true)
   bad_metadata = unique_metadata_by(metadata, warnings: warnings, &:experiment_id)
 end
 
-def match_triples_by_filenames(samples, metadata, metadata_keys)
+def report_mismatches_triples_by_filenames(samples, metadata, metadata_keys)
   sample_keyproc = ->(smp){ File.basename(smp.filename) }
 
   metadata_keys.map{|meta_key|
@@ -45,6 +45,10 @@ def match_triples_by_filenames(samples, metadata, metadata_keys)
       $stderr.puts "Metadata `#{meta.experiment_id}` has no matching file for key #{meta_key} = `#{k}`"
     }
   }
+end
+
+def match_triples_by_filenames(samples, metadata, metadata_keys)
+  sample_keyproc = ->(smp){ File.basename(smp.filename) }
 
   metadata_keys.flat_map{|meta_key|
     meta_keyproc = ->(meta){ meta.send(meta_key) }

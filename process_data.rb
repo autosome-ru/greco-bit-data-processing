@@ -5,6 +5,10 @@ require_relative 'process_reads_HTS_SMS_AFS/hts'
 require_relative 'shared/lib/index_by'
 require_relative 'shared/lib/match_metadata'
 
+require_relative 'shared/lib/dataset_name_parsers'
+
+OLD_RELEASE = '/home_local/vorontsovie/greco-data/release_6.2021-02-13'
+
 def process_sms_unpublished!
   $stderr.puts "Process unpublished SMiLE-seq data"
 
@@ -64,11 +68,16 @@ def process_hts!
   samples = Dir.glob(samples_glob).map{|fn| Selex::Sample.from_filename(fn) }
   metadata = Selex::SampleMetadata.each_in_file(metadata_fn).to_a
 
-  sample_triples = match_triples_by_filenames(
-    samples, metadata,
-    ['cycle_1_filename', 'cycle_2_filename', 'cycle_3_filename', 'cycle_4_filename']
-  )
-  # report_unmatched!(samples, sample_triples)
+  metadata_keys = ['cycle_1_filename', 'cycle_2_filename', 'cycle_3_filename', 'cycle_4_filename']
+  report_mismatches_triples_by_filenames(samples, metadata, metadata_keys)
+
+  old_datasets_glob = "#{OLD_RELEASE}/HTS/{Train,Val}_reads/*.fastq.gz"
+  parser = DatasetNameParser::HTSParser.new
+  old_datasets = Dir.glob(old_datasets_glob).map{|fn| parser.parse(fn) }
+  old_experiments = old_datasets.map{|s| s[:experiment_id] }.uniq
+
+  novel_metadata = metadata.reject{|meta| old_experiments.include?(meta.experiment_id) }
+  sample_triples = match_triples_by_filenames(samples, novel_metadata, metadata_keys)
 
   ReadsProcessing.process!(Selex, results_folder, sample_triples, barcode_proc, num_threads: 20)
 end
