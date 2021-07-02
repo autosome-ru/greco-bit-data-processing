@@ -50,10 +50,11 @@ module SMSUnpublished
       tf, *rest = hughes_id.split('.')  # hughes_id examples: `MBD4`, `BHLHA9.FL`, `CASZ1.DBD.1`
       construct_type = (rest.size >= 1) ? rest[0] : 'NA'
       ssid = ssid.sub(/^S(\d+)$/, 'SS\1').sub(/^SSS(\d+)$/, 'SS\1')
+      barcode_change = barcode_change.empty? ?  nil : {flank_5: barcode_change.strip, flank_3: ''}
       self.new(experiment_id: bbi_id, tf: tf, construct_type: construct_type,
         barcode_index: barcode_index.sub(/^BC0*(\d+)$/, 'BC\1'), # BC07 --> BC7
         hughes_id: hughes_id, tf_family: tf_family, ssid: ssid,
-        barcode_change: barcode_change.empty? ?  nil : barcode_change, length_nt: length_nt, biobasic_insert_sequence: biobasic_insert_sequence,
+        barcode_change: barcode_change, length_nt: length_nt, biobasic_insert_sequence: biobasic_insert_sequence,
         insert_id: hughes_id)
     end
 
