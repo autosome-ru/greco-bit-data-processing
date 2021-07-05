@@ -127,7 +127,7 @@ for PROCESSING_TYPE in SDQN QNZS; do
                     ruby ${SCRIPT_FOLDER}/single_chip_sequences.rb \
                             --linker-length 0 \
                             --fasta  --take-top 1000 \
-                            ${FN}
+                            ${FN} \
                         > "${NEW_DIRNAME}/${NEW_BN}";
                 fi
             else

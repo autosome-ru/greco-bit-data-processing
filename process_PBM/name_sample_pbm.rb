@@ -32,7 +32,7 @@ module PBM
   def self.find_name(folder, sample_metadata, sample_fn, processing_type:, slice_type:, extension:)
     fns = find_names(folder, sample_metadata, sample_fn, processing_type: processing_type, slice_type: slice_type, extension: extension)
     if fns.size == 1
-      fns.first
+      File.basename(fns.first)
     else
       $stderr.puts "Can't choice a candidate from multiple variants: #{fns.join(', ')}"  if fns.size > 1
       nil
@@ -44,7 +44,7 @@ module PBM
 
     fns = Dir.glob(File.join(folder, "#{basename}.*.#{slice_type}.#{extension}"))
     if fns.size == 1
-      fns.first
+      File.basename(fns.first)
     else
       $stderr.puts "Can't choice a candidate from multiple variants: #{fns.join(', ')}"  if fns.size > 1
       uuid = take_dataset_name!
