@@ -15,7 +15,7 @@ def process_sms_unpublished!
   metadata_fn = "source_data_meta/SMS/unpublished/SMS.tsv"
   barcodes_fn = "source_data_meta/SMS/unpublished/smileseq_barcode_file.txt"
   samples_glob = "source_data/SMS/reads/unpublished/*.fastq"
-  results_folder = "source_data_prepared/SMS/reads/"
+  results_folder = "source_data_prepared/SMS/"
 
   barcodes = SMSUnpublished.read_barcodes(barcodes_fn)
   barcode_proc = ->(sample_metadata){ sample_metadata.barcode_change || barcodes[sample_metadata.barcode_index] }
@@ -48,7 +48,7 @@ def process_sms_published!
   metadata_fn = "source_data_meta/SMS/published/SMS_published.tsv"
   barcodes_fn = "source_data_meta/SMS/published/Barcode_sequences.txt"
   samples_glob = "source_data/SMS/reads/published/*.fastq"
-  results_folder = "source_data_prepared/SMS.published/reads/"
+  results_folder = "source_data_prepared/SMS.published/"
 
   barcodes = SMSPublished.read_barcodes(barcodes_fn)
   barcode_proc = ->(sample_metadata){ barcodes[sample_metadata.barcode_index] }
@@ -68,7 +68,7 @@ def process_hts!
   $stderr.puts "Process HT-SELEX data"
   metadata_fn = "source_data_meta/HTS/HTS.tsv"
   samples_glob = "source_data/HTS/reads/*.fastq.gz"
-  results_folder = "source_data_prepared/HTS/reads/"
+  results_folder = "source_data_prepared/HTS/"
 
   barcode_proc = ->(sample_metadata){ sample_metadata.barcode }
 
@@ -94,4 +94,4 @@ $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
 process_sms_unpublished!
 #process_sms_published!
-#process_hts!
+process_hts!
