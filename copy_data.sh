@@ -23,7 +23,8 @@ find -L /mnt/space/depla/old_smlseq_raw/raw/ -xtype f -iname '*.fastq' \
 # For AFS.peaks
 ruby shared/lib/symlink_folder_content.rb \
     "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/peaks-interval/" \
-    "source_data/AFS/peaks-intervals/"
+    "source_data/AFS/peaks-intervals/" \
+    symlink
 
 # # We don't need raw reads for AFS. We use reads preprocessed by GTRD-pipeline instead (see below)
 # mkdir -p source_data/AFS/reads
@@ -34,20 +35,24 @@ ruby shared/lib/symlink_folder_content.rb \
 # For AFS.reads
 ruby shared/lib/symlink_folder_content.rb \
     "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/aligns-sorted/" \
-    "source_data/AFS/aligns-sorted"
+    "source_data/AFS/aligns-sorted" \
+    symlink
 
 ruby shared/lib/symlink_folder_content.rb \
     "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/fastq" \
-    "source_data/AFS/fastq"
+    "source_data/AFS/fastq" \
+    symlink
 
 
 ruby shared/lib/symlink_folder_content.rb \
- "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1/peaks-interval/" \
- "source_data/CHS/peaks-intervals/"
+    "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1/peaks-interval/" \
+    "source_data/CHS/peaks-intervals/" \
+    symlink
 
 ruby shared/lib/symlink_folder_content.rb \
- "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1-se/peaks-interval/" \
- "source_data/CHS/peaks-intervals-se_control/"
+    "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1-se/peaks-interval/" \
+    "source_data/CHS/peaks-intervals-se_control/" \
+    symlink
 
 
 mkdir -p source_data/PBM/chips
