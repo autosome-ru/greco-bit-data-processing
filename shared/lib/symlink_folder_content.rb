@@ -3,6 +3,8 @@ folder = ARGV[0]
 dst = ARGV[1]
 mode = (ARGV[2] || :symlink).to_sym
 
+folder = File.absolute_path(folder)
+
 fns = Dir.glob("#{folder}/**/*").map{|fn|
   File.absolute_path(fn)
 }.select{|fn| File.file?(fn) }
