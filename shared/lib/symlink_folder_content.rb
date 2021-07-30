@@ -16,6 +16,8 @@ fns.each{|fn|
   case mode
   when :symlink
     FileUtils.ln_s(fn, "#{dst}/#{bn}")
+  when :hardlink
+    FileUtils.ln(fn, "#{dst}/#{bn}")
   when :copy
     FileUtils.cp(fn, "#{dst}/#{bn}")
   else
