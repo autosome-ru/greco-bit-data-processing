@@ -8,7 +8,7 @@ ExperimentInfoCHS = Struct.new(
 ) do
   include ExperimentInfoExtension
 
-  def self.from_string(str)
+  def self.from_string(str, header:)
     row = str.chomp.split("\t", 17)
     raise  unless row.size == 17
 

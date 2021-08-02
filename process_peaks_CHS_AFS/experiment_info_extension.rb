@@ -89,12 +89,13 @@ module ExperimentInfoExtension
   module ClassMethods
     def each_from_file(filename, &block)
       return enum_for(:each_from_file, filename)  unless block_given?
-      File.readlines(filename).drop(1).each{|l|
-        yield self.from_string(l)
+      header, *rows = File.readlines(filename)
+      rows.each{|l|
+        yield self.from_string(l, header: header)
       }
     end
 
-    def from_string(str)
+    def from_string(str, header:)
       raise NotImplementedError
     end
   end
