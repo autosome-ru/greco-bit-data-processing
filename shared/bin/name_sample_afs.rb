@@ -46,10 +46,12 @@ module AffiseqPeaks
     slice_type = nil
     extension = nil
     processing_type = nil
+    qc_filename = nil  # "#{__dir__}/../../source_data_meta/AFS/metrics_by_exp.tsv"
     argparser = OptionParser.new{|o|
       o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
       o.on('--processing-type VAL', 'Peaks or Reads') {|v| processing_type = v }
       o.on('--extension VAL', 'fa or peaks or fastq.gz') {|v| extension = v }
+      o.on('--qc-file FILE', 'path to metrics_by_exp.tsv') {|v| qc_filename = v }
     }
 
     argparser.parse!(ARGV)
@@ -59,12 +61,13 @@ module AffiseqPeaks
     raise 'Specify extension (fa or peaks or fastq.gz)'  unless ['fa', 'peaks', 'fastq.gz'].include?(extension)
     raise 'Specify sample filename'  unless sample_fn
     raise 'Sample file not exists'  unless File.exist?(sample_fn)
+    raise 'QC file not exists'  unless qc_filename && File.exist?(qc_filename)
 
     plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
     $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
     metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
-    experiment_infos = ExperimentInfoAFS.each_from_file("#{__dir__}/../../source_data_meta/AFS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+    experiment_infos = ExperimentInfoAFS.each_from_file(qc_filename).reject{|info| info.type == 'control' }.to_a
 
     peak_id = File.basename(sample_fn).split(".")[3]
     cycle = Integer(File.basename(sample_fn).split(".")[2].sub(/^Cycle/, ""))

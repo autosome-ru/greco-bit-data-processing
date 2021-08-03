@@ -32,7 +32,7 @@ for EXP_TYPE in IVT Lysate; do
 
     for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_intervals/ -xtype f ); do
         # BN=$(basename -s .pbm.txt ${FN})
-        NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Peaks --slice-type ${SLICE_TYPE} --extension peaks )
+        NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Peaks --slice-type ${SLICE_TYPE} --extension peaks --qc-file ${METRICS_FN} )
         if [[ -n "$NEW_BN" ]]; then
             cp ${FN} source_data_prepared/AFS.Peaks/${SLICE_TYPE}_intervals/${NEW_BN}
         else
@@ -42,7 +42,7 @@ for EXP_TYPE in IVT Lysate; do
 
     for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_sequences/ -xtype f ); do
         # BN=$(basename -s .pbm.txt ${FN})
-        NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Peaks --slice-type ${SLICE_TYPE} --extension fa )
+        NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Peaks --slice-type ${SLICE_TYPE} --extension fa --qc-file ${METRICS_FN} )
         if [[ -n "$NEW_BN" ]]; then
             cp ${FN} source_data_prepared/AFS.Peaks/${SLICE_TYPE}_sequences/${NEW_BN}
         else
