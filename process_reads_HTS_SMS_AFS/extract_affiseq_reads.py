@@ -18,7 +18,7 @@ MYSQL_CONFIG = {'host': 'localhost', 'user': 'vorontsovie', 'password': 'passwor
 
 SOURCE_DIRNAME = 'source_data/AFS/'
 ALIGNMENT_DIRNAME = f'{SOURCE_DIRNAME}/aligns-sorted'
-FASTQ_DIRNAME = f'{SOURCE_DIRNAME}/fastq'
+FASTQ_DIRNAME = f'{SOURCE_DIRNAME}/trimmed'
 
 def read_experiment_meta(filename):
     result = {}
