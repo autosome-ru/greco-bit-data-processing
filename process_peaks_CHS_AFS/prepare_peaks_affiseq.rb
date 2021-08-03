@@ -18,8 +18,9 @@ option_parser.parse!(ARGV)
 
 SOURCE_FOLDER = ARGV[0] # 'source_data/affiseq'
 RESULTS_FOLDER = ARGV[1] # 'results/affiseq_Lysate'
+metrics_fn = ARGV[2] # "#{__dir__}/../source_data_meta/AFS/metrics_by_exp.tsv"
 
-experiment_infos = ExperimentInfoAFS.each_from_file("#{__dir__}/../source_data_meta/AFS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+experiment_infos = ExperimentInfoAFS.each_from_file(metrics_fn).reject{|info| info.type == 'control' }.to_a
 experiment_infos.each{|info|
   info.confirmed_peaks_folder = "#{RESULTS_FOLDER}/complete_data"
 }

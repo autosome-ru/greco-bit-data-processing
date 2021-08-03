@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import itertools
 from collections import defaultdict
@@ -8,6 +9,7 @@ import pymysql
 import pysam
 from gzip_utils import open_for_read, open_for_write
 
+metrics_fn = sys.argv[1] # 'source_data_meta/AFS/metrics_by_exp.tsv'
 NUM_THREADS = 20
 TRAIN_CHR = {f"chr{chr}" for chr in range(1,22,2)} # chr1, chr3, ..., chr21
 VALIDATION_CHR = {f"chr{chr}" for chr in range(2,23,2)}  # chr2, chr4, ..., chr22
@@ -16,7 +18,7 @@ MYSQL_CONFIG = {'host': 'localhost', 'user': 'vorontsovie', 'password': 'passwor
 
 SOURCE_DIRNAME = 'source_data/AFS/'
 ALIGNMENT_DIRNAME = f'{SOURCE_DIRNAME}/aligns-sorted'
-FASTQ_DIRNAME = f'{SOURCE_DIRNAME}/fastq'
+FASTQ_DIRNAME = f'{SOURCE_DIRNAME}/trimmed'
 
 def read_experiment_meta(filename):
     result = {}
@@ -125,7 +127,7 @@ db_connection = pymysql.connect(**MYSQL_CONFIG)
 records = get_experiment_infos(db_connection)
 experiments, alignment_by_experiment, reads_by_experiment = infos_by_alignment(records)
 
-meta_by_experiment = read_experiment_meta('source_data_meta/AFS/metrics_by_exp.tsv')
+meta_by_experiment = read_experiment_meta(metrics_fn)
 
 def task_generator():
     for experiment in experiments:

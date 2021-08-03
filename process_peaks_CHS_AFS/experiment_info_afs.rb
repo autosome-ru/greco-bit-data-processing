@@ -1,30 +1,47 @@
 require_relative 'utils'
 require_relative 'experiment_info_extension'
 
-ExperimentInfoAFS = Struct.new(
+ExperimentInfoAFS = Struct.new(*[
   :experiment_id, :peak_id, :tf, :raw_files, :type, :cycle_number,
-  :qc_estFragLen, :qc_FRiP_CPICS, :qc_FRiP_GEM, :qc_FRiP_MACS2_PEMODE, :qc_FRiP_SISSRS, :qc_NRF, :qc_NSC, :qc_PBC1, :qc_PBC2, :qc_RSC,
-  :macs2_pemode_peak_count, :gem_peak_count, :sissrs_peak_count, :cpics_peak_count,
+  :qc_estFragLen, :qc_FRiP_CPICS, :qc_FRiP_GEM, :qc_FRiP_MACS2_NOMODEL, :qc_FRiP_MACS2_PEMODE, :qc_FRiP_SISSRS, :qc_NRF, :qc_NSC, :qc_PBC1, :qc_PBC2, :qc_RSC,
+  :macs2_nomodel_peak_count, :macs2_pemode_peak_count, :gem_peak_count, :sissrs_peak_count, :cpics_peak_count,
   :align_count, :align_percent, :read_count,
-) do
+], keyword_init: true) do
   include ExperimentInfoExtension
-  def self.from_string(str)
-    row = str.chomp.split("\t", 22)
+  def self.from_string(str, header:)
+    header = header.chomp.split("\t", 100500)  if header.is_a?(String)
+    row = str.chomp.split("\t", 100500)
+    header_mapping = {
+      "Peaks (/home_local/ivanyev/egrid/dfs-affyseq/peaks-interval)" => "Peaks",
+      "Raw files" => "RawFiles",
+      "macs2-single-end-peak-count" => "macs2-nomodel-peak-count",
+      "macs2-paired-end-peak-count" => "macs2-pemode-peak-count",
+      "QC.estFragLen (max cross-correlation)" => "QC.estFragLen",
+    }
+    header = header.map{|name| header_mapping.fetch(name, name) }
+    row = header.zip(row).to_h
 
-    experiment_id = row[0]
-    tf = row[1]
-    raw_files = row[2]
-    peak_id = row[3]
-    qc_estFragLen = row[4].yield_self{|val| Integer(val) rescue val }
-    qc_FRiP_CPICS, qc_FRiP_GEM, qc_FRiP_MACS2_PEMODE, qc_FRiP_SISSRS, qc_NRF, qc_NSC, qc_PBC1, qc_PBC2, qc_RSC = *row[5..13].map{|val|
+    experiment_id = row['ID']
+    tf = row['TF']
+    raw_files = row['RawFiles']
+    peak_id = row['Peaks']
+    qc_estFragLen = row['QC.estFragLen'].yield_self{|val| Integer(val) rescue val }
+
+
+    qc_FRiP_CPICS, qc_FRiP_GEM, qc_FRiP_MACS2_NOMODEL, qc_FRiP_MACS2_PEMODE, qc_FRiP_SISSRS, qc_NRF, qc_NSC, qc_PBC1, qc_PBC2, qc_RSC = *[
+      'QC.FRiP_CPICS', 'QC.FRiP_GEM', 'QC.FRiP_MACS2-NOMODEL', 'QC.FRiP_MACS2-PEMODE', 'QC.FRiP_SISSRS', 'QC.NRF', 'QC.NSC', 'QC.PBC1', 'QC.PBC2', 'QC.RSC',
+    ].map{|k| row[k] }.map{|val|
       Float(val.sub(",", ".")) rescue val
     }
-    macs2_pemode_peak_count, gem_peak_count, sissrs_peak_count, cpics_peak_count = *row[14..17].map{|val|
+    macs2_nomodel_peak_count, macs2_pemode_peak_count, gem_peak_count, sissrs_peak_count, cpics_peak_count = *[
+      'macs2-nomodel-peak-count', 'macs2-pemode-peak-count', 'gem-peak-count', 'sissrs-peak-count', 'cpics-peak-count',
+    ].map{|k| row[k] }.map{|val|
       Integer(val) rescue val
     }
-    align_count = row[18].yield_self{|val| Integer(val.gsub("\u00a0", "")) rescue val } # remove non-breaking spaces
-    align_percent = row[19].yield_self{|val| Float(val.sub(",", ".")) rescue val }
-    read_count = row[20].yield_self{|val| Integer(val) rescue val }
+    # macs2_nomodel_peak_count = nil
+    align_count = row['align_count'].yield_self{|val| Integer(val.gsub("\u00a0", "")) rescue val } # remove non-breaking spaces
+    align_percent = row['align_percent'].yield_self{|val| Float(val.sub(",", ".")) rescue val }
+    read_count = row['read_count'].yield_self{|val| Integer(val) rescue val }
 
     cycle_number = take_the_only( raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq )
 
@@ -40,10 +57,13 @@ ExperimentInfoAFS = Struct.new(
     end
 
     self.new(
-      experiment_id, peak_id, tf, raw_files, type, cycle_number,
-      qc_estFragLen, qc_FRiP_CPICS, qc_FRiP_GEM, qc_FRiP_MACS2_PEMODE, qc_FRiP_SISSRS, qc_NRF, qc_NSC, qc_PBC1, qc_PBC2, qc_RSC,
-      macs2_pemode_peak_count, gem_peak_count, sissrs_peak_count, cpics_peak_count,
-      align_count, align_percent, read_count
+      experiment_id: experiment_id, peak_id: peak_id, tf: tf, raw_files: raw_files, type: type, cycle_number: cycle_number,
+      qc_estFragLen: qc_estFragLen, qc_FRiP_CPICS: qc_FRiP_CPICS, qc_FRiP_GEM: qc_FRiP_GEM,
+      qc_FRiP_MACS2_NOMODEL: qc_FRiP_MACS2_NOMODEL, qc_FRiP_MACS2_PEMODE: qc_FRiP_MACS2_PEMODE, qc_FRiP_SISSRS: qc_FRiP_SISSRS,
+      qc_NRF: qc_NRF, qc_NSC: qc_NSC, qc_PBC1: qc_PBC1, qc_PBC2: qc_PBC2, qc_RSC: qc_RSC,
+      macs2_nomodel_peak_count: macs2_nomodel_peak_count, macs2_pemode_peak_count: macs2_pemode_peak_count,
+      gem_peak_count: gem_peak_count, sissrs_peak_count: sissrs_peak_count, cpics_peak_count: cpics_peak_count,
+      align_count: align_count, align_percent: align_percent, read_count: read_count,
     )
   end
 

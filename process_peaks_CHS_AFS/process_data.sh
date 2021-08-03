@@ -3,6 +3,8 @@ set -eu
 #set -o pipefail
 
 NUM_PROCESSES=12
+METRICS_CHS_FN='source_data_meta/CHS/metrics_by_exp.tsv'
+METRICS_AFS_FN='source_data_meta/AFS/metrics_by_exp.tsv'
 
 # wget https://github.com/arq5x/bedtools2/releases/download/v2.29.2/bedtools-2.29.2.tar.gz
 # tar -zxf bedtools-2.29.2.tar.gz && rm bedtools-2.29.2.tar.gz
@@ -24,15 +26,15 @@ for DATA_TYPE in affiseq_Lysate affiseq_IVT chipseq; do
     case "$DATA_TYPE" in
       chipseq)
         SOURCE_FOLDER="./chipseq/source_data"
-        ruby prepare_peaks_chipseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER}
+        ruby prepare_peaks_chipseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER} ${METRICS_CHS_FN}
         ;;
       affiseq_Lysate)
         SOURCE_FOLDER="./affiseq/source_data"
-        ruby prepare_peaks_affiseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER} --experiment-type Lysate
+        ruby prepare_peaks_affiseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER} ${METRICS_AFS_FN} --experiment-type Lysate
         ;;
       affiseq_IVT)
         SOURCE_FOLDER="./affiseq/source_data"
-        ruby prepare_peaks_affiseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER} --experiment-type IVT
+        ruby prepare_peaks_affiseq.rb ${SOURCE_FOLDER} ${RESULTS_FOLDER} ${METRICS_AFS_FN} --experiment-type IVT
         ;;
     esac
 
