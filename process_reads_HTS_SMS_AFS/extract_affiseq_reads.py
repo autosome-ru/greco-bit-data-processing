@@ -146,6 +146,9 @@ meta_by_experiment = read_experiment_meta(metrics_fn)
 
 def task_generator():
     for experiment in experiments:
+        if experiment not in meta_by_experiment:
+            print(f'No metadata for {experiment}. Skip it.', file=sys.stderr)
+            continue
         experiment_meta = meta_by_experiment[experiment]
         tf = experiment_meta['tf']
         if tf == 'CONTROL':
