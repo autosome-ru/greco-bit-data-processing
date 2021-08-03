@@ -169,7 +169,7 @@ def task_generator():
         alignment = alignment_by_experiment[experiment]
         read_basenames = reads_by_experiment[experiment]
         basename = experiment_meta['basename']
-        basename_parts = basename.split('_')
+        basename_parts = basename.replace('Ecoli_GST', 'Lysate').split('_')
         if len(basename_parts) == 5:    # ZNF596_AffSeq_Lysate_BatchAATA_Cycle3
             _tf, _, ivt_or_lysate, batch, cycle = basename.split('_')
         elif len(basename_parts) == 6:  # NR1H4_AffSeq_IVT_BatchYWFB_D12_Cycle4  or  FIZ1-FL_AffSeq_IVT_BatchYWFB_E01_Cycle1
