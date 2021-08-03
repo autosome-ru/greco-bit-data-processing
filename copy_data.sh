@@ -39,8 +39,8 @@ ruby shared/lib/symlink_folder_content.rb \
     symlink
 
 ruby shared/lib/symlink_folder_content.rb \
-    "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/fastq" \
-    "source_data/AFS/fastq" \
+    "/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/trimmed" \
+    "source_data/AFS/trimmed" \
     symlink
 
 
