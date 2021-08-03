@@ -10,11 +10,12 @@ import pysam
 from gzip_utils import open_for_read, open_for_write
 
 metrics_fn = sys.argv[1] # 'source_data_meta/AFS/metrics_by_exp.tsv'
+db_name = sys.argv[2]    # 'greco_affyseq'  or  'greco_affiseq_jun2021'
 NUM_THREADS = 20
 TRAIN_CHR = {f"chr{chr}" for chr in range(1,22,2)} # chr1, chr3, ..., chr21
 VALIDATION_CHR = {f"chr{chr}" for chr in range(2,23,2)}  # chr2, chr4, ..., chr22
 
-MYSQL_CONFIG = {'host': 'localhost', 'user': 'vorontsovie', 'password': 'password', 'db': 'greco_affyseq'}
+MYSQL_CONFIG = {'host': 'localhost', 'user': 'vorontsovie', 'password': 'password', 'db': db_name}
 
 SOURCE_DIRNAME = 'source_data/AFS/'
 ALIGNMENT_DIRNAME = f'{SOURCE_DIRNAME}/aligns-sorted'

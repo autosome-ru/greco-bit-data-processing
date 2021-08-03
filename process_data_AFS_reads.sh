@@ -1,7 +1,11 @@
 METRICS_FN="source_data_meta/AFS/metrics_by_exp.tsv"
+DB_NAME='greco_affyseq'
+
+# METRICS_FN="source_data_meta/AFS/metrics_by_exp_jun2021.tsv"
+# DB_NAME='greco_affiseq_jun2021'
 
 source .venv/bin/activate
-python3 process_reads_HTS_SMS_AFS/extract_affiseq_reads.py  ${METRICS_FN}
+python3 process_reads_HTS_SMS_AFS/extract_affiseq_reads.py  ${METRICS_FN} ${DB_NAME}
 deactivate
 
 for EXP_TYPE in IVT Lysate; do
