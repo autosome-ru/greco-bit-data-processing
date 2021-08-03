@@ -31,12 +31,13 @@ def read_experiment_meta(filename):
                 result[experiment_id] = {'tf': 'CONTROL', 'basename': fastq_bn, 'peaks': peaks}
                 continue
             raw_files = raw_files.split(';')
-            fastq_bns = set(re.sub(r'_R[12].fastq.gz', '', raw_fn) for raw_fn in raw_files)
+            # ChipSeq/Patch/SRY_AffSeq_IVT_BatchYWFB_D11_Cycle1_R1.fastq.gz --> SRY_AffSeq_IVT_BatchYWFB_D11_Cycle1
+            fastq_bns = set(re.sub(r'_R[12].fastq.gz', '', os.path.basename(raw_fn)) for raw_fn in raw_files)
             if len(fastq_bns) != 1:
-                raise 'mismatching FASTQ files'
+                raise Exception('mismatching FASTQ files')
             fastq_bn = fastq_bns.pop()
             if experiment_id in result:
-                raise f'Experiment {experiment_id} should have the only meta-info line'
+                raise Exception(f'Experiment {experiment_id} should have the only meta-info line')
             result[experiment_id] = {'tf': tf, 'basename': fastq_bn, 'peaks': peaks}
     return result
 
@@ -72,7 +73,7 @@ def infos_by_alignment(records):
         alignments = set(rec['alignment'] for rec in experiment_records)
         reads      = set(rec['reads'] for rec in experiment_records)
         if len(alignments) != 1:
-            raise f'Should be one alignment per experiment for {experiment}'
+            raise Exception(f'Should be one alignment per experiment for {experiment}')
         alignment = alignments.pop()
         alignment_by_experiment[experiment] = alignment
         reads_by_experiment[experiment] = reads
@@ -114,7 +115,7 @@ def split_fastq_train_val(fastq_fns, alignment_fn, train_fn, validation_fn):
     elif len(fastq_fns) == 2:
         mode = 'paired-end'
     else:
-        raise f'Too many FASTQ files or no such files (`fastq_fns`). Should be either single or a pair of read files'
+        raise Exception(f'Too many FASTQ files or no such files (`fastq_fns`). Should be either single or a pair of read files')
     alignment_infos = bam_splitted(alignment_fn)
     train_ids = alignment_infos['train']
     validation_ids = alignment_infos['validation']
@@ -155,8 +156,14 @@ def task_generator():
             continue
         alignment = alignment_by_experiment[experiment]
         read_basenames = reads_by_experiment[experiment]
-        basename = experiment_meta['basename'] # ZNF596_AffSeq_Lysate_BatchAATA_Cycle3
-        _, _, ivt_or_lysate, batch, cycle = basename.split('_')
+        basename = experiment_meta['basename']
+        basename_parts = basename.split('_')
+        if len(basename_parts) == 5:    # ZNF596_AffSeq_Lysate_BatchAATA_Cycle3
+            _tf, _, ivt_or_lysate, batch, cycle = basename.split('_')
+        elif len(basename_parts) == 6:  # NR1H4_AffSeq_IVT_BatchYWFB_D12_Cycle4  or  FIZ1-FL_AffSeq_IVT_BatchYWFB_E01_Cycle1
+            _tf_extended, _, ivt_or_lysate, batch, _well, cycle = basename.split('_')
+        else:
+            raise Exception(f'Unknown sample basename format `{basename}`')
         peak = experiment_meta['peaks']
         
         alignment_fn = f"{ALIGNMENT_DIRNAME}/{alignment}.bam"
