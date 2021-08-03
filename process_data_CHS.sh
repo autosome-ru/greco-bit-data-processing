@@ -2,10 +2,11 @@ SOURCE_FOLDER=./source_data/CHS/
 INTERMEDIATE_FOLDER=./results_databox_chs/
 RESULTS_FOLDER=./source_data_prepared/CHS
 SCRIPT_FOLDER=./process_peaks_CHS_AFS/
+METRICS_FN='source_data_meta/CHS/metrics_by_exp.tsv'
 
 mkdir -p "${INTERMEDIATE_FOLDER}"
 
-ruby "${SCRIPT_FOLDER}/prepare_peaks_chipseq.rb" "${SOURCE_FOLDER}" "${INTERMEDIATE_FOLDER}"
+ruby "${SCRIPT_FOLDER}/prepare_peaks_chipseq.rb" "${SOURCE_FOLDER}" "${INTERMEDIATE_FOLDER}" "${METRICS_FN}"
 
 mkdir -p ${INTERMEDIATE_FOLDER}/Train_sequences/
 for FN in $(find ${INTERMEDIATE_FOLDER}/Train_intervals/ -xtype f); do

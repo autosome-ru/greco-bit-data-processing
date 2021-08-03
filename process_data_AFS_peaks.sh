@@ -1,11 +1,12 @@
 SOURCE_FOLDER=./source_data/AFS/
 SCRIPT_FOLDER=./process_peaks_CHS_AFS/
+METRICS_FN='source_data_meta/AFS/metrics_by_exp.tsv'
 
 # It's essential that IVT and Lysate datasets are stored into different intermediate folders: they can conflict
 for EXP_TYPE in IVT Lysate; do
   RESULTS_FOLDER=./results_databox_afs_${EXP_TYPE}/
   mkdir -p "${RESULTS_FOLDER}"
-  ruby "${SCRIPT_FOLDER}/prepare_peaks_affiseq.rb" "${SOURCE_FOLDER}" "${RESULTS_FOLDER}" --experiment-type ${EXP_TYPE}
+  ruby "${SCRIPT_FOLDER}/prepare_peaks_affiseq.rb" "${SOURCE_FOLDER}" "${RESULTS_FOLDER}" "${METRICS_FN}" --experiment-type ${EXP_TYPE}
 done
 
 for EXP_TYPE in IVT Lysate; do

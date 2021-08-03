@@ -11,11 +11,11 @@ SUPPLEMENTARY_PEAK_CALLERS = PEAK_CALLERS - MAIN_PEAK_CALLERS
 
 SOURCE_FOLDER = ARGV[0] # 'source_data/chipseq'
 RESULTS_FOLDER = ARGV[1] # 'results/chipseq'
-
+metrics_fn = ARGV[2] # "#{__dir__}/../source_data_meta/CHS/metrics_by_exp.tsv"
 
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/complete_data")
 
-experiment_infos = ExperimentInfoCHS.each_from_file("#{__dir__}/../source_data_meta/CHS/metrics_by_exp.tsv").reject{|info| info.type == 'control' }.to_a
+experiment_infos = ExperimentInfoCHS.each_from_file(metrics_fn).reject{|info| info.type == 'control' }.to_a
 experiment_infos.each{|info|
   info.confirmed_peaks_folder = "#{RESULTS_FOLDER}/complete_data"
 }
