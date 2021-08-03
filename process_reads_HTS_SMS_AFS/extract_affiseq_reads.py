@@ -22,11 +22,23 @@ ALIGNMENT_DIRNAME = f'{SOURCE_DIRNAME}/aligns-sorted'
 FASTQ_DIRNAME = f'{SOURCE_DIRNAME}/trimmed'
 
 def read_experiment_meta(filename):
+    header_mapping = {
+      "Peaks (/home_local/ivanyev/egrid/dfs-affyseq/peaks-interval)": "Peaks",
+      "Raw files": "RawFiles",
+      "macs2-single-end-peak-count": "macs2-nomodel-peak-count",
+      "macs2-paired-end-peak-count": "macs2-pemode-peak-count",
+      "QC.estFragLen (max cross-correlation)": "QC.estFragLen",
+    }
     result = {}
     with open(filename) as f:
-        header = f.readline()
+        header = [header_mapping.get(name, name) for name in f.readline().split("\t")]
         for line in f:
-            experiment_id, tf, raw_files, peaks, *metrics, status = line.split("\t")
+            row = line.split("\t")
+            row_info = dict(zip(header, row))
+            experiment_id = row_info['ID']
+            tf = row_info['TF']
+            raw_files = row_info['RawFiles']
+            peaks = row_info['Peaks']
             if tf == 'CONTROL':
                 result[experiment_id] = {'tf': 'CONTROL', 'basename': fastq_bn, 'peaks': peaks}
                 continue
