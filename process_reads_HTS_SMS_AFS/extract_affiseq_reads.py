@@ -47,15 +47,13 @@ def get_experiment_infos(db_connection):
     # | ALIGNS991138 | AlignmentsGTRDType | EXP991138 | ExperimentGTRDType | Homo sapiens |
     # | READS991276  | ReadsGTRDType      | EXP991138 | ExperimentGTRDType | Homo sapiens |
     # +--------------+--------------------+-----------+--------------------+--------------+
-
     query = """
-    SELECT a.output AS experiment_file, a.input AS alignment_file, r.input AS reads_file
-    FROM  hub AS a  INNER JOIN  hub AS r  ON  a.output = r.output
-    WHERE
-        (a.output_type="ExperimentGTRDType")  AND  (r.output_type="ExperimentGTRDType") AND
-        (a.input_type="AlignmentsGTRDType") AND (r.input_type="ReadsGTRDType");
+        SELECT a.output AS experiment_file, a.input AS alignment_file, r.input AS reads_file
+        FROM  hub AS a  INNER JOIN  hub AS r  ON  a.output = r.output
+        WHERE
+            (a.output_type="ExperimentGTRDType")  AND  (r.output_type="ExperimentGTRDType") AND
+            (a.input_type="AlignmentsGTRDType") AND (r.input_type="ReadsGTRDType");
     """
-
     with db_connection.cursor() as cursor:
         cursor.execute(query)
         records = cursor.fetchall()
@@ -110,17 +108,33 @@ def read_fastq(filename):
                 break
 
 def split_fastq_train_val(fastq_fns, alignment_fn, train_fn, validation_fn):
+    if len(fastq_fns) == 1:
+        mode = 'single-end'
+    elif len(fastq_fns) == 2:
+        mode = 'paired-end'
+    else:
+        raise f'Too many FASTQ files or no such files (`fastq_fns`). Should be either single or a pair of read files'
     alignment_infos = bam_splitted(alignment_fn)
     train_ids = alignment_infos['train']
     validation_ids = alignment_infos['validation']
     with open_for_write(train_fn) as train_fw, open_for_write(validation_fn) as validation_fw:
         for fastq_fn in fastq_fns:
             for single_read_info in read_fastq(fastq_fn):
-                read_name = single_read_info[0].lstrip('@').split(' ')[0]
-                if read_name in train_ids:
-                    print('\n'.join(single_read_info), file=train_fw)
-                elif read_name in validation_ids:
-                    print('\n'.join(single_read_info), file=validation_fw)
+                header = single_read_info[0].lstrip('@')
+                read_name = header.split(' ')[0]
+                if mode == 'single-end':
+                    use_read = True
+                elif mode == 'paired-end':
+                    use_read = False
+                    pair_number = int(header.split(' ')[1].split(':')[0]) - 1 # 0 or 1 -- number in single-end/paired-end reads
+                    readname_hash = int(hashlib.md5(read_name.encode('ascii')).hexdigest(), base=16)
+                    if readname_hash % 2 == pair_number:
+                        use_read = True
+                if use_read:
+                    if read_name in train_ids:
+                        print('\n'.join(single_read_info), file=train_fw)
+                    elif read_name in validation_ids:
+                        print('\n'.join(single_read_info), file=validation_fw)
 
 
 db_connection = pymysql.connect(**MYSQL_CONFIG)
