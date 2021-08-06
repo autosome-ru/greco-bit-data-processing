@@ -6,8 +6,8 @@ require_relative 'peak_preparation_utils'
 require_relative 'experiment_info_extension'
 require_relative 'experiment_info_afs'
 
-PEAK_CALLERS = ['macs2-pemode', 'cpics', 'gem', 'sissrs']
-MAIN_PEAK_CALLERS = ['macs2-pemode']
+PEAK_CALLERS = ['macs2-pemode', 'macs2-nomodel', 'cpics', 'gem', 'sissrs']
+MAIN_PEAK_CALLERS = ['macs2-pemode', 'macs2-nomodel']
 SUPPLEMENTARY_PEAK_CALLERS = PEAK_CALLERS - MAIN_PEAK_CALLERS
 
 experiment_type = nil
