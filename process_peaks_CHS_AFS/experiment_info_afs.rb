@@ -10,7 +10,7 @@ ExperimentInfoAFS = Struct.new(*[
   include ExperimentInfoExtension
   def self.from_string(str, header:)
     header = header.chomp.split("\t", 100500)  if header.is_a?(String)
-    row = str.chomp.split("\t", 100500)
+    unpacked_row = str.chomp.split("\t", 100500)
     header_mapping = {
       "Peaks (/home_local/ivanyev/egrid/dfs-affyseq/peaks-interval)" => "Peaks",
       "Raw files" => "RawFiles",
@@ -19,7 +19,7 @@ ExperimentInfoAFS = Struct.new(*[
       "QC.estFragLen (max cross-correlation)" => "QC.estFragLen",
     }
     header = header.map{|name| header_mapping.fetch(name, name) }
-    row = header.zip(row).to_h
+    row = header.zip(unpacked_row).to_h
 
     experiment_id = row['ID']
     tf = row['TF']
@@ -46,6 +46,7 @@ ExperimentInfoAFS = Struct.new(*[
     cycle_number = take_the_only( raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq )
 
     if tf == 'CONTROL'
+      tf = nil
       type = 'control'
     else
       raw_files_list = raw_files.split(';')
