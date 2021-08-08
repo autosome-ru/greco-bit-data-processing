@@ -19,7 +19,7 @@ module Chipseq
       ## ChIP experiment uinque ID Plasmid ID  Gene ID Sample ID Submitted sample label  ChIP/INPUT  Replicate # Comments  Data File ID  Sequencing Facility     
       ## SI0140  pTH16498  SNAI1 pTH16498.1.1  SNAI1-rep1  ChIP  1   Hughes_2_SNAI1_FS0169 DSC 
       experiment_id, plasmid_id, gene_id, sample_id, sample_label, \
-        chip_or_input, replicate, comments, data_file_id, sequencing_facility = line.chomp.split("\t")
+        chip_or_input, replicate, comments, data_file_id, sequencing_facility, batch = line.chomp.split("\t")
       self.new(
         experiment_id: experiment_id, plasmid_id: plasmid_id, gene_id: gene_id,
         sample_id: sample_id, sample_label: sample_label,
