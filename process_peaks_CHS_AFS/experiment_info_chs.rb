@@ -56,19 +56,19 @@ ExperimentInfoCHS = Struct.new(*[
       'readCount' => 'read_count',
     }
 
-    peak_count_attrs = ['peak_count_MACS2_SE', 'peak_count_MACS2_PE', 'peak_count_GEM', 'peak_count_SISSRS', 'peak_count_CPICS', ]
-    qc_frip_attrs = ['qc_FRiP_MACS2_SE', 'qc_FRiP_MACS2_PE', 'qc_FRiP_GEM', 'qc_FRiP_SISSRS', 'qc_FRiP_CPICS', ]
-    some_other_qc_attrs = ['qc_NRF', 'qc_NSC', 'qc_PBC1', 'qc_PBC2', 'qc_RSC',]
+    peak_count_attrs = [:peak_count_MACS2_SE, :peak_count_MACS2_PE, :peak_count_GEM, :peak_count_SISSRS, :peak_count_CPICS, ]
+    qc_frip_attrs = [:qc_FRiP_MACS2_SE, :qc_FRiP_MACS2_PE, :qc_FRiP_GEM, :qc_FRiP_SISSRS, :qc_FRiP_CPICS, ]
+    some_other_qc_attrs = [:qc_NRF, :qc_NSC, :qc_PBC1, :qc_PBC2, :qc_RSC, ]
 
-    float_metrics = [*qc_frip_attrs, *some_other_qc_attrs, 'align_percent', ]
-    integer_metrics = [*peak_count_attrs, 'qc_estFragLen', 'align_count', 'read_count', ]
+    float_metrics = [*qc_frip_attrs, *some_other_qc_attrs, :align_percent, ]
+    integer_metrics = [*peak_count_attrs, :qc_estFragLen, :align_count, :read_count, ]
 
     header = header.chomp.split("\t", 100500).map(&:strip)  if header.is_a?(String)
     unpacked_row = str.chomp.split("\t", 100500).map(&:strip)
-    header = header.map{|name| header_mapping.fetch(name, name) }
+    header = header.map{|name| header_mapping.fetch(name, name).to_sym }
     row = header.zip(unpacked_row).to_h
 
-    nullify_for_control = ['tf', 'peaks', *peak_count_attrs, *qc_frip_attrs, ]
+    nullify_for_control = [:tf, :peaks, *peak_count_attrs, *qc_frip_attrs, ]
 
     type = nil
     if nullify_for_control.all?{|k| ['CONTROL', 'NA', '', nil, 'NOT_PAIRED_END'].include?(row[k]) }
@@ -88,7 +88,7 @@ ExperimentInfoCHS = Struct.new(*[
       row[k] = nil  if ['CONTROL', 'NA', '', nil, 'NOT_PAIRED_END'].include?(row[k])
     end
 
-    row['peaks'] = row['peaks'] ? row['peaks'].split(';') : []
+    row[:peaks] = row[:peaks] ? row[:peaks].split(';') : []
 
     float_metrics.each{|k|
       val = row[k]
@@ -102,7 +102,7 @@ ExperimentInfoCHS = Struct.new(*[
       row[k] = Integer(val) rescue val
     }
 
-    plate_ids = row['raw_files'].split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq
+    plate_ids = row[:raw_files].split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq
     if plate_ids.size == 1
       plate_id = plate_ids[0]
     elsif plate_ids.size == 0
@@ -116,9 +116,9 @@ ExperimentInfoCHS = Struct.new(*[
     end
 
     if type != 'control'
-      peak_bns = row['peaks'].map{|fn| File.basename(fn.strip, ".interval") }.reject(&:empty?).uniq
+      peak_bns = row[:peaks].map{|fn| File.basename(fn.strip, ".interval") }.reject(&:empty?).uniq
       peak_id = take_the_only( peak_bns )
-      if row['peak_count_MACS2_PE']
+      if row[:peak_count_MACS2_PE]
         type = 'paired_end'
       else
         type = 'single_end'
