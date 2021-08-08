@@ -1,11 +1,11 @@
-SOURCE_FOLDER=./source_data/CHS/
+SOURCE_FOLDER=./source_data/CHS
 RESULTS_FOLDER=./source_data_prepared/CHS
-SCRIPT_FOLDER=./process_peaks_CHS_AFS/
+SCRIPT_FOLDER=./process_peaks_CHS_AFS
 
-INTERMEDIATE_FOLDER=./results_databox_chs_batch1/
+INTERMEDIATE_FOLDER=./results_databox_chs_batch1
 METRICS_FN='source_data_meta/CHS/metrics_by_exp.tsv'
 
-# INTERMEDIATE_FOLDER=./results_databox_chs_batch2/
+# INTERMEDIATE_FOLDER=./results_databox_chs_batch2
 # METRICS_FN='source_data_meta/CHS/metrics_by_exp_chipseq_feb2021.tsv'
 
 # INTERMEDIATE_FOLDER=./results_databox_chs_batch3/
