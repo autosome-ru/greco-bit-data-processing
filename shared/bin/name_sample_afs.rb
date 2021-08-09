@@ -18,7 +18,7 @@ module AffiseqPeaks
     metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
     sample_metadata_pairs = full_join_by(
       samples, metadata,
-      key_proc_1: ->(fn){ File.basename(fn).split('.')[1].sub(/_L\d+(\+L\d+)?$/, "").sub(/_[ACGT]{6}$/, "") },
+      key_proc_1: ->(fn){ File.basename(fn).split('.')[1].sub(/_L\d+(\+L\d+)?$/, "").sub(/_[ACGT]{6}$/, "") }, # ToDo: FIX !!!
       key_proc_2: ->(m){ m.normalized_id }
     )
 
