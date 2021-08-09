@@ -11,7 +11,7 @@ module Chipseq
     def construct_type
       plasmid = $plasmid_by_number[plasmid_id]
       $stderr.puts "No plasmid `#{plasmid_id}`. Plasmid is marked as NA."  if !plasmid
-      plasmid.construct_type || 'NA'
+      plasmid ? plasmid.construct_type : 'NA'
     end
 
     def normalized_id
