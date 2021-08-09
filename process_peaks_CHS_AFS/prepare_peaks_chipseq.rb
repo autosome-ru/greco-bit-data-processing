@@ -26,11 +26,16 @@ raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == e
 experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
 
 experiment_infos.each{|info|
-  info.make_confirmed_peaks!(
-    source_folder: SOURCE_FOLDER,
-    main_peak_callers: MAIN_PEAK_CALLERS,
-    supplementary_peak_callers: SUPPLEMENTARY_PEAK_CALLERS,
-  )
+  begin
+    info.make_confirmed_peaks!(
+      source_folder: SOURCE_FOLDER,
+      main_peak_callers: MAIN_PEAK_CALLERS,
+      supplementary_peak_callers: SUPPLEMENTARY_PEAK_CALLERS,
+    )
+  rescue
+    $stderr.puts "Failed to process experiment:\n#{info}"
+    raise
+  end
 }
 
 # experiment_infos.each{|peak_info|

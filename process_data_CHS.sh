@@ -37,7 +37,7 @@ for FN in $(find ${INTERMEDIATE_FOLDER}/Train_intervals/ -xtype f ); do
     if [[ -n "$NEW_BN" ]]; then
         cp ${FN} ${RESULTS_FOLDER}/Train_intervals/${NEW_BN}
     else
-        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+        true # echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
     fi
 done
 
@@ -47,7 +47,7 @@ for FN in $(find ${INTERMEDIATE_FOLDER}/Val_intervals/ -xtype f ); do
     if [[ -n "$NEW_BN" ]]; then
         cp ${FN} ${RESULTS_FOLDER}/Val_intervals/${NEW_BN}
     else
-        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+        true # echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
     fi
 done
 
@@ -57,7 +57,7 @@ for FN in $(find ${INTERMEDIATE_FOLDER}/Train_sequences/ -xtype f ); do
     if [[ -n "$NEW_BN" ]]; then
         cp ${FN} ${RESULTS_FOLDER}/Train_sequences/${NEW_BN}
     else
-        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+        true # echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
     fi
 done
 
@@ -67,6 +67,6 @@ for FN in $(find ${INTERMEDIATE_FOLDER}/Val_sequences/ -xtype f ); do
     if [[ -n "$NEW_BN" ]]; then
         cp ${FN} ${RESULTS_FOLDER}/Val_sequences/${NEW_BN}
     else
-        echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+        true # echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
     fi
 done

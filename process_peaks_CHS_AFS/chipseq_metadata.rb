@@ -10,7 +10,7 @@ module Chipseq
 
     def construct_type
       plasmid = $plasmid_by_number[plasmid_id]
-      $stderr.puts "No plasmid `#{plasmid_id}`. Plasmid is marked as NA."  if !plasmid
+      $stderr.puts "Chipseq::SampleMetadata#construct_type: No plasmid `#{plasmid_id}`. Construct type is marked as NA."  if !plasmid
       plasmid ? plasmid.construct_type : 'NA'
     end
 
