@@ -90,10 +90,20 @@ module Chipseq
     slice_type ||= determine_slice_type(sample_fn)
     data_file_id, replica = File.basename(sample_fn).split('.')[1].split('@')
     normalized_id = data_file_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_\d_pf(\+\d_pf)?$/,"").sub(/_[ACGT]{6}$/, "").sub(/_S\d+$/, "")
-    sample_metadata = metadata.select{|m| m.normalized_id == normalized_id }.take_the_only
+    
+    sample_metadata_variants = metadata.select{|m| m.normalized_id == normalized_id }
+    if sample_metadata_variants.empty?
+      sample_metadata = nil
+    elsif sample_metadata_variants.size == 1
+      sample_metadata = sample_metadata_variants[0]
+    else
+      raise "Several metadata variants for normalized_id `#{normalized_id}`:\n#{sample_metadata_variants.join("\n") }"
+    end
 
     if sample_metadata
       puts self.generate_name(sample_metadata, slice_type: slice_type, extension: extension, replica: replica)
+    else
+      $stderr.puts "Metadata for sample `#{sample_fn}` (normalized_id: `#{normalized_id}`) not found"
     end
   end
 end
