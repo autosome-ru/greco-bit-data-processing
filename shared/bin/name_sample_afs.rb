@@ -1,4 +1,5 @@
 require 'optparse'
+require_relative '../lib/utils'
 require_relative '../lib/index_by'
 require_relative '../lib/plasmid_metadata'
 require_relative '../lib/random_names'
@@ -74,7 +75,7 @@ module AffiseqPeaks
     exp_info = experiment_infos.detect{|exp_info| exp_info.peak_id == peak_id }
     exp_filename = exp_info.raw_files.first
     exp_basename = File.basename(exp_filename)
-    sample_metadata = metadata.detect{|m| m.filenames.include?(exp_basename) }
+    sample_metadata = metadata.select{|m| m.filenames.include?(exp_basename) }.take_the_only
 
     if sample_metadata
       puts self.gen_name(sample_metadata, sample_fn, processing_type: processing_type, slice_type: slice_type, extension: extension, cycle: cycle)

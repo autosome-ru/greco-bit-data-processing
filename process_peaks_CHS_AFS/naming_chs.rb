@@ -1,4 +1,5 @@
 require 'optparse'
+require_relative '../shared/lib/utils'
 require_relative '../shared/lib/index_by'
 require_relative '../shared/lib/plasmid_metadata'
 require_relative '../shared/lib/random_names'
@@ -89,7 +90,7 @@ module Chipseq
     slice_type ||= determine_slice_type(sample_fn)
     data_file_id, replica = File.basename(sample_fn).split('.')[1].split('@')
     normalized_id = data_file_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_\d_pf(\+\d_pf)?$/,"").sub(/_[ACGT]{6}$/, "").sub(/_S\d+$/, "")
-    sample_metadata = metadata.detect{|m| m.normalized_id == normalized_id }
+    sample_metadata = metadata.select{|m| m.normalized_id == normalized_id }.take_the_only
 
     if sample_metadata
       puts self.generate_name(sample_metadata, slice_type: slice_type, extension: extension, replica: replica)
