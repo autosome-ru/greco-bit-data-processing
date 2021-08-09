@@ -23,7 +23,8 @@ ExperimentInfoAFS = Struct.new(*[
 
     experiment_id = row['ID']
     tf = row['TF']
-    raw_files = row['RawFiles']
+    raw_files = row['RawFiles'].split(/[;,]/)
+    row['Peaks'] = ''  if row['Peaks'] == 'NULL'
     peak_id = row['Peaks']
     qc_estFragLen = row['QC.estFragLen'].yield_self{|val| Integer(val) rescue val }
 
@@ -43,16 +44,15 @@ ExperimentInfoAFS = Struct.new(*[
     align_percent = row['align_percent'].yield_self{|val| Float(val.sub(",", ".")) rescue val }
     read_count = row['read_count'].yield_self{|val| Integer(val) rescue val }
 
-    cycle_number = take_the_only( raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq )
+    cycle_number = take_the_only( raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq )
 
     if tf == 'CONTROL'
       tf = nil
       type = 'control'
     else
-      raw_files_list = raw_files.split(';')
-      if raw_files_list.first.match?(/AffSeq_IVT/)
+      if raw_files.first.match?(/AffSeq_IVT/)
         type = 'IVT'
-      elsif raw_files_list.first.match?(/AffSeq_Lysate/)
+      elsif raw_files.first.match?(/AffSeq_Lysate/)
         type = 'Lysate'
       end
     end

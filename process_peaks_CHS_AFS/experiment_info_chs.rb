@@ -8,7 +8,7 @@ ExperimentInfoCHS = Struct.new(*[
   :qc_estFragLen,
   :qc_FRiP_MACS2_SE, :qc_FRiP_MACS2_PE, :qc_FRiP_GEM, :qc_FRiP_SISSRS, :qc_FRiP_CPICS,
   :qc_NRF, :qc_NSC, :qc_PBC1, :qc_PBC2, :qc_RSC,
-  :align_count, :align_percent, :read_count,
+  :align_count, :align_percent, :read_count, :replica,
 ], keyword_init: true) do
   include ExperimentInfoExtension
 
@@ -102,7 +102,13 @@ ExperimentInfoCHS = Struct.new(*[
       row[k] = Integer(val) rescue val
     }
 
-    plate_ids = row[:raw_files].split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq
+    row[:raw_files] = row[:raw_files].split(/[;,]/)
+
+    replica = nil
+    replica = 'DIANA_0293'  if row[:raw_files].map{|fn| fn.match?('DIANA_0293') }.uniq.take_the_only
+    replica = 'MICHELLE_0314'  if row[:raw_files].map{|fn| fn.match?('MICHELLE_0314') }.uniq.take_the_only
+
+    plate_ids = row[:raw_files].map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq
     if plate_ids.size == 1
       plate_id = plate_ids[0]
     elsif plate_ids.size == 0
@@ -127,13 +133,13 @@ ExperimentInfoCHS = Struct.new(*[
 
     self.new(
       **row,
-      peak_id: peak_id, type: type, plate_id: plate_id,
+      peak_id: peak_id, type: type, plate_id: plate_id, replica: replica,
     )
   end
 
   # GLI4.Plate_2_G12_S191.PEAKS991005
   def basename
-    "#{tf}.#{plate_id}.#{peak_id}.chipseq"
+    replica ? "#{tf}.#{plate_id}@#{replica}.#{peak_id}.chipseq" : "#{tf}.#{plate_id}.#{peak_id}.chipseq"
   end
 
   def self.peak_id_from_basename(bn)

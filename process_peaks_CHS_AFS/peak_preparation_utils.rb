@@ -105,21 +105,21 @@ def store_train_val_stats(tf_infos, filename, experiment_by_peak_id, results_fol
       Dir.glob("#{results_folder}/Train_intervals/#{tf}.*.train.interval").each{|train_fn|
         train_peak_id = get_peak_id.call(train_fn)
         peak_info = experiment_by_peak_id[train_peak_id]
-        row = [train_peak_id, tf, peak_info.type, 'train', num_rows(train_fn, has_header: true), train_fn, peak_info.raw_datasets, peak_info.raw_files]
+        row = [train_peak_id, tf, peak_info.type, 'train', num_rows(train_fn, has_header: true), train_fn, peak_info.raw_datasets, peak_info.raw_files.join(';')]
         fw.puts(row.join("\t"))
       }
 
       Dir.glob("#{results_folder}/Val_intervals/#{tf}.*.basic_val.interval").each{|basic_validation_fn|
         validation_peak_id = get_peak_id.call(basic_validation_fn)
         peak_info = experiment_by_peak_id[validation_peak_id]
-        row = [validation_peak_id, tf, peak_info.type, 'basic_validation', num_rows(basic_validation_fn, has_header: true), basic_validation_fn, peak_info.raw_datasets, peak_info.raw_files]
+        row = [validation_peak_id, tf, peak_info.type, 'basic_validation', num_rows(basic_validation_fn, has_header: true), basic_validation_fn, peak_info.raw_datasets, peak_info.raw_files.join(';')]
         fw.puts(row.join("\t"))
       }
 
       Dir.glob("#{results_folder}/Val_intervals/#{tf}.*.advanced_val_*.interval").each{|advanced_validation_fn|
         validation_peak_id = get_peak_id.call(advanced_validation_fn)
         peak_info = experiment_by_peak_id[validation_peak_id]
-        row = [validation_peak_id, tf, peak_info.type, 'advanced_validation', num_rows(advanced_validation_fn, has_header: true), advanced_validation_fn, peak_info.raw_datasets, peak_info.raw_files]
+        row = [validation_peak_id, tf, peak_info.type, 'advanced_validation', num_rows(advanced_validation_fn, has_header: true), advanced_validation_fn, peak_info.raw_datasets, peak_info.raw_files.join(';')]
         fw.puts(row.join("\t"))
       }
     }

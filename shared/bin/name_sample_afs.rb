@@ -72,7 +72,7 @@ module AffiseqPeaks
     peak_id = File.basename(sample_fn).split(".")[3]
     cycle = Integer(File.basename(sample_fn).split(".")[2].sub(/^Cycle/, ""))
     exp_info = experiment_infos.detect{|exp_info| exp_info.peak_id == peak_id }
-    exp_filename = exp_info.raw_files.split(';').first
+    exp_filename = exp_info.raw_files.first
     exp_basename = File.basename(exp_filename)
     sample_metadata = metadata.detect{|m| m.filenames.include?(exp_basename) }
 

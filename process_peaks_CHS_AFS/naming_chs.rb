@@ -15,27 +15,35 @@ module Chipseq
     "#{basename}.#{uuid}.#{slice_type}.#{extension}"
   end
 
-  def self.sample_basename(sample_metadata)
+  def self.sample_basename(sample_metadata, replica:)
     experiment_id = sample_metadata.experiment_id
     tf = sample_metadata.gene_id
     construct_type = sample_metadata.construct_type
-    basename = "#{tf}.#{construct_type}@CHS@#{experiment_id}@Peaks"
+    if replica
+      if replica == :any
+        "#{tf}.#{construct_type}@CHS@#{experiment_id}*@Peaks"
+      else
+        "#{tf}.#{construct_type}@CHS@#{experiment_id}.Replica-#{replica}@Peaks"
+      end
+    else
+      "#{tf}.#{construct_type}@CHS@#{experiment_id}@Peaks"
+    end
   end
 
-  def self.generate_name(sample_metadata, slice_type:, extension:)
-    basename = sample_basename(sample_metadata)
+  def self.generate_name(sample_metadata, slice_type:, extension:, replica:)
+    basename = sample_basename(sample_metadata, replica: replica)
 
     uuid = take_dataset_name!
     "#{basename}.#{uuid}.#{slice_type}.#{extension}"
   end
 
-  def self.find_names(folder, sample_metadata, slice_type:, extension:)
-    basename = sample_basename(sample_metadata)
+  def self.find_names(folder, sample_metadata, slice_type:, extension:, replica:)
+    basename = sample_basename(sample_metadata, replica: replica)
     Dir.glob(File.join(folder, "#{basename}.*.#{slice_type}.#{extension}"))
   end
 
-  def self.find_name(folder, sample_metadata, slice_type:, extension:)
-    fns = find_names(folder, sample_metadata, slice_type: slice_type, extension: extension)
+  def self.find_name(folder, sample_metadata, slice_type:, extension:, replica:)
+    fns = find_names(folder, sample_metadata, slice_type: slice_type, extension: extension, replica: replica)
     if fns.size == 1
       fns.first
     else
@@ -79,13 +87,12 @@ module Chipseq
     metadata = Chipseq::SampleMetadata.each_in_file('source_data_meta/CHS/CHS.tsv').to_a
 
     slice_type ||= determine_slice_type(sample_fn)
-    # assay_id = File.basename(sample_fn).split('_')[0]
-    data_file_id = File.basename(sample_fn).split('.')[1]
+    data_file_id, replica = File.basename(sample_fn).split('.')[1].split('@')
     normalized_id = data_file_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_\d_pf(\+\d_pf)?$/,"").sub(/_[ACGT]{6}$/, "").sub(/_S\d+$/, "")
     sample_metadata = metadata.detect{|m| m.normalized_id == normalized_id }
 
     if sample_metadata
-      puts self.generate_name(sample_metadata, slice_type: slice_type, extension: extension)
+      puts self.generate_name(sample_metadata, slice_type: slice_type, extension: extension, replica: replica)
     end
   end
 end

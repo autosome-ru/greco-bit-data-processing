@@ -79,7 +79,7 @@ module ExperimentInfoExtension
   end
 
   def raw_datasets
-    raw_files.split(';').map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq.join(';')
+    raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq.join(';')
   end
 
   def self.included(base)
