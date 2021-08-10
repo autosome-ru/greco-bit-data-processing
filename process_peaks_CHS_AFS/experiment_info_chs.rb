@@ -151,7 +151,7 @@ ExperimentInfoCHS = Struct.new(*[
     when 'control'
       raise "No peak file for control #{peak_id}"
     when 'single_end'
-      "#{source_folder}/peaks-intervals-se_control/#{peak_caller}/#{peak_id}.interval"
+      "#{source_folder}/peaks-intervals/#{peak_caller}/#{peak_id}.interval"
     when 'paired_end'
       "#{source_folder}/peaks-intervals/#{peak_caller}/#{peak_id}.interval"
     else
