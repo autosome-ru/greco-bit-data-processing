@@ -3,6 +3,9 @@ require_relative '../shared/lib/utils'
 def num_rows(filename, has_header: true)
   num_lines = File.readlines(filename).map(&:strip).reject(&:empty?).size
   has_header ? (num_lines - 1) : num_lines
+rescue => e
+  $stderr.puts "Original exception: #{e.full_message}"
+  raise "Failed to count lines in `#{filename}`"
 end
 
 def get_bed_intervals(filename, has_header: true, drop_wrong: false)
