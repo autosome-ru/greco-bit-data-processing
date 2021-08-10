@@ -38,6 +38,15 @@ experiment_infos.each{|info|
   end
 }
 
+
+experiment_infos.each{|info|
+  $stderr.puts "Confirmed peaks (`#{info.confirmed_peaks_fn}`) not exist for #{info.experiment_id}"  if !File.exist?(info.confirmed_peaks_fn)
+}
+
+experiment_infos = experiment_infos.select{|info|
+  File.exist?(info.confirmed_peaks_fn)
+}
+
 # experiment_infos.each{|peak_info|
 #     FileUtils.rm(peak_info.confirmed_peaks_fn)  if File.exist?(peak_info.confirmed_peaks_fn) && num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
 # }
