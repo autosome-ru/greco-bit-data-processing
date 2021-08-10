@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'tempfile'
+require 'optparse'
 require_relative 'utils'
 require_relative 'peak_preparation_utils'
 require_relative 'experiment_info_extension'
@@ -9,13 +10,24 @@ PEAK_CALLERS = ['macs2-pemode', 'macs2-nomodel', 'cpics', 'gem', 'sissrs']
 MAIN_PEAK_CALLERS = ['macs2-pemode', 'macs2-nomodel']
 SUPPLEMENTARY_PEAK_CALLERS = PEAK_CALLERS - MAIN_PEAK_CALLERS
 
+metrics_fns = []
+option_parser = OptionParser.new{|opts|
+  opts.on('--qc-file FILE', 'Specify file with QC metrics. This option can be specified several times') {|fn|
+    raise "QC file `#{fn}` not exists"  unless File.exists?(fn)
+    metrics_fns << fn # "#{__dir__}/../source_data_meta/CHS/metrics_by_exp.tsv"
+  }
+}
+option_parser.parse!(ARGV)
+
 SOURCE_FOLDER = ARGV[0] # 'source_data/chipseq'
 RESULTS_FOLDER = ARGV[1] # 'results/chipseq'
-metrics_fn = ARGV[2] # "#{__dir__}/../source_data_meta/CHS/metrics_by_exp.tsv"
 
 FileUtils.mkdir_p("#{RESULTS_FOLDER}/complete_data")
 
-experiment_infos = ExperimentInfoCHS.each_from_file(metrics_fn).reject{|info| info.type == 'control' }.to_a
+experiment_infos = metrics_fns.flat_map{|fn|
+  ExperimentInfoCHS.each_from_file(fn).to_a
+}
+experiment_infos = experiment_infos.reject{|info| info.type == 'control' }.to_a
 experiment_infos.each{|info|
   info.confirmed_peaks_folder = "#{RESULTS_FOLDER}/complete_data"
 }

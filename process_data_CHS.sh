@@ -1,19 +1,23 @@
 SOURCE_FOLDER=./source_data/CHS
 RESULTS_FOLDER=./source_data_prepared/CHS
 SCRIPT_FOLDER=./process_peaks_CHS_AFS
+INTERMEDIATE_FOLDER=./results_databox_chs
 
-INTERMEDIATE_FOLDER=./results_databox_chs_batch1
-METRICS_FN='source_data_meta/CHS/metrics_by_exp.tsv'
+# INTERMEDIATE_FOLDER=./results_databox_chs_batch1
+# METRICS_FN='source_data_meta/CHS/metrics_by_exp.tsv'
 
 # INTERMEDIATE_FOLDER=./results_databox_chs_batch2
 # METRICS_FN='source_data_meta/CHS/metrics_by_exp_chipseq_feb2021.tsv'
 
-# INTERMEDIATE_FOLDER=./results_databox_chs_batch3/
+# INTERMEDIATE_FOLDER=./results_databox_chs_batch3
 # METRICS_FN='source_data_meta/CHS/metrics_by_exp_chipseq_jun2021.tsv'
 
-mkdir -p "${INTERMEDIATE_FOLDER}"
+# ruby "${SCRIPT_FOLDER}/prepare_peaks_chipseq.rb" "${SOURCE_FOLDER}" "${INTERMEDIATE_FOLDER}" --qc-file "${METRICS_FN}"
 
-ruby "${SCRIPT_FOLDER}/prepare_peaks_chipseq.rb" "${SOURCE_FOLDER}" "${INTERMEDIATE_FOLDER}" "${METRICS_FN}"
+ruby "${SCRIPT_FOLDER}/prepare_peaks_chipseq.rb" "${SOURCE_FOLDER}" "${INTERMEDIATE_FOLDER}" \
+    --qc-file source_data_meta/CHS/metrics_by_exp.tsv \
+    --qc-file source_data_meta/CHS/metrics_by_exp_chipseq_feb2021.tsv \
+    --qc-file source_data_meta/CHS/metrics_by_exp_chipseq_jun2021.tsv
 
 mkdir -p ${INTERMEDIATE_FOLDER}/Train_sequences/
 for FN in $(find ${INTERMEDIATE_FOLDER}/Train_intervals/ -xtype f); do

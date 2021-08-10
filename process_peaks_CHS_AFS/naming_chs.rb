@@ -24,7 +24,7 @@ module Chipseq
       if replica == :any
         "#{tf}.#{construct_type}@CHS@#{experiment_id}*@Peaks"
       else
-        "#{tf}.#{construct_type}@CHS@#{experiment_id}.Replica-#{replica}@Peaks"
+        "#{tf}.#{construct_type}@CHS@#{experiment_id}.Rep-#{replica}@Peaks"
       end
     else
       "#{tf}.#{construct_type}@CHS@#{experiment_id}@Peaks"
