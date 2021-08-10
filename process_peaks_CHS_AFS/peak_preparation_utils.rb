@@ -53,6 +53,9 @@ def split_train_val_transformations(tf_info, results_folder)
     }
   }
   results
+rescue
+  $stderr.puts "split_train_val_transformations(tf_info = #{tf_info}, results_folder = #{results_folder}) failed."
+  raise
 end
 
 def split_train_val!(tf_info, results_folder)
