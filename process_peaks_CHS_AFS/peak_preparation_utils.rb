@@ -18,9 +18,14 @@ def cleanup_bad_datasets!(tf_info, results_folder, min_peaks: 50)
   train_ok = (train_fns.size == 1) && (num_rows(train_fns.first, has_header: true) >= min_peaks)
   basic_validation_ok = (basic_validation_fns.size == 1) && (num_rows(basic_validation_fns.first, has_header: true) >= min_peaks)
   if !(train_ok && basic_validation_ok)
-    [*train_fns, *basic_validation_fns, *advanced_validation_fns].each{|fn| FileUtils.rm(fn) }
+    files_to_remove = [*train_fns, *basic_validation_fns, *advanced_validation_fns]
+    $stderr.puts "Remove files `#{files_to_remove}` because either train or basic validation has less than #{min_peaks} peaks. See #{tf_info}"
+    files_to_remove.each{|fn| FileUtils.rm(fn) }
   else
-    advanced_validation_fns.select{|fn| num_rows(fn, has_header: true) < min_peaks }.each{|fn| FileUtils.rm(fn) }
+    advanced_validation_fns.select{|fn| num_rows(fn, has_header: true) < min_peaks }.each{|fn|
+      $stderr.puts "Remove advanced validation file `#{fn}` because it has less than #{min_peaks} peaks. See #{tf_info}"
+      FileUtils.rm(fn)
+    }
   end
 end
 
