@@ -35,8 +35,17 @@ module ExperimentInfoExtension
       }
     }
     main_peaks_fn = peak_fn_for_main_caller(source_folder, main_peak_callers: main_peak_callers)
-    return []  if num_rows(main_peaks_fn, has_header: true) == 0
-    return []  if supporting_intervals.size == 0
+    if !main_peaks_fn
+      $stderr.puts "There is no main peaks file for experiment #{self.experiment_id}"
+      return []
+    elsif num_rows(main_peaks_fn, has_header: true) == 0
+      $stderr.puts "Main peaks file `#{main_peaks_fn}` is empty for experiment #{self.experiment_id}"
+      return []
+    end
+    if supporting_intervals.size == 0
+      $stderr.puts "There are no supporting intervals for experiment #{self.experiment_id}. See `#{supporting_intervals_file_infos}`."
+      return []
+    end
     transformations = []
     transformations << {
       main_peaks_fn: main_peaks_fn,
