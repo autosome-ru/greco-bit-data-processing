@@ -83,4 +83,4 @@ store_train_val_stats(
 
 tfs_at_finish = Dir.glob("#{RESULTS_FOLDER}/Train_intervals/*").map{|fn| File.basename(fn).split('.').first }.uniq
 File.write("#{RESULTS_FOLDER}/skipped_tfs.txt", (tfs_at_start - tfs_at_finish).sort.join("\n"))
-$stderr.puts("Affiseq TFs:\n" + tfs_at_finish.sort.join("\n"))
+File.write("#{RESULTS_FOLDER}/tfs.txt", tfs_at_finish.sort.join("\n"))
