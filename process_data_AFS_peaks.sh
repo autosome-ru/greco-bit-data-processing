@@ -11,7 +11,8 @@ for EXP_TYPE in IVT Lysate; do
   ruby "${SCRIPT_FOLDER}/prepare_peaks_affiseq.rb" "${SOURCE_FOLDER}" "${RESULTS_FOLDER}" \
     --qc-file source_data_meta/AFS/metrics_by_exp.tsv \
     --qc-file source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv \
-    --experiment-type ${EXP_TYPE}
+    --experiment-type ${EXP_TYPE} \
+    2> affiseq_${EXP_TYPE}_peaks.log
 done
 
 for EXP_TYPE in IVT Lysate; do
@@ -30,29 +31,31 @@ for EXP_TYPE in IVT Lysate; do
 done
 
 for EXP_TYPE in IVT Lysate; do
-  RESULTS_FOLDER=./results_databox_afs_${EXP_TYPE}/
-  for SLICE_TYPE in Train Val; do
-    mkdir -p source_data_prepared/AFS.Peaks/${SLICE_TYPE}_intervals
-    mkdir -p source_data_prepared/AFS.Peaks/${SLICE_TYPE}_sequences
+  (
+    RESULTS_FOLDER=./results_databox_afs_${EXP_TYPE}/
+    for SLICE_TYPE in Train Val; do
+      mkdir -p source_data_prepared/AFS.Peaks/${SLICE_TYPE}_intervals
+      mkdir -p source_data_prepared/AFS.Peaks/${SLICE_TYPE}_sequences
 
-    for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_intervals/ -xtype f ); do
-        # BN=$(basename -s .pbm.txt ${FN})
-        NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Peaks --slice-type ${SLICE_TYPE} --extension peaks --qc-file ${METRICS_FN} )
-        if [[ -n "$NEW_BN" ]]; then
-            cp ${FN} source_data_prepared/AFS.Peaks/${SLICE_TYPE}_intervals/${NEW_BN}
-        else
-            echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
-        fi
-    done
+      for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_intervals/ -xtype f ); do
+          # BN=$(basename -s .pbm.txt ${FN})
+          NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Peaks --slice-type ${SLICE_TYPE} --extension peaks --qc-file ${METRICS_FN} )
+          if [[ -n "$NEW_BN" ]]; then
+              cp ${FN} source_data_prepared/AFS.Peaks/${SLICE_TYPE}_intervals/${NEW_BN}
+          else
+              echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+          fi
+      done
 
-    for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_sequences/ -xtype f ); do
-        # BN=$(basename -s .pbm.txt ${FN})
-        NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Peaks --slice-type ${SLICE_TYPE} --extension fa --qc-file ${METRICS_FN} )
-        if [[ -n "$NEW_BN" ]]; then
-            cp ${FN} source_data_prepared/AFS.Peaks/${SLICE_TYPE}_sequences/${NEW_BN}
-        else
-            echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
-        fi
+      for FN in $(find ${RESULTS_FOLDER}/${SLICE_TYPE}_sequences/ -xtype f ); do
+          # BN=$(basename -s .pbm.txt ${FN})
+          NEW_BN=$( ruby shared/bin/name_sample_afs.rb "$FN" --processing-type Peaks --slice-type ${SLICE_TYPE} --extension fa --qc-file ${METRICS_FN} )
+          if [[ -n "$NEW_BN" ]]; then
+              cp ${FN} source_data_prepared/AFS.Peaks/${SLICE_TYPE}_sequences/${NEW_BN}
+          else
+              echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
+          fi
+      done
     done
-  done
+  ) > affiseq_${EXP_TYPE}_renaming.out 2> affiseq_${EXP_TYPE}_renaming.log
 done
