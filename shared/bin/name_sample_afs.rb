@@ -47,12 +47,15 @@ module AffiseqPeaks
     slice_type = nil
     extension = nil
     processing_type = nil
-    qc_filename = nil  # "#{__dir__}/../../source_data_meta/AFS/metrics_by_exp.tsv"
+    qc_filenames = []  # "#{__dir__}/../../source_data_meta/AFS/metrics_by_exp.tsv"
     argparser = OptionParser.new{|o|
       o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
       o.on('--processing-type VAL', 'Peaks or Reads') {|v| processing_type = v }
       o.on('--extension VAL', 'fa or peaks or fastq.gz') {|v| extension = v }
-      o.on('--qc-file FILE', 'path to metrics_by_exp.tsv') {|v| qc_filename = v }
+      o.on('--qc-file FILE', 'path to metrics_by_exp.tsv. Can be specified several times') {|v|
+        raise "QC file #{v} not exists"  unless File.exists?(v)
+        qc_filenames << v
+      }
     }
 
     argparser.parse!(ARGV)
@@ -62,17 +65,18 @@ module AffiseqPeaks
     raise 'Specify extension (fa or peaks or fastq.gz)'  unless ['fa', 'peaks', 'fastq.gz'].include?(extension)
     raise 'Specify sample filename'  unless sample_fn
     raise 'Sample file not exists'  unless File.exist?(sample_fn)
-    raise 'QC file not exists'  unless qc_filename && File.exist?(qc_filename)
+    raise 'QC files not specified'  if qc_filenames.empty?
 
     plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
     $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
     metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
-    experiment_infos = ExperimentInfoAFS.each_from_file(qc_filename).reject{|info| info.type == 'control' }.to_a
+    experiment_infos = qc_filenames.flat_map{|fn| ExperimentInfoAFS.each_from_file(fn).to_a }
+    experiment_infos = experiment_infos.reject{|info| info.type == 'control' }.to_a
 
     peak_id = File.basename(sample_fn).split(".")[3]
     cycle = Integer(File.basename(sample_fn).split(".")[2].sub(/^Cycle/, ""))
-    exp_info = experiment_infos.detect{|exp_info| exp_info.peak_id == peak_id }
+    exp_info = experiment_infos.detect{|info| info.peak_id == peak_id }
     exp_filename = exp_info.raw_files.first
     exp_basename = File.basename(exp_filename)
     sample_metadata = metadata.select{|m| m.filenames.include?(exp_basename) }.take_the_only
