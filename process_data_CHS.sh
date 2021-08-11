@@ -76,4 +76,4 @@ mkdir -p ${RESULTS_FOLDER}/Train_sequences ${RESULTS_FOLDER}/Val_sequences
           true # echo "Can't get filename for ${FN}. Probably no metadata supplied" >& 2
       fi
   done
-) > chipseq_renaming.out 2> chipseq_renaming.log
+) 2> chipseq_renaming.log

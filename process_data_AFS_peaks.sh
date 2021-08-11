@@ -65,5 +65,5 @@ for EXP_TYPE in IVT Lysate; do
           fi
       done
     done
-  ) > affiseq_${EXP_TYPE}_renaming.out 2> affiseq_${EXP_TYPE}_renaming.log
+  ) 2> affiseq_${EXP_TYPE}_renaming.log
 done
