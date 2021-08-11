@@ -61,7 +61,8 @@ module Chipseq
     when 'basic_val'
       'Val-B'
     when /^advanced_val/
-      'Val-A'
+      # 'Val-A'
+      raise "Slice type `advanced_val` is reserved for a competition stage"
     else
       raise "Unknown slice type `#{orig_slice_type}` for `#{sample_fn}`"
     end

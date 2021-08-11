@@ -64,11 +64,15 @@ experiment_infos = experiment_infos.select{|info|
   File.exist?(info.confirmed_peaks_fn)
 }
 
-tf_infos = experiment_infos.group_by(&:tf).map{|tf, infos|
-  sorted_peaks_infos = infos.sort_by(&:num_confirmed_peaks).reverse
-  best_peak_info = sorted_peaks_infos.first
-  rest_peak_infos = sorted_peaks_infos.drop(1)
-  {tf: tf, best_peak: best_peak_info, rest_peaks: rest_peak_infos}
+# tf_infos = experiment_infos.group_by(&:tf).map{|tf, infos|
+#   sorted_peaks_infos = infos.sort_by(&:num_confirmed_peaks).reverse
+#   best_peak_info = sorted_peaks_infos.first
+#   rest_peak_infos = sorted_peaks_infos.drop(1)
+#   {tf: tf, best_peak: best_peak_info, rest_peaks: rest_peak_infos}
+# }
+
+tf_infos = experiment_infos.map{|info|
+  {tf: info.tf, best_peak: info, rest_peaks: []}
 }
 
 tf_infos.each{|tf_info| split_train_val!(tf_info, RESULTS_FOLDER) }
