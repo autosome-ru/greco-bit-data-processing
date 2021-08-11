@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'tempfile'
 require 'optparse'
+require_relative '../shared/lib/index_by'
 require_relative 'utils'
 require_relative 'peak_preparation_utils'
 require_relative 'experiment_info_extension'
@@ -34,22 +35,26 @@ experiment_infos.each{|info|
 
 tfs_at_start = experiment_infos.map(&:tf).uniq
 
-raise 'Non-uniq peak ids'  unless experiment_infos.map(&:peak_id).uniq.size == experiment_infos.map(&:peak_id).uniq.size
-experiment_by_peak_id = experiment_infos.map{|info| [info.peak_id, info] }.to_h
+experiment_by_peak_id = experiment_infos.index_by(&:peak_id)
 
-experiment_infos.each{|info|
-  begin
-    info.make_confirmed_peaks!(
-      source_folder: SOURCE_FOLDER,
-      main_peak_callers: MAIN_PEAK_CALLERS,
-      supplementary_peak_callers: SUPPLEMENTARY_PEAK_CALLERS,
-    )
-  rescue
-    $stderr.puts "Failed to process experiment:\n#{info}"
-    raise
-  end
-}
+failed_infos = []
+experiment_infos.each do |info|
+  info.make_confirmed_peaks!(
+    source_folder: SOURCE_FOLDER,
+    main_peak_callers: MAIN_PEAK_CALLERS,
+    supplementary_peak_callers: SUPPLEMENTARY_PEAK_CALLERS,
+  )
+rescue
+  failed_infos << info
+end
 
+unless failed_infos.empty?
+  $stderr.puts "Failed to make confirmed peaks. Probably there were no file with peak calls for one of main peak-callers. Failed datasets:"
+  failed_infos.each{|info|
+    relevant_info = info.to_h.select{|k,v| [:experiment_id, :peak_id, :tf].include?(k) }
+    $stderr.puts relevant_info
+  }
+end
 
 experiment_infos.each{|info|
   $stderr.puts "Confirmed peaks (`#{info.confirmed_peaks_fn}`) not exist for #{info.experiment_id}"  if !File.exist?(info.confirmed_peaks_fn)
