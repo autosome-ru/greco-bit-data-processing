@@ -9,7 +9,11 @@ def make_merged_intervals(filename, intervals)
   intervals_unsorted.unlink
 end
 
+
 def cleanup_bad_datasets!(tf_info, results_folder, min_peaks: 50)
+  shorten_info = ->(info) {
+    {tf: info[:tf], best_peak: info[:best_peak]&.experiment_id, rest_peaks: info[:rest_peaks].compact.map(&:experiment_id)}
+  }
   tf = tf_info[:tf]
   train_fns = Dir.glob("#{results_folder}/Train_intervals/#{tf}.*.train.interval")
   basic_validation_fns = Dir.glob("#{results_folder}/Val_intervals/#{tf}.*.basic_val.interval")
@@ -19,16 +23,12 @@ def cleanup_bad_datasets!(tf_info, results_folder, min_peaks: 50)
   basic_validation_ok = (basic_validation_fns.size == 1) && (num_rows(basic_validation_fns.first, has_header: true) >= min_peaks)
   if !(train_ok && basic_validation_ok)
     files_to_remove = [*train_fns, *basic_validation_fns, *advanced_validation_fns]
-    $stderr.puts "Remove files `#{files_to_remove}` because either train or basic validation has less than #{min_peaks} peaks."
-    tf_info_short = {tf: tf_info[:tf], best_peak: tf_info[:best_peak]&.experiment_id, rest_peaks: tf_info[:rest_peaks].compact.map(&:experiment_id)}
-    $stderr.puts "tf_info: `#{tf_info_short}`."
+    $stderr.puts "Remove files `#{files_to_remove}` because either train or basic validation has less than #{min_peaks} peaks. tf_info: `#{ shorten_info.call(tf_info) }`."
     files_to_remove.each{|fn| FileUtils.rm(fn) }
   else
     files_to_remove = advanced_validation_fns.select{|fn| num_rows(fn, has_header: true) < min_peaks }
     if !files_to_remove.empty?
-      $stderr.puts "Remove advanced validation files `#{files_to_remove}` because they has less than #{min_peaks} peaks."
-      tf_info_short = {tf: tf_info[:tf], best_peak: tf_info[:best_peak]&.experiment_id, rest_peaks: tf_info[:rest_peaks].compact.map(&:experiment_id)}
-      $stderr.puts "tf_info: `#{tf_info_short}`."
+      $stderr.puts "Remove advanced validation files `#{files_to_remove}` because they has less than #{min_peaks} peaks. tf_info: `#{ shorten_info.call(tf_info) }`."
       files_to_remove.each{|fn| FileUtils.rm(fn) }
     end
   end
