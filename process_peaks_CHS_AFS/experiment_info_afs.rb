@@ -44,8 +44,6 @@ ExperimentInfoAFS = Struct.new(*[
     align_percent = row['align_percent'].yield_self{|val| Float(val.sub(",", ".")) rescue val }
     read_count = row['read_count'].yield_self{|val| Integer(val) rescue val }
 
-    cycle_number = take_the_only( raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq )
-
     if tf == 'CONTROL'
       tf = nil
       type = 'control'
@@ -56,6 +54,9 @@ ExperimentInfoAFS = Struct.new(*[
         type = 'Lysate'
       end
     end
+
+    cycle_number_variants = raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq
+    cycle_number = (type != 'control') ? take_the_only(cycle_number_variants) : nil
 
     self.new(
       experiment_id: experiment_id, peak_id: peak_id, tf: tf, raw_files: raw_files, type: type, cycle_number: cycle_number,
