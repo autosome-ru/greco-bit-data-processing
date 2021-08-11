@@ -59,17 +59,7 @@ unless failed_infos.empty?
   }
 end
 
-# experiment_infos.each{|peak_info|
-#     FileUtils.rm(peak_info.confirmed_peaks_fn)  if File.exist?(peak_info.confirmed_peaks_fn) && num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
-# }
-# experiment_infos = experiment_infos.select{|peak_info|
-#   File.exist?(peak_info.confirmed_peaks_fn)
-# }
-# .reject{|peak_info|
-#   num_rows(peak_info.confirmed_peaks_fn, has_header: true) < 100
-# }
-
-tf_infos = experiment_infos.group_by{|info| info.tf }.map{|tf, tf_group|
+tf_infos = experiment_infos.group_by{|info| info.experiment_id }.map{|experiment_id, tf_group|
   {tf: tf, best_peak: tf_group.max_by(&:num_confirmed_peaks), rest_peaks: []}
 }
 
