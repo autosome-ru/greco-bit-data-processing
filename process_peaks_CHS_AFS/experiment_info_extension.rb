@@ -88,7 +88,14 @@ module ExperimentInfoExtension
   end
 
   def raw_datasets
-    raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn.sub(/_R[12](_001)?$/,'') }.uniq.join(';')
+    raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn|
+      bn.sub(/_R[12](_001)?$/,'')
+        .sub(/_Read[12]/, '') # non-standard read number for controls
+      }.uniq.join(';')
+  end
+
+  def dataset_id
+    raw_datasets.split(';').map{|ds| ds.sub(/_Cycle\d$/, '') }.uniq.take_the_only
   end
 
   def self.included(base)

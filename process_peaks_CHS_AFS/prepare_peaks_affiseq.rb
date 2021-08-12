@@ -59,7 +59,7 @@ unless failed_infos.empty?
   }
 end
 
-tf_infos = experiment_infos.group_by{|info| [info.tf, info.experiment_id] }.map{|(tf, experiment_id), tf_group|
+tf_infos = experiment_infos.group_by{|info| [info.tf, info.dataset_id] }.map{|(tf, dataset_id), tf_group|
   {tf: tf, best_peak: tf_group.max_by(&:num_confirmed_peaks), rest_peaks: []}
 }
 
