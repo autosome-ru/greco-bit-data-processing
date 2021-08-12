@@ -1,3 +1,5 @@
+require_relative 'utils'
+
 module Affiseq
   SampleMetadata = Struct.new(*[
         :experiment_id, :plasmid_id, :gene_name, :ivt_or_lysate, :dna_library_id, :well,
@@ -7,11 +9,29 @@ module Affiseq
       ], keyword_init: true) do
 
     def construct_type; $plasmid_by_number[plasmid_id].construct_type; end
-    def filenames
+
+    def filenames # known to be highly incomplete
       [
         cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
         cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename,
       ].compact
+    end
+
+    def supposed_filenames
+      (1..4).flat_map{|cycle|
+        (1..2).map{|read_number|
+          "#{normalized_basename}_Cycle#{cycle}_R#{read_number}.fastq.gz"
+        }
+      }
+    end
+
+    def normalized_basename
+      [
+        cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
+        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename,
+      ].compact.map{|fn|
+        fn.sub(/_Cycle\d_R[12].fastq.gz$/, '')
+      }.uniq.take_the_only
     end
 
     def self.from_string(line)

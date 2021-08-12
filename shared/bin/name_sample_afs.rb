@@ -79,7 +79,14 @@ module AffiseqPeaks
     exp_info = experiment_infos.detect{|info| info.peak_id == peak_id }
     exp_filename = exp_info.raw_files.first
     exp_basename = File.basename(exp_filename)
-    sample_metadata = metadata.select{|m| m.filenames.include?(exp_basename) }.take_the_only
+    sample_metadata_variants = metadata.select{|m| m.supposed_filenames.include?(exp_basename) }
+    if sample_metadata_variants.empty?
+      sample_metadata = nil
+    elsif sample_metadata_variants.size == 1
+      sample_metadata = sample_metadata_variants[0]
+    else
+      raise "Several metadata variants for experiment `#{exp_basename}`:\n#{sample_metadata_variants.join("\n") }"
+    end
 
     if sample_metadata
       puts self.gen_name(sample_metadata, sample_fn, processing_type: processing_type, slice_type: slice_type, extension: extension, cycle: cycle)
