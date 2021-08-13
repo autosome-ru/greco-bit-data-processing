@@ -59,7 +59,8 @@ module Chipseq
     when 'train'
       'Train'
     when 'basic_val'
-      'Val-B'
+      # 'Val-B'
+      'Val'
     when /^advanced_val/
       # 'Val-A'
       raise "Slice type `advanced_val` is reserved for a competition stage"

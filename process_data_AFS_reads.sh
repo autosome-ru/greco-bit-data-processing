@@ -9,7 +9,7 @@ python3 process_reads_HTS_SMS_AFS/extract_affiseq_reads.py  ${METRICS_FN} ${DB_N
 deactivate
 
 for EXP_TYPE in IVT Lysate; do
-  RESULTS_FOLDER=./results_databox_afs_reads_${EXP_TYPE}/
+  RESULTS_FOLDER=./results_databox_afs_reads_${EXP_TYPE}
   for SLICE_TYPE in Train Val; do
     mkdir -p source_data_prepared/AFS.Reads/${SLICE_TYPE}_sequences
 
