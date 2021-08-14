@@ -1,5 +1,6 @@
 import random
 import sqlite3
+import sys
 import namegenerator
 
 DB_NAME = 'dataset_names.db'
@@ -36,5 +37,8 @@ def take_dataset_name():
 
 if __name__ == '__main__':
     create_tables()
-    fill_db(100000)
+    size = 100000
+    if len(sys.argv) >= 1:
+        size = int(sys.argv[1])
+    fill_db(size)
     conn.close()
