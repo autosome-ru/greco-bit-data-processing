@@ -47,7 +47,7 @@ mkdir -p "${WORDS_DESTINATION_FOLDER}"
 
 for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
     BN=$(basename -s .txt ${FN})
-    NEW_BN=$( ruby motif_name_pbm.rb --dataset "${BN}" --motif-id "${MOTIF_ID_SUFFIX}" --ext '' --team VIGG --tool ChIPMunk )
+    NEW_BN=$( ruby motif_name_pbm.rb --dataset "${BN}" --motif-id "${MOTIF_ID_SUFFIX}" --ext '' --team 'autosome-ru' --tool ChIPMunk )
 
     if [[ "${CHIPMUNK_ARITY}" == "mono" ]]; then
         # It's reserved for mono-chipmunk results

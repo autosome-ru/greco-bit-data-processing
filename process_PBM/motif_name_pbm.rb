@@ -12,7 +12,7 @@ dataset_fn = nil
 motif_id = nil
 
 motif_ext = ''
-team = 'VIGG'
+team = 'autosome-ru'
 tool = 'ChIPMunk'
 
 format = 'long'
