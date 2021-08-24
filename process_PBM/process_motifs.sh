@@ -23,7 +23,7 @@ RESULTS_FOLDER='./release_6_motifs/'
 NUM_THREADS=24
 CHIPMUNK_NUM_PROCESSES=12
 CHIPMUNK_NUM_INNER_THREADS=2
-CHIPMUNK_LENGTH_RANGE="8 15"
+CHIPMUNK_LENGTH_RANGE="6 16"
 CHIPMUNK_SHAPE="flat"
 CHIPMUNK_WEIGHTING_MODE="s"
 CHIPMUNK_ADDITIONAL_OPTIONS=""
@@ -99,7 +99,7 @@ ruby chip_sequences.rb \
               --pcms-destination ${RESULTS_FOLDER}/pcms \
               --dpcms-destination ${RESULTS_FOLDER}/dpcms \
               --words-destination ${RESULTS_FOLDER}/words \
-              --motif-id-suffix s_8-15_flat
+              --motif-id-suffix s_6-16_flat
 
 ./generate_logo.sh --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/logo
 ./generate_dilogo.sh --source ${RESULTS_FOLDER}/dpcms --destination ${RESULTS_FOLDER}/dilogo
