@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_FOLDER=$(dirname $(readlink -f $0))
+
 CHIPMUNK_ARITY="di"
 MOTIF_ID_SUFFIX="" # common suffix for all motifs in a batch
 while true; do
@@ -47,7 +49,7 @@ mkdir -p "${WORDS_DESTINATION_FOLDER}"
 
 for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
     BN=$(basename -s .txt ${FN})
-    NEW_BN=$( ruby motif_name_pbm.rb --dataset "${BN}" --motif-id "${MOTIF_ID_SUFFIX}" --ext '' --team 'autosome-ru' --tool ChIPMunk )
+    NEW_BN=$( ruby ${SCRIPT_FOLDER}/motif_name_pbm.rb --dataset "${BN}" --motif-id "${MOTIF_ID_SUFFIX}" --ext '' --team 'autosome-ru' --tool ChIPMunk )
 
     if [[ "${CHIPMUNK_ARITY}" == "mono" ]]; then
         # It's reserved for mono-chipmunk results
@@ -69,7 +71,7 @@ for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
           > "${WORDS_DESTINATION_FOLDER}/${NEW_BN}.fa"
 
         ( echo ">${NEW_BN}"; cat "${WORDS_DESTINATION_FOLDER}/${NEW_BN}.fa" \
-          | ruby fasta2pcm.rb --weighted \
+          | ruby ${SCRIPT_FOLDER}/fasta2pcm.rb --weighted \
         ) > "${PCMS_DESTINATION_FOLDER}/${NEW_BN}.pcm"
     else
         echo "Unknown ChIPMunk arity. Should be 'mono' or 'di'" >&2

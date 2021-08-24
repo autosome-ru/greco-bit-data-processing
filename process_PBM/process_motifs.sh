@@ -15,6 +15,8 @@ set -euo pipefail
 
 ###########3
 
+SCRIPT_FOLDER=$(dirname $(readlink -f $0))
+
 CHIPS_SOURCE_FOLDER='./release_6_motifs/'
 RESULTS_FOLDER='./release_6_motifs/'
 
@@ -78,14 +80,14 @@ done
 # done
 
 
-ruby chip_sequences.rb \
+ruby ${SCRIPT_FOLDER}/chip_sequences.rb \
         --source ${CHIPS_SOURCE_FOLDER}/Train_intensities \
         --destination ${RESULTS_FOLDER}/Train_sequences \
         --linker-length 0 \
         --fasta  --take-top 1000
 
 
-./calculate_motifs.sh --source ${RESULTS_FOLDER}/Train_sequences \
+${SCRIPT_FOLDER}/calculate_motifs.sh --source ${RESULTS_FOLDER}/Train_sequences \
                   --results-destination ${RESULTS_FOLDER}/chipmunk_results \
                   --logs-destination ${RESULTS_FOLDER}/chipmunk_logs \
                   --num-inner-threads ${CHIPMUNK_NUM_INNER_THREADS} \
@@ -95,13 +97,13 @@ ruby chip_sequences.rb \
                   --weighting-mode ${CHIPMUNK_WEIGHTING_MODE} \
                   --additional-options "${CHIPMUNK_ADDITIONAL_OPTIONS}"
 
-./extract_pcms.sh --source ${RESULTS_FOLDER}/chipmunk_results \
+${SCRIPT_FOLDER}/extract_pcms.sh --source ${RESULTS_FOLDER}/chipmunk_results \
               --pcms-destination ${RESULTS_FOLDER}/pcms \
               --dpcms-destination ${RESULTS_FOLDER}/dpcms \
               --words-destination ${RESULTS_FOLDER}/words \
               --motif-id-suffix s_6-16_flat
 
-./generate_logo.sh --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/logo
-./generate_dilogo.sh --source ${RESULTS_FOLDER}/dpcms --destination ${RESULTS_FOLDER}/dilogo
+${SCRIPT_FOLDER}/generate_logo.sh --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/logo
+${SCRIPT_FOLDER}/generate_dilogo.sh --source ${RESULTS_FOLDER}/dpcms --destination ${RESULTS_FOLDER}/dilogo
 
-./convert_pcm2pfm.sh  --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/pfms
+${SCRIPT_FOLDER}/convert_pcm2pfm.sh  --source ${RESULTS_FOLDER}/pcms --destination ${RESULTS_FOLDER}/pfms

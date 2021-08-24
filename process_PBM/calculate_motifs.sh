@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_FOLDER=$(dirname $(readlink -f $0))
+
 NUM_PROCESSES=1
 NUM_INNER_THREADS=2
 
@@ -72,13 +74,13 @@ for FN in $( find "${SOURCE_FOLDER}" -xtype f ); do
     elif [[ -s "${RESULTS_DESTINATION_FOLDER}/${BN}.txt" ]] && \
          [[ -s "${LOGS_DESTINATION_FOLDER}/${BN}.log" ]]; then
         echo "Files ${RESULTS_DESTINATION_FOLDER}/${BN}.txt  and  ${LOGS_DESTINATION_FOLDER}/${BN}.log exist but contain incomplete results. Rerun" >&2
-        echo "java -cp chipmunk.jar ru.autosome.di.ChIPMunk" \
+        echo "java -cp ${SCRIPT_FOLDER}/chipmunk.jar ru.autosome.di.ChIPMunk" \
             "${LENGTH_RANGE} y 1.0 ${WEIGHTING_MODE}:${FN} 400 40 1 ${NUM_INNER_THREADS} random auto ${SHAPE} ${ADDITIONAL_OPTIONS}" \
             "> ${RESULTS_DESTINATION_FOLDER}/${BN}.txt" \
             "2> ${LOGS_DESTINATION_FOLDER}/${BN}.log"
     else
         # It's better not to use more than 2 threads in chipmunk
-        echo "java -cp chipmunk.jar ru.autosome.di.ChIPMunk" \
+        echo "java -cp ${SCRIPT_FOLDER}/chipmunk.jar ru.autosome.di.ChIPMunk" \
             "${LENGTH_RANGE} y 1.0 ${WEIGHTING_MODE}:${FN} 400 40 1 ${NUM_INNER_THREADS} random auto ${SHAPE} ${ADDITIONAL_OPTIONS}" \
             "> ${RESULTS_DESTINATION_FOLDER}/${BN}.txt" \
             "2> ${LOGS_DESTINATION_FOLDER}/${BN}.log"
