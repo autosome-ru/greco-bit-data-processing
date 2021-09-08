@@ -57,3 +57,28 @@ ruby shared/lib/symlink_folder_content.rb \
 
 mkdir -p source_data/PBM/chips
 find -L /mnt/space/hughes/Codebook_extended/PBM_raw/ -iname '*.txt' | xargs -n1 -I{} ln -s {} source_data/PBM/chips
+
+##########################
+
+# check if names are HGNC compliant
+ls /mnt/space/depla/smileseq_raw/ \
+  | grep -oPe '^UT\d+-\d+_[^_]+' \
+  | grep -oPe '[^_]+$' \
+  | sort -u \
+  | xargs -n1 -I{} echo \
+    'echo -ne "{}\t"; curl -s -H "Accept:application/json" http://rest.genenames.org/search/symbol/{} | jq -r ".response.docs[0].symbol"' \
+  | bash
+
+cat source_data_meta/SMS/unpublished/SMS.tsv \
+  | tail -n+2 \
+  | cuttab -f 2 \
+  | cut -d '.' -f1 \
+  | sort -u \
+  | xargs -n1 -I{} echo \
+    'echo -ne "{}\t"; curl -s -H "Accept:application/json" http://rest.genenames.org/search/symbol/{} | jq -r ".response.docs[0].symbol"' \
+  | bash
+
+# Check after everything is done
+find release_7/ -xtype f | xargs -n1 basename | cut -d '.' -f1 | sort -u > gene_names.txt
+cat gene_names.txt | xargs -n1 -I{} echo 'echo -ne "{}\t"; curl -s -H "Accept:application/json" http://rest.genenames.org/search/symbol/{} | jq -r ".response.docs[0].symbol"'   | bash > gene_names_canonical.tsv
+find release_7 -xtype f | fgrep -f <( cat gene_names_canonical.tsv | awktab -e '($1 != $2){ print $1 "." }' | head -3 ) | xargs -n1 basename
