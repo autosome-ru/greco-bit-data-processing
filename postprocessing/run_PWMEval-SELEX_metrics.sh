@@ -7,8 +7,11 @@ function run_benchmark() {
     TOP_FRACTION="$3"
     FLANK_5="$4"
     FLANK_3="$5"
+
     PSEUDO_WEIGHT="$6"
+
     MOTIF_EXT="${MOTIF##*.}"
+
     docker run --rm \
       --security-opt apparmor=unconfined \
       --volume "${DATASET}:/seq.fastq.gz:ro" \
@@ -27,7 +30,8 @@ function run_benchmark_using_prepared() {
     MOTIF="$(readlink -m "$2")"
     TOP_FRACTION="$3"
     PREPARED_SEQUENCES="$(readlink -m "$4")"
-    PSEUDO_WEIGHT="$1"
+
+    PSEUDO_WEIGHT="$5"
 
     DATASET_BN="$(basename "$DATASET")"
     MOTIF_EXT="${MOTIF##*.}"
@@ -38,6 +42,7 @@ function run_benchmark_using_prepared() {
       --volume "${MOTIF}:/motif.${MOTIF_EXT}:ro" \
       vorontsovie/pwmeval_selex:2.0.0 \
           evaluate \
+          --motif /motif.${MOTIF_EXT} \
           --positive-file "/sequences/positive/pos_${DATASET_BN}" \
           --negative-file "/sequences/negative/neg_${DATASET_BN}" \
           --top ${TOP_FRACTION} --bin 1000 \
