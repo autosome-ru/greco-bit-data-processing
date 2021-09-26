@@ -2,12 +2,12 @@
 set -euo pipefail
 
 function run_benchmark() {
-    PSEUDO_WEIGHT="$1"
-    DATASET="$(readlink -m "$2")"
-    MOTIF="$(readlink -m "$3")"
-    TOP_FRACTION="$4"
-    FLANK_5="$5"
-    FLANK_3="$6"
+    DATASET="$(readlink -m "$1")"
+    MOTIF="$(readlink -m "$2")"
+    TOP_FRACTION="$3"
+    FLANK_5="$4"
+    FLANK_3="$5"
+    PSEUDO_WEIGHT="$6"
     MOTIF_EXT="${MOTIF##*.}"
     docker run --rm \
       --security-opt apparmor=unconfined \
@@ -44,5 +44,7 @@ function run_benchmark_using_prepared() {
           --pseudo-weight ${PSEUDO_WEIGHT}
 }
 
+DATASET="$(readlink -m "$1")"
+MOTIF="$(readlink -m "$2")"
 echo -ne "${DATASET}\t${MOTIF}\t"
 run_benchmark_using_prepared "$@" 0.0001 || echo
