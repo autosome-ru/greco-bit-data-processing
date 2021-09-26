@@ -26,6 +26,8 @@ motifs_by_tf = motifs.group_by{|fn|
 
 
 FileUtils.mkdir_p './tmp/'
+FileUtils.mkdir_p './tmp_prepared_sequences/positive'
+FileUtils.mkdir_p './tmp_prepared_sequences/negative'
 
 validation_datasets = [
   Dir.glob("#{DATA_PATH}/HTS/Val_reads/*"),
@@ -75,11 +77,15 @@ tfs.each{|tf|
     cmd_1 = "zcat #{datasets.join(' ')} | gzip -c > #{dataset_fq}"
     puts(cmd_1)
 
+    prepare_script = File.absolute_path("#{__dir__}/run_PWMEval-SELEX_prepare.sh")
+    cmd_2 = "#{prepare_script} #{dataset_fq} #{flank_5} #{flank_3} ./tmp_prepared_sequences"
+    puts(cmd_2)
+
     motifs_by_tf[tf].each{|motif|
       ext = File.extname(motif)
       script = File.absolute_path("#{__dir__}/run_PWMEval-SELEX_metrics.sh")
-      cmd_2 = "#{script} #{dataset_fq} #{ File.absolute_path(motif) } #{top_fraction} #{flank_5} #{flank_3}"
-      puts(cmd_2)
+      cmd_3 = "#{script} #{dataset_fq} #{motif} #{top_fraction} ./tmp_prepared_sequences"
+      puts(cmd_3)
     }
   }
 }
