@@ -15,6 +15,7 @@ function prepare_benchmark() {
     --volume "${PREPARED_SEQUENCES}:/sequences" \
     vorontsovie/pwmeval_selex:2.0.0 \
         prepare \
+        --seq /seq.fastq.gz \
         --positive-file "/sequences/positive/pos_${DATASET_BN}" \
         --negative-file "/sequences/negative/neg_${DATASET_BN}" \
         --non-redundant --maxnum-reads 500000 \

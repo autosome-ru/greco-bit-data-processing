@@ -15,6 +15,8 @@ function run_benchmark() {
       --volume "${MOTIF}:/motif.${MOTIF_EXT}:ro" \
       vorontsovie/pwmeval_selex:2.0.0 \
           evaluate \
+          --seq /seq.fastq.gz \
+          --motif /motif.${MOTIF_EXT} \
           --non-redundant --top ${TOP_FRACTION} --bin 1000 --maxnum-reads 500000 \
           --pseudo-weight ${PSEUDO_WEIGHT} --flank-5 ${FLANK_5} --flank-3 ${FLANK_3} \
           --seed 1
