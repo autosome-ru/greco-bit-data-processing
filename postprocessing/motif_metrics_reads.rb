@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'optparse'
+require 'shellwords'
 require_relative '../shared/lib/utils'
 
 Signal.trap("PIPE", "EXIT")
@@ -26,8 +27,6 @@ motifs_by_tf = motifs.group_by{|fn|
 
 
 FileUtils.mkdir_p './tmp/'
-FileUtils.mkdir_p './tmp_prepared_sequences/positive'
-FileUtils.mkdir_p './tmp_prepared_sequences/negative'
 
 validation_datasets = [
   Dir.glob("#{DATA_PATH}/HTS/Val_reads/*"),
@@ -67,7 +66,7 @@ tfs.each{|tf|
       ds_id = ds_info.split('.')[1]
       {cycles: cycles, dataset_id: ds_id}
     }.sort_by{|info| info[:cycles][0] || 'C1' }
-    
+
     cycles = dataset_infos.flat_map{|info| info[:cycles] }.join('+')
     dataset_ids = dataset_infos.map{|info| info[:dataset_id] }.join('+')
 
@@ -77,15 +76,48 @@ tfs.each{|tf|
     cmd_1 = "zcat #{datasets.join(' ')} | gzip -c > #{dataset_fq}"
     puts(cmd_1)
 
-    prepare_script = File.absolute_path("#{__dir__}/run_PWMEval-SELEX_prepare.sh")
-    cmd_2 = "#{prepare_script} #{dataset_fq} #{flank_5} #{flank_3} ./tmp_prepared_sequences"
+    container_name = ["pwmeval_selex", *dataset_infos.map{|info| info[:dataset_id] }].join('.')
+    cmd_2 = [
+      "docker run --rm -d -i",  # we run /bin/sh and hangs it using `-d`, `-i` flags,
+                                # so that we can run other processes in the same container
+          "--security-opt apparmor=unconfined",
+          "--name #{container_name}",
+          "--volume #{dataset_fq}:/seq.fastq.gz:ro",
+          "--volume #{MOTIFS_PATH}:/motifs:ro",
+          "vorontsovie/pwmeval_selex:2.0.1",
+              "/bin/sh",
+    ].join(" ")
     puts(cmd_2)
 
+    cmd_3 = [
+      "docker exec #{container_name} prepare",
+          "--seq /seq.fastq.gz",
+          "--positive-file /sequences/positive.fa", # It's more effective to use non-gzipped files
+          "--negative-file /sequences/negative.fa",
+          "--non-redundant --maxnum-reads 500000",
+          "--flank-5 #{flank_5} --flank-3 #{flank_3}",
+          "--seed 1",
+    ].join(" ")
+
+    puts(cmd_3)
+
+
     motifs_by_tf[tf].each{|motif|
-      ext = File.extname(motif)
-      script = File.absolute_path("#{__dir__}/run_PWMEval-SELEX_metrics.sh")
-      cmd_3 = "#{script} #{dataset_fq} #{motif} #{top_fraction} ./tmp_prepared_sequences"
-      puts(cmd_3)
+      motif_relpath = File.absolute_path(motif).sub(File.absolute_path(MOTIFS_PATH) + '/', '')
+      cmd_4 = [
+        "echo -ne \"#{dataset_fq}\\t#{motif}\\t\"; ",
+        "docker exec #{container_name}  evaluate",
+              "--motif /motifs/#{motif_relpath.shellescape}",
+              "--positive-file /sequences/positive.fa",
+              "--negative-file /sequences/negative.fa",
+              "--top #{top_fraction} --bin 1000",
+              "--pseudo-weight 0.0001",
+        " || echo", # print newline on fail
+      ].join(" ")
+      puts(cmd_4)
     }
+
+    cmd_5 = "docker stop #{container_name}"
+    puts cmd_5
   }
 }
