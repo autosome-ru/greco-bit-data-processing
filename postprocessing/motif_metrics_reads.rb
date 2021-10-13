@@ -84,7 +84,7 @@ tfs.each{|tf|
           "--name #{container_name}",
           "--volume #{dataset_fq}:/seq.fastq.gz:ro",
           "--volume #{MOTIFS_PATH}:/motifs:ro",
-          "vorontsovie/pwmeval_selex:2.0.1",
+          "vorontsovie/pwmeval_selex:2.0.2",
               "/bin/sh",
     ].join(" ")
     puts(cmd_2)
