@@ -32,207 +32,92 @@ def rename_motif(src_filename, dst_filename, transpose: false)
   }
 end
 
-# filename = ARGV[0]
-# new_filename = ARGV[1]
-
-results_folder = File.absolute_path(ARGV[0]) # '/home_local/vorontsovie/greco-motifs/release_3_motifs_2020-08-30'
+results_folder = File.absolute_path(ARGV[0])
+# results_folder = '/home_local/vorontsovie/greco-motifs/release_7_motifs_2020-10-13'
 
 FileUtils.mkdir_p(results_folder)
-['pbm', 'chipseq', 'affiseq_IVT', 'affiseq_Lysate', 'selex_IVT', 'selex_Lysate'].each{|dataset_type|
-  ['pcm', 'ppm'].each{|motif_type|
-    FileUtils.mkdir_p("#{results_folder}/by_experiment/#{dataset_type}/#{motif_type}")
-    FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/#{motif_type}/")
-  }
+
+#############################################
+
+gene_mapping = {
+  'ZNF788' => 'ZNF788P',
+  'ZUFSP' => 'ZUP1',
+  'TPRX' => 'TPRX1',
+  'OKT4' => 'POU5F1',
+  'cJUN' => 'JUN',
+  'ZFAT1' => 'ZFAT',
+  'C11orf95' => 'ZFTA',
 }
 
-['pbm', 'chipseq', 'affiseq_IVT', 'affiseq_Lysate', 'selex_IVT', 'selex_Lysate'].each{|dataset_type|
-  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/ppm/mihaialbu/")
+fix_tf_info = ->(tf_info) {
+  tf, construction_type = tf_info.split('.')
+  tf = gene_mapping.fetch(tf, tf)
+  "#{tf}.#{construction_type}"
 }
 
-['pbm', 'chipseq', 'affiseq_IVT', 'affiseq_Lysate', 'selex_IVT', 'selex_Lysate'].each{|dataset_type|
-  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/ppm/jangrau/")
+
+Dir.glob('/home_local/pavelkrav/GRECO_3_iter_pcms/AFS/*.pcm').each{|fn|
+  # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo.Train.peaks.499seq_7to15_m0.pcm
+  bn = File.basename(fn, '.pcm')
+  tf_info, exp_type, _exp_info, rest_info = bn.split('@')
+  tf_info = fix_tf_info.call(tf_info)
+  _processing_type, dataset_name, _train_val, _processing_type_2, motif_name = rest_info.split('.')
+  raise  unless (exp_type == 'AFS.IVT') || (exp_type == 'AFS.Lys')
+  raise  unless (_processing_type == 'Peaks') && (_processing_type_2 == 'peaks')
+  raise  unless _train_val == 'Train'
+  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@autosome-ru.ChIPMunk@#{motif_name}.pcm"
+  rename_motif(fn, "#{results_folder}/#{dst_bn}", transpose: true)
 }
 
-['selex_IVT', 'selex_Lysate'].each{|dataset_type|
-  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/ppm/pbucher/")
-  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/pcm/arsen_l/") # philipp's protocol reimplementation
-  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/ppm/ajolma/")  # arsen_l splitted ajolma motifs from a single file
+Dir.glob('/home_local/pavelkrav/GRECO_3_iter_pcms/CHS/*.pcm').each{|fn|
+  # AC008770.FL@CHS@THC_0139@Peaks.squeaky-cream-tarantula.Train.peaks.242seq_21to7_m0.pcm
+  bn = File.basename(fn, '.pcm')
+  tf_info, exp_type, _exp_name, rest_info = bn.split('@')
+  tf_info = fix_tf_info.call(tf_info)
+  _processing_type, dataset_name, _train_val, _processing_type_2, motif_name = rest_info.split('.')
+  raise  unless exp_type == 'CHS'
+  raise  unless (_processing_type == 'Peaks') && (_processing_type_2 == 'peaks')
+  raise  unless _train_val == 'Train'
+  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@autosome-ru.ChIPMunk@#{motif_name}.pcm"
+  rename_motif(fn, "#{results_folder}/#{dst_bn}", transpose: true)
 }
 
-['chipseq', 'affiseq_IVT', 'affiseq_Lysate'].each{|dataset_type|
-  FileUtils.mkdir_p("#{results_folder}/by_source/#{dataset_type}/pcm/pavelkrav/")
+Dir.glob("/home_local/vorontsovie/greco-bit-data-processing/motifs_pbm_release_7/{SDQN,QNZS}/pcms/*.pcm").each{|fn|
+  # AC008770.DBD@PBM.HK@nerdy-auburn-turtle@autosome-ru.ChIPMunk@s_6-16_flat.pcm
+  bn = File.basename(fn, '.pcm')
+  tf_info, exp_type, dataset_name, team_tool, motif_name = bn.split('@')
+  tf_info = fix_tf_info.call(tf_info)
+  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.pcm"
+  rename_motif(fn, "#{results_folder}/#{dst_bn}")
 }
 
-FileUtils.mkdir_p("#{results_folder}/by_source/chipseq/pcm/oriol/")
-FileUtils.mkdir_p("#{results_folder}/by_source/pbm/pcm/vorontsovie/")
-
-###################
-
-# Here files are ok
-Dir.glob("/home_local/jangrau/ppms/chipseq/*.ppm").each{|fn|
-  dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle')
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/chipseq/ppm/#{dst_bn}",
-                           "#{results_folder}/by_source/chipseq/ppm/jangrau/#{dst_bn}",])
+Dir.glob("/home_local/arsen_l/greco-bit/motifs/motif_collection_release_7.2021-08-14/{AFS,HTS,SMS}/pcms/*.pcm").each{|fn|
+  # AC008770.FL@AFS.IVT@lumpy-zucchini-octopus+sunny-ruby-kangaroo@autosome-ru.ChIPMunk@topk_cycle=C3+C4_k=5_top=500.pcm
+  bn = File.basename(fn, '.pcm')
+  tf_info, exp_type, dataset_name, team_tool, motif_name = bn.split('@')
+  tf_info = fix_tf_info.call(tf_info)
+  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.pcm"
+  rename_motif(fn, "#{results_folder}/#{dst_bn}")
 }
-
-Dir.glob("/home_local/jangrau/ppms/affiseq_IVT/*.ppm").each{|fn|
-  dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle')
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/affiseq_IVT/ppm/#{dst_bn}",
-                           "#{results_folder}/by_source/affiseq_IVT/ppm/jangrau/#{dst_bn}",])
-}
-Dir.glob("/home_local/jangrau/ppms/affiseq_Lysate/*.ppm").each{|fn|
-  dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle')
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/affiseq_Lysate/ppm/#{dst_bn}",
-                           "#{results_folder}/by_source/affiseq_Lysate/ppm/jangrau/#{dst_bn}",])
-}
-
-Dir.glob("/home_local/jangrau/ppms/selex/IVT/ppms/*.ppm").each{|fn|
-  dst_bn = File.basename(fn)
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/selex_IVT/ppm/#{dst_bn}",
-                           "#{results_folder}/by_source/selex_IVT/ppm/jangrau/#{dst_bn}",])
-}
-
-Dir.glob("/home_local/jangrau/ppms/selex/Lysate/ppms/*.ppm").each{|fn|
-  dst_bn = File.basename(fn)
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/selex_Lysate/ppm/#{dst_bn}",
-                           "#{results_folder}/by_source/selex_Lysate/ppm/jangrau/#{dst_bn}",])
-}
-
-# missing suffix {spatialDetrend_quantNorm,quantNorm_zscore} of pbm preprocessing subtype (came from an error in previous version of source files)
-['spatialDetrend_quantNorm', 'quantNorm_zscore'].each do |pbm_subtype|
-  Dir.glob("/home_local/jangrau/ppms/pbm/#{pbm_subtype}/*.pbm.train.*.ppm").each{|fn|
-    dst_bn = File.basename(fn).sub('Dimont', 'Dimont@Halle').sub('.pbm.', ".#{pbm_subtype}.pbm.")
-    rename_motif_copies(fn, ["#{results_folder}/by_experiment/pbm/ppm/#{dst_bn}",
-                             "#{results_folder}/by_source/pbm/ppm/jangrau/#{dst_bn}",])
-  }
-end
-
-# These are ok too
-['spatialDetrend_quantNorm', 'quantNorm_zscore'].each do |pbm_subtype|
-  Dir.glob("/home_local/vorontsovie/greco_pbm/release_3_motifs/#{pbm_subtype}/pcms/*.pcm").each{|fn|
-    dst_bn = File.basename(fn).sub('chipmunk', 'ChIPMunk@VIGG')
-    rename_motif_copies(fn, ["#{results_folder}/by_experiment/pbm/pcm/#{dst_bn}",
-                             "#{results_folder}/by_source/pbm/pcm/vorontsovie/#{dst_bn}",])
-  }
-end
 
 # model names contain dots, replace with underscores
-['selex_IVT', 'selex_Lysate'].each{|selex_type|
-  Dir.glob("/home_local/pbucher/ppms/#{selex_type}/*.train.*.ppm").each{|fn|
-    bn = basename_wo_ext(fn)
-    m = bn.match(/^(?<prefix>.*)\.selex\.train\.meme\.(?<model_name>.+)$/)
-    model_name = m[:model_name].split('.').join('_')
-    dst_bn = "#{m[:prefix]}.selex.train.MEME@SIB.#{model_name}.ppm"
-    rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/ppm/#{dst_bn}",
-                             "#{results_folder}/by_source/#{selex_type}/ppm/pbucher/#{dst_bn}",])
-  }
+Dir.glob("/home_local/jangrau/models_r7/{AFS,CHS,PBM.QNZS,PBM.SDQN,SMS,SMS.published}/*.ppm").each{|fn|
+  # AC008770.DBD@HTS.IVT@blurry-puce-tarsier+flimsy-celadon-spitz+stealthy-linen-kakapo+jumpy-bronze-woodlouse@Halle.Dimont@Motif_1_sampled_e1.5_astrained.ppm
+  bn = File.basename(fn, '.ppm')
+  tf_info, exp_type, dataset_name, team_tool, motif_name = bn.split('@')
+  tf_info = fix_tf_info.call(tf_info)
+  motif_name = motif_name.gsub('.', '_')
+  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.ppm"
+  rename_motif(fn, "#{results_folder}/#{dst_bn}")
 }
 
-# transpose matrix, fix header
-Dir.glob("/home_local/pavelkrav/pcms/chipseq/*.train.*.pcm").each{|fn|
-  # ZNF35.IVT.Cycle3.PEAKS991110.affiseq.train.unified.109seq_25to7_m1.pcm
-  dst_bn = File.basename(fn).sub('unified', 'ChIPMunk@VIGG')
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/chipseq/pcm/#{dst_bn}",
-                           "#{results_folder}/by_source/chipseq/pcm/pavelkrav/#{dst_bn}"],
-                transpose: true)
-}
+Dir.glob("/mnt/space/hughes/Motifs_10_06/Motifs/{AFS.Peaks,CHS,SMS,SMS.published}/*.ppm").each{|fn|
+  # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo@HughesLab@Homer@Motif1.ppm
+  bn = File.basename(fn, '.ppm')
+  tf_info, exp_type, _exp_info, rest_info, team, tool, motif_name = bn.split('@')
+  tf_info = fix_tf_info.call(tf_info)
+  dataset_name = rest_info.split('.').drop(1).join('+')
 
-['affiseq_Lysate', 'affiseq_IVT'].each do |affiseq_type|
-  Dir.glob("/home_local/pavelkrav/pcms/affiseq/#{affiseq_type}/*.train.*.pcm").each{|fn|
-    dst_bn = File.basename(fn).sub('unified', 'ChIPMunk@VIGG')
-    rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{affiseq_type}/pcm/#{dst_bn}",
-                             "#{results_folder}/by_source/#{affiseq_type}/pcm/pavelkrav/#{dst_bn}"],
-                  transpose: true)
-  }
-end
-
-# no separation of selex_IVT/selex_Lysate
-# no separation of tool and model name
-Dir.glob("/home_local/arsen_l/greco-bit/motifs/selex/pcms/*.train.*.pcm").each{|fn|
-  bn = File.basename(fn)
-  case bn.split('.')[1]
-  when 'IVT'
-    selex_type = 'selex_IVT'
-  when 'Lysate'
-    selex_type = 'selex_Lysate'
-  else
-    raise
-  end
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/pcm/#{bn}",
-                           "#{results_folder}/by_source/#{selex_type}/pcm/arsen_l/#{bn}",])
-}
-
-# no separation of selex_IVT/selex_Lysate
-# no separation of tool and model name
-Dir.glob("/home_local/arsen_l/greco-bit/motifs/ajolma/ppms/*.train.*.ppm").each{|fn|
-  bn = File.basename(fn)
-  m = bn.match(/^(?<prefix>.*)\.selex\.train\.seqAjolmaAutoseed_(?<model_name>.+).ppm$/)
-    if m[:prefix].include?('.IVT.')
-    selex_type = 'selex_IVT'
-  elsif m[:prefix].include?('.Lysate.')
-    selex_type = 'selex_Lysate'
-  else
-    raise
-  end
-  dst_bn = "#{m[:prefix]}.selex.train.Autoseed@Codebook.#{m[:model_name]}.ppm"
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/ppm/#{dst_bn}",
-                           "#{results_folder}/by_source/#{selex_type}/ppm/ajolma/#{dst_bn}",])
-}
-
-# no model name
-Dir.glob("/home_local/mihaialbu/Codebook/ppms/pbm/*.train.Zscore.ppm").each{|fn| # here .val. motifs also exist
-  bn = File.basename(fn)
-  dst_bn = bn.sub('Zscore', 'PBMZscore@Codebook.model1')
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/pbm/ppm/#{dst_bn}",
-                           "#{results_folder}/by_source/pbm/ppm/mihaialbu/#{dst_bn}",])
-}
-
-# # Excluded, subset of Arttu's results
-# ['selex_Lysate', 'selex_IVT'].each do |selex_type|
-#  # seqAjolmaAutoseed / BEESEM_KL in the same folder.
-#  # no model name (BEESEM_KL)
-#  # no separation of tool and model name (seqAjolmaAutoseed)
-#
-#  # We drop these Autoseed occurences as they are already included in Arttu's data
-#  # Dir.glob("/home_local/mihaialbu/Codebook/ppms/#{selex_type}/*.train.seqAjolmaAutoseed*.ppm").each{|fn|
-#  #   bn = basename_wo_ext(fn)
-#  #   m = bn.match(/^(?<prefix>.*)\.train\.seqAjolmaAutoseed_(?<model_name>.+)$/)
-#  #   dst_bn = "#{m[:prefix]}.train.Autoseed@Codebook.#{m[:model_name]}.ppm"
-#  # rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/ppm/#{dst_bn}",
-#  #                          "#{results_folder}/by_source/#{selex_type}/ppm/mihaialbu/#{dst_bn}",])
-#  # }
-#
-#  Dir.glob("/home_local/mihaialbu/Codebook/ppms/#{selex_type}/*.train.BEESEM_KL.ppm").each{|fn| # seqAjolmaAutoseed / BEESEM_KL in the same folder
-#    dst_bn = File.basename(fn).sub('BEESEM_KL', 'BEESEM_KL@Codebook.model1')
-#    rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{selex_type}/ppm/#{dst_bn}",
-#                             "#{results_folder}/by_source/#{selex_type}/ppm/mihaialbu/#{dst_bn}",])
-#  }
-# end
-
-# incorrect header
-['affiseq_Lysate', 'affiseq_IVT'].each do |affiseq_type|
-  Dir.glob("/home_local/mihaialbu/Codebook/ppms/#{affiseq_type}/*.train.*.ppm").each{|fn|
-    bn = File.basename(fn)
-    m = bn.match(/^(?<prefix>.*)\.train\.(?<tool>[^.]+)\.(?<model_name>.+).ppm$/)
-    dst_bn = "#{m[:prefix]}.train.#{m[:tool]}@Codebook.#{m[:model_name]}.ppm"
-    rename_motif_copies(fn, ["#{results_folder}/by_experiment/#{affiseq_type}/ppm/#{dst_bn}",
-                             "#{results_folder}/by_source/#{affiseq_type}/ppm/mihaialbu/#{dst_bn}"]) # it will fix header
-  }
-end
-
-Dir.glob("/home_local/mihaialbu/Codebook/ppms/chipseq/*.train.*.ppm").each{|fn|
-  bn = File.basename(fn)
-  m = bn.match(/^(?<prefix>.*)\.train\.(?<tool>[^.]+)\.(?<model_name>.+).ppm$/)
-  dst_bn = "#{m[:prefix]}.train.#{m[:tool]}@Codebook.#{m[:model_name]}.ppm"
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/chipseq/ppm/#{dst_bn}",
-                           "#{results_folder}/by_source/chipseq/ppm/mihaialbu/#{dst_bn}"]) # it will fix header
-}
-
-
-Dir.glob("/home_local/ofornes/JASPAR-MoDisco/results/pcms/chipseq/*.train.*.pcm").each{|fn|
-  bn = File.basename(fn)
-  m = bn.match(/^(?<prefix>.*)\.train\.JASPAR-MoDisco\.(?<model_name>.+)\.pcm$/)
-  dst_bn = "#{m[:prefix]}.train.oriol@jaspar.#{m[:model_name]}.pcm"
-  rename_motif_copies(fn, ["#{results_folder}/by_experiment/chipseq/pcm/#{dst_bn}",
-                           "#{results_folder}/by_source/chipseq/pcm/oriol/#{dst_bn}"]) # it will fix header
+  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team}.#{tool}@#{motif_name}.ppm"
+  rename_motif(fn, "#{results_folder}/#{dst_bn}")
 }

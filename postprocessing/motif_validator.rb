@@ -1,4 +1,4 @@
-BN_PATTERN = /^(?<tf>[^.@]+\.[^.@]+)@(?<exp_type>HTS.IVT|HTS.Lys|AFS.IVT|AFS.Lys|PBM.ME|SMS|CHS)@(?<dataset>[-+a-z]+)@(?<tool>[^@.]+\.[^@.]+)@(?<motif_subname>[^@.]+)$/
+BN_PATTERN = /^(?<tf>[^.@]+\.[^.@]+)@(?<exp_type>HTS\.IVT|HTS\.Lys|AFS\.IVT|AFS\.Lys|PBM\.ME|PBM\.HK|SMS|CHS)@(?<dataset>[-+a-z]+)@(?<tool>[^@.]+\.[^@.]+)@(?<motif_subname>[^@.]+)$/
 PPM_TOLERANCE = 0.05
 filelist = $stdin.readlines.map(&:chomp)
 filelist.select{|fn|
@@ -11,7 +11,7 @@ filelist.select{|fn|
   content = File.readlines(fn).map(&:chomp)
   header = content.first
   report << "Filename has incorrect extension `#{ext}`"  unless ['.pcm', '.ppm', '.pwm'].include?(ext)
-  report << "Filename doesn't match pattern tf.construct@{PBM,CHS,SMS,HTS.IVT,HTS.Lys,AFS.Lys,AFS.IVT}@dataset_id@team.tool@motif_name_wo_dots"  unless bn_wo_ext.match(BN_PATTERN)
+  report << "Filename doesn't match pattern tf.construct@{PBM.HK,PBM.ME,CHS,SMS,HTS.IVT,HTS.Lys,AFS.Lys,AFS.IVT}@dataset_id@team.tool@motif_name_wo_dots"  unless bn_wo_ext.match(BN_PATTERN)
   report << "No header"  unless header.start_with?('>')
   # report << "Header `#{header}` doesn't follow pattern >motif_name[ optional infos]"  unless (header == ">#{bn_wo_ext}") || header.start_with?(">#{bn_wo_ext} ") || (header == "> #{bn_wo_ext}") || header.start_with?("> #{bn_wo_ext} ")
   begin
