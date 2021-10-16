@@ -93,6 +93,7 @@ tfs.each{|tf|
             "--volume #{MOTIFS_PATH}:/motifs:ro",
             "vorontsovie/pwmeval_selex:2.0.2",
                 "/bin/sh",
+        " >&2", # don't print container id into stdout
       ].join(" ")
       fw.puts(cmd_2)
 
@@ -124,7 +125,7 @@ tfs.each{|tf|
         fw.puts(cmd_4)
       }
 
-      cmd_5 = "docker stop #{container_name}"
+      cmd_5 = "docker stop #{container_name} >&2" # don't print container id into stdout
       fw.puts cmd_5
     end
     File.chmod(0755, "#{CMD_FOLDER}/#{container_name}.sh")
