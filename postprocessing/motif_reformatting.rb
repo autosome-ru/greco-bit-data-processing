@@ -6,7 +6,7 @@ def read_matrix(fn)
   bn = File.basename(fn, File.extname(fn))
   lns = File.readlines(fn).map(&:chomp)
   header = lns[0].start_with?('>') ? lns.shift[1..-1].strip : bn
-  matrix = lns.map{|l| l.split("\t") }
+  matrix = lns.map{|l| l.strip.split(/\s+/) }
   {motif: header, matrix: matrix}
 end
 

@@ -22,13 +22,12 @@ def rename_motif(src_filename, dst_filename, transpose: false)
     header = ">#{new_motif_name}"
   end
 
-  if transpose
-    lines = lines.map{|l| l.split }.transpose.map{|r| r.join("\t") }
-  end
+  matrix = lines.map{|l| l.strip.split(/\s+/) }
+  matrix = matrix.transpose  if transpose
 
   File.open(dst_filename, 'w') {|fw|
     fw.puts header
-    fw.puts lines.join("\n")
+    fw.puts matrix.map{|row| row.join("\t") }.join("\n")
   }
 end
 

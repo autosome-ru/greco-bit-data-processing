@@ -15,7 +15,7 @@ filelist.select{|fn|
   report << "No header"  unless header.start_with?('>')
   # report << "Header `#{header}` doesn't follow pattern >motif_name[ optional infos]"  unless (header == ">#{bn_wo_ext}") || header.start_with?(">#{bn_wo_ext} ") || (header == "> #{bn_wo_ext}") || header.start_with?("> #{bn_wo_ext} ")
   begin
-    matrix = content.drop(1).map{|l| l.split }.map{|r| r.map{|x| Float(x) } }
+    matrix = content.drop(1).map{|l| l.split("\t") }.map{|r| r.map{|x| Float(x) } }
     report << "Each line should have 4-columns"  unless matrix.all?{|r| r.size == 4 }
     report << "Not all lines of probabiities matrix sum to 1.0"  if ext == '.ppm' && !matrix.all?{|r| (r.sum - 1.0).abs < PPM_TOLERANCE }
   rescue
