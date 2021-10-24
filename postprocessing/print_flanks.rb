@@ -1,5 +1,5 @@
-require_relative 'process_reads_HTS_SMS_AFS/hts'
-# require_relative 'shared/lib/affiseq_metadata'
+require_relative '../process_reads_HTS_SMS_AFS/hts'
+require_relative '../shared/bin/name_sample_afs'
 
 hts_metadata = Selex::SampleMetadata.each_in_file('source_data_meta/HTS/HTS.tsv').to_a
 # afs_metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
@@ -17,4 +17,11 @@ end
 
 File.open('HTS_flanks.fa', 'w') {|fw|
   print_flanks(hts_metadata, output_stream: fw)
+}
+
+File.open('AFS_flanks.fa', 'w'){|fw|
+  fw.puts('> all:all:5-prime')
+  fw.puts(AffiseqPeaks::ADAPTER_5)
+  fw.puts('> all:all:3-prime')
+  fw.puts(AffiseqPeaks::ADAPTER_3)
 }

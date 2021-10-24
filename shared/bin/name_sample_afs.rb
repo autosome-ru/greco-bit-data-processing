@@ -94,4 +94,4 @@ module AffiseqPeaks
   end
 end
 
-AffiseqPeaks.main
+AffiseqPeaks.main  if __FILE__ == $0
