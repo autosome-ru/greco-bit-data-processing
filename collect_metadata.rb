@@ -188,7 +188,7 @@ def collect_chs_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
     dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
     plate_id = dataset_info[:experiment_meta][:_original_meta].normalized_id
     exp_info = experiment_by_plate_id[plate_id].to_h
-    reads_files = ((exp_info && exp_info[:raw_files]) || '').split(';').map{|fn|
+    reads_files = ((exp_info && exp_info[:raw_files]) || []).map{|fn|
       {filename: fn, coverage: num_reads(fn), type: 'source'}
     }
     peaks_files  = exp_info.fetch(:peaks, []).map{|fn|
@@ -224,7 +224,7 @@ def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlin
     dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
     exp_key = dataset_info.yield_self{|d| [d[:tf], d[:experiment_subtype], "Cycle#{d[:experiment_params][:cycle]}"] }
     exp_info = experiment_by_tf_and_cycle[exp_key].to_h
-    original_files = ((exp_info && exp_info[:raw_files]) || '').split(';')
+    original_files = ((exp_info && exp_info[:raw_files]) || [])
     original_files = original_files.map{|fn| File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn) }
 
     reads_files = original_files.map{|fn|
@@ -276,7 +276,7 @@ def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlin
     exp_id = exp_info[:experiment_id]
     reads_fns = reads_by_experiment[exp_id]
 
-    original_files = ((exp_info && exp_info[:raw_files]) || '').split(';')
+    original_files = ((exp_info && exp_info[:raw_files]) || [])
     original_files = original_files.map{|fn| File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn) }
 
     peak_reads_files = reads_fns.map{|reads_fn|
