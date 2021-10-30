@@ -153,7 +153,9 @@ def collect_sms_unpublished_metadata(data_folder:, source_folder:, allow_broken_
     barcode = experiment_meta[:barcode_index]
     barcode = "BC%02d" % barcode.match(/^BC(?<number>\d+)$/)[:number]
     # p "#{source_folder}/#{exp_id}_*_#{ssid}_#{barcode}.fastq"
-    ds_filename = Dir.glob("#{source_folder}/#{exp_id}_*_#{ssid}_#{barcode}.fastq").take_the_only
+    exp_id_guess = exp_id.sub('UT380-','UT380*')
+    ssid_guess = ssid.sub(/SS(\d+)/, 'S*\1')
+    ds_filename = Dir.glob("#{source_folder}/#{exp_id_guess}_*_#{ssid_guess}_#{barcode}.fastq").take_the_only
     ds_filename = File.absolute_path(ds_filename)
     if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
       raise "Missing file #{ds_filename} for #{dataset_fn}"
