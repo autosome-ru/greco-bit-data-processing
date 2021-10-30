@@ -5,7 +5,6 @@ InsertMetadata = Struct.new(*[
       # :cell_culture_eGFP_id, :biobasic_UT368_no_long, :biobasic_UT368_no_short, :plasmid_number, :plasmid_name, :plasmid_backbone,
       # :t7_GST_clone_id, :biobasic_UT368_no_long, :biobasic_UT368_no_short, :plasmid_number, :plasmid_name, :plasmid_backbone,
       :ally_comparasion_list, :insert_description,
-      :amino_acid_sequence, :aa_length, :recoded_dna_sequence,
       :plasmid_numbers,
     ], keyword_init: true) do
   def self.parse_int(str); (!str || str == '') ? nil : Integer(str.strip); end
@@ -18,7 +17,7 @@ InsertMetadata = Struct.new(*[
       smileseq_eGFP_clone_id, smileseq_biobasic_UT380_clone, smileseq_missing_name, smileseq_plasmid_backbone,
       cell_culture_eGFP_id, eGFP_biobasic_UT368_no_long, eGFP_biobasic_UT368_no_short, eGFP_plasmid_number, eGFP_plasmid_name, eGFP_plasmid_backbone,
       t7_GST_clone_id, t7_GST_biobasic_UT368_no_long, t7_GST_biobasic_UT368_no_short, t7_GST_plasmid_number, t7_GST_plasmid_name, t7_GST_plasmid_backbone,
-      ally_comparasion_list, insert_description, amino_acid_sequence, aa_length, recoded_dna_sequence, = line.chomp.split("\t", 26)
+      ally_comparasion_list, insert_description, = line.chomp.split("\t", 26)
       plasmid_numbers = [parse_cell(eGFP_plasmid_number), parse_cell(t7_GST_plasmid_number)].compact
     self.new(
       insert_id: insert_id, source_tf_gene: source_tf_gene, dbd_type: parse_cell(dbd_type), dbd_type_from_HumanTFs: parse_cell_list(dbd_type_from_HumanTFs),
