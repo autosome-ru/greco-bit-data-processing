@@ -21,9 +21,8 @@ InsertMetadata = Struct.new(*[
       plasmid_numbers = [parse_cell(eGFP_plasmid_number), parse_cell(t7_GST_plasmid_number)].compact
     self.new(
       insert_id: insert_id, source_tf_gene: source_tf_gene, dbd_type: parse_cell(dbd_type), dbd_type_from_HumanTFs: parse_cell_list(dbd_type_from_HumanTFs),
-      amino_acid_sequence: amino_acid_sequence.strip, aa_length: parse_int(aa_length), recoded_dna_sequence: recoded_dna_sequence, dna_length: parse_int(dna_length),
+      amino_acid_sequence: amino_acid_sequence.strip, aa_length: parse_int(aa_length), recoded_dna_sequence: recoded_dna_sequence.strip, dna_length: parse_int(dna_length),
       ally_comparasion_list: parse_cell(ally_comparasion_list), insert_description: parse_cell(insert_description),
-      amino_acid_sequence: amino_acid_sequence, aa_length: Integer(aa_length), recoded_dna_sequence: recoded_dna_sequence,
       plasmid_numbers: plasmid_numbers,
     )
   end
