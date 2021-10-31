@@ -8,39 +8,31 @@ def log10_str(str)
 end
 
 conversion_tasks = [
+  # peak-based
   {
-    src: 'release_6_metrics/peaks.tsv',
-    dst: 'release_6_metrics/formatted_peaks.tsv',
+    src: [
+      'run_benchmarks_release_7/pwmeval_peaks.tsv',
+      'run_benchmarks_release_7/pwmeval_peaks_7a+7c.tsv',
+    ],
+    dst: 'run_benchmarks_release_7/formatted_peaks_pwmeval.tsv',
     metrics: ['AUCROC'],
     parser: ->(info, metrics){ info }
   },
   {
-    src: 'release_6_metrics/vigg_peaks.tsv',
-    dst: 'release_6_metrics/formatted_vigg_peaks.tsv',
+    src: [
+      'run_benchmarks_release_7/VIGG_peaks.tsv',
+      'run_benchmarks_release_7/VIGG_peaks_7a+7c.tsv',
+    ],
+    dst: 'run_benchmarks_release_7/formatted_peaks_vigg.tsv',
     metrics: ['roc_auc', 'logroc_auc'],
     parser: ->(info, metrics){ JSON.parse(info)["metrics"].values_at(*metrics) }
   },
   {
-    src: 'release_6_metrics/pbm.tsv',
-    dst: 'release_6_metrics/formatted_pbm.tsv',
-    metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
-    parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
-  },
-  {
-    src: 'release_6_metrics/reads_0.1.tsv',
-    dst: 'release_6_metrics/formatted_reads_0.1.tsv',
-    metrics: ['AUCROC'],
-    parser: ->(info, metrics){ info }
-  },
-  {
-    src: 'release_6_metrics/reads_0.5.tsv',
-    dst: 'release_6_metrics/formatted_reads_0.5.tsv',
-    metrics: ['AUCROC'],
-    parser: ->(info, metrics){ info }
-  },
-  {
-    src: 'release_6_metrics/peaks_centrimo.tsv',
-    dst: 'release_6_metrics/formatted_peaks_centrimo.tsv',
+    src: [
+      'run_benchmarks_release_7/centrimo.tsv',
+      'run_benchmarks_release_7/centrimo_7a+7c.tsv',
+    ],
+    dst: 'run_benchmarks_release_7/formatted_peaks_centrimo.tsv',
     metrics: ['-log10(E-value)','concentration_30nt'],
     parser: ->(info, metrics){
       if !info || info.empty?
@@ -55,20 +47,48 @@ conversion_tasks = [
       end
     }
   },
+
+  # PBM-based
+  {
+    src: [
+      'run_benchmarks_release_7/pbm.tsv',
+      'run_benchmarks_release_7/pbm_7a+7c.tsv',
+    ],
+    dst: 'run_benchmarks_release_7/formatted_pbm.tsv',
+    metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
+    parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
+  },
+
+  # Read-based
+  *['0.1', '0.25', '0.5'].map{|fraction|
+    {
+      src: [
+        "run_benchmarks_release_7/reads_#{fraction}.tsv",
+        "run_benchmarks_release_7/reads_#{fraction}_7a+7c.tsv",
+      ],
+      dst: "run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv",
+      metrics: ['AUCROC'],
+      parser: ->(info, metrics){ info }
+    },
+  },
 ]
 
 conversion_tasks.each do |conversion_task|
-  File.open(conversion_task[:src]) do |f|
-    File.open(conversion_task[:dst], 'w') do |fw|
-      metrics = conversion_task[:metrics]
-      header = ["dataset", "motif", *metrics]
-      fw.puts header.join("\t")
-      f.each_line{|l|
-        ds, mot, info = l.chomp.split("\t")
-        metrics_values = conversion_task[:parser].call(info, metrics)
-        row = [File.basename(ds), File.basename(mot), *metrics_values]
-        fw.puts row.join("\t")
-      }
-    end
-  end
+  metrics = conversion_task[:metrics]
+
+  data_rows = conversion_task[:src].flat_map{|fn|
+    File.readlines(fn).map{|l|
+      ds, mot, info = l.chomp.split("\t")
+      metrics_values = conversion_task[:parser].call(info, metrics)
+      [File.basename(ds), File.basename(mot), *metrics_values]
+    }
+  }
+
+  File.open(conversion_task[:dst], 'w'){|fw|
+    header = ["dataset", "motif", *metrics]
+    fw.puts header.join("\t")
+    data_rows.each{|row|
+      fw.puts(row.join("\t"))
+    }
+  }
 end
