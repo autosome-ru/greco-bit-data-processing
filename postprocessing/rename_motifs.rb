@@ -27,7 +27,7 @@ def rename_motif(src_filename, dst_filename, transpose: false)
 
   File.open(dst_filename, 'w') {|fw|
     fw.puts header
-    fw.puts matrix.map{|row| row.join("\t") }.join("\n")
+    fw.puts matrix.map{|row| row.map{|x| Float(x) }.map{|x| '%f' % x }.join("\t") }.join("\n")
   }
 end
 
