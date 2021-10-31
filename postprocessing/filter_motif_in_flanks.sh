@@ -45,3 +45,18 @@ zcat HTS_flanks_hits.tsv.gz | cuttab -f5 | ruby -e 'xs =readlines.map(&:to_f); x
 zcat HTS_flanks_hits.tsv.gz | ruby -e 'lns = readlines.map{|l| l.chomp.split("\t") }; cnts = Hash.new{|h,k| h[k] = Hash.new(0); }; lns.each{|r| x = r[4].to_f; data_type = r[0].split("@")[1]; cnts[data_type][x.round(1)] += 1 }; order = ["HTS.IVT", "HTS.Lys", "SMS", "AFS.IVT", "AFS.Lys", "CHS", "PBM.HK", "PBM.ME"]; puts ["threshold", *order].join("\t"); (0..8.5).step(0.1).map{|x| x.round(1) }.each{|x| puts [x, *cnts.values_at(*order).map{|h| h[x] / h.values.sum.to_f }].join("\t") }' > HTS_flanks_hits_histogram_by_motifType.tsv
 
 zcat HTS_flanks_hits.tsv.gz | ruby -e 'lns = readlines.map{|l| l.chomp.split("\t") }; cnts = Hash.new{|h,k| h[k] = Hash.new(0); }; lns.each{|r| x = r[4].to_f; data_type = r[0].split("@")[3]; cnts[data_type][x.round(1)] += 1 }; order = cnts.keys.sort; puts ["threshold", *order].join("\t"); (0..8.5).step(0.1).map{|x| x.round(1) }.each{|x| puts [x, *cnts.values_at(*order).map{|h| h[x] / h.values.sum.to_f }].join("\t") }' > HTS_flanks_hits_histogram_by_motifTeam.tsv
+
+zcat AFS_flanks_hits.tsv.gz | cuttab -f5 | ruby -e 'xs =readlines.map(&:to_f); xs.each_with_object(Hash.new(0)){|x,h| h[x.round(1)] += 1 }.sort.each{|x, cnt| puts [x,cnt].join("\t") }' > AFS_flanks_hits_histogram.tsv
+
+zcat AFS_flanks_hits.tsv.gz | ruby -e 'lns = readlines.map{|l| l.chomp.split("\t") }; cnts = Hash.new{|h,k| h[k] = Hash.new(0); }; lns.each{|r| x = r[4].to_f; data_type = r[0].split("@")[1]; cnts[data_type][x.round(1)] += 1 }; order = ["HTS.IVT", "HTS.Lys", "SMS", "AFS.IVT", "AFS.Lys", "CHS", "PBM.HK", "PBM.ME"]; puts ["threshold", *order].join("\t"); (0..8.5).step(0.1).map{|x| x.round(1) }.each{|x| puts [x, *cnts.values_at(*order).map{|h| h[x] / h.values.sum.to_f }].join("\t") }' > AFS_flanks_hits_histogram_by_motifType.tsv
+
+zcat AFS_flanks_hits.tsv.gz | ruby -e 'lns = readlines.map{|l| l.chomp.split("\t") }; cnts = Hash.new{|h,k| h[k] = Hash.new(0); }; lns.each{|r| x = r[4].to_f; data_type = r[0].split("@")[3]; cnts[data_type][x.round(1)] += 1 }; order = cnts.keys.sort; puts ["threshold", *order].join("\t"); (0..8.5).step(0.1).map{|x| x.round(1) }.each{|x| puts [x, *cnts.values_at(*order).map{|h| h[x] / h.values.sum.to_f }].join("\t") }' > AFS_flanks_hits_histogram_by_motifTeam.tsv
+
+join -j 1 -a 1 -e NA  \
+  <( zcat HTS_flanks_hits.tsv.gz | cuttab -f1,2 | sort -u | cut -f2 | sort | countuniq | awktab -e '{print $2"\t"$1}' | sort -k1,1 ) \
+  <( zcat HTS_flanks_hits.tsv.gz | awktab -e '$5 >= 4' | cuttab -f1,2 | sort -u | cut -f2 | sort | countuniq | awktab -e '{print $2"\t"$1}' | sort -k1,1 ) | sed -re 's/\s+/\t/g' > HTS_flanks_hits_motifs.tsv
+
+join -j 1 -a 1 -e NA  \
+  <( zcat HTS_flanks_hits.tsv.gz | cuttab -f1 | cut -d@ --output-delimiter=$'\t' -f1,3 | sed -re 's/^(\w+)\.\w+/\1/' | sort -u | cut -f1 | sort | countuniq | awktab -e '{print $2"\t"$1}' | sort -k1,1 ) \
+  <( zcat HTS_flanks_hits.tsv.gz | awktab -e '$5 >= 4' | cuttab -f1 | cut -d@ --output-delimiter=$'\t' -f1,3 | sed -re 's/^(\w+)\.\w+/\1/' | sort -u | cut -f1 | sort | countuniq | awktab -e '{print $2"\t"$1}' | sort -k1,1 ) \
+  | sed -re 's/\s+/\t/g' > HTS_flanks_hits_motifs_dataset_dedup.tsv
