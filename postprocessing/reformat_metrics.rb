@@ -69,7 +69,7 @@ conversion_tasks = [
       dst: "run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv",
       metrics: ['AUCROC'],
       parser: ->(info, metrics){ info }
-    },
+    }
   },
 ]
 
