@@ -6,7 +6,7 @@ def read_matrix(fn)
   bn = File.basename(fn, File.extname(fn))
   lns = File.readlines(fn).map(&:chomp)
   header = lns[0].start_with?('>') ? lns.shift[1..-1].strip : bn
-  matrix = lns.map{|l| l.strip.split(/\s+/) }
+  matrix = lns.map{|l| l.strip.split(/\s+/).map{|x| Float(x) } }
   {motif: header, matrix: matrix}
 end
 
@@ -14,7 +14,7 @@ def write_matrix(fn, motif)
   File.open(fn, 'w'){|fw|
     fw.puts ">#{motif[:motif]}"
     motif[:matrix].each{|row|
-      fw.puts row.join("\t")
+      fw.puts row.map{|x| '%f' % x }.join("\t")
     }
   }
 end
