@@ -32,7 +32,7 @@ def rename_motif(src_filename, dst_filename, transpose: false)
 end
 
 results_folder = File.absolute_path(ARGV[0])
-# results_folder = '/home_local/vorontsovie/greco-motifs/release_7_motifs_2020-10-13'
+# results_folder = '/home_local/vorontsovie/greco-motifs/release_7c_motifs_2020-10-31'
 
 FileUtils.mkdir_p(results_folder)
 
@@ -110,9 +110,13 @@ Dir.glob("/home_local/jangrau/models_r7/{AFS,CHS,PBM.QNZS,PBM.SDQN,SMS,SMS.publi
   rename_motif(fn, "#{results_folder}/#{dst_bn}")
 }
 
-Dir.glob("/mnt/space/hughes/Motifs_10_06/Motifs/{AFS.Peaks,CHS,SMS,SMS.published}/*.ppm").each{|fn|
+[
+  *Dir.glob("/mnt/space/hughes/Motifs_10_06/Motifs/{AFS.Peaks,CHS,SMS,SMS.published}/*.ppm"),
+  *Dir.glob("/mnt/space/hughes/Motifs_10_26/CHS/*.txt"),
+].each{|fn|
   # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo@HughesLab@Homer@Motif1.ppm
-  bn = File.basename(fn, '.ppm')
+  # C11orf95.FL@CHS@THC_0197@Peaks.foggy-red-dalmatian@HughesLab@GkmSVM@Motif2.txt
+  bn = File.basename(fn, File.extname(fn))
   tf_info, exp_type, _exp_info, rest_info, team, tool, motif_name = bn.split('@')
   tf_info = fix_tf_info.call(tf_info)
   dataset_name = rest_info.split('.').drop(1).join('+')
