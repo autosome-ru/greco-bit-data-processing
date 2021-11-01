@@ -340,10 +340,14 @@ all_metric_infos = read_metrics(metrics_readers_configs)
 
 # reject motif benchmark values calculated over datasets which were used for training
 # (there shouldn't be any)
-all_metric_infos.reject!{|info|
+all_metric_infos.select!{|info|
   ds_and_motif_common_ids = dataset_ids_for_dataset(info[:dataset]) & dataset_ids_for_motif(info[:motif])
-  $stderr.puts "#{info[:dataset]} and #{info[:motif]} are derived from the same datasets"
-  !ds_and_motif_common_ids.empty?
+  if ds_and_motif_common_ids.empty?
+    true
+  else
+    $stderr.puts "#{info[:dataset]} and #{info[:motif]} are derived from the same datasets"
+    false
+  end
 }
 
 all_metric_infos.select!{|info|
