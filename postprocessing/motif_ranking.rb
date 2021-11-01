@@ -320,21 +320,20 @@ metrics_readers_configs = {
     [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
     [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  **[['0.1', '10'], ['0.25', '25'], ['0.5', '50']].map{|fraction, percent|
-    {
-      "run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv" => [
-        [[:"selex_#{percent}_IVT_ROC"], ->(x){ x.match?(/@HTS\.IVT@/) }],
-        [[:"selex_#{percent}_Lysate_ROC"], ->(x){ x.match?(/@HTS\.Lys@/) }],
-        [[:"affiseq_#{percent}_IVT_ROC"], ->(x){ x.match?(/@AFS\.IVT@/) }],
-        [[:"affiseq_#{percent}_Lysate_ROC"], ->(x){ x.match?(/@AFS\.Lys@/) }],
-        [[:"smileseq_#{percent}_ROC"], ->(x){ x.match?(/@SMS@/) }],
-      ],
-    }
-  }.inject(&:merge),
   'run_benchmarks_release_7/formatted_pbm.tsv' => [
     [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
     [[:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr, :pbm_sdqn_mers, :pbm_sdqn_logmers], ->(x){ x.match?(/@SDQN\./) }],
   ],
+}
+
+[['0.1', '10'], ['0.25', '25'], ['0.5', '50']].each{|fraction, percent|
+  metrics_readers_configs["run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv"] = [
+    [[:"selex_#{percent}_IVT_ROC"], ->(x){ x.match?(/@HTS\.IVT@/) }],
+    [[:"selex_#{percent}_Lysate_ROC"], ->(x){ x.match?(/@HTS\.Lys@/) }],
+    [[:"affiseq_#{percent}_IVT_ROC"], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:"affiseq_#{percent}_Lysate_ROC"], ->(x){ x.match?(/@AFS\.Lys@/) }],
+    [[:"smileseq_#{percent}_ROC"], ->(x){ x.match?(/@SMS@/) }],
+  ]
 }
 
 all_metric_infos = read_metrics(metrics_readers_configs)
