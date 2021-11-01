@@ -54,17 +54,29 @@ def treat_vote(vote)
   end
 end
 
+# dataset name: SCML4.DBD@PBM.ME@PBM13821.5GTGAAATTGTTATCCGCTCT@SDQN.pretty-sangria-dalmatian.Train.tsv
+#               ZNF708.FL@HTS.Lys@AAT_A_CC40NGACATG.5ACGACGCTCTTCCGATCTCC.3GACATGAGATCGGAAGAGCA.C1+C2+C3@Reads.chummy-turquoise-cow+leaky-seashell-walrus+surly-gold-toad.Val.fastq.gz
 
-def experiment_id(dataset)
-  dataset.split('@')[2].split('.')[0]
+def experiment_id(dataset_fullname)
+  dataset_fullname.split('@')[2].split('.')[0]
 end
 
-def experiment_fulltype(dataset) # PBM.HK, AFS.Lys etc
-  dataset.split('@')[1]
+def experiment_fulltype(dataset_fullname) # PBM.HK, AFS.Lys etc
+  dataset_fullname.split('@')[1]
 end
 
-def experiment_processing_type(dataset) # Peaks
-  dataset.split('@')[3].split('.')[0]
+def experiment_processing_type(dataset_fullname) # Peaks
+  dataset_fullname.split('@')[3].split('.')[0]
+end
+
+def dataset_ids_for_dataset(dataset_fullname)
+  dataset_fullname.split('@')[3].split('.')[1].split('+')
+end
+
+# motif name: ZNF687.DBD@AFS.IVT@bluesy-eggplant-shrimp+seedy-puce-hyrax+snappy-vermilion-sparrow+stealthy-blue-heron@autosome-ru.ChIPMunk@topk_cycle=C1+C2+C3+C4_k=5_top=10000.pcm
+
+def dataset_ids_for_motif(motif_fullname)
+  motif_fullname.split('@')[2].split('+')
 end
 
 def motif_tf(motif)
@@ -240,19 +252,19 @@ METRIC_COMBINATIONS = {
     chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt],
     affiseq_IVT: {
       affiseq_IVT_peaks: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt],
-      affiseq_IVT_reads: [:affiseq_10_IVT_ROC, :affiseq_50_IVT_ROC],
+      affiseq_IVT_reads: [:affiseq_10_IVT_ROC, :affiseq_25_IVT_ROC, :affiseq_50_IVT_ROC],
     },
     affiseq_Lysate: {
       affiseq_Lysate_peaks: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt],
-      affiseq_Lysate_reads: [:affiseq_10_Lysate_ROC, :affiseq_50_Lysate_ROC],
+      affiseq_Lysate_reads: [:affiseq_10_Lysate_ROC, :affiseq_25_Lysate_ROC, :affiseq_50_Lysate_ROC],
     },
-    selex_IVT: [:selex_10_IVT_ROC, :selex_50_IVT_ROC],
-    selex_Lysate: [:selex_10_Lysate_ROC, :selex_50_Lysate_ROC],
+    selex_IVT: [:selex_10_IVT_ROC, :selex_25_IVT_ROC, :selex_50_IVT_ROC],
+    selex_Lysate: [:selex_10_Lysate_ROC, :selex_25_Lysate_ROC, :selex_50_Lysate_ROC],
     pbm: {
       pbm_sdqn: [:pbm_sdqn_roc, :pbm_sdqn_pr],
       pbm_qnzs: [:pbm_qnzs_roc, :pbm_qnzs_pr],
     },
-    smileseq: [:smileseq_10_ROC, :smileseq_50_ROC],
+    smileseq: [:smileseq_10_ROC, :smileseq_25_ROC, :smileseq_50_ROC],
   },
   dropped: {
     dropped_peak_metrics: [:chipseq_vigg_logROC, :affiseq_IVT_vigg_logROC, :affiseq_Lysate_vigg_logROC],
@@ -269,6 +281,7 @@ DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.r
 raise 'Specify resulting metrics file'  unless results_metrics_fn = ARGV[0]  # 'results/metrics.json'
 raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[1]  # 'results/ranks.json'
 raise 'Specify curation filename or `no`'  unless curation_fn = ARGV[2] # 'source_data_meta/shared/curations.tsv'
+
 if curation_fn == 'no'
   dataset_curation = nil
   $stderr.puts('Warning: no curation is used')
@@ -278,42 +291,49 @@ else
 end
 
 metrics_readers_configs = {
-  'release_6_metrics/formatted_peaks.tsv' => [
+  'run_benchmarks_release_7/formatted_peaks_pwmeval.tsv' => [
     [[:chipseq_pwmeval_ROC], ->(x){ x.match?(/@CHS@/) }],
     [[:affiseq_IVT_pwmeval_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
     [[:affiseq_Lysate_pwmeval_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'release_6_metrics/formatted_vigg_peaks.tsv' => [
+  'run_benchmarks_release_7/formatted_peaks_vigg.tsv' => [
     [[:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
     [[:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
     [[:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'release_6_metrics/formatted_peaks_centrimo.tsv' => [
+  'run_benchmarks_release_7/formatted_peaks_centrimo.tsv' => [
     [[:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
     [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
     [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'release_6_metrics/formatted_reads_0.1.tsv' => [
-    [[:selex_10_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
-    [[:selex_10_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
-    [[:affiseq_10_IVT_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    [[:affiseq_10_Lysate_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
-    [[:smileseq_10_ROC], ->(x){ x.match?(/@SMS@/) }],
-  ],
-  'release_6_metrics/formatted_reads_0.5.tsv' => [
-    [[:selex_50_IVT_ROC], ->(x){ x.match?(/@HTS\.IVT@/) }],
-    [[:selex_50_Lysate_ROC], ->(x){ x.match?(/@HTS\.Lys@/) }],
-    [[:affiseq_50_IVT_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    [[:affiseq_50_Lysate_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
-    [[:smileseq_50_ROC], ->(x){ x.match?(/@SMS@/) }],
-  ],
-  'release_6_metrics/formatted_pbm.tsv' => [
+  **[['0.1', '10'], ['0.25', '25'], ['0.5', '50']].map{|fraction, percent|
+    {
+      "run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv" => [
+        [[:"selex_#{percent}_IVT_ROC"], ->(x){ x.match?(/@HTS\.IVT@/) }],
+        [[:"selex_#{percent}_Lysate_ROC"], ->(x){ x.match?(/@HTS\.Lys@/) }],
+        [[:"affiseq_#{percent}_IVT_ROC"], ->(x){ x.match?(/@AFS\.IVT@/) }],
+        [[:"affiseq_#{percent}_Lysate_ROC"], ->(x){ x.match?(/@AFS\.Lys@/) }],
+        [[:"smileseq_#{percent}_ROC"], ->(x){ x.match?(/@SMS@/) }],
+      ],
+    }
+  }
+  'run_benchmarks_release_7/formatted_pbm.tsv' => [
     [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
     [[:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr, :pbm_sdqn_mers, :pbm_sdqn_logmers], ->(x){ x.match?(/@SDQN\./) }],
   ],
 }
 
-all_metric_infos = read_metrics(metrics_readers_configs).select{|info|
+all_metric_infos = read_metrics(metrics_readers_configs)
+
+# reject motif benchmark values calculated over datasets which were used for training
+# (there shouldn't be any)
+all_metric_infos = all_metric_infos.select{|info|
+  ds_and_motif_common_ids = dataset_ids_for_dataset(info[:dataset]) & dataset_ids_for_motif(info[:motif])
+  $stderr.puts "#{info[:dataset]} and #{info[:motif]} are derived from the same datasets"
+  ds_and_motif_common_ids.empty?
+}
+
+all_metric_infos = all_metric_infos.select{|info|
   exp_id = experiment_id(info[:dataset])
   if dataset_curation
     dataset_curation.has_key?(exp_id) ? dataset_curation[exp_id] : false # non-curated are dropped
