@@ -1,6 +1,8 @@
 require 'fileutils'
 require 'json'
 require_relative 'tree'
+require_relative '../shared/lib/index_by'
+require_relative '../shared/lib/utils'
 
 module Enumerable
   def mean
@@ -247,6 +249,10 @@ def combine_ranks(hierarchy_of_metrics, metric_path: nil)
   end
 end
 
+def read_metadata(metadata_fn)
+  File.readlines(metadata_fn).map{|l| JSON.parse(l.chomp) }
+end
+
 METRIC_COMBINATIONS = {
   combined: {
     chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt],
@@ -281,6 +287,7 @@ DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.r
 raise 'Specify resulting metrics file'  unless results_metrics_fn = ARGV[0]  # 'results/metrics.json'
 raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[1]  # 'results/ranks.json'
 raise 'Specify curation filename or `no`'  unless curation_fn = ARGV[2] # 'source_data_meta/shared/curations.tsv'
+raise 'Specify metadata filename or `no`'  unless metadata_fn = ARGV[3] # 'results/metadata_release_7a.json'
 
 if curation_fn == 'no'
   dataset_curation = nil
@@ -288,6 +295,13 @@ if curation_fn == 'no'
 else
   curation_info = read_curation_info(curation_fn)
   dataset_curation = get_datasets_curation(curation_info)
+end
+
+if metadata_fn == 'no'
+  experiment_by_dataset_id = nil
+  $stderr.puts('Warning: no metadata is used, thus there can be PBM motifs benchmarked on the same datasets which were used for training')
+else
+  experiment_by_dataset_id = read_metadata(metadata_fn).index_by{|info| info['dataset_id'] }.transform_values{|info| info['experiment_id'] }
 end
 
 metrics_readers_configs = {
@@ -327,13 +341,26 @@ all_metric_infos = read_metrics(metrics_readers_configs)
 
 # reject motif benchmark values calculated over datasets which were used for training
 # (there shouldn't be any)
-all_metric_infos = all_metric_infos.select{|info|
+all_metric_infos.reject!{|info|
   ds_and_motif_common_ids = dataset_ids_for_dataset(info[:dataset]) & dataset_ids_for_motif(info[:motif])
   $stderr.puts "#{info[:dataset]} and #{info[:motif]} are derived from the same datasets"
-  ds_and_motif_common_ids.empty?
+  !ds_and_motif_common_ids.empty?
 }
 
-all_metric_infos = all_metric_infos.select{|info|
+all_metric_infos.select!{|info|
+  exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.take_the_only
+  exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.take_the_only
+
+  # We expect here a bunch of PBM datasets
+  if (exp_for_motif == exp_for_bench_dataset) && info['experiment_type'] == 'PBM'
+    $stderr.puts "Warning: #{info[:dataset]} and #{info[:motif]} are derived from the same experiment #{exp_for_motif} and will be skipped"
+    false
+  else
+    true
+  end
+}
+
+all_metric_infos.select!{|info|
   exp_id = experiment_id(info[:dataset])
   if dataset_curation
     dataset_curation.has_key?(exp_id) ? dataset_curation[exp_id] : false # non-curated are dropped
