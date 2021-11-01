@@ -330,7 +330,7 @@ metrics_readers_configs = {
         [[:"smileseq_#{percent}_ROC"], ->(x){ x.match?(/@SMS@/) }],
       ],
     }
-  }
+  },
   'run_benchmarks_release_7/formatted_pbm.tsv' => [
     [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
     [[:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr, :pbm_sdqn_mers, :pbm_sdqn_logmers], ->(x){ x.match?(/@SDQN\./) }],
