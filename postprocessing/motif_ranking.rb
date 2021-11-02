@@ -351,12 +351,12 @@ all_metric_infos.select!{|info|
 }
 
 all_metric_infos.select!{|info|
-  exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.take_the_only
-  exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.take_the_only
-
-  # We expect here a bunch of PBM datasets
-  if (exp_for_motif == exp_for_bench_dataset) && info['experiment_type'] == 'PBM'
-    $stderr.puts "Warning: #{info[:dataset]} and #{info[:motif]} are derived from the same experiment #{exp_for_motif} and will be skipped"
+  exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+  exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+  # PBM experiments are used both in train and validation datasets so we should manually exclude such cases
+  if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_')
+    info = ["Warning: same experiment", info[:dataset], info[:motif], exp_for_motif, info[:metric_name]]
+    $stderr.puts(info.join("\t"))
     false
   else
     true
