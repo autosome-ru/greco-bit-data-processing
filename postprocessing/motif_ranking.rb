@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'json'
+require 'optparse'
 require_relative 'tree'
 require_relative '../shared/lib/index_by'
 require_relative '../shared/lib/utils'
@@ -284,24 +285,41 @@ METRIC_COMBINATIONS = {
 METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
 DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.reject(&:leaf?).map(&:key).reject(&:nil?)
 
+curation_fn = nil
+metadata_fn = nil
+filter_out_curated_datasets = false
+filter_out_pbm_motif_dataset_matches = false
+
+option_parser = OptionParser.new{|opts|
+  opts.on('--curation FILE', 'Specify dataset curation file. It will bew used to filter out bad datasets'){|fn|
+    # 'source_data_meta/shared/curations.tsv'
+    curation_fn = fn
+    filter_out_curated_datasets = true
+  }
+  opts.on('--metadata FILE',  'Specify dataset metadata file. It will be used to recognize experiment_id by dataset_id\n' +
+                              'and to filter out PBM benchmarks where motif and dataset use the same experiment'){|fn|
+    # 'results/metadata_release_7a.json'
+    metadata_fn = fn
+    filter_out_pbm_motif_dataset_matches = true
+  }
+}
+
+option_parser.parse!(ARGV)
 raise 'Specify resulting metrics file'  unless results_metrics_fn = ARGV[0]  # 'results/metrics.json'
 raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[1]  # 'results/ranks.json'
-raise 'Specify curation filename or `no`'  unless curation_fn = ARGV[2] # 'source_data_meta/shared/curations.tsv'
-raise 'Specify metadata filename or `no`'  unless metadata_fn = ARGV[3] # 'results/metadata_release_7a.json'
 
-if curation_fn == 'no'
+if curation_fn
+  dataset_curation = get_datasets_curation(read_curation_info(curation_fn))
+else
   dataset_curation = nil
   $stderr.puts('Warning: no curation is used')
-else
-  curation_info = read_curation_info(curation_fn)
-  dataset_curation = get_datasets_curation(curation_info)
 end
 
-if metadata_fn == 'no'
+if metadata_fn
+  experiment_by_dataset_id = read_metadata(metadata_fn).index_by{|info| info['dataset_id'] }.transform_values{|info| info['experiment_id'] }
+else
   experiment_by_dataset_id = nil
   $stderr.puts('Warning: no metadata is used, thus there can be PBM motifs benchmarked on the same datasets which were used for training')
-else
-  experiment_by_dataset_id = read_metadata(metadata_fn).index_by{|info| info['dataset_id'] }.transform_values{|info| info['experiment_id'] }
 end
 
 metrics_readers_configs = {
@@ -350,27 +368,27 @@ all_metric_infos.select!{|info|
   end
 }
 
-all_metric_infos.select!{|info|
-  exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
-  exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
-  # PBM experiments are used both in train and validation datasets so we should manually exclude such cases
-  if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_')
-    info = ["Warning: same experiment", info[:dataset], info[:motif], exp_for_motif, info[:metric_name]]
-    $stderr.puts(info.join("\t"))
-    false
-  else
-    true
-  end
-}
-
-all_metric_infos.select!{|info|
-  exp_id = experiment_id(info[:dataset])
-  if dataset_curation
+if filter_out_curated_datasets
+  all_metric_infos.select!{|info|
+    exp_id = experiment_id(info[:dataset])
     dataset_curation.has_key?(exp_id) ? dataset_curation[exp_id] : false # non-curated are dropped
-  else
-    true  # without curation take everything
-  end
-}
+  }
+end
+
+if filter_out_pbm_motif_dataset_matches
+  all_metric_infos.select!{|info|
+    exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+    exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+    # PBM experiments are used both in train and validation datasets so we should manually exclude such cases
+    if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_')
+      info = ["Warning: same experiment", info[:dataset], info[:motif], exp_for_motif, info[:metric_name]]
+      $stderr.puts(info.join("\t"))
+      false
+    else
+      true
+    end
+  }
+end
 
 all_metric_infos = all_metric_infos.map{|info|
   dataset = info[:dataset]
