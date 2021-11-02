@@ -17,7 +17,7 @@ find motifs_by_modeltype/pwm/ -xtype f \
         --output-scoring-mode logpvalue \
         --pvalues-file thresholds_by_modeltype/pwm/{}.thr \
         --add-flanks \
-    ' | ruby postprocessing/sarus_reformatter.rb --filter-by-tf {} ' \
+    ' | ruby postprocessing/sarus_reformatter.rb --filter-by-experiment run_benchmarks_release_7/metadata_release_7a.json {} ' \
   | parallel \
   > HTS_flanks_hits.tsv
 gzip -9 HTS_flanks_hits.tsv
