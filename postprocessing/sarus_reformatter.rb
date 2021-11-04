@@ -31,9 +31,9 @@ raise 'Specify motif name'  unless motif = ARGV[0]
 motif_tf = motif.split(".")[0]
 
 infos = $stdin.each_line.each_slice(2).map{|hdr,scores|
-  tf, exp_id, type = hdr.chomp[1..-1].split(":")
+  tf, exp_id, flank_type = hdr.chomp[1..-1].split(":")
   logpval, pos, strand = scores.chomp.split("\t")
-  [tf, exp_id, type, logpval, pos, strand]
+  [tf, exp_id, flank_type, logpval, pos, strand]
 }
 
 if filter_mode == :by_tf

@@ -1,6 +1,12 @@
 require_relative 'utils'
 
 module Affiseq
+#  Library after PCR (for Affiseq). This is what the TF sees
+# ACACTCTTTCCCTACACGAC GCTCTTCCGATCT(Random Genomic fragment)AGATCGGAAGAGC ACACGTCTG AACTCCAG 3'
+# TGTGAGAAAGGGATGTGCTG CGAGAAGGCTAGA(Random Genomic fragment)TCTAGCCTTCTCG TGTGCAGAC TTGAGGTC 5'
+  ADAPTER_5 = 'ACACTCTTTCCCTACACGACGCTCTTCCGATCT'
+  ADAPTER_3 = 'AGATCGGAAGAGCACACGTCTGAACTCCAG'
+
   SampleMetadata = Struct.new(*[
         :experiment_id, :plasmid_id, :gene_name, :ivt_or_lysate, :dna_library_id, :well,
         :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename,
@@ -63,5 +69,9 @@ module Affiseq
         yield self.from_string(line)
       }
     end
+    def adapter_5; ADAPTER_5; end
+    def adapter_3; ADAPTER_3; end
+    def barcode; {flank_5: '', flank_3: '', insertion_length: nil}; end
+    def tf; gene_name; end
   end
 end
