@@ -401,19 +401,20 @@ end
 
 flank_filters.each do |filter_fn|
   filter_out_benchmarks = File.readlines(filter_fn).map{|l|
-    motif, tf, exp_id, flank_type, logpval, pos, strand = l.chomp.split("\t")
+    motif_wo_ext, tf, exp_id, flank_type, logpval, pos, strand = l.chomp.split("\t")
     raise "Can't handle non-dataset ids"  if exp_id == 'all'
-    {motif: motif, exp_id: exp_id, logpval: logpval}
+    {motif_wo_ext: motif_wo_ext, exp_id: exp_id, logpval: logpval}
   }.select{|filter_info|
     Float(filter_info[:logpval]) >= flank_threshold
   }.map{|filter_info|
-    filter_info.values_at(:motif, :exp_id)
+    filter_info.values_at(:motif_wo_ext, :exp_id)
   }.to_set
 
   all_metric_infos.select!{|info|
+    motif_wo_ext = ['.pcm', '.ppm', '.pwm'].inject(info[:motif]){|fn, ext| File.basename(fn, ext) }
     exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
     exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
-    if filter_out_benchmarks.include?([info[:motif], exp_for_bench_dataset])
+    if filter_out_benchmarks.include?([motif_wo_ext, exp_for_bench_dataset])
       info = ["Warning: sticky flanks", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
       $stderr.puts(info.join("\t"))
       false
