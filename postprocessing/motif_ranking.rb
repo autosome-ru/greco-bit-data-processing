@@ -87,6 +87,14 @@ def motif_tf(motif)
   motif.split('@').first.split('.').first
 end
 
+
+def experiment_for_motif(motif, experiment_by_dataset_id)
+  dataset_ids_for_motif(motif).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+end
+def experiment_for_dataset(dataset, experiment_by_dataset_id)
+  dataset_ids_for_dataset(dataset).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+end
+
 def read_metrics(metrics_readers_configs)
   metrics_readers_configs.flat_map{|fn, fn_parsers|
     infos = File.readlines(fn).drop(1).map{|line|
@@ -367,30 +375,40 @@ all_metric_infos = read_metrics(metrics_readers_configs)
 
 # reject motif benchmark values calculated over datasets which were used for training
 # (there shouldn't be any)
-all_metric_infos.select!{|info|
+all_metric_infos.each{|info|
   ds_and_motif_common_ids = dataset_ids_for_dataset(info[:dataset]) & dataset_ids_for_motif(info[:motif])
-  if ds_and_motif_common_ids.empty?
-    true
-  else
-    $stderr.puts "#{info[:dataset]} and #{info[:motif]} are derived from the same datasets"
-    false
+  if !ds_and_motif_common_ids.empty?
+    raise "#{info[:dataset]} and #{info[:motif]} are derived from the same datasets"
   end
 }
 
 if filter_out_curated_datasets
   all_metric_infos.select!{|info|
-    exp_id = experiment_id(info[:dataset])
-    dataset_curation.has_key?(exp_id) ? dataset_curation[exp_id] : false # non-curated are dropped
+    exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
+    exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
+    if dataset_curation.has_key?(exp_for_bench_dataset)
+      if dataset_curation[exp_for_bench_dataset]
+        true
+      else
+        info = ["discarded after curation", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+        $stderr.puts(info.join("\t"))
+        false
+      end
+    else
+      info = ["discarded as non-currated", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+      $stderr.puts(info.join("\t"))
+      false # non-curated are dropped
+    end
   }
 end
 
 if filter_out_pbm_motif_dataset_matches
   all_metric_infos.select!{|info|
-    exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
-    exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+    exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
+    exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
     # PBM experiments are used both in train and validation datasets so we should manually exclude such cases
     if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_')
-      info = ["Warning: same experiment", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+      info = ["discarded because motif and dataset from the same experiment", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
       $stderr.puts(info.join("\t"))
       false
     else
@@ -412,10 +430,10 @@ flank_filters.each do |filter_fn|
 
   all_metric_infos.select!{|info|
     motif_wo_ext = ['.pcm', '.ppm', '.pwm'].inject(info[:motif]){|fn, ext| File.basename(fn, ext) }
-    exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
-    exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+    exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
+    exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
     if filter_out_benchmarks.include?([motif_wo_ext, exp_for_bench_dataset])
-      info = ["Warning: sticky flanks", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+      info = ["discarded due to sticky flanks", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
       $stderr.puts(info.join("\t"))
       false
     else
