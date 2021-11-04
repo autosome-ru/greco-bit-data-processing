@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'json'
+require 'set'
 require 'optparse'
 require_relative 'tree'
 require_relative '../shared/lib/index_by'
@@ -289,6 +290,8 @@ curation_fn = nil
 metadata_fn = nil
 filter_out_curated_datasets = false
 filter_out_pbm_motif_dataset_matches = false
+flank_threshold = 4.0
+flank_filters = []
 
 option_parser = OptionParser.new{|opts|
   opts.on('--curation FILE', 'Specify dataset curation file. It will bew used to filter out bad datasets'){|fn|
@@ -301,6 +304,12 @@ option_parser = OptionParser.new{|opts|
     # 'results/metadata_release_7a.json'
     metadata_fn = fn
     filter_out_pbm_motif_dataset_matches = true
+  }
+  opts.on('--flank-threshold VALUE', 'logpvalue threshold for motif occurrences in flanks to be classified as sticky flanks'){|val|
+    flank_threshold = Float(val)
+  }
+  opts.on('--filter-sticky-flanks FILE', 'Add a file with a list of motif occurrences in flanks'){|fn|
+    flank_filters << fn
   }
 }
 
@@ -381,7 +390,31 @@ if filter_out_pbm_motif_dataset_matches
     exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
     # PBM experiments are used both in train and validation datasets so we should manually exclude such cases
     if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_')
-      info = ["Warning: same experiment", info[:dataset], info[:motif], exp_for_motif, info[:metric_name]]
+      info = ["Warning: same experiment", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+      $stderr.puts(info.join("\t"))
+      false
+    else
+      true
+    end
+  }
+end
+
+flank_filters.each do |filter_fn|
+  filter_out_benchmarks = File.readlines(filter_fn).map{|l|
+    motif, tf, exp_id, flank_type, logpval, pos, strand = l.chomp.split("\t")
+    raise "Can't handle non-dataset ids"  if exp_id == 'all'
+    {motif: motif, exp_id: exp_id, logpval: logpval}
+  }.select{|filter_info|
+    Float(filter_info[:logpval]) >= flank_threshold
+  }.map{|filter_info|
+    filter_info.values_at(:motif, :exp_id)
+  }.to_set
+
+  all_metric_infos.select!{|info|
+    exp_for_bench_dataset = dataset_ids_for_dataset(info[:dataset]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+    exp_for_motif = dataset_ids_for_motif(info[:motif]).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+    if filter_out_benchmarks.include?([info[:motif], exp_for_bench_dataset])
+      info = ["Warning: sticky flanks", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
       $stderr.puts(info.join("\t"))
       false
     else

@@ -9,7 +9,6 @@ ruby postprocessing/print_flanks.rb
 hits_in_flanks() {
   FASTA="$1"
   MOTIF_GLOB="$2"
-  echo find motifs_by_modeltype/pwm/ -xtype f -name "${MOTIF_GLOB}";
   find motifs_by_modeltype/pwm/ -xtype f -name "${MOTIF_GLOB}" \
   | xargs -n1 basename -s .pwm \
   | xargs -n1 -I{} echo \
