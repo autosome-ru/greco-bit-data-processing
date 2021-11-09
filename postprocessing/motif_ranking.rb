@@ -417,30 +417,32 @@ if filter_out_pbm_motif_dataset_matches
   }
 end
 
-flank_filters.each do |filter_fn|
-  filter_out_benchmarks = File.readlines(filter_fn).map{|l|
+filter_out_benchmarks = flank_filters.flat_map{|filter_fn|
+  File.readlines(filter_fn).map{|l|
     motif_wo_ext, tf, exp_id, flank_type, logpval, pos, strand = l.chomp.split("\t")
     raise "Can't handle non-dataset ids"  if exp_id == 'all'
-    {motif_wo_ext: motif_wo_ext, exp_id: exp_id, logpval: logpval}
-  }.select{|filter_info|
-    Float(filter_info[:logpval]) >= flank_threshold
-  }.map{|filter_info|
-    filter_info.values_at(:motif_wo_ext, :exp_id)
-  }.to_set
-
-  all_metric_infos.select!{|info|
-    motif_wo_ext = ['.pcm', '.ppm', '.pwm'].inject(info[:motif]){|fn, ext| File.basename(fn, ext) }
-    exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
-    exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
-    if filter_out_benchmarks.include?([motif_wo_ext, exp_for_bench_dataset])
-      info = ["discarded due to sticky flanks", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
-      $stderr.puts(info.join("\t"))
-      false
-    else
-      true
-    end
+    {motif_wo_ext: motif_wo_ext, exp_id: exp_id, logpval: Float(logpval)}
   }
-end
+}.select{|filter_info|
+  filter_info[:logpval] >= flank_threshold
+}
+
+filter_out_exp_motif_pairs = filter_out_benchmarks.map{|filter_info|
+  filter_info.values_at(:motif_wo_ext, :exp_id)
+}.to_set
+
+all_metric_infos.select!{|info|
+  motif_wo_ext = ['.pcm', '.ppm', '.pwm'].inject(info[:motif]){|fn, ext| File.basename(fn, ext) }
+  exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
+  exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
+  if filter_out_exp_motif_pairs.include?([motif_wo_ext, exp_for_bench_dataset])
+    info = ["discarded due to sticky flanks", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+    $stderr.puts(info.join("\t"))
+    false
+  else
+    true
+  end
+}
 
 all_metric_infos = all_metric_infos.map{|info|
   dataset = info[:dataset]
