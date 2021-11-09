@@ -26,8 +26,8 @@ ruby postprocessing/reformat_metrics.rb
 bash ./postprocessing/filter_motif_in_flanks.sh # be cautious
 
 ruby postprocessing/motif_ranking.rb \
-    run_benchmarks_release_7/metrics_curated_7a+7c.json \
-    run_benchmarks_release_7/ranks_curated_7a+7c.json \
+    run_benchmarks_release_7/metrics_7a+7c.json \
+    run_benchmarks_release_7/ranks_7a+7c.json \
     --metadata  run_benchmarks_release_7/metadata_release_7a.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
