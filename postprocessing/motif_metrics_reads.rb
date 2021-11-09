@@ -33,7 +33,7 @@ FileUtils.mkdir_p './tmp/'
 
 validation_datasets = [
   Dir.glob("#{DATA_PATH}/HTS/Val_reads/*"),
-  Dir.glob("#{DATA_PATH}/AFS.Reads/Val_reads/*"),
+  Dir.glob("#{DATA_PATH}/AFS.Reads/Val_sequences/*"),
   Dir.glob("#{DATA_PATH}/SMS/Val_reads/*"),
   Dir.glob("#{DATA_PATH}/SMS.published/Val_reads/*"),
 ].flatten.map{|fn| File.absolute_path(fn) }

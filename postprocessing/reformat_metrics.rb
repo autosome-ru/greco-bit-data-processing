@@ -65,6 +65,7 @@ conversion_tasks = [
       src: [
         "run_benchmarks_release_7/reads_#{fraction}.tsv",
         "run_benchmarks_release_7/reads_#{fraction}_7a+7c.tsv",
+        "run_benchmarks_release_7/reads_#{fraction}_7a+7c_upd.tsv",
       ],
       dst: "run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv",
       metrics: ['AUCROC'],
