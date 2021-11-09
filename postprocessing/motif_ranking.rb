@@ -427,16 +427,14 @@ filter_out_benchmarks = flank_filters.flat_map{|filter_fn|
   filter_info[:logpval] >= flank_threshold
 }
 
-filter_out_exp_motif_pairs = filter_out_benchmarks.map{|filter_info|
-  filter_info.values_at(:motif_wo_ext, :exp_id)
+filter_out_motifs = filter_out_benchmarks.map{|filter_info|
+  filter_info[:motif_wo_ext]
 }.to_set
 
 all_metric_infos.select!{|info|
   motif_wo_ext = ['.pcm', '.ppm', '.pwm'].inject(info[:motif]){|fn, ext| File.basename(fn, ext) }
-  exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
-  exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
-  if filter_out_exp_motif_pairs.include?([motif_wo_ext, exp_for_bench_dataset])
-    info = ["discarded due to sticky flanks", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+  if filter_out_motifs.include?(motif_wo_ext)
+    info = ["discarded motif due to sticky flanks",  info[:motif]]
     $stderr.puts(info.join("\t"))
     false
   else
