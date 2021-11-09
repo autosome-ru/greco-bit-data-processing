@@ -445,7 +445,7 @@ all_metric_infos.select!{|info|
 all_metric_infos = all_metric_infos.map{|info|
   dataset = info[:dataset]
   exp_type = experiment_fulltype(dataset)
-  exp_type = 'PBM'  if ['PBM.ME' || 'PBM.HK'].include?(exp_type) # distinct chip types are not too different to distinguish them
+  exp_type = 'PBM'  if ['PBM.ME', 'PBM.HK'].include?(exp_type) # distinct chip types are not too different to distinguish them
   additional_info = {
     processing_type: experiment_processing_type(dataset),
     experiment: experiment_id(dataset),
