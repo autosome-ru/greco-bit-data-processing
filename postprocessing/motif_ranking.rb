@@ -60,9 +60,12 @@ end
 
 # dataset name: SCML4.DBD@PBM.ME@PBM13821.5GTGAAATTGTTATCCGCTCT@SDQN.pretty-sangria-dalmatian.Train.tsv
 #               ZNF708.FL@HTS.Lys@AAT_A_CC40NGACATG.5ACGACGCTCTTCCGATCTCC.3GACATGAGATCGGAAGAGCA.C1+C2+C3@Reads.chummy-turquoise-cow+leaky-seashell-walrus+surly-gold-toad.Val.fastq.gz
+#               ANKZF1.FL@CHS@THC_0165@Peaks.fuzzy-orange-tapir.Train.peaks
+#               ARID2.FL@CHS@THC_0409.Rep-DIANA_0293@Peaks.snazzy-taupe-rabbit.Train.peaks
 
 def experiment_id(dataset_fullname)
-  dataset_fullname.split('@')[2].split('.')[0]
+  exp_id, *rest = dataset_fullname.split('@')[2].split('.')
+  (rest[0] && rest[0].start_with?('Rep-')) ? "#{exp_id}.#{rest[0]}" : exp_id
 end
 
 def experiment_fulltype(dataset_fullname) # PBM.HK, AFS.Lys etc
