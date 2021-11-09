@@ -34,7 +34,8 @@ ruby postprocessing/motif_ranking.rb \
     --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
-  2> run_benchmarks_release_7/ranking.log
+  2> run_benchmarks_release_7/ranking.log \
+  && echo ok || echo fail
 
 ruby postprocessing/motif_ranking.rb \
     run_benchmarks_release_7/metrics_curated_7a+7c.json \
@@ -46,4 +47,5 @@ ruby postprocessing/motif_ranking.rb \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
     --curation  source_data_meta/shared/curations.tsv \
-  2> run_benchmarks_release_7/ranking_curated.log
+  2> run_benchmarks_release_7/ranking_curated.log \
+  && echo ok || echo fail
