@@ -18,7 +18,7 @@ require_relative 'process_peaks_CHS_AFS/experiment_info_afs'
 
 RELEASE_FOLDER = '/home_local/vorontsovie/greco-data/release_7a.2021-10-14/full'
 SOURCE_FOLDER = '/home_local/vorontsovie/greco-bit-data-processing/source_data'
-MYSQL_CONFIG = {host: 'localhost', username: 'vorontsovie', password: 'password', database: 'greco_affyseq'}
+MYSQL_CONFIG = {host: 'localhost', username: 'vorontsovie', password: 'password'}
 
 def create_spo_cache(db_filename)
   db ||= SQLite3::Database.new(db_filename)
@@ -243,17 +243,23 @@ def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlin
   }
 end
 
-def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false)
-  client = Mysql2::Client.new(MYSQL_CONFIG)
-
-  records = get_experiment_infos(client)
-  experiments, alignment_by_experiment, reads_by_experiment = infos_by_alignment(records)
-
+def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false, mysql_configs: [], metrics_fns: [])
   parser = DatasetNameParser::AFSReadsParser.new
   metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
   metadata_by_experiment_id = metadata.index_by(&:experiment_id)
 
-  experiment_infos = ExperimentInfoAFS.each_from_file("source_data_meta/AFS/metrics_by_exp.tsv").reject{|info|
+  reads_by_experiment = mysql_configs.flat_map{|mysql_config|
+    client = Mysql2::Client.new(mysql_config)
+    records = get_experiment_infos(client)
+    _experiments, _alignment_by_experiment, reads_by_experiment_chunk = infos_by_alignment(records)
+    reads_by_experiment_chunk.to_a
+  }.to_h
+
+  experiment_infos = metrics_fns.flat_map{|metrics_fn|
+    ExperimentInfoAFS.each_from_file(metrics_fn).to_a
+  }
+
+  experiment_infos = experiment_infos.reject{|info|
     info.type == 'control'
   }.to_a
   experiment_infos.each{|info|
@@ -266,7 +272,7 @@ def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlin
   }
 
   dataset_files = ['Train', 'Val'].flat_map{|slice_type|
-    Dir.glob("#{data_folder}/#{slice_type}_reads/*")
+    Dir.glob("#{data_folder}/#{slice_type}_sequences/*")
   }
   dataset_files.map{|dataset_fn|
     dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
@@ -356,10 +362,15 @@ afs_peaks_metadata_list = collect_afs_peaks_metadata(
 )
 
 afs_reads_metadata_list = collect_afs_reads_metadata(
-  data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
-  source_folder: "#{SOURCE_FOLDER}/AFS/fastq",
-  allow_broken_symlinks: true
-)
+    mysql_configs: [
+      MYSQL_CONFIG.merge({database: 'greco_affyseq'}),
+      MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'}),
+    ],
+    metrics_fns: ['source_data_meta/AFS/metrics_by_exp.tsv', 'source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv'],
+    data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
+    source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
+    allow_broken_symlinks: true,
+  )
 
 metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list + afs_reads_metadata_list
 metadata_list.each{|info|
