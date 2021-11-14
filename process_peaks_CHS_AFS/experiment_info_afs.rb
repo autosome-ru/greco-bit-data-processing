@@ -52,6 +52,8 @@ ExperimentInfoAFS = Struct.new(*[
         type = 'IVT'
       elsif raw_files.first.match?(/AffSeq_Lysate/)
         type = 'Lysate'
+      elsif raw_files.first.match?(/Ecoli_GST/)
+        type = 'Lysate'
       end
     end
 
