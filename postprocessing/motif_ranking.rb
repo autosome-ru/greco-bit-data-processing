@@ -268,13 +268,13 @@ end
 
 METRIC_COMBINATIONS = {
   combined: {
-    chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_concentration_30nt],
+    chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_neglog_evalue],
     affiseq_IVT: {
-      affiseq_IVT_peaks: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_concentration_30nt],
+      affiseq_IVT_peaks: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_neglog_evalue],
       affiseq_IVT_reads: [:affiseq_10_IVT_ROC, :affiseq_25_IVT_ROC, :affiseq_50_IVT_ROC],
     },
     affiseq_Lysate: {
-      affiseq_Lysate_peaks: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_concentration_30nt],
+      affiseq_Lysate_peaks: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_neglog_evalue],
       affiseq_Lysate_reads: [:affiseq_10_Lysate_ROC, :affiseq_25_Lysate_ROC, :affiseq_50_Lysate_ROC],
     },
     selex_IVT: [:selex_10_IVT_ROC, :selex_25_IVT_ROC, :selex_50_IVT_ROC],
