@@ -44,7 +44,7 @@ ExperimentInfoAFS = Struct.new(*[
     align_percent = row['align_percent'].yield_self{|val| Float(val.sub(",", ".")) rescue val }
     read_count = row['read_count'].yield_self{|val| Integer(val) rescue val }
 
-    if tf == 'CONTROL'
+    if tf == 'CONTROL' || tf == 'NULL'
       tf = nil
       type = 'control'
     else
