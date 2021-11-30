@@ -32,6 +32,25 @@ def infos_by_alignment(records)
         alignment_by_experiment[experiment] = alignments.take_the_only
         reads_by_experiment[experiment] = reads
     }
-    
     [experiments, alignment_by_experiment, reads_by_experiment]
+end
+
+def load_biouml_id_by_experiment_id_and_cycle(client)
+  query = <<-EOS
+    SELECT
+      triplet_1.id AS biouml_id,
+      triplet_1.property_value AS experiment_id,
+      triplet_2.property_value AS cycle
+    FROM
+      properties as triplet_1
+        JOIN
+      properties as triplet_2
+        ON
+      triplet_1.id = triplet_2.id
+    WHERE
+      triplet_1.property_name='ExperimentId'
+        AND
+      triplet_2.property_name = 'Cycle';
+  EOS
+  client.query(query).index_by{|info| [info['experiment_id'], Integer(info['cycle'])] }.transform_values{|info| info['biouml_id'] }
 end
