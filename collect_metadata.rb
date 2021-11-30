@@ -1,5 +1,6 @@
 require 'json'
-require 'sqlite3'
+require_relative 'shared/lib/spo_cache'
+require_relative 'shared/lib/dataset_counts'
 require_relative 'shared/lib/dataset_name_parsers'
 require_relative 'shared/lib/utils'
 require_relative 'shared/lib/index_by'
@@ -19,61 +20,6 @@ require_relative 'process_peaks_CHS_AFS/experiment_info_afs'
 RELEASE_FOLDER = '/home_local/vorontsovie/greco-data/release_7a.2021-10-14/full'
 SOURCE_FOLDER = '/home_local/vorontsovie/greco-bit-data-processing/source_data'
 MYSQL_CONFIG = {host: 'localhost', username: 'vorontsovie', password: 'password'}
-
-def create_spo_cache(db_filename)
-  db ||= SQLite3::Database.new(db_filename)
-  db.execute(<<-EOS
-    CREATE TABLE IF NOT EXISTS spo_store(id INTEGER PRIMARY KEY AUTOINCREMENT, entity TEXT, property TEXT, json_value TEXT);
-    CREATE UNIQUE INDEX IF NOT EXISTS sp_uniq ON spo_store(entity, property);
-    EOS
-  )
-  db
-end
-
-def store_to_spo_cache(s,p,o)
-  @spo_db ||= create_spo_cache('dataset_stats_spo_cache.db')
-  @spo_db.execute("INSERT INTO spo_store(entity, property, json_value) VALUES (?,?,?)", [s,p,JSON.dump(o)] )
-end
-
-def load_from_spo_cache(s,p)
-  @spo_db ||= create_spo_cache('dataset_stats_spo_cache.db')
-  results = @spo_db.execute("SELECT json_value FROM spo_store WHERE entity = ? AND property = ?", [s,p])
-  raise 'Uniqueness constraint violated'  if results.size > 1
-  return nil  if results.empty?
-  result = results[0]
-  json_value = result[0]
-  JSON.parse(json_value)
-end
-
-def num_reads(filename)
-  return nil  if !File.exist?(filename)
-  cached_result = load_from_spo_cache(filename, 'num_reads')
-  return cached_result  if cached_result
-  ext = File.extname(File.basename(filename, '.gz'))
-  if ['.fastq', '.fq'].include?(ext)
-    result = `./seqkit fq2fa #{filename} -w 0 | fgrep --count '>'`
-    result = Integer(result)
-    store_to_spo_cache(filename, 'num_reads', result)
-    result
-  else
-    result = `./seqkit seq #{filename} -w 0 | fgrep --count '>'`
-    result = Integer(result)
-    store_to_spo_cache(filename, 'num_reads', result)
-    result
-  end
-rescue
-  nil
-end
-
-def num_peaks(filename)
-  return nil  if !File.exist?(filename)
-  return cached_result  if cached_result = load_from_spo_cache(filename, 'num_peaks')
-  result = File.readlines(filename).map(&:strip).reject{|l| l.start_with?('#') }.reject(&:empty?).count
-  store_to_spo_cache(filename, 'num_peaks', result)
-  result
-rescue
-  nil
-end
 
 def collect_pbm_metadata(data_folder:, source_folder:)
   parser = DatasetNameParser::PBMParser.new
