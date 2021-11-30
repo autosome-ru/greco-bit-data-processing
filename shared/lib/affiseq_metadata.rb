@@ -10,7 +10,7 @@ module Affiseq
   SampleMetadata = Struct.new(*[
         :experiment_id, :plasmid_id, :gene_name, :ivt_or_lysate, :dna_library_id, :well,
         :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename,
-        :cycle_1_read_2_filename, :cycle_2_read_2_filename, :cycle_3_read_2_filename,
+        :cycle_1_read_2_filename, :cycle_2_read_2_filename, :cycle_3_read_2_filename, #:cycle_4_read_2_filename,
         :folder,
       ], keyword_init: true) do
 
@@ -19,7 +19,7 @@ module Affiseq
     def filenames # known to be highly incomplete
       [
         cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
-        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename,
+        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, # cycle_4_read_2_filename,
       ].compact
     end
 
@@ -34,7 +34,7 @@ module Affiseq
     def normalized_basename
       [
         cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
-        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename,
+        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, #cycle_4_read_2_filename,
       ].compact.map{|fn|
         fn.sub(/_Cycle\d_R[12].fastq.gz$/, '')
       }.uniq.take_the_only
@@ -49,8 +49,10 @@ module Affiseq
       experiment_id, plasmid_id, gene_name, ivt_or_lysate, dna_library_id, well, \
         cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename, \
         cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, \
+        # cycle_4_read_2_filename,
         folder = line.chomp.split("\t")
       raise "Unknown type #{ivt_or_lysate} (should be IVT/Lysate)"  unless ['IVT', 'Lysate'].include?(ivt_or_lysate)
+
       self.new(
         experiment_id: experiment_id, plasmid_id: plasmid_id, gene_name: gene_name,
         ivt_or_lysate: ivt_or_lysate[0,3], dna_library_id: dna_library_id, well: well,
@@ -59,6 +61,7 @@ module Affiseq
         cycle_1_read_2_filename: fn_converter.call(cycle_1_read_2_filename),
         cycle_2_read_2_filename: fn_converter.call(cycle_2_read_2_filename),
         cycle_3_read_2_filename: fn_converter.call(cycle_3_read_2_filename),
+        # cycle_4_read_2_filename: nil,
         folder: folder,
       )
     end
@@ -70,7 +73,7 @@ module Affiseq
         dna_library_id, well,
         *[
           cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
-          cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename,
+          cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, #cycle_4_read_2_filename,
         ].map{|fn| fn || 'no' },
         folder].join("\t")
     end
