@@ -2,7 +2,7 @@ require_relative 'utils'
 require_relative 'experiment_info_extension'
 
 ExperimentInfoAFS = Struct.new(*[
-  :experiment_id, :peak_id, :tf, :raw_files, :type, :cycle_number,
+  :experiment_id, :peak_id, :tf, :raw_files, :type, :cycle_number, :batch,
   :qc_estFragLen, :qc_FRiP_CPICS, :qc_FRiP_GEM, :qc_FRiP_MACS2_NOMODEL, :qc_FRiP_MACS2_PEMODE, :qc_FRiP_SISSRS, :qc_NRF, :qc_NSC, :qc_PBC1, :qc_PBC2, :qc_RSC,
   :macs2_nomodel_peak_count, :macs2_pemode_peak_count, :gem_peak_count, :sissrs_peak_count, :cpics_peak_count,
   :align_count, :align_percent, :read_count,
@@ -55,13 +55,15 @@ ExperimentInfoAFS = Struct.new(*[
       elsif raw_files.first.match?(/Ecoli_GST/)
         type = 'Lysate'
       end
+
+      batch = raw_files.map{|fn| File.basename(fn)[/Batch([^_]+)/, 1] }.uniq.take_the_only
     end
 
     cycle_number_variants = raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq
     cycle_number = (type != 'control') ? take_the_only(cycle_number_variants) : nil
 
     self.new(
-      experiment_id: experiment_id, peak_id: peak_id, tf: tf, raw_files: raw_files, type: type, cycle_number: cycle_number,
+      experiment_id: experiment_id, peak_id: peak_id, tf: tf, raw_files: raw_files, type: type, cycle_number: cycle_number, batch: batch,
       qc_estFragLen: qc_estFragLen, qc_FRiP_CPICS: qc_FRiP_CPICS, qc_FRiP_GEM: qc_FRiP_GEM,
       qc_FRiP_MACS2_NOMODEL: qc_FRiP_MACS2_NOMODEL, qc_FRiP_MACS2_PEMODE: qc_FRiP_MACS2_PEMODE, qc_FRiP_SISSRS: qc_FRiP_SISSRS,
       qc_NRF: qc_NRF, qc_NSC: qc_NSC, qc_PBC1: qc_PBC1, qc_PBC2: qc_PBC2, qc_RSC: qc_RSC,
