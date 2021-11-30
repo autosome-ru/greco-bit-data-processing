@@ -12,6 +12,7 @@ module Affiseq
         :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename,
         :cycle_1_read_2_filename, :cycle_2_read_2_filename, :cycle_3_read_2_filename, #:cycle_4_read_2_filename,
         :folder,
+        :batch,
       ], keyword_init: true) do
 
     def construct_type; $plasmid_by_number[plasmid_id].construct_type; end
@@ -53,7 +54,7 @@ module Affiseq
         folder = line.chomp.split("\t")
       raise "Unknown type #{ivt_or_lysate} (should be IVT/Lysate)"  unless ['IVT', 'Lysate'].include?(ivt_or_lysate)
 
-      self.new(
+      result = self.new(
         experiment_id: experiment_id, plasmid_id: plasmid_id, gene_name: gene_name,
         ivt_or_lysate: ivt_or_lysate[0,3], dna_library_id: dna_library_id, well: well,
         cycle_1_filename: fn_converter.call(cycle_1_filename), cycle_2_filename: fn_converter.call(cycle_2_filename),
@@ -64,6 +65,8 @@ module Affiseq
         # cycle_4_read_2_filename: nil,
         folder: folder,
       )
+      result[:batch] = result.normalized_basename[/Batch([^_]+)/, 1]
+      result
     end
 
     def to_s
