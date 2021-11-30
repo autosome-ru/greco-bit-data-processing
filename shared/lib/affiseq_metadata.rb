@@ -44,7 +44,7 @@ module Affiseq
       # Example:
       ## Experiment ID Plasmid ID  Gene name IVT or Lysate DNA library ID  Well  Filename Read1 Cycle1 Filename Read1 Cycle2 Filename Read1 Cycle3
       ## AATA_AffSeq_D5_GLI4 pTH15820  GLI4  Lysate  AffiSeqV1 D5  GLI4_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz GLI4_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz GLI4_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
-      fn_converter = ->(fn){ (fn.start_with?('No cycle ') || fn.start_with?('No read ')) ? nil : fn }
+      fn_converter = ->(fn){ (fn.start_with?('No cycle ') || fn.start_with?('No read ') || fn.empty? || fn.downcase == 'no') ? nil : fn }
 
       experiment_id, plasmid_id, gene_name, ivt_or_lysate, dna_library_id, well, \
         cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename, \
@@ -61,6 +61,18 @@ module Affiseq
         cycle_3_read_2_filename: fn_converter.call(cycle_3_read_2_filename),
         folder: folder,
       )
+    end
+
+    def to_s
+      ivt_or_lysate_mapping = {'IVT' => 'IVT', 'Lys' => 'Lysate'}
+      [experiment_id, plasmid_id, gene_name,
+        ivt_or_lysate_mapping[ivt_or_lysate],
+        dna_library_id, well,
+        *[
+          cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
+          cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename,
+        ].map{|fn| fn || 'no' },
+        folder].join("\t")
     end
 
     def self.each_in_file(filename)
