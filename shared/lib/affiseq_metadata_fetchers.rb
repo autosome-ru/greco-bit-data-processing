@@ -65,20 +65,33 @@ class ExperimentInfoAFSFetcherPack2 < ExperimentInfoAFSFetcher
   end
 end
 
-# How to obtain read files for an experiment by biouml id
+
+# How to obtain peak-reads files for an experiment by biouml id
 class ReadFilenamesFetcher
-  def initialize(reads_by_experiment)
+  def initialize(reads_by_experiment, source_folder:, allow_broken_symlinks:)
     @reads_by_experiment = reads_by_experiment
+    @source_folder = source_folder
+    @allow_broken_symlinks = allow_broken_symlinks
   end
 
-  def self.load(mysql_config)
+  def self.load(mysql_config, source_folder:, allow_broken_symlinks:)
     client = Mysql2::Client.new(mysql_config)
     records = get_experiment_infos(client)
     _experiments, _alignment_by_experiment, reads_by_experiment = infos_by_alignment(records)
-    self.new(reads_by_experiment)
+    self.new(reads_by_experiment, source_folder: source_folder, allow_broken_symlinks: allow_broken_symlinks)
   end
 
   def fetch(biouml_experiment_id)
     @reads_by_experiment[biouml_experiment_id]
+  end
+
+  def fetch_validated_abspaths!(biouml_experiment_id)
+    fetch(biouml_experiment_id).map{|reads_fn|
+      ds_filename = File.absolute_path("#{@source_folder}/#{reads_fn}.fastq.gz")
+      if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && @allow_broken_symlinks))
+        raise "Missing file #{ds_filename} for #{dataset_fn}"
+      end
+      ds_filename
+    }
   end
 end

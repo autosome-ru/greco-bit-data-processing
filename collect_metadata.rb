@@ -168,19 +168,12 @@ end
 def afs_peak_reads_info(exp_info, read_fn_fetcher)
   return []  unless read_fn_fetcher
   exp_id = exp_info[:experiment_id]
-  reads_fns = read_fn_fetcher.fetch(exp_id)
-  peak_reads_files = reads_fns.map{|reads_fn|
-    ds_filename = File.absolute_path("#{source_folder}/#{reads_fn}.fastq.gz")
-    if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && allow_broken_symlinks))
-      raise "Missing file #{ds_filename} for #{dataset_fn}"
-    end
-    ds_filename
-  }.map{|fn|
+  read_fn_fetcher.fetch_validated_abspaths!(exp_id).map{|fn|
     {filename: fn, coverage: num_reads(fn), type: 'intermediate'}
   }
 end
 
-def collect_afs_metadata(dataset_name_parser:, data_folder:, outcome_types:, source_folder:, allow_broken_symlinks: false, fetchers: [])
+def collect_afs_metadata(dataset_name_parser:, data_folder:, outcome_types:, fetchers: [])
   metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
   metadata_by_experiment_id = metadata.index_by(&:experiment_id)
 
@@ -259,15 +252,22 @@ afs_metrics_fetcher_2 = ExperimentInfoAFSFetcherPack2.load(
                           'source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv',
                           MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'})
                         )
-afs_read_fn_fetcher_1 = ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affyseq'}) )
-afs_read_fn_fetcher_2 = ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'}) )
+
+afs_read_fn_fetcher_1 = ReadFilenamesFetcher.load(
+                          MYSQL_CONFIG.merge({database: 'greco_affyseq'}),
+                          source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
+                          allow_broken_symlinks: true,
+                        )
+afs_read_fn_fetcher_2 = ReadFilenamesFetcher.load(
+                          MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'}),
+                          source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
+                          allow_broken_symlinks: true,
+                        )
 
 afs_peaks_metadata_list = collect_afs_metadata(
   dataset_name_parser: DatasetNameParser::AFSPeaksParser.new,
   data_folder: "#{RELEASE_FOLDER}/AFS.Peaks",
   outcome_types: ['intervals', 'sequences'],
-  source_folder: "#{SOURCE_FOLDER}/AFS",
-  allow_broken_symlinks: true,
   fetchers: [
     { experiment_info_fetcher: afs_metrics_fetcher_1, read_filenames_fetcher: nil },
     { experiment_info_fetcher: afs_metrics_fetcher_2, read_filenames_fetcher: nil },
@@ -278,8 +278,6 @@ afs_reads_metadata_list = collect_afs_metadata(
   dataset_name_parser: DatasetNameParser::AFSReadsParser.new,
   data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
   outcome_types: ['sequences'],
-  source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
-  allow_broken_symlinks: true,
   fetchers: [
     { experiment_info_fetcher: afs_metrics_fetcher_1, read_filenames_fetcher: afs_read_fn_fetcher_1 },
     { experiment_info_fetcher: afs_metrics_fetcher_2, read_filenames_fetcher: afs_read_fn_fetcher_2 },
