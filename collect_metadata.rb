@@ -191,7 +191,7 @@ def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlin
   }
 end
 
-def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false, fetcher_groups: [] )
+def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false, fetchers: [] )
   parser = DatasetNameParser::AFSReadsParser.new
   metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
   metadata_by_experiment_id = metadata.index_by(&:experiment_id)
@@ -202,29 +202,21 @@ def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlin
 
   dataset_infos = dataset_files.map{|dataset_fn|
     dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
-    [dataset_fn, dataset_info]
-  }
 
-  dataset_infos_with_fetchers = dataset_infos.map{|dataset_fn, dataset_info|
-    working_fetcher_groups = fetcher_groups.select{|fetcher_group|
-      fetcher_group[:experiment_info_fetcher].fetch(dataset_info)
+    appropriate_fetcher = fetchers.select{|fetcher|
+      fetcher[:experiment_info_fetcher].fetch(dataset_info)
     }
-    [dataset_fn, dataset_info, working_fetcher_groups]
-  }
+    if appropriate_fetcher.size == 1
+      [dataset_fn, dataset_info, appropriate_fetcher.take_the_only]
+    else
+      $stderr.puts "Error: Can't choose a single fetcher for dataset `{fn}`. Instead there were {fetchers_grp.size} fetchers"
+      nil
+    end
+  }.compact
 
-  dataset_infos_with_fetchers.select{|fn, info, fetchers_grp|
-    fetchers_grp.size != 1
-  }.each{|fn, info, fetchers_grp|
-    $stderr.puts "Error: Can't choose single fetcher group for dataset `{fn}`. Instead there were {fetchers_grp.size} fetchers"
-  }
-
-  dataset_infos_with_fetcher_group = dataset_infos_with_fetchers.map{|fn, info, fetchers_grp|
-    [fn, info, fetchers_grp.take_the_only]
-  }
-
-  dataset_infos_with_fetcher_group.map{|dataset_fn, dataset_info, fetcher_group|
-    experiment_info_fetcher = fetcher_group[:experiment_info_fetcher]
-    read_filenames_fetcher = fetcher_group[:read_filenames_fetcher]
+  dataset_infos.map{|dataset_fn, dataset_info, fetcher|
+    experiment_info_fetcher = fetcher[:experiment_info_fetcher]
+    read_filenames_fetcher = fetcher[:read_filenames_fetcher]
 
     exp_info = experiment_info_fetcher.fetch(dataset_info)
     exp_id = exp_info[:experiment_id]
@@ -311,7 +303,7 @@ afs_reads_metadata_list = collect_afs_reads_metadata(
     data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
     source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
     allow_broken_symlinks: true,
-    fetcher_groups: [
+    fetchers: [
       {
         read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affyseq'}) ),
         experiment_info_fetcher: ExperimentInfoAFSFetcherPack1.load('source_data_meta/AFS/metrics_by_exp.tsv'),
