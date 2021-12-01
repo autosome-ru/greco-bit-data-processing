@@ -191,25 +191,6 @@ def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlin
   }
 end
 
-class ExperimentInfoAFSFetcher
-  def initialize(experiment_infos)
-    @experiment_infos = experiment_infos
-  end
-
-  def self.read_metrics_file(metrics_fn)
-    experiment_infos = ExperimentInfoAFS.each_from_file(metrics_fn).to_a
-
-    experiment_infos = experiment_infos.reject{|info|
-      info.type == 'control'
-    }.to_a
-
-    experiment_infos.each{|info|
-      info.confirmed_peaks_folder = "./results_databox_afs_#{info.type}/complete_data"
-    }
-    experiment_infos
-  end
-end
-
 def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false, fetcher_groups: [] )
   parser = DatasetNameParser::AFSReadsParser.new
   metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a

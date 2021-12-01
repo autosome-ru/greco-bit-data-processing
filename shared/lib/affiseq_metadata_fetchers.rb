@@ -1,4 +1,24 @@
 require 'mysql2'
+require_relative '../../process_peaks_CHS_AFS/experiment_info_afs.rb'
+
+class ExperimentInfoAFSFetcher
+  def initialize(experiment_infos)
+    @experiment_infos = experiment_infos
+  end
+
+  def self.read_metrics_file(metrics_fn)
+    experiment_infos = ExperimentInfoAFS.each_from_file(metrics_fn).to_a
+
+    experiment_infos = experiment_infos.reject{|info|
+      info.type == 'control'
+    }.to_a
+
+    experiment_infos.each{|info|
+      info.confirmed_peaks_folder = "./results_databox_afs_#{info.type}/complete_data"
+    }
+    experiment_infos
+  end
+end
 
 # the first pack of AFS metrics can be matched to a file by tuple (tf, exp_subtype, cycle, batch)
 class ExperimentInfoAFSFetcherPack1 < ExperimentInfoAFSFetcher
