@@ -285,13 +285,14 @@ METRIC_COMBINATIONS = {
     },
     smileseq: [:smileseq_10_ROC, :smileseq_25_ROC, :smileseq_50_ROC],
   },
-  dropped: {
-    dropped_peak_metrics: [:chipseq_vigg_logROC, :affiseq_IVT_vigg_logROC, :affiseq_Lysate_vigg_logROC],
-    dropped_pbm_qnzs: [:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_mers, :pbm_qnzs_logmers],
-    dropped_pbm_sdqn: [:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_mers, :pbm_sdqn_logmers],
-    pbm_roc: [:pbm_sdqn_roc, :pbm_qnzs_roc],
-    pbm_pr:  [:pbm_sdqn_pr,  :pbm_qnzs_pr],
-  }
+  # dropped: {
+  #   dropped_peak_metrics: [:chipseq_vigg_logROC, :affiseq_IVT_vigg_logROC, :affiseq_Lysate_vigg_logROC,
+  #                          :chipseq_centrimo_concentration_30nt, :affiseq_IVT_centrimo_concentration_30nt, :affiseq_Lysate_centrimo_concentration_30nt],
+  #   dropped_pbm_qnzs: [:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_mers, :pbm_qnzs_logmers],
+  #   dropped_pbm_sdqn: [:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_mers, :pbm_sdqn_logmers],
+  #   pbm_roc: [:pbm_sdqn_roc, :pbm_qnzs_roc],
+  #   pbm_pr:  [:pbm_sdqn_pr,  :pbm_qnzs_pr],
+  # }
 }
 
 METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
