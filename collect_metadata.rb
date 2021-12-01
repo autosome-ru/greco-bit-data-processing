@@ -330,7 +330,7 @@ afs_reads_metadata_list = collect_afs_reads_metadata(
     data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
     source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
     allow_broken_symlinks: true,
-    fetcher_groups = [
+    fetcher_groups: [
       {
         read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affyseq'}) ),
         experiment_info_fetcher: ExperimentInfoAFSFetcherPack1.load('source_data_meta/AFS/metrics_by_exp.tsv'),
