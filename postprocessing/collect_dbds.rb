@@ -39,7 +39,7 @@ tf_infos = File.readlines(metadata_fn).map{|l|
   [tf, fams]
 }.to_h
 
-
+puts ['tf', 'domain'].join("\t")
 tf_infos.sort_by{|tf, dbds| dbds.size }.each{|tf, dbds|
   puts([tf, dbds.empty? ? 'unknown' : dbds.sort.join(";")].join("\t"))
 }
