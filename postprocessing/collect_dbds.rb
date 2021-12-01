@@ -1,4 +1,5 @@
 require 'json'
+require 'csv'
 raise 'Specify metadata'  unless metadata_fn = ARGV[0]
 # metadata_fn = 'run_benchmarks_release_7/metadata_release_7a.json'
 
@@ -15,6 +16,11 @@ def normalize(val)
   end    
 end
 
+cisbp_dbd_info = CSV.foreach('source_data_meta/shared/cisbp_TF_Information_all_motifs_plus.txt', col_sep: "\t", headers: true).each_with_object({}){|row, hsh|
+  tf, family, dbds, dbd_count = row.values_at('TF_Name', 'Family_Name', 'DBDs', 'DBD_Count')
+  hsh[tf] = {family: family, dbds: dbds, dbd_count: dbd_count && Integer(dbd_count)}
+}
+
 tf_infos = File.readlines(metadata_fn).map{|l|
   info = JSON.parse(l)
   tf = info['tf']
@@ -27,13 +33,13 @@ tf_infos = File.readlines(metadata_fn).map{|l|
   hsh[tf]["dbd_human"] ||= []
   hsh[tf]["dbd"] += dbd
   hsh[tf]["dbd_human"] += dbd_human
-}.transform_values{|info|
-  info.transform_values{|vs|
-    vs.uniq.sort
-  }
-}
+}.map{|tf, info|
+  cisbp_fams = (cisbp_dbd_info.dig(tf, :family) || '').split(',').reject{|v| v == 'Unknown' }
+  fams = (info['dbd'] + info['dbd_human'] + cisbp_fams).uniq.sort
+  [tf, fams]
+}.to_h
 
-tf_infos.map{|tf, info|
-  dbd = (info['dbd'] + info['dbd_human']).uniq.sort.join(";")
-  puts([tf, dbd].join("\t"))
+
+tf_infos.sort_by{|tf, dbds| dbds.size }.each{|tf, dbds|
+  puts([tf, dbds.empty? ? 'unknown' : dbds.sort.join(";")].join("\t"))
 }
