@@ -166,6 +166,7 @@ def afs_peaks_files_info(exp_info)
 end
 
 def afs_peak_reads_info(exp_info, read_fn_fetcher)
+  return []  unless read_fn_fetcher
   exp_id = exp_info[:experiment_id]
   reads_fns = read_fn_fetcher.fetch(exp_id)
   peak_reads_files = reads_fns.map{|reads_fn|
@@ -179,49 +180,16 @@ def afs_peak_reads_info(exp_info, read_fn_fetcher)
   }
 end
 
-def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlinks: false, metrics_fetchers: [])
-  parser = DatasetNameParser::AFSPeaksParser.new
+def collect_afs_metadata(dataset_name_parser:, data_folder:, outcome_types:, source_folder:, allow_broken_symlinks: false, fetchers: [])
   metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
   metadata_by_experiment_id = metadata.index_by(&:experiment_id)
 
-  dataset_files = ['Train', 'Val'].product(['intervals', 'sequences']).flat_map{|slice_type, outcome|
+  dataset_files = ['Train', 'Val'].product(outcome_types).flat_map{|slice_type, outcome|
     Dir.glob("#{data_folder}/#{slice_type}_#{outcome}/*")
   }
 
   dataset_infos = dataset_files.map{|dataset_fn|
-    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
-
-    appropriate_fetcher = fetchers.select{|fetcher| fetcher.fetch(dataset_info) }
-    if appropriate_fetcher.size == 1
-      [dataset_fn, dataset_info, appropriate_fetcher.take_the_only]
-    else
-      $stderr.puts "Error: Can't choose a single fetcher for dataset `{fn}`. Instead there were {fetchers_grp.size} fetchers"
-      nil
-    end
-  }.compact
-
-  dataset_infos.map{|dataset_fn, dataset_info, fetcher|
-    exp_info = fetcher.fetch(dataset_info)
-    dataset_info[:experiment_info] = exp_info
-    dataset_info[:source_files] = [
-      *afs_read_files_info(exp_info),
-      *afs_peaks_files_info(exp_info),
-    ]
-    dataset_info
-  }
-end
-
-def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false, fetchers: [] )
-  parser = DatasetNameParser::AFSReadsParser.new
-  metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
-  metadata_by_experiment_id = metadata.index_by(&:experiment_id)
-
-  dataset_files = ['Train', 'Val'].flat_map{|slice_type|
-    Dir.glob("#{data_folder}/#{slice_type}_sequences/*")
-  }
-
-  dataset_infos = dataset_files.map{|dataset_fn|
-    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
+    dataset_info = dataset_name_parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
 
     appropriate_fetcher = fetchers.select{|fetcher| fetcher[:experiment_info_fetcher].fetch(dataset_info) }
     if appropriate_fetcher.size == 1
@@ -291,27 +259,30 @@ afs_metrics_fetcher_2 = ExperimentInfoAFSFetcherPack2.load(
                           'source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv',
                           MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'})
                         )
+afs_read_fn_fetcher_1 = ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affyseq'}) )
+afs_read_fn_fetcher_2 = ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'}) )
 
-afs_peaks_metadata_list = collect_afs_peaks_metadata(
+afs_peaks_metadata_list = collect_afs_metadata(
+  dataset_name_parser: DatasetNameParser::AFSPeaksParser.new,
   data_folder: "#{RELEASE_FOLDER}/AFS.Peaks",
+  outcome_types: ['intervals', 'sequences'],
   source_folder: "#{SOURCE_FOLDER}/AFS",
   allow_broken_symlinks: true,
-  metrics_fetchers: [afs_metrics_fetcher_1, afs_metrics_fetcher_2],
+  fetchers: [
+    { experiment_info_fetcher: afs_metrics_fetcher_1, read_filenames_fetcher: nil },
+    { experiment_info_fetcher: afs_metrics_fetcher_2, read_filenames_fetcher: nil },
+  ],
 )
 
-afs_reads_metadata_list = collect_afs_reads_metadata(
+afs_reads_metadata_list = collect_afs_metadata(
+  dataset_name_parser: DatasetNameParser::AFSReadsParser.new,
   data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
+  outcome_types: ['sequences'],
   source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
   allow_broken_symlinks: true,
   fetchers: [
-    {
-      read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affyseq'}) ),
-      experiment_info_fetcher: afs_metrics_fetcher_1,
-    },
-    {
-      read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'}) ),
-      experiment_info_fetcher: afs_metrics_fetcher_2,
-    },
+    { experiment_info_fetcher: afs_metrics_fetcher_1, read_filenames_fetcher: afs_read_fn_fetcher_1 },
+    { experiment_info_fetcher: afs_metrics_fetcher_2, read_filenames_fetcher: afs_read_fn_fetcher_2 },
   ],
 )
 
