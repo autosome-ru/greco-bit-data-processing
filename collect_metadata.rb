@@ -9,6 +9,7 @@ require_relative 'shared/lib/insert_metadata'
 require_relative 'shared/lib/random_names'
 require_relative 'shared/lib/affiseq_metadata'
 require_relative 'shared/lib/afs_peaks_biouml_meta'
+require_relative 'shared/lib/affiseq_metadata_fetchers'
 require_relative 'process_PBM/pbm_metadata'
 require_relative 'process_reads_HTS_SMS_AFS/hts'
 require_relative 'process_reads_HTS_SMS_AFS/sms_published'
@@ -148,6 +149,7 @@ def collect_chs_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
   }
 end
 
+# TODO: FIX, add new datasets
 def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlinks: false)
   parser = DatasetNameParser::AFSPeaksParser.new
   metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
@@ -189,46 +191,63 @@ def collect_afs_peaks_metadata(data_folder:, source_folder:, allow_broken_symlin
   }
 end
 
-def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false, mysql_configs: [], metrics_fns: [])
+class ExperimentInfoAFSFetcher
+  def initialize(experiment_infos)
+    @experiment_infos = experiment_infos
+  end
+
+  def self.read_metrics_file(metrics_fn)
+    experiment_infos = ExperimentInfoAFS.each_from_file(metrics_fn).to_a
+
+    experiment_infos = experiment_infos.reject{|info|
+      info.type == 'control'
+    }.to_a
+
+    experiment_infos.each{|info|
+      info.confirmed_peaks_folder = "./results_databox_afs_#{info.type}/complete_data"
+    }
+    experiment_infos
+  end
+end
+
+def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlinks: false, fetcher_groups: [] )
   parser = DatasetNameParser::AFSReadsParser.new
   metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
   metadata_by_experiment_id = metadata.index_by(&:experiment_id)
 
-  reads_by_experiment = mysql_configs.flat_map{|mysql_config|
-    client = Mysql2::Client.new(mysql_config)
-    records = get_experiment_infos(client)
-    _experiments, _alignment_by_experiment, reads_by_experiment_chunk = infos_by_alignment(records)
-    reads_by_experiment_chunk.to_a
-  }.to_h
-
-  experiment_infos = metrics_fns.flat_map{|metrics_fn|
-    ExperimentInfoAFS.each_from_file(metrics_fn).to_a
-  }
-
-  experiment_infos = experiment_infos.reject{|info|
-    info.type == 'control'
-  }.to_a
-  experiment_infos.each{|info|
-    info.confirmed_peaks_folder = "./results_databox_afs_#{info.type}/complete_data"
-  }
-
-  # keys like ["GLI4", "Lys", "Cycle1"]
-  experiment_by_tf_and_cycle = experiment_infos.index_by{|exp|
-    [exp.tf, exp.type[0,3], exp.cycle_number]
-  }
-
   dataset_files = ['Train', 'Val'].flat_map{|slice_type|
     Dir.glob("#{data_folder}/#{slice_type}_sequences/*")
   }
-  dataset_files.map{|dataset_fn|
-    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
-    cycle = dataset_info[:experiment_params][:cycle]
-    ds_basename = dataset_info[:experiment_meta][:"cycle_#{cycle}_filename"]
 
-    exp_key = dataset_info.yield_self{|d| [d[:tf], d[:experiment_subtype], "Cycle#{d[:experiment_params][:cycle]}"] }
-    exp_info = experiment_by_tf_and_cycle[exp_key].to_h
+  dataset_infos = dataset_files.map{|dataset_fn|
+    dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
+    [dataset_fn, dataset_info]
+  }
+
+  dataset_infos_with_fetchers = dataset_infos.map{|dataset_fn, dataset_info|
+    working_fetcher_group = fetcher_groups.detect{|fetcher_group|
+      fetcher_group[:experiment_info_fetcher].fetch(dataset_info)
+    }
+    [dataset_fn, dataset_info, working_fetcher_group]
+  }
+
+  dataset_infos_with_fetchers.select{|fn, info, fetchers_grp|
+    !fetchers_grp
+  }.each{|fn, info, fetchers_grp|
+    $stderr.puts "Error: Can't choose a fetcher group for the dataset `{fn}`"
+  }
+
+  dataset_infos_with_fetcher_group = dataset_infos_with_fetchers.select{|fn, info, fetcher_grp|
+    fetcher_grp
+  }
+
+  dataset_infos_with_fetcher_group.map{|dataset_fn, dataset_info, fetcher_group|
+    experiment_info_fetcher = fetcher_group[:experiment_info_fetcher]
+    read_filenames_fetcher = fetcher_group[:read_filenames_fetcher]
+
+    exp_info = experiment_info_fetcher.fetch(dataset_info)
     exp_id = exp_info[:experiment_id]
-    reads_fns = reads_by_experiment[exp_id]
+    reads_fns = read_filenames_fetcher.fetch(exp_id)
 
     original_files = ((exp_info && exp_info[:raw_files]) || [])
     original_files = original_files.map{|fn| File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn) }
@@ -308,14 +327,26 @@ afs_peaks_metadata_list = collect_afs_peaks_metadata(
 )
 
 afs_reads_metadata_list = collect_afs_reads_metadata(
-    mysql_configs: [
-      MYSQL_CONFIG.merge({database: 'greco_affyseq'}),
-      MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'}),
-    ],
-    metrics_fns: ['source_data_meta/AFS/metrics_by_exp.tsv', 'source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv'],
     data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
     source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
     allow_broken_symlinks: true,
+    # Ordering of fetcher groups is essential!
+    #   jun2021 pack should reside before the earlier pack of data because
+    #   it's more precisely indexed. Dataset filenames can be
+    #   incorrectly matched to data from the earliest metrics file
+    fetcher_groups = [
+      {
+        read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'}) ),
+        experiment_info_fetcher: ExperimentInfoAFSFetcherPack2.load(
+                                  'source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv',
+                                  MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'})
+                                ),
+      },
+      {
+        read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affyseq'}) ),
+        experiment_info_fetcher: ExperimentInfoAFSFetcherPack1.load('source_data_meta/AFS/metrics_by_exp.tsv'),
+      },
+    ],
   )
 
 metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list + afs_reads_metadata_list
