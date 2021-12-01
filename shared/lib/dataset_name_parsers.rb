@@ -78,9 +78,14 @@ module DatasetNameParser
   class CHSParser < BaseParser
     # {tf}.{construct_type}@CHS@{experiment_id}@Peaks.{uuid}.{slice_type}.{extension}
     # C11orf95.FL@CHS@THC_0197@Peaks.sunny-celadon-boar.Train.peaks
+    # ZNF20.FL@CHS@THC_0341.Rep-DIANA_0293@Peaks.flimsy-tan-shark.Train.peaks
     def parse(fn)
       result = super(fn)
-      result[:experiment_params] = { }
+      exp_params = result[:experiment_params]
+      raise  if exp_params.size > 1
+      result[:experiment_params] = {
+        replica: exp_params.empty? ? nil : exp_params.first[/^Rep-(.+)$/, 1],
+      }
       result
     end
   end

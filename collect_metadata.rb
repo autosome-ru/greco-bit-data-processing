@@ -112,14 +112,16 @@ def collect_sms_unpublished_metadata(data_folder:, source_folder:, allow_broken_
   }
 end
 
-def collect_chs_metadata(data_folder:, source_folder:, allow_broken_symlinks: false)
+def collect_chs_metadata(data_folder:, source_folder:, metrics_fns:, allow_broken_symlinks: false)
   parser = DatasetNameParser::CHSParser.new
   metadata = Chipseq::SampleMetadata.each_in_file('source_data_meta/CHS/CHS.tsv').to_a
   metadata_by_experiment_id = metadata.index_by(&:experiment_id)
 
-  experiment_infos = ExperimentInfoCHS.each_from_file("source_data_meta/CHS/metrics_by_exp.tsv").reject{|info|
-    info.type == 'control'
-  }.to_a
+  experiment_infos = metrics_fns.flat_map{|metrics_fn|
+    ExperimentInfoCHS.each_from_file(metrics_fn).reject{|info|
+      info.type == 'control'
+    }.to_a
+  }
   experiment_infos.each{|info|
     info.confirmed_peaks_folder = "./results_databox_chs/complete_data"
   }
@@ -136,7 +138,9 @@ def collect_chs_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
   dataset_files.map{|dataset_fn|
     dataset_info = parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
     plate_id = dataset_info[:experiment_meta][:_original_meta].normalized_id
-    exp_info = experiment_by_plate_id[plate_id].to_h
+    replica = dataset_info[:experiment_params][:replica]
+    normalized_id = [plate_id, replica].compact.join('-')
+    exp_info = experiment_by_plate_id[normalized_id].to_h
     reads_files = ((exp_info && exp_info[:raw_files]) || []).map{|fn|
       {filename: fn, coverage: num_reads(fn), type: 'source'}
     }
@@ -232,6 +236,11 @@ hts_metadata_list = collect_hts_metadata(
 chs_metadata_list = collect_chs_metadata(
   data_folder: "#{RELEASE_FOLDER}/CHS/",
   source_folder: "#{SOURCE_FOLDER}/CHS/",
+  metrics_fns: [
+    "source_data_meta/CHS/metrics_by_exp.tsv",
+    "source_data_meta/CHS/metrics_by_exp_chipseq_feb2021.tsv",
+    "source_data_meta/CHS/metrics_by_exp_chipseq_jun2021.tsv"
+  ],
   allow_broken_symlinks: true
 )
 
