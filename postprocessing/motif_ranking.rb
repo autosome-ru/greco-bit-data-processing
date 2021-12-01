@@ -295,7 +295,8 @@ METRIC_COMBINATIONS = {
   # }
 }
 
-METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
+METRICS_ORDER         = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
+BASIC_METRICS         = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.select(&:leaf?).map(&:key).reject(&:nil?)
 DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.reject(&:leaf?).map(&:key).reject(&:nil?)
 
 curation_fn = nil
@@ -375,7 +376,7 @@ metrics_readers_configs = {
   ]
 }
 
-all_metric_infos = read_metrics(metrics_readers_configs)
+all_metric_infos = read_metrics(metrics_readers_configs).select{|info| BASIC_METRICS.include?(info[:metric_name]) }
 
 # reject motif benchmark values calculated over datasets which were used for training
 # (there shouldn't be any)
