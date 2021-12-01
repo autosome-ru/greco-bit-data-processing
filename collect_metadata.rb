@@ -225,20 +225,20 @@ def collect_afs_reads_metadata(data_folder:, source_folder:, allow_broken_symlin
   }
 
   dataset_infos_with_fetchers = dataset_infos.map{|dataset_fn, dataset_info|
-    working_fetcher_group = fetcher_groups.detect{|fetcher_group|
+    working_fetcher_groups = fetcher_groups.select{|fetcher_group|
       fetcher_group[:experiment_info_fetcher].fetch(dataset_info)
     }
-    [dataset_fn, dataset_info, working_fetcher_group]
+    [dataset_fn, dataset_info, working_fetcher_groups]
   }
 
   dataset_infos_with_fetchers.select{|fn, info, fetchers_grp|
-    !fetchers_grp
+    fetchers_grp.size != 1
   }.each{|fn, info, fetchers_grp|
-    $stderr.puts "Error: Can't choose a fetcher group for the dataset `{fn}`"
+    $stderr.puts "Error: Can't choose single fetcher group for dataset `{fn}`. Instead there were {fetchers_grp.size} fetchers"
   }
 
-  dataset_infos_with_fetcher_group = dataset_infos_with_fetchers.select{|fn, info, fetcher_grp|
-    fetcher_grp
+  dataset_infos_with_fetcher_group = dataset_infos_with_fetchers.map{|fn, info, fetchers_grp|
+    [fn, info, fetchers_grp.take_the_only]
   }
 
   dataset_infos_with_fetcher_group.map{|dataset_fn, dataset_info, fetcher_group|
@@ -330,21 +330,17 @@ afs_reads_metadata_list = collect_afs_reads_metadata(
     data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
     source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
     allow_broken_symlinks: true,
-    # Ordering of fetcher groups is essential!
-    #   jun2021 pack should reside before the earlier pack of data because
-    #   it's more precisely indexed. Dataset filenames can be
-    #   incorrectly matched to data from the earliest metrics file
     fetcher_groups = [
+      {
+        read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affyseq'}) ),
+        experiment_info_fetcher: ExperimentInfoAFSFetcherPack1.load('source_data_meta/AFS/metrics_by_exp.tsv'),
+      },
       {
         read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'}) ),
         experiment_info_fetcher: ExperimentInfoAFSFetcherPack2.load(
                                   'source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv',
                                   MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'})
                                 ),
-      },
-      {
-        read_filenames_fetcher: ReadFilenamesFetcher.load( MYSQL_CONFIG.merge({database: 'greco_affyseq'}) ),
-        experiment_info_fetcher: ExperimentInfoAFSFetcherPack1.load('source_data_meta/AFS/metrics_by_exp.tsv'),
       },
     ],
   )
