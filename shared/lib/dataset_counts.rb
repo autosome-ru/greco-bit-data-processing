@@ -1,3 +1,5 @@
+require_relative 'spo_cache'
+
 def num_reads(filename)
   return nil  if !File.exist?(filename)
   cached_result = load_from_spo_cache(filename, 'num_reads')
