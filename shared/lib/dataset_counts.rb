@@ -44,10 +44,10 @@ end
 
 def num_good_probes(filename)
   return nil  if !File.exist?(filename)
-  cached_result = load_from_spo_cache(filename, 'num_good_probes')
+  cached_result = load_from_spo_cache(filename, 'num_good_probes_v2')
   return cached_result  if cached_result
-  result = num_lines_wo_comments(filename){|l| l.split("\t").last != "0" } # `flag` in the last column can be 0 or 1
-  store_to_spo_cache(filename, 'num_good_probes', result)
+  result = num_lines_wo_comments(filename){|l| l.split("\t").last == "0" } # `flag` in the last column can be 0 or 1
+  store_to_spo_cache(filename, 'num_good_probes_v2', result)
   result
 rescue
   nil
