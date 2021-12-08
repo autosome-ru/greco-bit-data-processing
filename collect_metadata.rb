@@ -38,6 +38,16 @@ def collect_pbm_metadata(data_folder:, source_folder:)
     }
     raise "No source files for dataset #{dataset_fn}"  if source_files.empty?
     dataset_info[:source_files] = source_files.map{|fn| {filename: fn, type: 'source'} }
+
+    dataset_bn = File.basename(dataset_fn, '.gz')
+    dataset_ext = File.extname(dataset_bn)
+    if ['.fastq', '.fasta', '.fa', '.fq'].include?(dataset_ext)
+      dataset_info[:stats] = {num_sequences: num_reads(dataset_fn)} # here are sequences, not reads
+    elsif dataset_ext == '.tsv'
+      dataset_info[:stats] = {num_probes: num_probes(dataset_fn), num_good_probes: num_good_probes(dataset_fn)}
+    else
+      raise "Unknown type of dataset `#{dataset_fn}`"
+    end
     dataset_info
   }
 end
@@ -59,6 +69,7 @@ def collect_hts_metadata(data_folder:, source_folder:, allow_broken_symlinks: fa
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
     dataset_info[:source_files] = [ds_filename].map{|fn| {filename: fn, coverage: num_reads(fn), type: 'source'} }
+    dataset_info[:stats] = {num_reads: num_reads(dataset_fn)}
     dataset_info
   }
 end
@@ -80,6 +91,7 @@ def collect_sms_published_metadata(data_folder:, source_folder:, allow_broken_sy
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
     dataset_info[:source_files] = [ds_filename].map{|fn| {filename: fn, coverage: num_reads(fn), type: 'source'} }
+    dataset_info[:stats] = {num_reads: num_reads(dataset_fn)}
     dataset_info
   }
 end
@@ -108,6 +120,7 @@ def collect_sms_unpublished_metadata(data_folder:, source_folder:, allow_broken_
       raise "Missing file #{ds_filename} for #{dataset_fn}"
     end
     dataset_info[:source_files] = [ds_filename].map{|fn| {filename: fn, coverage: num_reads(fn), type: 'source'} }
+    dataset_info[:stats] = {num_reads: num_reads(dataset_fn)}
     dataset_info
   }
 end
@@ -149,6 +162,16 @@ def collect_chs_metadata(data_folder:, source_folder:, metrics_fns:, allow_broke
     }
     dataset_info[:source_files] = reads_files + peaks_files
     dataset_info[:experiment_info] = exp_info
+
+    dataset_bn = File.basename(dataset_fn, '.gz')
+    dataset_ext = File.extname(dataset_bn)
+    if ['.fastq', '.fasta', '.fa', '.fq'].include?(dataset_ext)
+      dataset_info[:stats] = {num_sequences: num_reads(dataset_fn)} # here are sequences, not reads
+    elsif dataset_ext == '.peaks'
+      dataset_info[:stats] = {num_peaks: num_peaks(dataset_fn)}
+    else
+      raise "Unknown type of dataset `#{dataset_fn}`"
+    end
     dataset_info
   }
 end
@@ -205,6 +228,16 @@ def collect_afs_metadata(dataset_name_parser:, data_folder:, outcome_types:, fet
       *afs_peaks_files_info(exp_info),
       *afs_peak_reads_info(exp_info, fetcher[:read_filenames_fetcher]),
     ]
+
+    dataset_bn = File.basename(dataset_fn, '.gz')
+    dataset_ext = File.extname(dataset_bn)
+    if ['.fastq', '.fasta', '.fa', '.fq'].include?(dataset_ext)
+      dataset_info[:stats] = {num_reads: num_reads(dataset_fn)}
+    elsif dataset_ext == '.peaks'
+      dataset_info[:stats] = {num_peaks: num_peaks(dataset_fn)}
+    else
+      raise "Unknown type of dataset `#{dataset_fn}`"
+    end
     dataset_info
   }
 end
