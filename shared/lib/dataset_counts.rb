@@ -22,7 +22,8 @@ end
 
 def num_peaks(filename)
   return nil  if !File.exist?(filename)
-  return cached_result  if cached_result = load_from_spo_cache(filename, 'num_peaks')
+  cached_result = load_from_spo_cache(filename, 'num_peaks')
+  return cached_result  if cached_result
   result = File.readlines(filename).map(&:strip).reject{|l| l.start_with?('#') }.reject(&:empty?).count
   store_to_spo_cache(filename, 'num_peaks', result)
   result
