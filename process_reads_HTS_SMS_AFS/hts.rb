@@ -44,13 +44,14 @@ module Selex
         :experiment_id, :plasmid_id, :gene_name,
         :experiment_subtype, :dna_library_id,
         :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename,
-        :well_on_plate,
+        :well_on_plate, :batch,
       ], keyword_init: true) do
 
     def self.header_row;
       [
         'Experiment ID', 'Plasmid ID', 'Gene name', 'IVT or Lysate', 'DNA library ID',
         'Cycle 1 filename', 'Cycle 2 filename', 'Cycle 3 filename', 'Cycle 4 filename', 'Well on the 96 well plate',
+        'Batch'
       ]
     end
 
@@ -58,6 +59,7 @@ module Selex
       self.to_h.values_at(*[
         :experiment_id, :plasmid_id, :gene_name, :experiment_subtype, :dna_library_id,
         :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename, :well_on_plate,
+        :batch,
       ])
     end
 
@@ -68,6 +70,13 @@ module Selex
     def experiment_type; "HTS.#{experiment_subtype}"; end
     def tf; gene_name; end
     def construct_type; $plasmid_by_number[plasmid_id].construct_type; end
+
+    def filenames; [cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename].compact; end
+    def normalized_basenames
+      filenames.map{|fn|
+        fn.sub(/_Cycle\d_R[12].fastq.gz$/, '')
+      }.uniq
+    end
 
     def self.from_string(line)
       # Example:
@@ -81,7 +90,7 @@ module Selex
       # barcode = Selex.parse_barcode(barcode_str)
 
       filename_or_nil = ->(fn){ (fn == 'No_Data') ? nil : fn }
-      self.new(
+      result = self.new(
         experiment_id: experiment_id, plasmid_id: plasmid_id, gene_name: gene_name,
         experiment_subtype: experiment_subtype, dna_library_id: dna_library_id,
         cycle_1_filename: filename_or_nil.(cycle_1_filename),
@@ -90,6 +99,8 @@ module Selex
         cycle_4_filename: filename_or_nil.(cycle_4_filename),
         well_on_plate: well_on_plate,
       )
+      result[:batch] = result.normalized_basenames.map{|bn| bn[/Batch([^_]+)/, 1] }.join('+')
+      result
     end
 
     def self.each_in_file(filename)
