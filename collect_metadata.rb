@@ -179,7 +179,7 @@ end
 def afs_read_files_info(exp_info)
   original_files = ((exp_info && exp_info[:raw_files]) || [])
   original_files.map{|fn|
-    File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn)
+    Dir.glob("/mnt/space/hughes/June1st2021/**/#{fn}").first || File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn)
   }.map{|fn|
     {filename: fn, coverage: num_reads(fn), type: 'source'}
   }
