@@ -28,7 +28,7 @@ module Chipseq
       self.new(
         experiment_id: experiment_id, plasmid_id: plasmid_id, gene_id: gene_id,
         sample_id: sample_id, sample_label: sample_label,
-        chip_or_input: chip_or_input, replicate: Integer(replicate), comments: comments,
+        chip_or_input: chip_or_input.upcase.gsub(/[\s ]+/, ""), replicate: Integer(replicate), comments: comments,
         data_file_id: data_file_id, sequencing_facility: sequencing_facility,
         batch: batch,
       )
