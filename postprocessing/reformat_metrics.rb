@@ -13,6 +13,7 @@ conversion_tasks = [
     src: [
       'run_benchmarks_release_7/pwmeval_peaks.tsv',
       'run_benchmarks_release_7/pwmeval_peaks_7a+7c.tsv',
+      'run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_d.tsv',
     ],
     dst: 'run_benchmarks_release_7/formatted_peaks_pwmeval.tsv',
     metrics: ['AUCROC'],
@@ -22,6 +23,7 @@ conversion_tasks = [
     src: [
       'run_benchmarks_release_7/VIGG_peaks.tsv',
       'run_benchmarks_release_7/VIGG_peaks_7a+7c.tsv',
+      'run_benchmarks_release_7/VIGG_peaks_7a+7_upd_d.tsv',
     ],
     dst: 'run_benchmarks_release_7/formatted_peaks_vigg.tsv',
     metrics: ['roc_auc', 'logroc_auc'],
@@ -31,6 +33,7 @@ conversion_tasks = [
     src: [
       'run_benchmarks_release_7/centrimo.tsv',
       'run_benchmarks_release_7/centrimo_7a+7c.tsv',
+      'run_benchmarks_release_7/centrimo_7a+7_upd_d.tsv',
     ],
     dst: 'run_benchmarks_release_7/formatted_peaks_centrimo.tsv',
     metrics: ['-log10(E-value)','concentration_30nt'],
@@ -53,6 +56,7 @@ conversion_tasks = [
     src: [
       'run_benchmarks_release_7/pbm.tsv',
       'run_benchmarks_release_7/pbm_7a+7c.tsv',
+      'run_benchmarks_release_7/pbm_7a+7_upd_d.tsv',
     ],
     dst: 'run_benchmarks_release_7/formatted_pbm.tsv',
     metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
@@ -66,6 +70,7 @@ conversion_tasks = [
         "run_benchmarks_release_7/reads_#{fraction}.tsv",
         "run_benchmarks_release_7/reads_#{fraction}_7a+7c.tsv",
         "run_benchmarks_release_7/reads_#{fraction}_7a+7c_upd.tsv",
+        "run_benchmarks_release_7/reads_#{fraction}_7a+7_upd_d.tsv",
       ],
       dst: "run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv",
       metrics: ['AUCROC'],

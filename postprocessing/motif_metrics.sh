@@ -1,17 +1,30 @@
 #!/usr/bin/env bash
 mkdir -p results
 DATA_FOLDER='/home_local/vorontsovie/greco-data/release_7a.2021-10-14/full/'
-MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_7c_motifs_2020-10-31/'
+MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_7d_motifs_2021-12-21/'
 
-ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pbm_7a+7c.sh
-ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_VIGG_peaks_7a+7c.sh
-ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_centrimo_7a+7c.sh
-ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pwmeval_peaks_7a+7c.sh
-ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.1_7a+7c/ --fraction 0.1
-ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.5_7a+7c/ --fraction 0.5
-ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.25_7a+7c/ --fraction 0.25
 
-for SUFFIX in "" "_7a+7c"  "_7a+7c_upd"; do # calculation was multistaged
+# run on new motifs only
+MOTIFS_FOLDER_TMP='./motifs_tmp/7d_minus_7c'
+mkdir -p $MOTIFS_FOLDER_TMP
+ruby -e \
+    'old_release = ARGV[0]; new_release = ARGV[1]; current = Dir.glob("#{new_release}/*").map{|fn| File.basename(fn) }; old = Dir.glob("#{old_release}/*").map{|fn| File.basename(fn) }; (current - old).each{|bn| puts "#{new_release}/#{bn}" }' \
+    -- \
+    "/home_local/vorontsovie/greco-motifs/release_7c_motifs_2020-10-31"  \
+    "/home_local/vorontsovie/greco-motifs/release_7d_motifs_2021-12-21" \
+  | xargs -n1 -I{} cp {} $MOTIFS_FOLDER_TMP/
+MOTIFS_FOLDER="${MOTIFS_FOLDER_TMP}" # Attention!!!
+
+ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pbm_7a+7_upd_d.sh
+ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_VIGG_peaks_7a+7_upd_d.sh
+ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_centrimo_7a+7_upd_d.sh
+ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pwmeval_peaks_7a+7_upd_d.sh
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.1_7a+7_upd_d/ --fraction 0.1
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.5_7a+7_upd_d/ --fraction 0.5
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.25_7a+7_upd_d/ --fraction 0.25
+
+# for SUFFIX in "" "_7a+7c"  "_7a+7c_upd" "_7a+7_upd_d"; do # calculation was multistaged
+for SUFFIX in "_7a+7_upd_d"; do # calculation was multistaged
   cat run_benchmarks_release_7/run_all_pbm${SUFFIX}.sh | parallel > run_benchmarks_release_7/pbm${SUFFIX}.tsv
   cat run_benchmarks_release_7/run_all_VIGG_peaks${SUFFIX}.sh | parallel > run_benchmarks_release_7/VIGG_peaks${SUFFIX}.tsv
   cat run_benchmarks_release_7/run_all_centrimo${SUFFIX}.sh | parallel > run_benchmarks_release_7/centrimo${SUFFIX}.tsv
@@ -21,13 +34,15 @@ for SUFFIX in "" "_7a+7c"  "_7a+7c_upd"; do # calculation was multistaged
   cat run_benchmarks_release_7/reads_0.1${SUFFIX}/run_all.sh | parallel > run_benchmarks_release_7/reads_0.1${SUFFIX}.tsv
 done
 
-ruby postprocessing/reformat_metrics.rb
+rm "${MOTIFS_FOLDER_TMP}" -r
+MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_7d_motifs_2021-12-21/'
 
+ruby postprocessing/reformat_metrics.rb
 bash ./postprocessing/filter_motif_in_flanks.sh # be cautious
 
 ruby postprocessing/motif_ranking.rb \
-    run_benchmarks_release_7/metrics_7a+7c.json \
-    run_benchmarks_release_7/ranks_7a+7c.json \
+    run_benchmarks_release_7/metrics_7a+7d.json \
+    run_benchmarks_release_7/ranks_7a+7d.json \
     --metadata  run_benchmarks_release_7/metadata_release_7a.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
