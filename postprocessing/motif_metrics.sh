@@ -53,8 +53,8 @@ ruby postprocessing/motif_ranking.rb \
   && echo ok || echo fail
 
 ruby postprocessing/motif_ranking.rb \
-    run_benchmarks_release_7/metrics_curated_7a+7c.json \
-    run_benchmarks_release_7/ranks_curated_7a+7c.json \
+    run_benchmarks_release_7/metrics_curated_7a+7d.json \
+    run_benchmarks_release_7/ranks_curated_7a+7d.json \
     --metadata  run_benchmarks_release_7/metadata_release_7a.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \

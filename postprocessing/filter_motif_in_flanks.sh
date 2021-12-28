@@ -1,3 +1,5 @@
+mkdir -p  motifs_by_modeltype/pwm/
+mkdir -p  thresholds_by_modeltype/pwm/
 find ~/greco-motifs/release_7d_motifs_2021-12-21/ -name '*.pcm' | xargs -n1 basename -s .pcm | xargs -n1 -I{} echo 'ruby postprocessing/get_pwm.rb --pcm ~/greco-motifs/release_7d_motifs_2021-12-21/{}.pcm > motifs_by_modeltype/pwm/{}.pwm' | time parallel
 
 find ~/greco-motifs/release_7d_motifs_2021-12-21/ -name '*.ppm' | xargs -n1 basename -s .ppm | xargs -n1 -I{} echo 'ruby postprocessing/get_pwm.rb --pfm ~/greco-motifs/release_7d_motifs_2021-12-21/{}.ppm > motifs_by_modeltype/pwm/{}.pwm' | time parallel
