@@ -377,6 +377,10 @@ metrics_readers_configs = {
 }
 
 all_metric_infos = read_metrics(metrics_readers_configs).select{|info| BASIC_METRICS.include?(info[:metric_name]) }
+all_metric_infos.each{|info|
+  raise unless info.has_key?(:value)
+  info[:value] = info[:value]&.round(3)
+}
 
 # reject motif benchmark values calculated over datasets which were used for training
 # (there shouldn't be any)
