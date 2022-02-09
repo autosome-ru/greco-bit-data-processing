@@ -11,6 +11,6 @@ File.open('source_data_meta/SMS/unpublished/SMS_fix_2022-02-09.tsv', 'w'){|fw|
       counter[exp_id] = 1
       corrected_exp_id = row[0]
     end
-    fw.puts([corrected_exp_id, *row.drop(1)].join("\t"))
+    fw.puts( [corrected_exp_id, *row.drop(1), *Array.new(8 - row.length)].join("\t") )
   }
 }
