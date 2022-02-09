@@ -46,7 +46,7 @@ module SMSUnpublished
       # Example:
       ## BBI_ID  Hughes_ID TF_family SSID  Barcode
       ## UT380-009 AHCTF1.DBD  AT hook SS001 BC01
-      bbi_id, hughes_id, tf_family, ssid, barcode_index, barcode_change, length_nt, biobasic_insert_sequence  = line.chomp.split("\t")
+      bbi_id, hughes_id, tf_family, ssid, barcode_index, barcode_change, length_nt, biobasic_insert_sequence  = line.chomp.split("\t", 8)
       tf, *rest = hughes_id.split('.')  # hughes_id examples: `MBD4`, `BHLHA9.FL`, `CASZ1.DBD.1`
       construct_type = (rest.size >= 1) ? rest[0] : 'NA'
       ssid = ssid.sub(/^S(\d+)$/, 'SS\1').sub(/^SSS(\d+)$/, 'SS\1')
