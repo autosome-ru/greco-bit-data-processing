@@ -7,7 +7,7 @@ require_relative 'shared/lib/match_metadata'
 
 require_relative 'shared/lib/dataset_name_parsers'
 
-OLD_RELEASE = '/home_local/vorontsovie/greco-data/release_6.2021-02-13'
+OLD_RELEASE = '/home_local/vorontsovie/greco-data/release_7a.2021-10-14/full/'
 
 def process_sms_unpublished!
   $stderr.puts "Process unpublished SMiLE-seq data"
