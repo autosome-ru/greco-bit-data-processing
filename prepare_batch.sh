@@ -1,6 +1,5 @@
-RELEASE=release_8
+RELEASE=release_8.2022-02-10_v0.1
 ruby shared/lib/symlink_folder_content.rb /home_local/vorontsovie/greco-data/release_7a.2021-10-14/full ${RELEASE}/full/ symlink
-find ${RELEASE}/ -name 'stats.tsv' | xargs -n1 rm
 rm ${RELEASE}/full/AFS.Peaks/ -r
 rm ${RELEASE}/full/AFS.Reads/ -r
 rm ${RELEASE}/full/CHS/ -r
@@ -41,3 +40,5 @@ ruby shared/lib/symlink_folder_content.rb ${RELEASE}/novel/AFS.Peaks ${RELEASE}/
 ruby shared/lib/symlink_folder_content.rb source_data_prepared/AFS.Reads_batch1 ${RELEASE}/novel/AFS.Reads copy
 ruby shared/lib/symlink_folder_content.rb source_data_prepared/AFS.Reads ${RELEASE}/novel/AFS.Reads copy
 ruby shared/lib/symlink_folder_content.rb ${RELEASE}/novel/AFS.Reads ${RELEASE}/full/AFS.Reads symlink
+
+find ${RELEASE}/ -name 'stats.tsv' | xargs -n1 rm

@@ -18,7 +18,7 @@ require_relative 'process_peaks_CHS_AFS/chipseq_metadata'
 require_relative 'process_peaks_CHS_AFS/experiment_info_chs'
 require_relative 'process_peaks_CHS_AFS/experiment_info_afs'
 
-RELEASE_FOLDER = '/home_local/vorontsovie/greco-data/release_7a.2021-10-14/full'
+RELEASE_FOLDER = '/home_local/vorontsovie/greco-data/release_8.2022-02-10_v0.1/full'
 SOURCE_FOLDER = '/home_local/vorontsovie/greco-bit-data-processing/source_data'
 MYSQL_CONFIG = {host: 'localhost', username: 'vorontsovie', password: 'password'}
 
