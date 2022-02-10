@@ -11,6 +11,9 @@ find -L /mnt/space/depla/smileseq_raw/ -xtype f -iname '*.fastq' \
 find -L /mnt/space/depla/smileseq_raw062021/ -xtype f -iname '*.fastq' \
   | ruby -r fileutils -e '$stdin.readlines.map(&:chomp).each{|fn| new_bn = File.basename(fn); FileUtils.ln_s(fn, "source_data/SMS/reads/unpublished/#{new_bn}") }'
 
+find -L /mnt/space/depla/smileseq_raw2022_02/ -xtype f -iname '*.fastq' \
+  | ruby -r fileutils -e '$stdin.readlines.map(&:chomp).each{|fn| new_bn = File.basename(fn); FileUtils.ln_s(fn, "source_data/SMS/reads/unpublished/#{new_bn}") }'
+
 # drop wrong data (non-unique ids)
 # find source_data/SMS/reads/unpublished/ -xtype f \
 #   | ruby -r fileutils -e 'readlines.map(&:chomp).group_by{|fn| File.basename(fn).split("_").first }.select{|k,vs| vs.size != 1}.values.flatten.each{|fn| FileUtils.rm(fn) }'
