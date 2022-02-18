@@ -58,13 +58,13 @@ fi
 ## SDQN_intensities
 # window-size=5 means window 11x11
 ${SCRIPT_FOLDER}/spatial_detrending.sh --source ${CHIPS_SOURCE_FOLDER} \
-                        --destination ${INTERMEDIATE_FOLDER}/spatial_detrended_intensities/ \
+                        --destination ${INTERMEDIATE_FOLDER}/SD_intensities/ \
                         --window-size 5 \
                         --num-threads ${NUM_THREADS}
 
 ruby ${SCRIPT_FOLDER}/quantile_normalize_chips.rb \
         ${NORMALIZATION_OPTS} \
-        --source ${INTERMEDIATE_FOLDER}/spatial_detrended_intensities/ \
+        --source ${INTERMEDIATE_FOLDER}/SD_intensities/ \
         --destination ${INTERMEDIATE_FOLDER}/SDQN_intensities
 
 ## QNZS_intensities
@@ -91,7 +91,7 @@ ruby ${SCRIPT_FOLDER}/zscore_transform_chips.rb \
 #     cp ${FN} ${RESULTS_FOLDER}/raw/Val_intensities/${BN}.raw.pbm.val.txt
 # done
 
-for PROCESSING_TYPE in SDQN QNZS; do
+for PROCESSING_TYPE in SD SDQN QNZS; do
     mkdir -p source_data_prepared/PBM.${PROCESSING_TYPE}/Train_intensities  source_data_prepared/PBM.${PROCESSING_TYPE}/Val_intensities
 
     for SLICE_TYPE in Train Val; do
