@@ -1,3 +1,4 @@
+require_relative '../shared/lib/utils'
 require_relative 'statistics'
 require_relative 'quantile_normalization'
 
@@ -152,19 +153,24 @@ class Chip
   def log10_scaled_bg_normalized
     Chip.new(probes.map{|probe| probe.log10_scaled_bg_normalized }, info)
   end
+
+  def probe_by_id
+    @_probe_by_id ||= probes.map{|probe| [probe.id_probe, probe] }.to_h
+  end
 end
 
 def quantile_normalized_chips(chips)
-  probe_ids_variants = chips.map{|chip| chip.probes.map{|chip_probe| chip_probe.id_probe }.sort }
-  raise 'Probe ids are different'  if probe_ids_variants.uniq.size != 1
-  probe_ids = probe_ids_variants.first
-  samples_sorted_probes = chips.map{|chip|
-    chip.probes.map{|probe| [probe.id_probe, probe] }.to_h.values_at(*probe_ids)
-  }
+  ordered_probe_ids = chips.map{|chip| chip.probes.map{|chip_probe| chip_probe.id_probe }.sort }.uniq.take_the_only
 
-  qn_signals = quantile_normalization(samples_sorted_probes.map{|chip_probes| chip_probes.map{|probe| probe.signal } })
-  chips.zip(samples_sorted_probes, qn_signals).map{|chip, chip_sorted_probes, chip_qn_signals|
-    normalized_probes = chip_sorted_probes.zip(chip_qn_signals).map{|probe, qn_signal|
+  # [[chip_1 probes ordered], [chip_2 probes in the same order], ...]
+  chips_ordered_probes = chips.map{|chip|
+    ordered_probe_ids.map{|probe_id| chip.probe_by_id[probe_id] }
+  }
+  chips_ordered_signals = chips_ordered_probes.map{|chip_probes| chip_probes.map(&:signal) }
+
+  chips_ordered_qn_signals = quantile_normalization(chips_ordered_signals)
+  chips.zip(chips_ordered_probes, chips_ordered_qn_signals).map{|chip, chip_ordered_probes, chip_ordered_qn_signals|
+    normalized_probes = chip_ordered_probes.zip(chip_ordered_qn_signals).map{|probe, qn_signal|
       probe.with_signal(qn_signal)
     }
     Chip.new(normalized_probes, chip.info)

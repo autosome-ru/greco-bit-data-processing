@@ -1,3 +1,5 @@
+require_relative 'statistics'
+
 # map elements into their ranks (multiple ranks for tying elements)
 def ranks(vs, &by_block)
   by_block = ->(x){ x }  unless block_given?
@@ -20,19 +22,30 @@ def ranks(vs, &by_block)
   }
 end
 
-def quantile_normalization(samples)
-  values_by_rank = Hash.new(0)
+def values_with_ranks(values)
+  values.zip( ranks(values) )
+end
+
+# [[sample 1 values], [sample 2 values], ...] -> {rank => average_value}
+def average_values_by_rank(samples)
+  total_values_sum_by_rank = Hash.new(0)
   samples.each{|sample|
-    sample_ranks = ranks(sample)
-    sample.zip(sample_ranks).each{|val, ranks|
+    values_with_ranks(sample).each{|val, ranks|
       ranks.each{|rank|
-        values_by_rank[rank] += val * (1.0 / ranks.size) # not to count value several times
+        total_values_sum_by_rank[rank] += val * (1.0 / ranks.size) # not to count value several times
       }
     }
   }
-  value_by_rank = values_by_rank.transform_values{|v| v.to_f / samples.size }
+  total_values_sum_by_rank.transform_values{|sum_total| sum_total.to_f / samples.size }
+end
+
+# [[sample 1 values], [sample 2 values], ...] -> [[sample 1 qn-values], [sample 2 qn-values], ...]
+# sets of qn-values for each sample are the same (unless there are ties).
+#  qn-values are equal to average values (across samples) for each rank. Ranks are taken along a single sample.
+def quantile_normalization(samples)
+  value_by_rank = average_value_by_rank(samples)
 
   samples.map{|sample|
-    ranks(sample).map{|ranks| vals = ranks.map{|rank| value_by_rank[rank] }; vals.sum(0.0) / vals.length }
+    ranks(sample).map{|ranks| ranks.map{|rank| value_by_rank[rank] }.mean }
   }
 end
