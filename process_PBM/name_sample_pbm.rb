@@ -73,7 +73,7 @@ module PBM
     chip_filename = ARGV[0]
     raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
     raise 'Specify extension (fa or tsv)'  unless ['fa', 'tsv'].include?(extension)
-    raise 'Specify processing type (SDQN or QNZS)'  unless ['SDQN', 'QNZS'].include?(processing_type)
+    raise 'Specify processing type (SDQN or QNZS)'  unless ['SD', 'SDQN', 'QNZS'].include?(processing_type)
     raise 'Source mode should be one of `original` or `normalized`'  unless ['original', 'normalized'].include?(source_mode)
     raise 'Action should be one of `find`, `generate`, `find-or-generate`'  unless ['find', 'generate', 'find-or-generate'].include?(action)
     raise 'Specify chip filename'  unless chip_filename

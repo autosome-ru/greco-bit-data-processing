@@ -17,6 +17,7 @@ motifs_by_tf = motifs.group_by{|fn|
 FileUtils.mkdir_p './tmp/'
 
 validation_datasets = [
+  Dir.glob("#{DATA_PATH}/PBM.SD/Val_intensities/*"),
   Dir.glob("#{DATA_PATH}/PBM.QNZS/Val_intensities/*"),
   Dir.glob("#{DATA_PATH}/PBM.SDQN/Val_intensities/*"),
 ].flatten.map{|fn| File.absolute_path(fn) }
