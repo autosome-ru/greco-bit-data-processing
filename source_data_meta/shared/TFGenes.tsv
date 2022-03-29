@@ -18,7 +18,7 @@ BAZ2A	Codebook TF	ENSG00000076108	IPR001487;IPR001739;IPR001965;IPR004022;IPR011
 BAZ2B	Codebook TF	ENSG00000123636	IPR001487;IPR001739;IPR001965;IPR004022;IPR011011;IPR016177;IPR018359;IPR018500;IPR018501;IPR019787	29994	bromodomain adjacent to zinc finger domain 2B [Source:HGNC Symbol;Acc:HGNC:963]	MBD	no	no	no	no	no
 BHLHA9	Codebook TF	ENSG00000205899	IPR011598;	727857	basic helix	bHLH	yes	yes	yes	no	yes
 BRF2	Codebook TF	ENSG00000104221	None	None	BRF2, RNA polymerase III transcription initiation factor 50 kDa subunit 	Unknown	yes	yes	yes	no	no
-C11orf95	Codebook TF	ENSG00000188070	IPR015880;	65998	chromosome 11 open reading frame 95 [Source:HGNC Symbol;Acc:HGNC:28449]	BED ZF	yes	yes	no	no	yes
+ZFTA	Codebook TF	ENSG00000188070	IPR015880;	65998	chromosome 11 open reading frame 95 [Source:HGNC Symbol;Acc:HGNC:28449]	BED ZF	yes	yes	no	no	yes
 CAMTA1	Codebook TF	ENSG00000171735	IPR000048;IPR002110;IPR002909;IPR005559;IPR014756;IPR020683;IPR027417;	23261	calmodulin binding transcription activator 1 [Source:HGNC Symbol;Acc:HGNC:18806]	CG	yes	yes	yes	no	yes
 CAMTA2	Codebook TF	ENSG00000108509	IPR000048;IPR002909;IPR005559;IPR014756;IPR020683;IPR027417	23125	calmodulin binding transcription activator 2 [Source:HGNC Symbol;Acc:HGNC:18807]	CG	yes	yes	yes	no	yes
 CASZ1	Codebook TF	ENSG00000130940	IPR007087;IPR015880	54897	castor zinc finger 1 [Source:HGNC Symbol;Acc:HGNC:26002]	C2H2 ZF	no	yes	yes	no	yes
@@ -343,7 +343,7 @@ ZNF699	Codebook TF	ENSG00000196110	IPR001909;IPR007087;IPR015880;	374879	zinc fi
 ZNF70	Codebook TF	ENSG00000187792	IPR007087;IPR015880	7621	zinc finger protein 70 [Source:HGNC Symbol;Acc:HGNC:13140]	C2H2 ZF	no	yes	yes	yes	no
 ZNF700	Codebook TF	ENSG00000196757	IPR001909;IPR007087;IPR015880;	90592	zinc finger protein 700 [Source:HGNC Symbol;Acc:HGNC:25292]	C2H2 ZF	no	yes	yes	yes	no
 ZNF703	Codebook TF	ENSG00000183779	IPR007087;IPR022129	80139	zinc finger protein 703 [Source:HGNC Symbol;Acc:HGNC:25883]	C2H2 ZF	no	yes	yes	yes	no
-ZNF705E	Codebook TF	ENSG00000214534	None	None	zinc finger protein 705E	C2H2 ZF	no	yes	yes	yes	no
+ZNF705EP	Codebook TF	ENSG00000214534	None	None	zinc finger protein 705E	C2H2 ZF	no	yes	yes	yes	no
 ZNF706	Codebook TF	ENSG00000120963	IPR007513;	51123	zinc finger protein 706 [Source:HGNC Symbol;Acc:HGNC:24992]	C2H2 ZF	no	yes	yes	yes	no
 ZNF708	Schmitges control	ENSG00000182141	IPR001909;IPR007087;IPR015880;	7562	Zinc finger protein 708 [Source:HGNC Symbol;Acc:HGNC:12945] 	C2H2 ZF	no	yes	yes	no	yes
 ZNF709	Codebook TF	ENSG00000242852	IPR001909;IPR007087;IPR015880;	163051	zinc finger protein 709 [Source:HGNC Symbol;Acc:HGNC:20629]	C2H2 ZF	no	yes	yes	yes	no
@@ -363,7 +363,7 @@ ZNF773	Codebook TF	ENSG00000152439	IPR001909;IPR007087;IPR015880;	374928	zinc fi
 ZNF775	Codebook TF	ENSG00000196456	IPR007087;IPR015880	285971	zinc finger protein 775 [Source:HGNC Symbol;Acc:HGNC:28501]	C2H2 ZF	no	yes	yes	yes	no
 ZNF780B	Codebook TF	ENSG00000128000	IPR001909;IPR007087;IPR015880;	163131	zinc finger protein 780B [Source:HGNC Symbol;Acc:HGNC:33109]	C2H2 ZF	no	yes	yes	yes	no
 ZNF781	Codebook TF	ENSG00000196381	IPR007087;IPR015880	163115	zinc finger protein 781 [Source:HGNC Symbol;Acc:HGNC:26745]	C2H2 ZF	no	yes	yes	yes	no
-ZNF788	Codebook TF	ENSG00000214189	None	None	Zinc finger family member 788 [Source:HGNC Symbol;Acc:HGNC:33112] 	C2H2 ZF	no	yes	yes	yes	no
+ZNF788P	Codebook TF	ENSG00000214189	None	None	Zinc finger family member 788 [Source:HGNC Symbol;Acc:HGNC:33112] 	C2H2 ZF	no	yes	yes	yes	no
 ZNF8	Schmitges control	ENSG00000278129	IPR001909;IPR007087;IPR015880;	7554	Zinc finger protein 8 [Source:HGNC Symbol;Acc:HGNC:13154] 	C2H2 ZF	no	yes	yes	no	yes
 ZNF800	Codebook TF	ENSG00000048405	IPR007087;IPR015880	168850	zinc finger protein 800 [Source:HGNC Symbol;Acc:HGNC:27267]	C2H2 ZF	no	yes	yes	yes	no
 ZNF804A	Codebook TF	ENSG00000170396	IPR007087;IPR022755	91752	zinc finger protein 804A [Source:HGNC Symbol;Acc:HGNC:21711]	C2H2 ZF	no	yes	yes	yes	no
@@ -388,7 +388,7 @@ ZSCAN18	Codebook TF	ENSG00000121413	IPR003309;IPR007087;IPR008916;IPR015880	6598
 ZSCAN2	Codebook TF	ENSG00000176371	IPR003309;IPR007087;IPR008916;IPR015880	54993	zinc finger and SCAN domain containing 2 [Source:HGNC Symbol;Acc:HGNC:20994]	C2H2 ZF	no	yes	yes	no	yes
 ZSCAN25	Codebook TF	ENSG00000197037	IPR003309;IPR007087;IPR008916;IPR015880	221785	zinc finger and SCAN domain containing 25 [Source:HGNC Symbol;Acc:HGNC:21961]	C2H2 ZF	no	yes	yes	no	yes
 ZSCAN4	SMiLE-seq control AND Hughes lab control	ENSG00000180532	IPR003309;IPR007087;IPR008916;IPR015880	201516	zinc finger and SCAN domain containing 4 [Source:HGNC Symbol;Acc:HGNC:23709]	C2H2 ZF	yes	yes	yes	no	yes
-ZUFSP	Codebook TF	ENSG00000153975	IPR007087;IPR012462;IPR015880;	221302	zinc finger with UFM1 specific peptidase domain [Source:HGNC Symbol;Acc:HGNC:21224]	C2H2 ZF	no	yes	yes	no	yes
+ZUP1	Codebook TF	ENSG00000153975	IPR007087;IPR012462;IPR015880;	221302	zinc finger with UFM1 specific peptidase domain [Source:HGNC Symbol;Acc:HGNC:21224]	C2H2 ZF	no	yes	yes	no	yes
 ZXDA	Codebook TF	ENSG00000198205	IPR007087;IPR015880	7789	zinc finger, X	C2H2 ZF	no	yes	yes	yes	yes
 ZXDB	Codebook TF	ENSG00000198455	IPR007087;IPR015880	158586	zinc finger, X	C2H2 ZF	no	yes	yes	yes	no
 ZXDC	Codebook TF	ENSG00000070476	IPR007087;IPR015880	79364	ZXD family zinc finger C [Source:HGNC Symbol;Acc:HGNC:28160]	C2H2 ZF	no	yes	yes	yes	yes
