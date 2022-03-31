@@ -13,7 +13,7 @@ def parse_filename_selex(filename)
 end
 
 # SELEX (and without AffiSeq!)
-['IVT', 'Lysate'].each{|experiment_type|
+['IVT', 'Lysate', 'eGFP_IVT'].each{|experiment_type|
   results_folder = "results_#{experiment_type}"
   FileUtils.mkdir_p "#{results_folder}/train_reads"
   FileUtils.mkdir_p "#{results_folder}/validation_reads"

@@ -24,12 +24,12 @@ module Selex
     # ZNF384-FL_GT40NGCGTGT_Ecoli_GST_BatchYWDA_Cycle2_R1.fastq.gz
     def self.from_filename(filename)
       basename = File.basename(File.basename(filename, '.gz'), '.fastq')
-      tf, barcode_str, experiment_subtype, batch, cycle, reads_part = basename.sub('Ecoli_GST', 'Lysate').split('_')
+      tf, barcode_str, experiment_subtype, batch, cycle, reads_part = basename.sub('Ecoli_GST', 'Lysate').sub('eGFP_IVT', 'GFPIVT').split('_')
       raise "Failed to parse filename `#{filename}`"  unless reads_part == 'R1'
       raise "Failed to parse filename `#{filename}`"  unless batch.start_with?('Batch')
       raise "Failed to parse filename `#{filename}`"  unless cycle.start_with?('Cycle')
-      raise "Unknown experiment subtype `#{experiment_subtype}` for filename `#{filename}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
-      experiment_subtype = experiment_subtype[0,3]
+      raise "Unknown experiment subtype `#{experiment_subtype}` for filename `#{filename}`"  unless ['IVT', 'Lysate', 'GFPIVT'].include?(experiment_subtype)
+      experiment_subtype = {'IVT' => 'IVT', 'Lysate' => 'Lys', 'GFPIVT' => 'GFPIVT'}[experiment_subtype]
       tf = tf.sub(/-(FL|DBD|DBDwLinker)(-\d)?$/, '')
       self.new(tf: tf, experiment_subtype: experiment_subtype,
         cycle: Integer(cycle.sub(/^Cycle/, '')),
@@ -41,24 +41,24 @@ module Selex
 
   DNA_LIBRARY_PATTERN = /^(Toronto_)?(?<barcode>[ACGT]+\d+N[ACGT]+)0?_v1$/
   SampleMetadata = Struct.new(*[
-        :experiment_id, :plasmid_id, :gene_name,
+        :experiment_id, :plasmid_id, :temporary_note, :gene_name,
         :experiment_subtype, :dna_library_id,
         :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename,
-        :well_on_plate, :batch,
+        :well_on_plate, :experimental_note, :batch,
       ], keyword_init: true) do
 
     def self.header_row;
       [
-        'Experiment ID', 'Plasmid ID', 'Gene name', 'IVT or Lysate', 'DNA library ID',
-        'Cycle 1 filename', 'Cycle 2 filename', 'Cycle 3 filename', 'Cycle 4 filename', 'Well on the 96 well plate',
+        'Experiment ID', 'Plasmid ID', 'Temporary edit note to GreCo side', 'Gene name', 'IVT or Lysate', 'DNA library ID',
+        'Cycle 1 filename', 'Cycle 2 filename', 'Cycle 3 filename', 'Cycle 4 filename', 'Well on the 96 well plate', 'Experimental note',
         'Batch'
       ]
     end
 
     def data_row
       self.to_h.values_at(*[
-        :experiment_id, :plasmid_id, :gene_name, :experiment_subtype, :dna_library_id,
-        :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename, :well_on_plate,
+        :experiment_id, :plasmid_id, :temporary_note, :gene_name, :experiment_subtype, :dna_library_id,
+        :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename, :well_on_plate, :experimental_note,
         :batch,
       ])
     end
@@ -80,11 +80,11 @@ module Selex
 
     def self.from_string(line)
       # Example:
-      ## Experiment ID Plasmid ID  Gene name IVT or Lysate DNA library ID  Cycle 1 - file ID Cycle 2 - file ID Cycle 3 - file ID Well on the 96 well plate
+      ## Experiment ID Plasmid ID  Temporary edit note to GreCo side  Gene name IVT or Lysate DNA library ID  Cycle 1 - file ID Cycle 2 - file ID Cycle 3 - file ID  Experimental note  Well on the 96 well plate
       ## YWC_A_AC40NTCCTTG pTH13929  ZBED2 IVT AC40NTCCTTG_v1  ZBED2_AC40NTCCTTG_IVT_BatchYWCA1_Cycle1_R1.fastq.gz ZBED2_AC40NTCCTTG_IVT_BatchYWCA2_Cycle2_R1.fastq.gz ZBED2_AC40NTCCTTG_IVT_BatchYWCA3_Cycle3_R1.fastq.gz A12
-      experiment_id, plasmid_id, gene_name, experiment_subtype, dna_library_id, cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename, well_on_plate = line.chomp.split("\t")
-      raise "Unknown experiment subtype `#{experiment_subtype}`"  unless ['IVT', 'Lysate'].include?(experiment_subtype)
-      experiment_subtype = experiment_subtype[0,3]
+      experiment_id, plasmid_id, temporary_note, gene_name, experiment_subtype, dna_library_id, cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename, well_on_plate, experimental_note = line.chomp.split("\t", 12)
+      raise "Unknown experiment subtype `#{experiment_subtype}`"  unless ['IVT', 'Lysate', 'eGFP_IVT'].include?(experiment_subtype)
+      experiment_subtype = {'IVT' => 'IVT', 'Lysate' => 'Lys', 'eGFP_IVT' => 'GFPIVT'}[experiment_subtype]
       raise  unless dna_library_id.match?(DNA_LIBRARY_PATTERN)
       # barcode_str = dna_library_id.sub(/_v1$/, '') # GT40NGCGTGT_v1 --> GT40NGCGTGT
       # barcode = Selex.parse_barcode(barcode_str)
@@ -98,6 +98,8 @@ module Selex
         cycle_3_filename: filename_or_nil.(cycle_3_filename),
         cycle_4_filename: filename_or_nil.(cycle_4_filename),
         well_on_plate: well_on_plate,
+        temporary_note: temporary_note,
+        experimental_note: experimental_note,
       )
       result[:batch] = result.normalized_basenames.map{|bn| bn[/Batch([^_]+)/, 1] }.join('+')
       result

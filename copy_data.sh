@@ -3,6 +3,10 @@ find -L /mnt/space/hughes/June1st2021/SELEX_RawData/ -xtype f -iname '*.fastq.gz
   | grep -vi AffSeq | grep -vi Control | grep -vi Unselected \
   | xargs -n1 -I{} ln -s {} source_data/HTS/reads/
 
+find -L /mnt/space/hughes/SELEX_RawData/Phase4 -xtype f -iname '*.fastq.gz' \
+  | grep -vPe 'AffiSeq|AffSeq|GHTSELEX' | grep -vi Control | grep -vi Unselected \
+  | xargs -n1 -I{} ln -s {} source_data/HTS/reads/
+
 
 mkdir -p source_data/SMS/reads/unpublished
 find -L /mnt/space/depla/smileseq_raw/ -xtype f -iname '*.fastq' \
