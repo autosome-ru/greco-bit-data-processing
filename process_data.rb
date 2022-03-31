@@ -7,7 +7,7 @@ require_relative 'shared/lib/match_metadata'
 
 require_relative 'shared/lib/dataset_name_parsers'
 
-OLD_RELEASE = '/home_local/vorontsovie/greco-data/release_7a.2021-10-14/full/'
+OLD_RELEASE = '/home_local/vorontsovie/greco-data/release_7b.2022-02-21/full/'
 
 def process_sms_unpublished!
   $stderr.puts "Process unpublished SMiLE-seq data"
@@ -92,6 +92,6 @@ end
 plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
 $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
-process_sms_unpublished!
+#process_sms_unpublished!
 #process_sms_published!
 process_hts!
