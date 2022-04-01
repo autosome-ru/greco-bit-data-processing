@@ -18,21 +18,55 @@ module Selex
   end
 
   Sample = Struct.new(*[:tf, :barcode, :experiment_subtype, :batch, :cycle, :filename], keyword_init: true) do
-
-    # AHCTF1_GG40NCGTAGT_IVT_BatchYWCB_Cycle3_R1.fastq.gz
-    # SNAI1_AC40NGCTGCT_Lysate_BatchAATA_Cycle2_R1.fastq.gz
-    # ZNF384-FL_GT40NGCGTGT_Ecoli_GST_BatchYWDA_Cycle2_R1.fastq.gz
     def self.from_filename(filename)
       basename = File.basename(File.basename(filename, '.gz'), '.fastq')
-      tf, barcode_str, experiment_subtype, batch, cycle, reads_part = basename.sub('Ecoli_GST', 'Lysate').sub('eGFP_IVT', 'GFPIVT').split('_')
-      raise "Failed to parse filename `#{filename}`"  unless reads_part == 'R1'
-      raise "Failed to parse filename `#{filename}`"  unless batch.start_with?('Batch')
-      raise "Failed to parse filename `#{filename}`"  unless cycle.start_with?('Cycle')
+      basename = basename.sub('Ecoli_GST', 'Lysate')
+      basename = basename.sub('eGFP_IVT', 'GFPIVT')
+      basename = basename.sub('Batch_', 'Batch')
+      case basename
+      when /^\w+(-(DBD|FL|DBDwLinker)(-\d)?)?_[ACGT]+\d+N[ACGT]+_(IVT|Lysate)_Batch\w+_Cycle\d_R[12]$/
+        # AHCTF1_GG40NCGTAGT_IVT_BatchYWCB_Cycle3_R1.fastq.gz
+        # SNAI1_AC40NGCTGCT_Lysate_BatchAATA_Cycle2_R1.fastq.gz
+        # ZNF384-FL_GT40NGCGTGT_Ecoli_GST_BatchYWDA_Cycle2_R1.fastq.gz
+        tf_plus_fl_or_dbd, barcode_str, experiment_subtype, batch, cycle, reads_part = basename.split('_')
+        tf = tf_plus_fl_or_dbd.sub(/-(FL|DBD|DBDwLinker)(-\d)?$/, '')
+      when /^\w+_pTH\d+_[ACGT]+\d+N[ACGT]+_(IVT|Lysate)_Batch\w+_(Standard|LongWash)_Well_\w\d+_Cycle\d_Read[12]$/
+        # ATMIN_pTH13619_CA40NAGCGTA_Lysate_Batch_YWKA_Standard_Well_C3_Cycle1_Read1.fastq.gz
+        tf, plasmid_id, barcode_str, experiment_subtype, batch, standard_or_longwash, _well_word, well, cycle, reads_part = basename.split('_')
+      when /^\w+_(FL|DBD|DBDwLinker)\d?_[ACGT]+\d+N[ACGT]+_Well_\w\d+_(IVT|Lysate|GFPIVT)_Batch\w+_Cycle\d_S\d+_R[12]_001$/
+        # PRDM2_DBD2_GT40NGCGTGT_Well_F11_eGFP_IVT_BatchYWPA_Cycle1_S71_R1_001.fastq.gz
+        # S71 — is probably lane number, but not sure
+        tf, fl_or_dbd, barcode_str, _well_word, well, experiment_subtype, batch, cycle, lane, reads_part, _word_001 = basename.split('_')
+        fl_or_dbd = fl_or_dbd.sub(/\d$/, '')
+      when /^\w{3}_A_\w+(\.(FL|DBD|AThook)(\.\d)?)?_[ACGT]+\d+N[ACGT]+_Cycle\d_\w\d+_Read[12]$/
+        # YWM_A_ADNP.DBD.1_CG40NGTTATT_Cycle1_D1_Read1.fastq.gz
+        batch, _a_word, tf_plus_fl_or_dbd, barcode_str, cycle, well, reads_part = basename.split('_')
+        tf = tf_plus_fl_or_dbd.split('.').first
+        if batch == 'YWM'
+          # ATTENTION!!! Hardcoded experiment subtype based on current metadata table!
+          experiment_subtype = 'GFPIVT'
+        elsif batch == 'YWL' || batch == 'YWN' || batch == 'YWO'
+          # ATTENTION!!! Hardcoded experiment subtype based on current metadata table!
+          experiment_subtype = 'Lysate'
+        else
+          raise 'Unknown batch!!!'
+        end
+      when /^YWDA_[ACGT]+\d+N[ACGT]+_\w+_cyc\d_\w+_Read[12]$/
+        # YWDA_TA40NGAGGGT_G05_cyc1_ZMAT4_Read1.fastq.gz — the only sample (4 files)
+        batch, barcode_str, well, cycle, tf, reads_part = basename.split('_')
+        experiment_subtype = 'Lysate'  # ATTENTION!!! Hardcoded experiment subtype based on current metadata table!
+      else
+        raise
+      end
+
+      raise "Failed to parse filename `#{filename}`"  unless reads_part == 'R1' || reads_part == 'Read1'
+#      raise "Failed to parse filename `#{filename}`"  unless batch.start_with?('Batch')
+      raise "Failed to parse filename `#{filename}`"  unless cycle.start_with?('Cycle') || cycle.start_with?('cyc')
       raise "Unknown experiment subtype `#{experiment_subtype}` for filename `#{filename}`"  unless ['IVT', 'Lysate', 'GFPIVT'].include?(experiment_subtype)
       experiment_subtype = {'IVT' => 'IVT', 'Lysate' => 'Lys', 'GFPIVT' => 'GFPIVT'}[experiment_subtype]
       tf = tf.sub(/-(FL|DBD|DBDwLinker)(-\d)?$/, '')
       self.new(tf: tf, experiment_subtype: experiment_subtype,
-        cycle: Integer(cycle.sub(/^Cycle/, '')),
+        cycle: Integer(cycle.sub(/^Cycle/, '').sub(/^cyc/, '')),
         barcode: Selex.parse_barcode(barcode_str),
         batch: batch.sub(/^Batch/, ''),
         filename: filename)
