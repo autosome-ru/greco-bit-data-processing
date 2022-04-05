@@ -103,12 +103,19 @@ module Selex
 
     def experiment_type; "HTS.#{experiment_subtype}"; end
     def tf; gene_name; end
-    def construct_type; $plasmid_by_number[plasmid_id].construct_type; end
+    def construct_type
+      $plasmid_by_number[plasmid_id].construct_type
+    rescue => e
+      $stderr.puts "Can't get construct_type, use NA. Probably missing plasmid #{plasmid_id}. Recovered from error:\n#{e}"
+      'NA'
+    end
 
     def filenames; [cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename].compact; end
     def normalized_basenames
       filenames.map{|fn|
-        fn.sub(/_Cycle\d_R[12].fastq.gz$/, '')
+        File.basename(fn, '.fastq.gz')
+      }.map{|bn|
+        bn.sub(/_001$/, '').sub(/_(S\d+_)?R(ead)?[12]$/, '').sub(/_(Cycle|cyc)\d/, '')
       }.uniq
     end
 
