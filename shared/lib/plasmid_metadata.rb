@@ -23,6 +23,6 @@ PlasmidMetadata = Struct.new(*[
   end
 
   def construct_type
-    plasmid_name.split('.')[2] || 'NA'
+    plasmid_name.sub(/^(eGFP|GST|)\./, '').sub(/\.\d$/, '').split('.')[1] || 'NA'
   end
 end
