@@ -12,14 +12,19 @@ fns = Dir.glob("#{folder}/**/*").map{|fn|
 fns.each{|fn|
   bn = fn.sub(/^#{folder}/, "")
   dn = File.dirname(bn)
+  dst_fn = "#{dst}/#{bn}"
+  if File.exist?(dst_fn)
+    $stderr.puts "#{dst_fn} exists, skip #{fn} copying"
+    next
+  end
   FileUtils.mkdir_p("#{dst}/#{dn}")
   case mode
   when :symlink
-    FileUtils.ln_s(fn, "#{dst}/#{bn}")
+    FileUtils.ln_s(fn, dst_fn)
   when :hardlink
-    FileUtils.ln(fn, "#{dst}/#{bn}")
+    FileUtils.ln(fn, dst_fn)
   when :copy
-    FileUtils.cp(fn, "#{dst}/#{bn}")
+    FileUtils.cp(fn, dst_fn)
   else
     raise "Unknown mode `#{mode}`"
   end
