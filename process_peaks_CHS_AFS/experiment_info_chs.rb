@@ -20,9 +20,11 @@ ExperimentInfoCHS = Struct.new(*[
       'Raw files' => 'raw_files',
       'FilePath' => 'raw_files',
       'RawFiles(/mnt/space/hughes/June1st2021/ChipSeq/)' => 'raw_files',
+      'RawFiles(/mnt/space/hughes/March2022/)' => 'raw_files',
       'Peaks' => 'peaks',
       'Peaks (/mnt/space/ivanyev/egrid/dfs/ctrl-subsampled0.1/peaks-interval/)' => 'peaks',
       'Peaks(/mnt/space/ivanyev/egrid/dfs/ctrl-subsampled0.1/peaks-interval)' => 'peaks',
+      'Peaks(/mnt/space/ivanyev/egrid/dfs/ctrl-subsampled0.02/peaks-interval)' => 'peaks',
       'ReadsID' => 'reads_id',
 
       'peak_count_macs2_nomodel'    => 'peak_count_MACS2_SE',

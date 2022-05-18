@@ -10,6 +10,7 @@ for EXP_TYPE in IVT Lysate; do
   ruby "${SCRIPT_FOLDER}/prepare_peaks_affiseq.rb" "${SOURCE_FOLDER}" "${INTERMEDIATE_FOLDER}" \
     --qc-file source_data_meta/AFS/metrics_by_exp.tsv \
     --qc-file source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv \
+    --qc-file source_data_meta/AFS/metrics_by_exp_affseq_apr2022.tsv \
     --experiment-type ${EXP_TYPE} \
     2> affiseq_${EXP_TYPE}_peaks.log
 done

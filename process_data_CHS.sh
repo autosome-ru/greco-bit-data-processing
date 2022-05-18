@@ -18,6 +18,7 @@ ruby "${SCRIPT_FOLDER}/prepare_peaks_chipseq.rb" "${SOURCE_FOLDER}" "${INTERMEDI
     --qc-file source_data_meta/CHS/metrics_by_exp.tsv \
     --qc-file source_data_meta/CHS/metrics_by_exp_chipseq_feb2021.tsv \
     --qc-file source_data_meta/CHS/metrics_by_exp_chipseq_jun2021.tsv \
+    --qc-file source_data_meta/CHS/metrics_by_exp_chipseq_apr2022.tsv \
     2> chipseq_peaks.log
 
 mkdir -p ${INTERMEDIATE_FOLDER}/Train_sequences/
