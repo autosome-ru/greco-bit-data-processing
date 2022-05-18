@@ -1402,3 +1402,7 @@ Index	Plasmid Number	Plasmid backbone	Plasmid Name	Insert Name	Gene Name	Notes
 1407	pTH13877	pTH13195	PURB.FL	PURB.FL	PURB	codebook clone
 1408	pTH13878	pTH13195	PURG.FL	PURG.FL	PURG	codebook clone
 1409	pTH13891	pTH13195	TCF20.FL	TCF20.FL	TCF20	codebook clone
+1410	UT380-050	Pf3a_Enz_Res_egfp	DACH1.DBD	DACH1.DBD	DACH1	Deplancke Lab eGFP IVT
+1411	UT380-150	Pf3a_Enz_Res_egfp	POU5F1.FL	POU5F1.FL	POU5F1	Deplancke Lab eGFP IVT
+1412	pTH13195	pTH13195	eGFP	eGFP	eGFP	Hughes Lab control
+1413	pTH13681	pTH13195	ZNF326.FL	ZNF326.FL	ZNF326	Codebook clone; Same as pTH13429
