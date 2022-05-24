@@ -25,30 +25,23 @@ module Affiseq
     end
 
     def supposed_filenames
-      template = [
-        cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
-        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, cycle_4_read_2_filename,
-      ].compact.first
+      template = filenames.first
 
-      (1..4).flat_map{|cycle|
-        (1..2).flat_map{|read_number|
-          # ?! what about YWL_B_SLC2A4RG_AffiSeq_Cycle2_A1_Read1.fastq.gz and other complex names
-          [
+      guesses = (1..4).flat_map{|cycle|
+        (1..2).map{|read_number|
+          # Known problem: S-part can't be derived
+          # POU5F2-FL_GHTSELEX-Well-A5_eGFP-IVT_BatchYWQB_Cycle1_S293_R1_001.fastq.gz
+          # POU5F2-FL_GHTSELEX-Well-A5_eGFP-IVT_BatchYWQB_Cycle3_S1061_R1_001.fastq.gz
             template.sub(/_Cycle\d(_\w\d+)?_R(ead)?[12]\.fastq(\.gz)?$/, "_Cycle#{cycle}\\1_R\\2#{read_number}.fastq\\3") \
                     .sub(/_Cycle\d_(S\d+)_R[12]_001\.fastq(\.gz)?$/, "_Cycle#{cycle}_\\1_R#{read_number}_001.fastq\\2") \
                     .sub(/_cyc\d_read[12]\.fastq(\.gz)?$/, "_cyc#{cycle}_read#{read_number}.fastq\\1")
-            # "#{normalized_basename}_Cycle#{cycle}_R#{read_number}.fastq.gz",
-
-          ]
         }
       }
+      (filenames + guesses).uniq
     end
 
     def normalized_basename
-      [
-        cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
-        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, cycle_4_read_2_filename,
-      ].compact.map{|fn|
+      filenames.map{|fn|
         # ZNF490_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz
         # ZNF672_pTH13735_AffiSeq_Lysate_Batch_YWKB_Standard_Well_G11_Cycle1_Read1.fastq.gz
         # ZNF850-DBD2_GHTSELEX-Well-C12_eGFP-IVT_BatchYWSB_Cycle1_S1476_R1_001.fastq.gz
