@@ -2,6 +2,7 @@ require 'fileutils'
 require 'tempfile'
 require 'optparse'
 require_relative '../shared/lib/index_by'
+require_relative '../shared/lib/affiseq_metadata'
 require_relative 'utils'
 require_relative 'peak_preparation_utils'
 require_relative 'experiment_info_extension'
@@ -25,8 +26,9 @@ option_parser.parse!(ARGV)
 SOURCE_FOLDER = ARGV[0] # 'source_data/affiseq'
 RESULTS_FOLDER = ARGV[1] # 'results/affiseq_Lysate'
 
+metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
 experiment_infos = metrics_fns.flat_map{|fn|
-  ExperimentInfoAFS.each_from_file(fn).to_a
+  ExperimentInfoAFS.each_from_file(fn, metadata).to_a
 }
 experiment_infos = experiment_infos.reject{|info| info.type == 'control' }.to_a
 experiment_infos.each{|info|

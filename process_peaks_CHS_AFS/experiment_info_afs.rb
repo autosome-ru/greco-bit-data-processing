@@ -8,7 +8,21 @@ ExperimentInfoAFS = Struct.new(*[
   :align_count, :align_percent, :read_count,
 ], keyword_init: true) do
   include ExperimentInfoExtension
-  def self.from_string(str, header:)
+
+  def self.each_from_file(filename, metadata, &block)
+    return enum_for(:each_from_file, filename, metadata)  unless block_given?
+    header, *rows = File.readlines(filename)
+    metadata_index = metadata.index_by(&:normalized_basename)
+    rows.each{|l|
+      yield self.from_string_and_metadata_index(l, header: header, metadata_by_normalized_basename: metadata_index)
+    }
+  end
+
+  def self.from_string(str, header:, metadata:)
+    from_string_and_metadata_index(str, header: header, metadata_by_normalized_basename: metadata.index_by(&:normalized_basename))
+  end
+
+  def self.from_string_and_metadata_index(str, header:, metadata_by_normalized_basename:)
     header = header.chomp.split("\t", 100500)  if header.is_a?(String)
     unpacked_row = str.chomp.split("\t", 100500)
     header_mapping = {
@@ -48,12 +62,22 @@ ExperimentInfoAFS = Struct.new(*[
       tf = nil
       type = 'control'
     else
-      if raw_files.first.match?(/AffSeq_IVT/)
+      if raw_files.first.match?(/Affi?Seq_IVT/)
         type = 'IVT'
-      elsif raw_files.first.match?(/AffSeq_Lysate/)
+      elsif raw_files.first.match?(/Affi?Seq_Lysate/)
         type = 'Lysate'
       elsif raw_files.first.match?(/Ecoli_GST/)
         type = 'Lysate'
+      elsif raw_files.first.match?(/eGFP-IVT/)
+        type = 'GFPIVT'
+      else
+        bn = File.basename(raw_files.first) \
+          .sub(/_Cycle\d(_\w\d+)?_R(ead)?[12]\.fastq(\.gz)?$/, '') \
+          .sub(/_Cycle\d_S\d+_R[12]_001\.fastq(\.gz)?$/, '') \
+          .sub(/_cyc\d_read[12]\.fastq(\.gz)?$/, '')
+        type = metadata_by_normalized_basename[bn].ivt_or_lysate
+        type = {'Lys' => 'Lysate'}.fetch(type, type)
+        raise "Cannot infer type for #{bn}"  if !type
       end
 
       batch = raw_files.map{|fn| File.basename(fn)[/Batch([^_]+)/, 1] }.uniq.take_the_only
@@ -86,7 +110,7 @@ ExperimentInfoAFS = Struct.new(*[
     case type
     when 'control'
       raise "No peak file for control #{peak_id}"
-    when 'IVT', 'Lysate'
+    when 'IVT', 'Lysate', 'GFPIVT'
       "#{source_folder}/peaks-intervals/#{peak_caller}/#{peak_id}.interval"
     else
       raise "Unknown type `#{type}` for #{peak_id}"
