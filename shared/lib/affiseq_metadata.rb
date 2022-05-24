@@ -10,8 +10,8 @@ module Affiseq
   SampleMetadata = Struct.new(*[
         :experiment_id, :plasmid_id, :gene_name, :ivt_or_lysate, :dna_library_id, :well,
         :cycle_1_filename, :cycle_2_filename, :cycle_3_filename, :cycle_4_filename,
-        :cycle_1_read_2_filename, :cycle_2_read_2_filename, :cycle_3_read_2_filename, #:cycle_4_read_2_filename,
-        :folder,
+        :cycle_1_read_2_filename, :cycle_2_read_2_filename, :cycle_3_read_2_filename, :cycle_4_read_2_filename,
+        :folder, :experimental_note,
         :batch,
       ], keyword_init: true) do
 
@@ -20,13 +20,14 @@ module Affiseq
     def filenames # known to be highly incomplete
       [
         cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
-        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, # cycle_4_read_2_filename,
+        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, cycle_4_read_2_filename,
       ].compact
     end
 
     def supposed_filenames
       (1..4).flat_map{|cycle|
         (1..2).map{|read_number|
+          # ?! what about YWL_B_SLC2A4RG_AffiSeq_Cycle2_A1_Read1.fastq.gz and other complex names
           "#{normalized_basename}_Cycle#{cycle}_R#{read_number}.fastq.gz"
         }
       }
@@ -35,9 +36,16 @@ module Affiseq
     def normalized_basename
       [
         cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
-        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, #cycle_4_read_2_filename,
+        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, cycle_4_read_2_filename,
       ].compact.map{|fn|
-        fn.sub(/_Cycle\d_R[12].fastq.gz$/, '')
+        # ZNF490_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz
+        # ZNF672_pTH13735_AffiSeq_Lysate_Batch_YWKB_Standard_Well_G11_Cycle1_Read1.fastq.gz
+        # ZNF850-DBD2_GHTSELEX-Well-C12_eGFP-IVT_BatchYWSB_Cycle1_S1476_R1_001.fastq.gz
+        # YWDB_AffSeq_G05_ZMAT4_cyc2_read1.fastq.gz
+        fn.sub(/_Cycle\d(_\w\d+)?_R(ead)?[12]\.fastq(\.gz)?$/, '') \
+          .sub(/_Cycle\d_S\d+_R[12]_001\.fastq(\.gz)?$/, '') \
+          .sub(/_cyc\d_read[12]\.fastq(\.gz)?$/, '')
+
       }.uniq.take_the_only
     end
 
@@ -45,38 +53,39 @@ module Affiseq
       # Example:
       ## Experiment ID Plasmid ID  Gene name IVT or Lysate DNA library ID  Well  Filename Read1 Cycle1 Filename Read1 Cycle2 Filename Read1 Cycle3
       ## AATA_AffSeq_D5_GLI4 pTH15820  GLI4  Lysate  AffiSeqV1 D5  GLI4_AffSeq_Lysate_BatchAATA_Cycle1_R1.fastq.gz GLI4_AffSeq_Lysate_BatchAATA_Cycle2_R1.fastq.gz GLI4_AffSeq_Lysate_BatchAATA_Cycle3_R1.fastq.gz
-      fn_converter = ->(fn){ (fn.start_with?('No cycle ') || fn.start_with?('No read ') || fn.empty? || fn.downcase == 'no') ? nil : fn }
+      fn_converter = ->(fn){ (fn.start_with?('No cycle ') || fn.start_with?('No read ') || fn.start_with?('No_Data') || fn.empty? || fn.downcase == 'no') ? nil : fn }
 
-      experiment_id, plasmid_id, gene_name, ivt_or_lysate, dna_library_id, well, \
+      experiment_id, plasmid_id, _temp_note, gene_name, ivt_or_lysate, dna_library_id, well, \
         cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename, \
-        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, \
-        # cycle_4_read_2_filename,
+        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, cycle_4_read_2_filename, experimental_note, \
         folder = line.chomp.split("\t")
-      raise "Unknown type #{ivt_or_lysate} (should be IVT/Lysate)"  unless ['IVT', 'Lysate'].include?(ivt_or_lysate)
+      raise "Unknown type #{ivt_or_lysate} (should be IVT/Lysate)"  unless ['IVT', 'Lysate', 'eGFP_IVT'].include?(ivt_or_lysate)
 
+      ivt_or_lysate = {'IVT' => 'IVT', 'Lysate' => 'Lys', 'eGFP_IVT' => 'GFPIVT'}.fetch(ivt_or_lysate, ivt_or_lysate)
       result = self.new(
         experiment_id: experiment_id, plasmid_id: plasmid_id, gene_name: gene_name,
-        ivt_or_lysate: ivt_or_lysate[0,3], dna_library_id: dna_library_id, well: well,
+        ivt_or_lysate: ivt_or_lysate, dna_library_id: dna_library_id, well: well,
         cycle_1_filename: fn_converter.call(cycle_1_filename), cycle_2_filename: fn_converter.call(cycle_2_filename),
         cycle_3_filename: fn_converter.call(cycle_3_filename), cycle_4_filename: fn_converter.call(cycle_4_filename),
         cycle_1_read_2_filename: fn_converter.call(cycle_1_read_2_filename),
         cycle_2_read_2_filename: fn_converter.call(cycle_2_read_2_filename),
         cycle_3_read_2_filename: fn_converter.call(cycle_3_read_2_filename),
-        # cycle_4_read_2_filename: nil,
+        cycle_4_read_2_filename: fn_converter.call(cycle_4_read_2_filename),
         folder: folder,
+        experimental_note: experimental_note,
       )
       result[:batch] = result.normalized_basename[/Batch([^_]+)/, 1]
       result
     end
 
     def to_s
-      ivt_or_lysate_mapping = {'IVT' => 'IVT', 'Lys' => 'Lysate'}
+      ivt_or_lysate_mapping = {'IVT' => 'IVT', 'Lys' => 'Lysate', 'GFPIVT' => 'eGFP_IVT'}
       [experiment_id, plasmid_id, gene_name,
-        ivt_or_lysate_mapping[ivt_or_lysate],
+        ivt_or_lysate_mapping.fetch(ivt_or_lysate, ivt_or_lysate),
         dna_library_id, well,
         *[
           cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
-          cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, #cycle_4_read_2_filename,
+          cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, cycle_4_read_2_filename,
         ].map{|fn| fn || 'no' },
         folder].join("\t")
     end

@@ -4,7 +4,7 @@ SCRIPT_FOLDER=./process_peaks_CHS_AFS/
 RESULTS_FOLDER=./source_data_prepared/AFS.Peaks
 
 # It's essential that IVT and Lysate datasets are stored into different intermediate folders: they can conflict
-for EXP_TYPE in IVT Lysate; do
+for EXP_TYPE in IVT Lysate GFPIVT; do
   INTERMEDIATE_FOLDER=./results_databox_afs_${EXP_TYPE}
   mkdir -p "${INTERMEDIATE_FOLDER}"
   ruby "${SCRIPT_FOLDER}/prepare_peaks_affiseq.rb" "${SOURCE_FOLDER}" "${INTERMEDIATE_FOLDER}" \
@@ -15,7 +15,7 @@ for EXP_TYPE in IVT Lysate; do
     2> affiseq_${EXP_TYPE}_peaks.log
 done
 
-for EXP_TYPE in IVT Lysate; do
+for EXP_TYPE in IVT Lysate GFPIVT; do
   INTERMEDIATE_FOLDER=./results_databox_afs_${EXP_TYPE}/
   mkdir -p ${INTERMEDIATE_FOLDER}/Train_sequences/
   for FN in $(find ${INTERMEDIATE_FOLDER}/Train_intervals/ -xtype f); do
@@ -30,7 +30,7 @@ for EXP_TYPE in IVT Lysate; do
   done
 done
 
-for EXP_TYPE in IVT Lysate; do
+for EXP_TYPE in IVT Lysate GFPIVT; do
   (
     INTERMEDIATE_FOLDER=./results_databox_afs_${EXP_TYPE}/
     for SLICE_TYPE in Train Val; do
