@@ -23,8 +23,8 @@ option_parser = OptionParser.new{|opts|
 }
 option_parser.parse!(ARGV)
 
-SOURCE_FOLDER = ARGV[0] # 'source_data/affiseq'
-RESULTS_FOLDER = ARGV[1] # 'results/affiseq_Lysate'
+SOURCE_FOLDER = ARGV[0] # './source_data/AFS'
+RESULTS_FOLDER = ARGV[1] # './results_databox_afs_Lysate2'
 
 metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
 experiment_infos = metrics_fns.flat_map{|fn|
