@@ -83,8 +83,9 @@ ExperimentInfoAFS = Struct.new(*[
       batch = raw_files.map{|fn| File.basename(fn)[/Batch([^_]+)/, 1] }.uniq.take_the_only
     end
 
-    cycle_number_variants = raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cycle\d+/] }.uniq
+    cycle_number_variants = raw_files.map{|fn| File.basename(fn, '.fastq.gz') }.map{|bn| bn[/Cyc(le)?(\d+)/i,2] }.uniq
     cycle_number = (type != 'control') ? take_the_only(cycle_number_variants) : nil
+    cycle_number = "Cycle#{cycle_number}"
 
     self.new(
       experiment_id: experiment_id, peak_id: peak_id, tf: tf, raw_files: raw_files, type: type, cycle_number: cycle_number, batch: batch,
