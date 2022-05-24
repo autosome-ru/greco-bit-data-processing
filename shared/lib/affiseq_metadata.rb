@@ -25,10 +25,21 @@ module Affiseq
     end
 
     def supposed_filenames
+      template = [
+        cycle_1_filename, cycle_2_filename, cycle_3_filename, cycle_4_filename,
+        cycle_1_read_2_filename, cycle_2_read_2_filename, cycle_3_read_2_filename, cycle_4_read_2_filename,
+      ].compact.first
+
       (1..4).flat_map{|cycle|
-        (1..2).map{|read_number|
+        (1..2).flat_map{|read_number|
           # ?! what about YWL_B_SLC2A4RG_AffiSeq_Cycle2_A1_Read1.fastq.gz and other complex names
-          "#{normalized_basename}_Cycle#{cycle}_R#{read_number}.fastq.gz"
+          [
+            template.sub(/_Cycle\d(_\w\d+)?_R(ead)?[12]\.fastq(\.gz)?$/, "_Cycle#{cycle}\\1_R\\2#{read_number}.fastq\\3") \
+                    .sub(/_Cycle\d_(S\d+)_R[12]_001\.fastq(\.gz)?$/, "_Cycle#{cycle}_\\1_R#{read_number}_001.fastq\\2") \
+                    .sub(/_cyc\d_read[12]\.fastq(\.gz)?$/, "_cyc#{cycle}_read#{read_number}.fastq\\1")
+            # "#{normalized_basename}_Cycle#{cycle}_R#{read_number}.fastq.gz",
+
+          ]
         }
       }
     end
