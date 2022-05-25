@@ -4,6 +4,7 @@ import glob
 import itertools
 from collections import defaultdict
 import re
+import csv
 import multiprocessing
 import hashlib
 import pymysql
@@ -11,7 +12,7 @@ import pysam
 from gzip_utils import open_for_read, open_for_write
 
 metrics_fn = sys.argv[1] # 'source_data_meta/AFS/metrics_by_exp.tsv'
-db_name = sys.argv[2]    # 'greco_affyseq'  or  'greco_affiseq_jun2021'
+db_name = sys.argv[2]    # 'greco_affyseq'  or  'greco_affiseq_jun2021'  or  'greco_affiseq_apr2022'
 NUM_THREADS = 20
 TRAIN_CHR = {f"chr{chr}" for chr in range(1,22,2)} # chr1, chr3, ..., chr21
 VALIDATION_CHR = {f"chr{chr}" for chr in range(2,23,2)}  # chr2, chr4, ..., chr22
@@ -30,7 +31,11 @@ def normalize_filename(raw_fn):
     bn = re.sub(r'_cyc(\d)_read[12]\.fastq(\.gz)?$', r'_Cycle\1', bn, flags=re.IGNORECASE)
     return bn
 
-def read_experiment_meta(filename):
+def read_metadata(filename):
+    with open(filename) as f:
+        return list(csv.DictReader(f, delimiter='\t'))
+
+def read_experiment_metrics_meta(filename):
     header_mapping = {
       "Peaks (/home_local/ivanyev/egrid/dfs-affyseq/peaks-interval)": "Peaks",
       "Raw files": "RawFiles",
@@ -62,7 +67,7 @@ def read_experiment_meta(filename):
     return result
 
 def get_experiment_infos(db_connection):
-    # Table `hub` 
+    # Table `hub`
     # +--------------+--------------------+-----------+--------------------+--------------+
     # | input        | input_type         | output    | output_type        | specie       |
     # +--------------+--------------------+-----------+--------------------+--------------+
@@ -163,29 +168,64 @@ db_connection = pymysql.connect(**MYSQL_CONFIG)
 records = get_experiment_infos(db_connection)
 experiments, alignment_by_experiment, reads_by_experiment = infos_by_alignment(records)
 
-meta_by_experiment = read_experiment_meta(metrics_fn)
+metadata = read_metadata('source_data_meta/AFS/AFS.tsv')
+metrics_meta_by_experiment = read_experiment_metrics_meta(metrics_fn)
 
 def task_generator():
     for experiment in experiments:
-        if experiment not in meta_by_experiment:
+        if experiment not in metrics_meta_by_experiment:
             print(f'No metadata for {experiment}. Skip it.', file=sys.stderr)
             continue
-        experiment_meta = meta_by_experiment[experiment]
+        experiment_meta = metrics_meta_by_experiment[experiment]
         tf = experiment_meta['tf']
         if tf == 'CONTROL' or tf == 'NULL':
             continue
         alignment = alignment_by_experiment[experiment]
         read_basenames = reads_by_experiment[experiment]
         basename = experiment_meta['basename']
-        basename_parts = basename.replace('Ecoli_GST', 'Lysate').split('_')
-        if len(basename_parts) == 5:    # ZNF596_AffSeq_Lysate_BatchAATA_Cycle3
-            _tf, _, ivt_or_lysate, batch, cycle = basename_parts
-        elif len(basename_parts) == 6:  # NR1H4_AffSeq_IVT_BatchYWFB_D12_Cycle4  or  FIZ1-FL_AffSeq_IVT_BatchYWFB_E01_Cycle1
-            _tf_extended, _, ivt_or_lysate, batch, _well, cycle = basename_parts
+        basename_normalized = basename
+        basename_normalized = basename_normalized.replace('Ecoli_GST', 'Lysate')
+        basename_normalized = basename_normalized.replace('eGFP-IVT', 'GFPIVT')
+        # basename_normalized = basename_normalized.replace('Batch_', 'Batch')
+        basename_parts = basename_normalized.split('_')
+        if len(basename_parts) == 5:
+            if basename_parts[1].startswith('GHTSELEX-Well'):
+                # ZNF865-DBD2_GHTSELEX-Well-G12_eGFP-IVT_BatchYWSB_Cycle1
+                _tf_extended, _well, ivt_or_lysate, batch, cycle = basename_parts
+            elif basename_parts[3].startswith('Batch'):
+                # ZNF596_AffSeq_Lysate_BatchAATA_Cycle3
+                _tf, _, ivt_or_lysate, batch, cycle = basename_parts
+            else:
+                # YWDB_AffSeq_G05_ZMAT4_Cycle1
+                batch, _, _well, _tf, cycle = basename_parts
+                ivt_or_lysate = None
+        elif len(basename_parts) == 6:
+            if basename_parts[5].startswith('Cycle'):
+                # NR1H4_AffSeq_IVT_BatchYWFB_D12_Cycle4  or  FIZ1-FL_AffSeq_IVT_BatchYWFB_E01_Cycle1
+                _tf_extended, _, ivt_or_lysate, batch, _well, cycle = basename_parts
+            else:
+                # YWO_B_THAP7.FL_AffiSeq_Cycle1_G12
+                batch, _batchsuffix, _tf_extended, _, cycle, _well = basename_parts
+                if _batchsuffix != 'B':
+                    raise Exception('format mismatch')
+                ivt_or_lysate = None
+        elif len(basename_parts) == 10:  # PCGF2_pTH13872_AffiSeq_Lysate_Batch_YWKD_LongWash_Well_H12_Cycle1
+            _tf, _plasmid, _, ivt_or_lysate, _, batch, _longwash_or_standard, _, _well, cycle = basename_parts
+            batch = f'Batch{batch}'
         else:
             raise Exception(f'Unknown sample basename format `{basename}`')
         peak = experiment_meta['peaks']
-        
+        if ivt_or_lysate is None:
+            ivt_or_lysate = 'Unknown'
+            relevant_infos = [info  for info in metadata if info['Filename Read1 Cycle1'].startswith(re.sub(r'_Cycle\d', '', basename))]
+            if len(relevant_infos) > 1:
+                print(f"Can't choose metadata for {basename}, too many options: {relevant_infos}", file=sys.stderr)
+            elif len(relevant_infos) == 0:
+                print(f"Can't choose metadata for {basename}, no options", file=sys.stderr)
+            else:
+                ivt_or_lysate = relevant_infos[0]['IVT or Lysate']
+                re.sub('eGFP_IVT', 'GFPIVT', ivt_or_lysate)
+
         alignment_fn = f"{ALIGNMENT_DIRNAME}/{alignment}.bam"
         RESULTS_FOLDER = f'results_databox_afs_reads_{ivt_or_lysate}'
         train_fn      = f'{RESULTS_FOLDER}/Train_sequences/{tf}.{ivt_or_lysate}.{cycle}.{peak}.{batch}.asReads.affiseq.train.fastq.gz' # ToDo: check suffix
@@ -193,7 +233,7 @@ def task_generator():
         fastq_fns = [f"{FASTQ_DIRNAME}/{fastq_bn}.fastq.gz"  for fastq_bn in read_basenames]
         yield (fastq_fns, alignment_fn, train_fn, validation_fn)
 
-for ivt_or_lysate in ['IVT', 'Lysate']:
+for ivt_or_lysate in ['IVT', 'Lysate', 'GFPIVT']:
     for train_or_validate in ['Train', 'Val']:
         folder = f'results_databox_afs_reads_{ivt_or_lysate}/{train_or_validate}_sequences/'
         if not os.path.exists(folder):
