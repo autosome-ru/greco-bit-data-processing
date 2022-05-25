@@ -22,6 +22,14 @@ SOURCE_DIRNAME = 'source_data/AFS/'
 ALIGNMENT_DIRNAME = f'{SOURCE_DIRNAME}/aligns-sorted'
 FASTQ_DIRNAME = f'{SOURCE_DIRNAME}/trimmed'
 
+# ChipSeq/Patch/SRY_AffSeq_IVT_BatchYWFB_D11_Cycle1_R1.fastq.gz --> SRY_AffSeq_IVT_BatchYWFB_D11_Cycle1
+def normalize_filename(raw_fn):
+    bn = os.path.basename(raw_fn)
+    bn = re.sub(r'_Cycle(\d)(_\w\d+)?_R(ead)?[12]\.fastq(\.gz)?$', r'_Cycle\1', bn, flags=re.IGNORECASE)
+    bn = re.sub(r'_Cycle(\d)_S\d+_R[12]_001\.fastq(\.gz)?$', r'_Cycle\1', bn, flags=re.IGNORECASE)
+    bn = re.sub(r'_cyc(\d)_read[12]\.fastq(\.gz)?$', r'_Cycle\1', bn, flags=re.IGNORECASE)
+    return bn
+
 def read_experiment_meta(filename):
     header_mapping = {
       "Peaks (/home_local/ivanyev/egrid/dfs-affyseq/peaks-interval)": "Peaks",
@@ -44,8 +52,7 @@ def read_experiment_meta(filename):
                 result[experiment_id] = {'tf': 'CONTROL', 'basename': fastq_bn, 'peaks': peaks}
                 continue
             raw_files = raw_files.split(';')
-            # ChipSeq/Patch/SRY_AffSeq_IVT_BatchYWFB_D11_Cycle1_R1.fastq.gz --> SRY_AffSeq_IVT_BatchYWFB_D11_Cycle1
-            fastq_bns = set(re.sub(r'_R[12].fastq.gz', '', os.path.basename(raw_fn)) for raw_fn in raw_files)
+            fastq_bns = set(normalize_filename(raw_fn) for raw_fn in raw_files)
             if len(fastq_bns) != 1:
                 raise Exception('mismatching FASTQ files')
             fastq_bn = fastq_bns.pop()
