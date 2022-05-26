@@ -1,0 +1,68 @@
+(0) Посмотреть на пропавшие из UI эксперименты Хьюза
+
+(1) Узнать, что там с AUC 0.0 / 1.0
+
+(2)
+ToDo для Ивана:
+пересчитать датасеты, когда их перезальют:
+	/mnt/space/hughes/June1st2021/ChipSeq/CAMTA1ChIP2_IGO_10521_73_S21_R1_001.fastq.gz — битый
+	/mnt/space/hughes/June1st2021/ChipSeq/Hughes_SI0382_ZNF16_AGTCAA_L005_R1_001.fastq.gz — битый
+	GFPChIP1_IGO_10521_68 — отсутствует
+	GFPChIP2_IGO_10521_76 — отсутствует
+
+
+
+
+
+Странные сопоставления exp_id -> gene_name в метаданных аффисека
+
+Experiment ID	Gene name
+YWD_B_AffSeq_C01_ZNF428	DNTTIP1
+YWD_B_AffSeq_F07_RFX5	TSC22D1
+YWD_B_AffSeq_G09_ZNF165	ZBTB41
+YWE_B_AffSeq_D06_ZNF788	ZNF788P
+YWE_B_AffSeq_E02_TRAFD1	ZBTB41
+
+проверить, что там с YWD_B_AffSeq_G09_ZNF165, у которого тип Ecoli_GST -> Lys. Применилось ли это преобразование типа?
+В ридах да. А пиков не сформировано почему-то
+
+
+В аффисеках есть странный датасет CTCF HT-SELEX: YWI_B_HT-SELEX_H12 
+
+
+- выкинуть ZNF997, он не нужен
+
+В папке AFS (и в таблицах BioUML) есть файл, которого нет в мете:
+	ZNF997_AffSeq_Lysate_BatchAATA
+
+
+В папке HTS есть файлы, для которых нет меты:
+	ZNF280A_TC40NGTTTTG_IVT_BatchAATBA
+	ZNF997_TA40NGTTAGC_Lysate_BatchAATA
+
+Разные циклы в разных батчах:
+	ZBED2_AC40NTCCTTG_IVT_BatchYWCA1
+	ZBED2_AC40NTCCTTG_IVT_BatchYWCA2
+
+
+
+In `TFGenes` cells of columns "Present in * sheet" were replaced with true/false.
+
+
+In `Plasmids`:
+- pTH15990 --> pTH15883 (row id=889).
+- Column J (Plasmid name) should be removed as a duplicate for column B.
+- Columns R, W have no heading. Should be either removed or named
+- Column S,T,U,V are empty. Should be removed
+
+In `Inserts`:
+- (NOT YET APPLIED) Plasmid name eGFP.OCT4/POU5F1 -> eGFP.POU5F1, GST.OCT4/POU5F1 -> GST.POU5F1
+- empty columns
+- the last column `DBD type` is duplicated
+
+
+CHS:
+- THC_0272 and THC_0277 are missing. Is that ok?
+- What is going on with THC_0231	[-pTH13799	TIGD7	pTH13799.1.2-]{+pTH13635	PRDM13	pTH13635.1.2+}	PRDM13ChIP2	ChIP	2		PRDM13ChIP2_IGO_10521_47_S111_R2_001.fastq.gz	MSK	{+3+}
+- (NOT YET APPLIED) added column `Batch`
+

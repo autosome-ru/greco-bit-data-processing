@@ -1,0 +1,180 @@
+Сделать prefix для tempfile-ов в бенчмарках и создавать файлы в working directory, чтобы можно следить за промежуточными файлами каждого мотива
+
+
+ChIPMunk/autosome-ru	/home_local/pavelkrav/GRECO_3_iter_pcms/AFS	Affi-Seq motifs from ChIPMunk
+ChIPMunk/autosome-ru	/home_local/pavelkrav/GRECO_3_iter_pcms/CHS	ChIP-Seq motifs from ChIPMunk
+Dimont/Halle	/home_local/jangrau/models_r7/AFS	Affi-Seq motifs from Dimont, ppms of models
+Dimont/Halle	/home_local/jangrau/models_r7/CHS	ChIP-Seq motifs from Dimont, ppms of models
+Dimont/Halle	/home_local/jangrau/models_r7/PBM.QNZS	PBM motifs from Dimont, ppms of models
+Dimont/Halle	/home_local/jangrau/models_r7/PBM.SDQN	PBM motifs from Dimont, ppms of models
+Dimont/Halle	/home_local/jangrau/models_r7/SMS	SMiLE-Seq motifs from Dimont, ppms of models
+Dimont/Halle	/home_local/jangrau/models_r7/SMS.published	SMiLE-Seq motifs from Dimont, ppms of models
+ChIPMunk/autosome-ru	/home_local/arsen_l/greco-bit/motifs/motif_collection_release_7.2021-08-14/HTS/pcms	HTS motifs from DiChIPMunk, converted to mono
+ChIPMunk/autosome-ru	/home_local/arsen_l/greco-bit/motifs/motif_collection_release_7.2021-08-14/SMS/pcms	SMiLE-Seq motifs from DiChIPMunk, converted to mono
+ChIPMunk/autosome-ru	/home_local/arsen_l/greco-bit/motifs/motif_collection_release_7.2021-08-14/AFS/pcms	AffiSeq.Reads motifs from DiChIPMunk, converted to mono
+ChIPMunk/autosome-ru	/home_local/vorontsovie/greco-bit-data-processing/motifs_pbm_release_7	PBM motifs from ChIPMunk
+*/HughesLab	/mnt/space/hughes/Motifs_10_06/Motifs/	from Mihai
+
+hgnc_mapping = {
+  'ZNF788' => 'ZNF788P',
+  'ZUFSP' => 'ZUP1',
+  'TPRX' => 'TPRX1',
+  'OKT4' => 'POU5F1',
+  'cJUN' => 'JUN',
+  'ZFAT1' => 'ZFAT',
+  'C11orf95' => 'ZFTA',
+}
+
+
+vorontsovie@greco-bit:~/greco-bit-data-processing$ find ~/greco-motifs/release_7_motifs_2020-10-13/ -xtype f | wc -l
+27604
+vorontsovie@greco-bit:~/greco-bit-data-processing$ find ~/greco-data/release_7a.2021-10-14/full/ -xtype f | wc -l
+16214
+
+
+
+pwmeval_selex (91382 invocations)
+        Command being timed: "parallel -j 39"
+        User time (seconds): 5495.59
+        System time (seconds): 2887.68
+        Percent of CPU this job got: 77%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 3:00:16
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 61760
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 0
+        Minor (reclaiming a frame) page faults: 719820187
+        Voluntary context switches: 39719265
+        Involuntary context switches: 4584583
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 16358088
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+
+centrimo (59410 invocations)
+        User time (seconds): 1873.82
+        System time (seconds): 2352.99
+        Percent of CPU this job got: 22%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 5:15:01
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 61380
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 5
+        Minor (reclaiming a frame) page faults: 504169375
+        Voluntary context switches: 47333084
+        Involuntary context switches: 126944
+        Swaps: 0
+        File system inputs: 72
+        File system outputs: 13362896
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+
+pwmeval_peaks (59410 invocations)
+        User time (seconds): 1887.70
+        System time (seconds): 2342.10
+        Percent of CPU this job got: 22%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 5:09:41
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 61696
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 0
+        Minor (reclaiming a frame) page faults: 505061242
+        Voluntary context switches: 47142794
+        Involuntary context switches: 370386
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 13210712
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+
+VIGG_peaks
+        User time (seconds): 1903.72
+        System time (seconds): 2438.66
+        Percent of CPU this job got: 22%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 5:17:28
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 62648
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 48
+        Minor (reclaiming a frame) page faults: 518157592
+        Voluntary context switches: 47670216
+        Involuntary context switches: 237419
+        Swaps: 0
+        File system inputs: 2336
+        File system outputs: 13229832
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+
+
+PBM (76264 invocations)
+        User time (seconds): 2619.75
+        System time (seconds): 3087.50
+        Percent of CPU this job got: 12%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 12:22:19
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 62248
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 716
+        Minor (reclaiming a frame) page faults: 648361754
+        Voluntary context switches: 60006940
+        Involuntary context switches: 640752
+        Swaps: 0
+        File system inputs: 73968
+        File system outputs: 17092704
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+
+
+
+
+
+
+=================================================
+
+centrimo errors (extraction)
+
+Fallback: all sequences were filtered out so we lower threshold
+Warning: 1/1 motifs were skipped due to the score threshold (5.00).
+         Consider decreasing the score threshold.
+Fallback: all sequences were filtered out so we lower threshold
+Fallback: all sequences were filtered out so we lower threshold
+Fallback: all sequences were filtered out so we lower threshold
+centrimo: motif.c:435: convert_freqs_into_scores: Assertion `site_count > 0' failed.
+/app/run_console.rb:14:in `readlines': No such file or directory @ rb_sysopen - /results/centrimo.tsv (Errno::ENOENT)
+        from /app/run_console.rb:14:in `read_centrimo_results'
+        from /app/run_console.rb:123:in `<main>'
+centrimo: motif.c:435: convert_freqs_into_scores: Assertion `site_count > 0' failed.
+/app/run_console.rb:14:in `readlines': No such file or directory @ rb_sysopen - /results/centrimo.tsv (Errno::ENOENT)
+        from /app/run_console.rb:14:in `read_centrimo_results'
+        from /app/run_console.rb:123:in `<main>'

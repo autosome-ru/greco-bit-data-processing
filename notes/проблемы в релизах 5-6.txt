@@ -1,0 +1,61 @@
+прошлые релизы
+
+PBM:
+	pbm/results/quantNorm_zscore/train_intensities/ZGLP1.R_2018-11-15_13925_1M-ME_Standard_pTH14231.1_ZGLP1.FL.quantNorm_zscore.pbm.train.txt
+	pbm/results/spatialDetrend_quantNorm/validation_sequences/ZGLP1.R_2018-11-15_13941_1M-HK_Standard_pTH14231.2_ZGLP1.FL.spatialDetrend_quantNorm.pbm.val.fa
+
+Affiseq:
+	affiseq_peaks_Lysate/results/train_intervals/ZNF18.Lysate.Cycle2.PEAKS991061.affiseq.train.interval
+	affiseq_peaks_IVT/results/validation_sequences/ZNF134.IVT.Cycle3.PEAKS991038.affiseq.basic_val.fa
+		(advanced_val is missing in our data)
+
+Affiseq(as reads):
+	affiseq_reads_Lysate/results/validation_sequences/ZFP28.Lysate.Cycle1.BatchAATA.asReads.affiseq.val.fastq.gz
+
+SELEX:
+	selex_IVT/results/validation_reads/ZNF436.IVT.Cycle2.TA40NAGGCTT.BatchAATBA.selex.val.fastq.gz
+
+ChIP-seq:
+	chipseq/results/train_sequences/CHAMP1.CHAMP1ChIP2_IGO_10521_62_S117.PEAKS990028.chipseq.train.fa
+	chipseq/results/validation_intervals/ZNF382.Hughes_6_ZNF382_FS129_GCCAAT_L005+L006.PEAKS990069.chipseq.advanced_val_4.interval
+		(several advanced_val datasets)
+
+
+ls /mnt/space/depla/smileseq_raw/ | grep -oPe '^UT\d+-\d+_[^_]+' | grep -oPe '[^_]+$' | sort -u | xargs -n1 -I{} echo 'echo -ne "{}\t"; curl -s -H "Accept:application/json" http://rest.genenames.org/search/symbol/{} | jq -r ".response.docs[0].symbol"' | bash
+
+cat source_data_smileseq/SMiLE_seq_metadata_temp_17DEC2020_newData.tsv | cuttab -f 2 | ruby -e 'readlines.drop(1).map{|l| l.chomp.split(".").first }.uniq.sort.each{|l| puts l}' | xargs -n1 -I{} echo 'echo -ne "{}\t"; curl -s -H "Accept:application/json" http://rest.genenames.org/search/symbol/{} | jq -r ".response.docs[0].symbol"' | bash
+
+
+
+OKT4	null
+cJUN	null
+
+
+CLOCK	ARNTL
+FOXP2	NP
+GATA3	NP
+JUNB	FOSB
+JUNB	FOSL1
+JUNB	FOSL2
+JUNB	cFOS
+JUND	FOSB
+JUND	FOSL1
+JUND	FOSL2
+JUND	NP
+NR4A2	RXRa
+PPARa	RXRg
+RARa	RXRa
+RARa	RXRg
+VDR	RXRa
+ZKSCAN1	NP
+cJUN	FOSB
+cJUN	FOSL1
+cJUN	FOSL2
+cJUN	JUNB
+cJUN	cFOS
+
+
+
+OKT4 --> POU5F1
+cJUN --> JUN
+CEBPb --> CEBPB
