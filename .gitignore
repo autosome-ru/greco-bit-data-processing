@@ -3,6 +3,7 @@
 *.log
 *.fa
 *.tsv
+*.tsv.gz
 *.tar.gz
 *.json
 *.backup
