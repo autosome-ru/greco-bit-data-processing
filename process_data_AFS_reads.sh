@@ -1,14 +1,18 @@
-METRICS_FN="source_data_meta/AFS/metrics_by_exp.tsv"
-DB_NAME='greco_affyseq'
+# METRICS_FN="source_data_meta/AFS/metrics_by_exp.tsv"
+# DB_NAME='greco_affyseq'
 
 # METRICS_FN="source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv"
 # DB_NAME='greco_affiseq_jun2021'
+
+METRICS_FN="source_data_meta/AFS/metrics_by_exp_affseq_apr2022.tsv"
+DB_NAME='greco_affiseq_apr2022'
+
 
 source .venv/bin/activate
 python3 process_reads_HTS_SMS_AFS/extract_affiseq_reads.py  ${METRICS_FN} ${DB_NAME}
 deactivate
 
-for EXP_TYPE in IVT Lysate; do
+for EXP_TYPE in IVT Lysate GFPIVT; do
   RESULTS_FOLDER=./results_databox_afs_reads_${EXP_TYPE}
   for SLICE_TYPE in Train Val; do
     mkdir -p source_data_prepared/AFS.Reads/${SLICE_TYPE}_sequences

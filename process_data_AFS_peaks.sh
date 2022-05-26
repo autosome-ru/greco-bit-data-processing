@@ -43,6 +43,7 @@ for EXP_TYPE in IVT Lysate GFPIVT; do
             --processing-type Peaks --slice-type ${SLICE_TYPE} --extension peaks \
             --qc-file source_data_meta/AFS/metrics_by_exp.tsv \
             --qc-file source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv \
+            --qc-file source_data_meta/AFS/metrics_by_exp_affseq_apr2022.tsv \
           )
           if [[ -n "$NEW_BN" ]]; then
               cp ${FN} ${RESULTS_FOLDER}/${SLICE_TYPE}_intervals/${NEW_BN}
@@ -57,6 +58,7 @@ for EXP_TYPE in IVT Lysate GFPIVT; do
             --processing-type Peaks --slice-type ${SLICE_TYPE} --extension fa \
             --qc-file source_data_meta/AFS/metrics_by_exp.tsv \
             --qc-file source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv \
+            --qc-file source_data_meta/AFS/metrics_by_exp_affseq_apr2022.tsv \
           )
           if [[ -n "$NEW_BN" ]]; then
               cp ${FN} ${RESULTS_FOLDER}/${SLICE_TYPE}_sequences/${NEW_BN}

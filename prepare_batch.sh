@@ -1,3 +1,15 @@
+OLD_RELEASE=release_7b.2022-02-21
+RELEASE=release_8b.2022-05-26
+# PBM.SDQN was dropped. PBM.SD actually resides in release 8a, though formally it's in release 7b.
+for DATATYPE in SMS SMS.published PBM.QNZS HTS CHS AFS.Peaks AFS.Reads; do
+  ruby ~/greco-bit-data-processing/shared/lib/symlink_folder_content.rb  ~/greco-data/${OLD_RELEASE}/full/${DATATYPE}  ~/greco-data/${RELEASE}/full/${DATATYPE}  symlink
+done
+
+for DATATYPE in AFS.Peaks AFS.Reads CHS HTS PBM.SD SMS; do
+  ruby ~/greco-bit-data-processing/shared/lib/symlink_folder_content.rb  ~/greco-data/${RELEASE}/novel/${DATATYPE}  ~/greco-data/${RELEASE}/full/${DATATYPE}  symlink
+done
+
+
 RELEASE=release_8.2022-02-10_v0.1
 ruby shared/lib/symlink_folder_content.rb /home_local/vorontsovie/greco-data/release_7a.2021-10-14/full ${RELEASE}/full/ symlink
 rm ${RELEASE}/full/AFS.Peaks/ -r

@@ -51,6 +51,7 @@ ruby shared/lib/symlink_folder_content.rb \
     symlink
 
 
+# For CHS
 ruby shared/lib/symlink_folder_content.rb \
     "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1/peaks-interval/" \
     "source_data/CHS/peaks-intervals/" \
@@ -59,6 +60,12 @@ ruby shared/lib/symlink_folder_content.rb \
 ruby shared/lib/symlink_folder_content.rb \
     "/home_local/ivanyev/egrid/dfs/ctrl-subsampled0.1-se/peaks-interval/" \
     "source_data/CHS/peaks-intervals-se_control/" \
+    symlink
+
+
+ruby shared/lib/symlink_folder_content.rb \
+    "/mnt/space/ivanyev/egrid/dfs/ctrl-subsampled0.02/peaks-interval" \
+    "source_data/CHS/peaks-intervals/" \
     symlink
 
 
