@@ -224,7 +224,7 @@ def task_generator():
                 print(f"Can't choose metadata for {basename}, no options", file=sys.stderr)
             else:
                 ivt_or_lysate = relevant_infos[0]['IVT or Lysate']
-                re.sub('eGFP_IVT', 'GFPIVT', ivt_or_lysate)
+                ivt_or_lysate = re.sub('eGFP_IVT', 'GFPIVT', ivt_or_lysate)
 
         alignment_fn = f"{ALIGNMENT_DIRNAME}/{alignment}.bam"
         RESULTS_FOLDER = f'results_databox_afs_reads_{ivt_or_lysate}'
