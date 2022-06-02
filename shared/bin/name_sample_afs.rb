@@ -32,7 +32,7 @@ module AffiseqPeaks
   end
 
   def self.gen_name(sample_metadata, sample_fn, processing_type:, slice_type:, extension:, cycle:)
-    experiment_id = sample_metadata.experiment_id
+    experiment_id = sample_metadata.experiment_id.gsub('.', '-')
     tf = sample_metadata.gene_name
     construct_type = sample_metadata.construct_type
     flank_5 = (ADAPTER_5 + '')[-20,20] # no inner barcodes are present
