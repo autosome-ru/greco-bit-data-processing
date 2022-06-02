@@ -50,7 +50,7 @@ end
 #############################################
 
 results_folder = File.absolute_path(ARGV[0])
-# results_folder = '/home_local/vorontsovie/greco-motifs/release_7d_motifs_2021-12-21'
+# results_folder = '/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02'
 
 FileUtils.mkdir_p(results_folder)
 
@@ -118,7 +118,7 @@ Dir.glob("/home_local/arsen_l/greco-bit/motifs/motif_collection_release_7.2021-0
 }
 
 # model names contain dots, replace with underscores
-Dir.glob("/home_local/jangrau/models_r7/{AFS,CHS,PBM.QNZS,PBM.SDQN,SMS,SMS.published}/*.ppm").each{|fn|
+Dir.glob("/home_local/jangrau/models_r7/{AFS,CHS,PBM.QNZS,PBM.SDQN,SMS,SMS.published,HTS}/*.ppm").each{|fn|
   # AC008770.DBD@HTS.IVT@blurry-puce-tarsier+flimsy-celadon-spitz+stealthy-linen-kakapo+jumpy-bronze-woodlouse@Halle.Dimont@Motif_1_sampled_e1.5_astrained.ppm
   bn = File.basename(fn, '.ppm')
   tf_info, exp_type, dataset_name, team_tool, motif_name = bn.split('@')
