@@ -1,8 +1,8 @@
 mkdir -p  motifs_by_modeltype/pwm/
 mkdir -p  thresholds_by_modeltype/pwm/
-find ~/greco-motifs/release_7d_motifs_2021-12-21/ -name '*.pcm' | xargs -n1 basename -s .pcm | xargs -n1 -I{} echo 'ruby postprocessing/get_pwm.rb --pcm ~/greco-motifs/release_7d_motifs_2021-12-21/{}.pcm > motifs_by_modeltype/pwm/{}.pwm' | time parallel
+find ~/greco-motifs/release_7e_motifs_2022-06-02/ -name '*.pcm' | xargs -n1 basename -s .pcm | xargs -n1 -I{} echo 'ruby postprocessing/get_pwm.rb --pcm ~/greco-motifs/release_7e_motifs_2022-06-02/{}.pcm > motifs_by_modeltype/pwm/{}.pwm' | time parallel
 
-find ~/greco-motifs/release_7d_motifs_2021-12-21/ -name '*.ppm' | xargs -n1 basename -s .ppm | xargs -n1 -I{} echo 'ruby postprocessing/get_pwm.rb --pfm ~/greco-motifs/release_7d_motifs_2021-12-21/{}.ppm > motifs_by_modeltype/pwm/{}.pwm' | time parallel
+find ~/greco-motifs/release_7e_motifs_2022-06-02/ -name '*.ppm' | xargs -n1 basename -s .ppm | xargs -n1 -I{} echo 'ruby postprocessing/get_pwm.rb --pfm ~/greco-motifs/release_7e_motifs_2022-06-02/{}.ppm > motifs_by_modeltype/pwm/{}.pwm' | time parallel
 
 find motifs_by_modeltype/pwm/ -xtype f | xargs -n1 -I{} echo java -cp ape.jar ru.autosome.ape.PrecalculateThresholds {} thresholds_by_modeltype/pwm/ --single-motif | time parallel
 
