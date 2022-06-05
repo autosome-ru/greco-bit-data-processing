@@ -15,6 +15,7 @@ conversion_tasks = [
       'run_benchmarks_release_7/pwmeval_peaks_7a+7c.tsv',
       'run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_d.tsv',
       'run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_e.tsv',
+      'run_benchmarks_release_7/pwmeval_peaks_7b+7_upd_e.tsv',
     ],
     dst: 'run_benchmarks_release_7/formatted_peaks_pwmeval.tsv',
     metrics: ['AUCROC'],

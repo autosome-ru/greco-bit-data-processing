@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 mkdir -p results
-DATA_FOLDER='/home_local/vorontsovie/greco-data/release_7a.2021-10-14/full/'
 MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02/'
 
+DATA_FOLDER='/home_local/vorontsovie/greco-data/release_7b.2022-02-21/full/'
+ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pbm_7b+7e.sh
+
+DATA_FOLDER='/home_local/vorontsovie/greco-data/release_7a.2022-10-14/full/'
 
 # run on new motifs only
 # MOTIFS_FOLDER_TMP='./motifs_tmp/7d_minus_7c'
@@ -34,6 +37,11 @@ for SUFFIX in "_7a+7_upd_e"; do # calculation was multistaged
   cat run_benchmarks_release_7/reads_0.1${SUFFIX}/run_all.sh | parallel > run_benchmarks_release_7/reads_0.1${SUFFIX}.tsv
 done
 
+for SUFFIX in "_7b+7_upd_e"; do
+  # cat run_benchmarks_release_7/run_all_pbm${SUFFIX}.sh | parallel >> run_benchmarks_release_7/pbm${SUFFIX}.tsv
+  cat run_benchmarks_release_7/run_all_pbm${SUFFIX}.sh | parallel > run_benchmarks_release_7/pbm${SUFFIX}.tsv
+done
+
 # rm "${MOTIFS_FOLDER_TMP}" -r
 # MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02/'
 
@@ -43,9 +51,9 @@ ruby postprocessing/reformat_metrics.rb
 bash ./postprocessing/filter_motif_in_flanks.sh # be cautious
 
 ruby postprocessing/motif_ranking.rb \
-    run_benchmarks_release_7/metrics_7a+7e.json \
-    run_benchmarks_release_7/ranks_7a+7e.json \
-    --metadata  run_benchmarks_release_7/metadata_release_7a.json \
+    run_benchmarks_release_7/metrics_7b+7e.json \
+    run_benchmarks_release_7/ranks_7b+7e.json \
+    --metadata  run_benchmarks_release_7/metadata_release_7b.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
@@ -55,9 +63,9 @@ ruby postprocessing/motif_ranking.rb \
   && echo ok || echo fail
 
 ruby postprocessing/motif_ranking.rb \
-    run_benchmarks_release_7/metrics_curated_7a+7e.json \
-    run_benchmarks_release_7/ranks_curated_7a+7e.json \
-    --metadata  run_benchmarks_release_7/metadata_release_7a.json \
+    run_benchmarks_release_7/metrics_curated_7b+7e.json \
+    run_benchmarks_release_7/ranks_curated_7b+7e.json \
+    --metadata  run_benchmarks_release_7/metadata_release_7b.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
