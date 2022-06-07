@@ -52,5 +52,8 @@ def load_biouml_id_by_experiment_id_and_cycle(client)
         AND
       triplet_2.property_name = 'Cycle';
   EOS
-  client.query(query).index_by{|info| [info['experiment_id'], Integer(info['cycle'])] }.transform_values{|info| info['biouml_id'] }
+  client.query(query).index_by{|info|
+    exp_id = info['experiment_id'].split('.').first.sub(/[-._]((FL|DBD|DBDwLinker|AThook)[-._]?\d?)?$/, "")
+    [exp_id, Integer(info['cycle'])]
+  }.transform_values{|info| info['biouml_id'] }
 end

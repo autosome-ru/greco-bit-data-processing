@@ -125,6 +125,16 @@ def collect_sms_unpublished_metadata(data_folder:, source_folder:, allow_broken_
   }
 end
 
+def source_file_candidates_by_basename(glob)
+  all_source_files = Dir.glob(glob).map{|fn|
+    File.symlink?(fn) ? File.readlink(fn) : fn
+  }.map{|fn|
+    File.absolute_path(fn)
+  }.uniq
+
+  all_source_files.uniq.group_by{|fn| File.basename(fn) }
+end
+
 def collect_chs_metadata(data_folder:, source_folder:, metrics_fns:, allow_broken_symlinks: false)
   parser = DatasetNameParser::CHSParser.new
   metadata = Chipseq::SampleMetadata.each_in_file('source_data_meta/CHS/CHS.tsv').to_a
@@ -155,10 +165,21 @@ def collect_chs_metadata(data_folder:, source_folder:, metrics_fns:, allow_broke
     normalized_id = [plate_id, replica].compact.join('-')
     exp_info = experiment_by_plate_id[normalized_id].to_h
     reads_files = ((exp_info && exp_info[:raw_files]) || []).map{|fn|
+      if !File.exist?(fn)
+        if (fn.start_with?('DIANA') || fn.start_with?('MICHELLE')) && File.exist?("/mnt/space/hughes/Feb2021/#{fn}")
+          fn = "/mnt/space/hughes/Feb2021/#{fn}"
+        else
+          filename_candidates = $source_files_by_basename[File.basename(fn)]
+          fn = filename_candidates[0]  if filename_candidates && filename_candidates.size == 1
+        end
+      end
+      # $stderr.puts "Source file #{fn} for CHS not found"  unless File.exist?(fn)
       {filename: fn, coverage: num_reads(fn), type: 'source'}
     }
-    peaks_files  = exp_info.fetch(:peaks, []).map{|fn|
-      {filename: fn, num_peaks: num_peaks(fn), type: 'intermediate'}
+    peaks_files  = exp_info.fetch(:peaks, []).flat_map{|peak_id|
+      Dir.glob("source_data/CHS/peaks-intervals/*/#{peak_id}.interval").map{|fn|
+        {filename: fn, num_peaks: num_peaks(fn), type: 'intermediate'}
+      }
     }
     dataset_info[:source_files] = reads_files + peaks_files
     dataset_info[:experiment_info] = exp_info
@@ -179,7 +200,15 @@ end
 def afs_read_files_info(exp_info)
   original_files = ((exp_info && exp_info[:raw_files]) || [])
   original_files.map{|fn|
-    Dir.glob("/mnt/space/hughes/June1st2021/**/#{fn}").first || File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn)
+    # Dir.glob("/mnt/space/hughes/June1st2021/**/#{fn}").first || File.join('/mnt/space/hughes/June1st2021/SELEX_RawData/Phase1/', fn)
+    $source_files_by_basename[ File.basename(fn) ]
+    filename_candidates = $source_files_by_basename[File.basename(fn)]
+    if filename_candidates && filename_candidates.size == 1
+      filename_candidates[0]
+    else
+      $stderr.puts "Can't choose a candidate file for #{fn}"
+      fn
+    end
   }.map{|fn|
     {filename: fn, coverage: num_reads(fn), type: 'source'}
   }
@@ -187,7 +216,7 @@ end
 
 def afs_peaks_files_info(exp_info)
   peak_id = exp_info[:peak_id]
-  Dir.glob("/home_local/ivanyev/egrid/dfs-affyseq-cutadapt/peaks-interval/*/#{peak_id}.interval").map{|fn|
+  Dir.glob("source_data/AFS/peaks-intervals/*/#{peak_id}.interval").map{|fn|
     {filename: fn, num_peaks: num_peaks(fn), type: 'intermediate'}
   }
 end
@@ -211,11 +240,11 @@ def collect_afs_metadata(dataset_name_parser:, data_folder:, outcome_types:, fet
   dataset_infos = dataset_files.map{|dataset_fn|
     dataset_info = dataset_name_parser.parse_with_metadata(dataset_fn, metadata_by_experiment_id)
 
-    appropriate_fetcher = fetchers.select{|fetcher| fetcher[:experiment_info_fetcher].fetch(dataset_info) }
-    if appropriate_fetcher.size == 1
-      [dataset_fn, dataset_info, appropriate_fetcher.take_the_only]
+    appropriate_fetchers = fetchers.select{|fetcher| fetcher[:experiment_info_fetcher].fetch(dataset_info) }
+    if appropriate_fetchers.size == 1
+      [dataset_fn, dataset_info, appropriate_fetchers.take_the_only]
     else
-      $stderr.puts "Error: Can't choose a single fetcher for dataset `{fn}`. Instead there were {fetchers_grp.size} fetchers"
+      $stderr.puts "Error: Can't choose a single fetcher for dataset `#{dataset_fn}`. Instead there were #{appropriate_fetchers.size} fetchers"
       nil
     end
   }.compact
@@ -242,6 +271,8 @@ def collect_afs_metadata(dataset_name_parser:, data_folder:, outcome_types:, fet
   }
 end
 
+$source_files_by_basename = source_file_candidates_by_basename('/mnt/space/hughes/**/*')
+
 plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
 $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
@@ -253,7 +284,7 @@ $insert_by_plasmid_id = insert_metadata.flat_map{|insert|
 $inserts_by_insert_id = insert_metadata.group_by(&:insert_id)
 
 
-pbm_metadata_list = ['SDQN', 'QNZS'].flat_map{|processing_type|
+pbm_metadata_list = ['SD', 'QNZS'].flat_map{|processing_type|
   collect_pbm_metadata(
     data_folder: "#{RELEASE_FOLDER}/PBM.#{processing_type}/",
     source_folder: "#{SOURCE_FOLDER}/PBM/chips/"
@@ -272,7 +303,8 @@ chs_metadata_list = collect_chs_metadata(
   metrics_fns: [
     "source_data_meta/CHS/metrics_by_exp.tsv",
     "source_data_meta/CHS/metrics_by_exp_chipseq_feb2021.tsv",
-    "source_data_meta/CHS/metrics_by_exp_chipseq_jun2021.tsv"
+    "source_data_meta/CHS/metrics_by_exp_chipseq_jun2021.tsv",
+    "source_data_meta/CHS/metrics_by_exp_chipseq_apr2022.tsv",
   ],
   allow_broken_symlinks: true
 )
@@ -294,6 +326,10 @@ afs_metrics_fetcher_2 = ExperimentInfoAFSFetcherPack2.load(
                           'source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv',
                           MYSQL_CONFIG.merge({database: 'greco_affiseq_jun2021'})
                         )
+afs_metrics_fetcher_3 = ExperimentInfoAFSFetcherPack2.load(
+                          'source_data_meta/AFS/metrics_by_exp_affseq_apr2022.tsv',
+                          MYSQL_CONFIG.merge({database: 'greco_affiseq_apr2022'})
+                        )
 
 afs_read_fn_fetcher_1 = ReadFilenamesFetcher.load(
                           MYSQL_CONFIG.merge({database: 'greco_affyseq'}),
@@ -305,6 +341,11 @@ afs_read_fn_fetcher_2 = ReadFilenamesFetcher.load(
                           source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
                           allow_broken_symlinks: true,
                         )
+afs_read_fn_fetcher_3 = ReadFilenamesFetcher.load(
+                          MYSQL_CONFIG.merge({database: 'greco_affiseq_apr2022'}),
+                          source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
+                          allow_broken_symlinks: true,
+                        )
 
 afs_peaks_metadata_list = collect_afs_metadata(
   dataset_name_parser: DatasetNameParser::AFSPeaksParser.new,
@@ -313,6 +354,7 @@ afs_peaks_metadata_list = collect_afs_metadata(
   fetchers: [
     { experiment_info_fetcher: afs_metrics_fetcher_1, read_filenames_fetcher: nil },
     { experiment_info_fetcher: afs_metrics_fetcher_2, read_filenames_fetcher: nil },
+    { experiment_info_fetcher: afs_metrics_fetcher_3, read_filenames_fetcher: nil },
   ],
 )
 
@@ -323,12 +365,18 @@ afs_reads_metadata_list = collect_afs_metadata(
   fetchers: [
     { experiment_info_fetcher: afs_metrics_fetcher_1, read_filenames_fetcher: afs_read_fn_fetcher_1 },
     { experiment_info_fetcher: afs_metrics_fetcher_2, read_filenames_fetcher: afs_read_fn_fetcher_2 },
+    { experiment_info_fetcher: afs_metrics_fetcher_3, read_filenames_fetcher: afs_read_fn_fetcher_3 },
   ],
 )
 
 metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list + afs_reads_metadata_list
 metadata_list.each{|info|
   info[:experiment_meta].delete(:_original_meta)
+  info[:source_files].each{|data|
+    data[:filename] = File.readlink(data[:filename])  if File.symlink?(data[:filename])
+    data[:filename] = File.absolute_path(data[:filename])
+    $stderr.puts("File #{data} not found") unless File.exist?(data[:filename])
+  }
 }
 
 metadata_list.each{|metadata|

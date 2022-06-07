@@ -1,5 +1,8 @@
 require 'mysql2'
-require_relative '../../process_peaks_CHS_AFS/experiment_info_afs.rb'
+require_relative 'affiseq_metadata'
+require_relative 'index_by'
+require_relative 'afs_peaks_biouml_meta'
+require_relative '../../process_peaks_CHS_AFS/experiment_info_afs'
 
 class ExperimentInfoAFSFetcher
   def initialize(experiment_infos)
@@ -7,7 +10,8 @@ class ExperimentInfoAFSFetcher
   end
 
   def self.read_metrics_file(metrics_fn)
-    experiment_infos = ExperimentInfoAFS.each_from_file(metrics_fn).to_a
+    metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
+    experiment_infos = ExperimentInfoAFS.each_from_file(metrics_fn, metadata).to_a
 
     experiment_infos = experiment_infos.reject{|info|
       info.type == 'control'
@@ -44,7 +48,7 @@ end
 class ExperimentInfoAFSFetcherPack2 < ExperimentInfoAFSFetcher
   def initialize(experiment_infos, biouml_id_by_experiment_id_and_cycle)
     super(experiment_infos)
-    @experiment_info_by_biouml_id = experiment_infos. index_by(&:experiment_id)
+    @experiment_info_by_biouml_id = experiment_infos.index_by(&:experiment_id)
     @biouml_id_by_experiment_id_and_cycle = biouml_id_by_experiment_id_and_cycle
   end
 
@@ -56,7 +60,7 @@ class ExperimentInfoAFSFetcherPack2 < ExperimentInfoAFSFetcher
   def fetch(dataset_info)
     exp_id = dataset_info[:experiment_id]
     tf = dataset_info[:tf]
-    exp_id.sub(/_#{tf}(_(FL|DBD|DBDwLinker))?(_\d)?$/, "")
+    exp_id = exp_id.sub(/[-._]((FL|DBD|DBDwLinker|AThook)[-._]?\d?)?$/, "")
 
     cycle = dataset_info[:experiment_params][:cycle]
     exp_key = [exp_id, cycle]

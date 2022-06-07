@@ -67,7 +67,7 @@ module Affiseq
 
       ivt_or_lysate = {'IVT' => 'IVT', 'Lysate' => 'Lys', 'eGFP_IVT' => 'GFPIVT'}.fetch(ivt_or_lysate, ivt_or_lysate)
       result = self.new(
-        experiment_id: experiment_id, plasmid_id: plasmid_id, gene_name: gene_name,
+        experiment_id: experiment_id.sub('.', '_').sub('-', '_'), plasmid_id: plasmid_id, gene_name: gene_name,
         ivt_or_lysate: ivt_or_lysate, dna_library_id: dna_library_id, well: well,
         cycle_1_filename: fn_converter.call(cycle_1_filename), cycle_2_filename: fn_converter.call(cycle_2_filename),
         cycle_3_filename: fn_converter.call(cycle_3_filename), cycle_4_filename: fn_converter.call(cycle_4_filename),
