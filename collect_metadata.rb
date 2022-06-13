@@ -136,6 +136,29 @@ def source_file_candidates_by_basename(glob)
 end
 
 def collect_chs_metadata(data_folder:, source_folder:, metrics_fns:, allow_broken_symlinks: false)
+  alignment_by_experiment = []
+  reads_by_experiment = []
+  [
+    MYSQL_CONFIG.merge({database: 'greco_chipseq'}),
+    MYSQL_CONFIG.merge({database: 'greco_chipseq_apr2022'}),
+    MYSQL_CONFIG.merge({database: 'greco_chipseq_feb2021'}),
+    MYSQL_CONFIG.merge({database: 'greco_chipseq_jun2021'}),
+  ].each{|mysql_config|
+    client = Mysql2::Client.new(mysql_config)
+    records = get_experiment_infos(client)
+    _experiments_batch, alignment_by_experiment_batch, reads_by_experiment_batch = infos_by_alignment(records)
+    alignment_by_experiment += alignment_by_experiment_batch.to_a
+    reads_by_experiment += reads_by_experiment_batch.to_a
+  }
+
+  alignment_by_experiment.uniq!
+  reads_by_experiment.uniq!
+  raise  "Ambiguous mapping of experiment id into alignment id"  if alignment_by_experiment.size != alignment_by_experiment.to_h.size
+  raise  "Ambiguous mapping of experiment id into reads ids"  if reads_by_experiment.size != reads_by_experiment.to_h.size
+  alignment_by_experiment = alignment_by_experiment.to_h
+  reads_by_experiment = reads_by_experiment.to_h
+
+
   parser = DatasetNameParser::CHSParser.new
   metadata = Chipseq::SampleMetadata.each_in_file('source_data_meta/CHS/CHS.tsv').to_a
   metadata_by_experiment_id = metadata.index_by(&:experiment_id)
@@ -181,7 +204,17 @@ def collect_chs_metadata(data_folder:, source_folder:, metrics_fns:, allow_broke
         {filename: fn, num_peaks: num_peaks(fn), type: 'intermediate'}
       }
     }
-    dataset_info[:source_files] = reads_files + peaks_files
+
+    alignment_bn = alignment_by_experiment[ exp_info[:experiment_id] ]
+    alignment_fn = "source_data/CHS/aligns-sorted/#{alignment_bn}.bam"
+    alignment_files = [ {filename: alignment_fn, num_peaks: num_peaks(alignment_fn), type: 'intermediate'} ]
+
+    gtrd_read_files = reads_by_experiment[ exp_info[:experiment_id] ].map{|read_bn|
+      read_fn = "source_data/CHS/fastq/#{read_bn}.fa"
+      {filename: read_fn, num_peaks: num_reads(read_fn), type: 'intermediate'}
+    }
+
+    dataset_info[:source_files] = reads_files + peaks_files + alignment_files + gtrd_read_files
     dataset_info[:experiment_info] = exp_info
 
     dataset_bn = File.basename(dataset_fn, '.gz')
