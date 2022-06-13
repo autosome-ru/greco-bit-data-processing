@@ -20,6 +20,19 @@ rescue
   nil
 end
 
+def num_reads_in_alignment(filename)
+  return nil  if !File.exist?(filename)
+  cached_result = load_from_spo_cache(filename, 'num_reads_in_alignment')
+  return cached_result  if cached_result
+
+  result = `samtools view -F 4 -c #{filename}`
+  result = Integer(result)
+  store_to_spo_cache(filename, 'num_reads_in_alignment', result)
+  result
+rescue
+  nil
+end
+
 def num_peaks(filename)
   return nil  if !File.exist?(filename)
   cached_result = load_from_spo_cache(filename, 'num_peaks')

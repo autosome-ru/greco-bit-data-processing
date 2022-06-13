@@ -233,7 +233,7 @@ def afs_alignment_info(exp_info, read_fn_fetcher)
   return []  unless read_fn_fetcher
   exp_id = exp_info[:experiment_id]
   fn = read_fn_fetcher.fetch_alignment_validated_abspaths!(exp_id)
-  [ {filename: fn, coverage: num_reads(fn), type: 'intermediate'} ]
+  [ {filename: fn, coverage: num_reads_in_alignment(fn), type: 'intermediate'} ]
 end
 
 def collect_afs_metadata(dataset_name_parser:, data_folder:, outcome_types:, fetchers: [])
