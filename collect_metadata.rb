@@ -210,7 +210,7 @@ def collect_chs_metadata(data_folder:, source_folder:, metrics_fns:, allow_broke
     alignment_files = [ {filename: alignment_fn, num_peaks: num_peaks(alignment_fn), type: 'intermediate'} ]
 
     gtrd_read_files = reads_by_experiment[ exp_info[:experiment_id] ].map{|read_bn|
-      read_fn = "source_data/CHS/fastq/#{read_bn}.fa"
+      read_fn = "source_data/CHS/fastq/#{read_bn}.fastq.gz"
       {filename: read_fn, num_peaks: num_reads(read_fn), type: 'intermediate'}
     }
 
