@@ -283,6 +283,7 @@ $insert_by_plasmid_id = insert_metadata.flat_map{|insert|
 }.to_h
 $inserts_by_insert_id = insert_metadata.group_by(&:insert_id)
 
+$stderr.puts "loaded meta"
 
 pbm_metadata_list = ['SD', 'QNZS'].flat_map{|processing_type|
   collect_pbm_metadata(
@@ -291,11 +292,15 @@ pbm_metadata_list = ['SD', 'QNZS'].flat_map{|processing_type|
   )
 }
 
+$stderr.puts "loaded PBM"
+
 hts_metadata_list = collect_hts_metadata(
   data_folder: "#{RELEASE_FOLDER}/HTS/",
   source_folder: "#{SOURCE_FOLDER}/HTS/reads/",
   allow_broken_symlinks: true
 )
+
+$stderr.puts "loaded HTS"
 
 chs_metadata_list = collect_chs_metadata(
   data_folder: "#{RELEASE_FOLDER}/CHS/",
@@ -309,17 +314,23 @@ chs_metadata_list = collect_chs_metadata(
   allow_broken_symlinks: true
 )
 
+$stderr.puts "loaded CHS"
+
 sms_published_metadata_list = collect_sms_published_metadata(
   data_folder: "#{RELEASE_FOLDER}/SMS.published/",
   source_folder: "#{SOURCE_FOLDER}/SMS/reads/published",
   allow_broken_symlinks: true
 )
 
+$stderr.puts "loaded SMS.published"
+
 sms_unpublished_metadata_list = collect_sms_unpublished_metadata(
   data_folder: "#{RELEASE_FOLDER}/SMS/",
   source_folder: "#{SOURCE_FOLDER}/SMS/reads/unpublished",
   allow_broken_symlinks: true
 )
+
+$stderr.puts "loaded SMS"
 
 afs_metrics_fetcher_1 = ExperimentInfoAFSFetcherPack1.load('source_data_meta/AFS/metrics_by_exp.tsv')
 afs_metrics_fetcher_2 = ExperimentInfoAFSFetcherPack2.load(
@@ -346,6 +357,7 @@ afs_read_fn_fetcher_3 = ReadFilenamesFetcher.load(
                           source_folder: "#{SOURCE_FOLDER}/AFS/trimmed",
                           allow_broken_symlinks: true,
                         )
+$stderr.puts "loaded AFS fetchers"
 
 afs_peaks_metadata_list = collect_afs_metadata(
   dataset_name_parser: DatasetNameParser::AFSPeaksParser.new,
@@ -358,6 +370,8 @@ afs_peaks_metadata_list = collect_afs_metadata(
   ],
 )
 
+$stderr.puts "loaded AFS.Peaks"
+
 afs_reads_metadata_list = collect_afs_metadata(
   dataset_name_parser: DatasetNameParser::AFSReadsParser.new,
   data_folder: "#{RELEASE_FOLDER}/AFS.Reads",
@@ -368,6 +382,8 @@ afs_reads_metadata_list = collect_afs_metadata(
     { experiment_info_fetcher: afs_metrics_fetcher_3, read_filenames_fetcher: afs_read_fn_fetcher_3 },
   ],
 )
+
+$stderr.puts "loaded AFS.Reads"
 
 metadata_list = pbm_metadata_list + hts_metadata_list + chs_metadata_list + sms_published_metadata_list + sms_unpublished_metadata_list + afs_peaks_metadata_list + afs_reads_metadata_list
 metadata_list.each{|info|
