@@ -72,8 +72,9 @@ end
 
 # How to obtain peak-reads files for an experiment by biouml id
 class ReadFilenamesFetcher
-  def initialize(reads_by_experiment, source_folder:, allow_broken_symlinks:)
+  def initialize(reads_by_experiment, alignment_by_experiment, source_folder:, allow_broken_symlinks:)
     @reads_by_experiment = reads_by_experiment
+    @alignment_by_experiment = alignment_by_experiment
     @source_folder = source_folder
     @allow_broken_symlinks = allow_broken_symlinks
   end
@@ -81,21 +82,34 @@ class ReadFilenamesFetcher
   def self.load(mysql_config, source_folder:, allow_broken_symlinks:)
     client = Mysql2::Client.new(mysql_config)
     records = get_experiment_infos(client)
-    _experiments, _alignment_by_experiment, reads_by_experiment = infos_by_alignment(records)
-    self.new(reads_by_experiment, source_folder: source_folder, allow_broken_symlinks: allow_broken_symlinks)
+    _experiments, alignment_by_experiment, reads_by_experiment = infos_by_alignment(records)
+    self.new(reads_by_experiment, alignment_by_experiment, source_folder: source_folder, allow_broken_symlinks: allow_broken_symlinks)
   end
 
   def fetch(biouml_experiment_id)
     @reads_by_experiment[biouml_experiment_id]
   end
 
+  def fetch_alignment(biouml_experiment_id)
+    @alignment_by_experiment[biouml_experiment_id]
+  end
+
   def fetch_validated_abspaths!(biouml_experiment_id)
     fetch(biouml_experiment_id).map{|reads_fn|
-      ds_filename = File.absolute_path("#{@source_folder}/#{reads_fn}.fastq.gz")
+      ds_filename = File.absolute_path("#{@source_folder}/trimmed/#{reads_fn}.fastq.gz")
       if ! (File.exist?(ds_filename) || (File.symlink?(ds_filename) && @allow_broken_symlinks))
-        raise "Missing file #{ds_filename} for #{dataset_fn}"
+        raise "Missing file #{ds_filename} for #{biouml_experiment_id}"
       end
       ds_filename
     }
+  end
+
+  def fetch_alignment_validated_abspaths!(biouml_experiment_id)
+    alignment_fn = @alignment_by_experiment[biouml_experiment_id]
+    alignment_fn = File.absolute_path("#{@source_folder}/aligns-sorted/#{alignment_fn}.bam")
+    if ! (File.exist?(alignment_fn) || (File.symlink?(alignment_fn) && @allow_broken_symlinks))
+      raise "Missing file #{alignment_fn} for #{biouml_experiment_id}"
+    end
+    alignment_fn
   end
 end
