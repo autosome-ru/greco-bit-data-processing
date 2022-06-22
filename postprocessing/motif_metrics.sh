@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 mkdir -p results
 MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02/'
+DATA_FOLDER='/home_local/vorontsovie/greco-data/release_8c.2022-06-01/full/'
 
-DATA_FOLDER='/home_local/vorontsovie/greco-data/release_7b.2022-02-21/full/'
 ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pbm_7b+7e.sh
-
-DATA_FOLDER='/home_local/vorontsovie/greco-data/release_7a.2022-10-14/full/'
 
 # run on new motifs only
 # MOTIFS_FOLDER_TMP='./motifs_tmp/7d_minus_7c'
@@ -21,7 +19,7 @@ DATA_FOLDER='/home_local/vorontsovie/greco-data/release_7a.2022-10-14/full/'
 ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pbm_7a+7_upd_e.sh
 ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_VIGG_peaks_7a+7_upd_e.sh
 ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_centrimo_7a+7_upd_e.sh
-ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pwmeval_peaks_7a+7_upd_e.sh
+ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_e/
 ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.1_7a+7_upd_e/ --fraction 0.1
 ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.5_7a+7_upd_e/ --fraction 0.5
 ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.25_7a+7_upd_e/ --fraction 0.25
