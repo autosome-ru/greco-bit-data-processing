@@ -61,6 +61,7 @@ tfs.each{|tf|
             "--peaks /peaks",
             "--assembly-name hg38",
             "--top 1000",
+            "--peak-format 1,2,3,summit:abs:4"
             "--positive-file /sequences/positive.fa",
             "--store-background /background.txt"
       ].join(' ')
