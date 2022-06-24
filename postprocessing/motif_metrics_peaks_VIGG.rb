@@ -87,3 +87,9 @@ tfs.each{|tf|
     File.chmod(0755, "#{CMD_FOLDER}/#{container_name}.sh")
   }
 }
+
+File.open("#{CMD_FOLDER}/run_all.sh", 'w') {|fw|
+  container_names.each{|container_name|
+    fw.puts "#{CMD_FOLDER}/#{container_name}.sh"
+  }
+}
