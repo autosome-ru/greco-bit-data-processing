@@ -8,6 +8,8 @@ MOTIFS_PATH = File.absolute_path(ARGV[1]) # 'data/all_motifs'
 CMD_FOLDER = File.absolute_path(ARGV[2]) # './run_benchmarks_release_7/viggroc'
 ASSEMBLY_PATH = '/home_local/vorontsovie/greco-processing/assembly/'
 
+FileUtils.mkdir_p(CMD_FOLDER)
+
 ppms = Dir.glob("#{MOTIFS_PATH}/**/*.ppm")
 pcms = Dir.glob("#{MOTIFS_PATH}/**/*.pcm")
 motifs = [ppms, pcms].flatten.map{|fn| File.absolute_path(fn) }
