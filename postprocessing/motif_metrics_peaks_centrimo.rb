@@ -70,6 +70,7 @@ tfs.each{|tf|
           "docker exec #{container_name} evaluate",
             "--motif /motifs/#{motif_rel}",
             "--positive-file /sequences/positive.fa",
+            "--json",
           " || echo",
         ].join(' ')
         fw.puts cmd_3
