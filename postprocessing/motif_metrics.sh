@@ -17,8 +17,8 @@ ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_b
 # MOTIFS_FOLDER="${MOTIFS_FOLDER_TMP}" # Attention!!!
 
 ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pbm_7a+7_upd_e.sh
-ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_e/ > run_benchmarks_release_7/run_all_VIGG_peaks_7a+7_upd_e.sh
-ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_centrimo_7a+7_upd_e.sh
+ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_e/
+ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/centrimo_peaks_7a+7_upd_e/
 ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_e/
 ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.1_7a+7_upd_e/ --fraction 0.1
 ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/reads_0.5_7a+7_upd_e/ --fraction 0.5

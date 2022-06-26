@@ -34,7 +34,7 @@ tfs.each{|tf|
     dataset_abs_fn = File.absolute_path(dataset)
     dataset_bn = File.basename(dataset).split('@').last.split('.')[1]
 
-    container_name = "motif_pseudo_roc.#{dataset_bn}"
+    container_name = "centrimo_bench.#{dataset_bn}"
     container_names << container_name
     File.open("#{CMD_FOLDER}/#{container_name}.sh", 'w') do |fw|
       cmd_1 = [
