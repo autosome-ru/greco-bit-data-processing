@@ -4,7 +4,10 @@ Signal.trap("PIPE", "EXIT")
 
 DATA_PATH = File.absolute_path(ARGV[0]) # '/home_local/vorontsovie/greco-data/release_3.2020-08-08/'
 MOTIFS_PATH = File.absolute_path(ARGV[1]) # 'data/all_motifs'
+CMD_FOLDER = File.absolute_path(ARGV[2]) # './run_benchmarks_release_7/centrimo'
 ASSEMBLY_PATH = '/home_local/vorontsovie/greco-processing/assembly/'
+
+FileUtils.mkdir_p(CMD_FOLDER)
 
 ppms = Dir.glob("#{MOTIFS_PATH}/**/*.ppm")
 pcms = Dir.glob("#{MOTIFS_PATH}/**/*.pcm")
@@ -24,23 +27,63 @@ datasets_by_tf = validation_datasets.group_by{|fn|
   tf
 }
 
+container_names = []
 tfs = motifs_by_tf.keys & datasets_by_tf.keys
 tfs.each{|tf|
   datasets_by_tf[tf].each{|dataset|
-    motifs_by_tf[tf].each{|motif|
-      ext = File.extname(motif)
-      cmd = "echo -ne '#{dataset}\t#{motif}\t'; " \
-        "docker run --rm " \
-        " --security-opt apparmor=unconfined " \
-        " --volume #{ASSEMBLY_PATH}:/assembly/ " \
-        " --volume #{dataset}:/peaks.narrowPeak:ro " \
-        " --volume #{motif}:/motif#{ext}:ro " \
-        " vorontsovie/centrimo_bench:1.1.3 " \
-        "  --assembly-name hg38 " \
-        "  --peak-format 1,2,3,summit:abs:4 " \
-        "  --json " \
-        "  || echo"
-      puts cmd
-    }
+    dataset_abs_fn = File.absolute_path(dataset)
+    dataset_bn = File.basename(dataset).split('@').last.split('.')[1]
+
+    container_name = "motif_pseudo_roc.#{dataset_bn}"
+    container_names << container_name
+    File.open("#{CMD_FOLDER}/#{container_name}.sh", 'w') do |fw|
+      cmd_1 = [
+        "docker run --rm -d -i",  # we run /bin/sh and hangs it using `-d`, `-i` flags,
+                                  # so that we can run other processes in the same container
+            "--security-opt apparmor=unconfined",
+            "--name #{container_name}",
+            "--volume #{ASSEMBLY_PATH}:/assembly/:ro",
+            "--volume #{MOTIFS_PATH}:/motifs/:ro",
+            "--volume #{dataset_abs_fn}:/peaks:ro",
+            "vorontsovie/centrimo_bench:1.2.0",
+                "/bin/sh",
+        " >&2", # don't print container id into stdout
+      ].join(" ")
+      fw.puts(cmd_1)
+
+      cmd_2 = [
+        "docker exec #{container_name} prepare",
+            "--peaks /peaks",
+            "--assembly-name hg38",
+            "--top 1000",
+            "--peak-format 1,2,3,summit:abs:4",
+            "--positive-file /sequences/positive.fa",
+      ].join(' ')
+      fw.puts(cmd_2)
+
+
+      motifs_by_tf[tf].each{|motif|
+        ext = File.extname(motif)
+        motif_rel = motif.sub(MOTIFS_PATH, "")
+        cmd_3 = [
+          "echo -ne '#{dataset}\t#{motif}\t'; ",
+          "docker exec #{container_name} evaluate",
+            "--motif /motifs/#{motif_rel}",
+            "--positive-file /sequences/positive.fa",
+          " || echo",
+        ].join(' ')
+        fw.puts cmd_3
+      }
+
+      cmd_4 = "docker stop #{container_name} >&2" # don't print container id into stdout
+      fw.puts cmd_4
+    end
+    File.chmod(0755, "#{CMD_FOLDER}/#{container_name}.sh")
+  }
+}
+
+File.open("#{CMD_FOLDER}/run_all.sh", 'w') {|fw|
+  container_names.each{|container_name|
+    fw.puts "#{CMD_FOLDER}/#{container_name}.sh"
   }
 }

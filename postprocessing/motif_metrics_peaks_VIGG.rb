@@ -82,8 +82,8 @@ tfs.each{|tf|
         fw.puts cmd_3
       }
 
-      cmd_5 = "docker stop #{container_name} >&2" # don't print container id into stdout
-      fw.puts cmd_5
+      cmd_4 = "docker stop #{container_name} >&2" # don't print container id into stdout
+      fw.puts cmd_4
     end
     File.chmod(0755, "#{CMD_FOLDER}/#{container_name}.sh")
   }
