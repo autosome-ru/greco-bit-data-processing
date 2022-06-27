@@ -16,7 +16,7 @@ ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_b
 #   | xargs -n1 -I{} cp {} $MOTIFS_FOLDER_TMP/
 # MOTIFS_FOLDER="${MOTIFS_FOLDER_TMP}" # Attention!!!
 
-ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_7/run_all_pbm_7a+7_upd_e.sh
+ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/run_all_pbm_7a+7_upd_e.sh
 ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_e/
 ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/centrimo_peaks_7a+7_upd_e/
 ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_e/
