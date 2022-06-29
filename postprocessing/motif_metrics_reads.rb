@@ -91,7 +91,7 @@ tfs.each{|tf|
             "--name #{container_name}",
             "--volume #{dataset_fq}:/seq.fastq.gz:ro",
             "--volume #{MOTIFS_PATH}:/motifs:ro",
-            "vorontsovie/pwmeval_selex:2.0.2",
+            "vorontsovie/pwmeval_selex:2.1.0",
                 "/bin/sh",
         " >&2", # don't print container id into stdout
       ].join(" ")
@@ -120,6 +120,7 @@ tfs.each{|tf|
                 "--negative-file /sequences/negative.fa",
                 "--top #{top_fraction} --bin 1000",
                 "--pseudo-weight 0.0001",
+                "--json",
           " || echo", # print newline on fail
         ].join(" ")
         fw.puts(cmd_4)
