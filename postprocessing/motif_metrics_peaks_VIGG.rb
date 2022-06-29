@@ -50,7 +50,7 @@ tfs.each{|tf|
             "--volume #{ASSEMBLY_PATH}:/assembly/:ro",
             "--volume #{MOTIFS_PATH}:/motifs/:ro",
             "--volume #{dataset_abs_fn}:/peaks:ro",
-            "vorontsovie/motif_pseudo_roc:2.1.0",
+            "vorontsovie/motif_pseudo_roc:2.1.1",
                 "/bin/sh",
         " >&2", # don't print container id into stdout
       ].join(" ")
