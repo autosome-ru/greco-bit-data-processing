@@ -70,14 +70,13 @@ fix_tf_info = ->(tf_info) {
   "#{tf}.#{construction_type}"
 }
 
-
-Dir.glob('/home_local/pavelkrav/GRECO_3_iter_pcms_full/full/AFS/*.pcm').each{|fn|
+Dir.glob('/home_local/pavelkrav/GRECO_4_iter_pcms_novel/AFS_novel/*.pcm').each{|fn|
   # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo.Train.peaks.499seq_7to15_m0.pcm
   bn = File.basename(fn, '.pcm')
   tf_info, exp_type, _exp_info, rest_info = bn.split('@')
   tf_info = fix_tf_info.call(tf_info)
   _processing_type, dataset_name, _train_val, _processing_type_2, motif_name = rest_info.split('.')
-  raise  unless (exp_type == 'AFS.IVT') || (exp_type == 'AFS.Lys')
+  raise  unless ['AFS.IVT', 'AFS.Lys', 'AFS.GFPIVT'].include?(exp_type)
   raise  unless (_processing_type == 'Peaks') && (_processing_type_2 == 'peaks')
   raise  unless _train_val == 'Train'
   team_tool = 'autosome-ru.ChIPMunk'
@@ -85,7 +84,7 @@ Dir.glob('/home_local/pavelkrav/GRECO_3_iter_pcms_full/full/AFS/*.pcm').each{|fn
   rename_motif(fn, "#{results_folder}/#{dst_bn}", transpose: true)
 }
 
-Dir.glob('/home_local/pavelkrav/GRECO_3_iter_pcms_full/full/CHS/*.pcm').each{|fn|
+Dir.glob('/home_local/pavelkrav/GRECO_4_iter_pcms_novel/CHS_novel/*.pcm').each{|fn|
   # AC008770.FL@CHS@THC_0139@Peaks.squeaky-cream-tarantula.Train.peaks.242seq_21to7_m0.pcm
   bn = File.basename(fn, '.pcm')
   tf_info, exp_type, _exp_info, rest_info = bn.split('@')
@@ -99,41 +98,12 @@ Dir.glob('/home_local/pavelkrav/GRECO_3_iter_pcms_full/full/CHS/*.pcm').each{|fn
   rename_motif(fn, "#{results_folder}/#{dst_bn}", transpose: true)
 }
 
-Dir.glob("/home_local/vorontsovie/greco-bit-data-processing/motifs_pbm_release_7/{SDQN,QNZS}/pcms/*.pcm").each{|fn|
-  # AC008770.DBD@PBM.HK@nerdy-auburn-turtle@autosome-ru.ChIPMunk@s_6-16_flat.pcm
-  bn = File.basename(fn, '.pcm')
-  tf_info, exp_type, dataset_name, team_tool, motif_name = bn.split('@')
-  tf_info = fix_tf_info.call(tf_info)
-  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.pcm"
-  rename_motif(fn, "#{results_folder}/#{dst_bn}")
-}
-
-Dir.glob("/home_local/arsen_l/greco-bit/motifs/motif_collection_release_7.2021-08-14/{AFS,HTS,SMS}/pcms/*.pcm").each{|fn|
-  # AC008770.FL@AFS.IVT@lumpy-zucchini-octopus+sunny-ruby-kangaroo@autosome-ru.ChIPMunk@topk_cycle=C3+C4_k=5_top=500.pcm
-  bn = File.basename(fn, '.pcm')
-  tf_info, exp_type, dataset_name, team_tool, motif_name = bn.split('@')
-  tf_info = fix_tf_info.call(tf_info)
-  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.pcm"
-  rename_motif(fn, "#{results_folder}/#{dst_bn}")
-}
-
-# model names contain dots, replace with underscores
-Dir.glob("/home_local/jangrau/models_r7/{AFS,CHS,PBM.QNZS,PBM.SDQN,SMS,SMS.published,HTS}/*.ppm").each{|fn|
-  # AC008770.DBD@HTS.IVT@blurry-puce-tarsier+flimsy-celadon-spitz+stealthy-linen-kakapo+jumpy-bronze-woodlouse@Halle.Dimont@Motif_1_sampled_e1.5_astrained.ppm
-  bn = File.basename(fn, '.ppm')
-  tf_info, exp_type, dataset_name, team_tool, motif_name = bn.split('@')
-  tf_info = fix_tf_info.call(tf_info)
-  motif_name = motif_name.gsub('.', '_')
-  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.ppm"
-  rename_motif(fn, "#{results_folder}/#{dst_bn}")
-}
-
 [
-  *Dir.glob("/mnt/space/hughes/Motifs_10_06/Motifs/{AFS.Peaks,CHS,SMS,SMS.published}/*.ppm"),
-  *Dir.glob("/mnt/space/hughes/Motifs_10_26/CHS/*.txt"),
+  *Dir.glob("/home_local/mihaialbu/Motifs202206/Motifs{AFS.Peaks,CHS,SMS}/*.ppm"),
 ].each{|fn|
   # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo@HughesLab@Homer@Motif1.ppm
   # C11orf95.FL@CHS@THC_0197@Peaks.foggy-red-dalmatian@HughesLab@GkmSVM@Motif2.txt
+  # AHCTF1.DBD@SMS@UT380-009-2.5TAAGAGACAGCGTATGAATC.3CTGTCTCTTATACACATCTC@Reads.chummy-puce-dragon@HughesLab@Homer@Motif2.ppm
   bn = File.basename(fn, File.extname(fn))
   tf_info, exp_type, _exp_info, rest_info, team, tool, motif_name = bn.split('@')
   tf_info = fix_tf_info.call(tf_info)
@@ -143,27 +113,12 @@ Dir.glob("/home_local/jangrau/models_r7/{AFS,CHS,PBM.QNZS,PBM.SDQN,SMS,SMS.publi
   rename_motif(fn, "#{results_folder}/#{dst_bn}")
 }
 
-# copy AJolma.Autoseed from release-6 (but convert TF name if necessary)
-Dir.glob('/home_local/vorontsovie/greco-motifs/release_6_motifs_2021-04-15/Hughes/Autoseed_{HT-SELEX,SmileSeq}/*').each{|fn|
-  raise  unless File.extname(fn) == '.ppm'
-  bn = File.basename(fn, '.ppm')
-  tf_info, exp_type, dataset_name, team_tool, motif_name = bn.split('@')
-  tf_info = fix_tf_info.call(tf_info)
-  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.ppm"
-  rename_motif(fn, "#{results_folder}/#{dst_bn}")
-}
-
-Dir.glob('./motifs_to_add/AutoseedAllDecember2021/{HT-SELEX,GHT-SELEX}/*').each{|fn|
-  # TIGD4.FL@HTS.IVT@YWE_A_AT40NGAGAGG.C3.5ACGACGCTCTTCCGATCTAT.3GAGAGGAGATCGGAAGAGCA@Reads.snazzy-pear-sparrow.Train@Ajolma_Autoseed_Multinom2_Onehit_Seed_NAACCCCGTTARTATCACNBackgroundCyc2.ppm
-  raise  unless File.extname(fn) == '.ppm'
-  bn = File.basename(fn, '.ppm')
-  tf_info, exp_type, exp_info, ds_info, motif_info = bn.split('@')
-  raise  unless motif_info.start_with?('Ajolma_Autoseed_')
-  tf_info = fix_tf_info.call(tf_info)
-  motif_name = motif_info.sub(/^Ajolma_Autoseed_/, '')
-  proc_type, ds_name, slice_type = ds_info.split('.')
-  raise  unless proc_type == 'Reads' && slice_type == 'Train'
-  team_tool = 'AJolma.Autoseed'
-  dst_bn = "#{tf_info}@#{exp_type}@#{ds_name}@#{team_tool}@#{motif_name}.ppm"
-  rename_arttu_motif(fn, "#{results_folder}/#{dst_bn}")
+[
+  '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8a.2022-04-14/HTS/pcms',
+  '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8a.2022-04-14/SMS/pcms',
+  '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8c.2022-06-01/AFS/pcms',
+].each{|folder|
+  Dir.glob("#{folder}/*").each{|fn|
+    FileUtils.cp(fn, results_folder)
+  }
 }
