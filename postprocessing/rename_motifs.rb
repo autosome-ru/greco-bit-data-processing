@@ -70,55 +70,74 @@ fix_tf_info = ->(tf_info) {
   "#{tf}.#{construction_type}"
 }
 
-Dir.glob('/home_local/pavelkrav/GRECO_4_iter_pcms_novel/AFS_novel/*.pcm').each{|fn|
-  # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo.Train.peaks.499seq_7to15_m0.pcm
-  bn = File.basename(fn, '.pcm')
-  tf_info, exp_type, _exp_info, rest_info = bn.split('@')
-  tf_info = fix_tf_info.call(tf_info)
-  _processing_type, dataset_name, _train_val, _processing_type_2, motif_name = rest_info.split('.')
-  raise  unless ['AFS.IVT', 'AFS.Lys', 'AFS.GFPIVT'].include?(exp_type)
-  raise  unless (_processing_type == 'Peaks') && (_processing_type_2 == 'peaks')
-  raise  unless _train_val == 'Train'
-  team_tool = 'autosome-ru.ChIPMunk'
-  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.pcm"
-  rename_motif(fn, "#{results_folder}/#{dst_bn}", transpose: true)
-}
 
-Dir.glob('/home_local/pavelkrav/GRECO_4_iter_pcms_novel/CHS_novel/*.pcm').each{|fn|
-  # AC008770.FL@CHS@THC_0139@Peaks.squeaky-cream-tarantula.Train.peaks.242seq_21to7_m0.pcm
-  bn = File.basename(fn, '.pcm')
-  tf_info, exp_type, _exp_info, rest_info = bn.split('@')
-  tf_info = fix_tf_info.call(tf_info)
-  _processing_type, dataset_name, _train_val, _processing_type_2, motif_name = rest_info.split('.')
-  raise  unless exp_type == 'CHS'
-  raise  unless (_processing_type == 'Peaks') && (_processing_type_2 == 'peaks')
-  raise  unless _train_val == 'Train'
-  team_tool = 'autosome-ru.ChIPMunk'
-  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.pcm"
-  rename_motif(fn, "#{results_folder}/#{dst_bn}", transpose: true)
-}
+# Dir.glob('/home_local/pavelkrav/GRECO_4_iter_pcms_novel/AFS_novel/*.pcm').each{|fn|
+#   # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo.Train.peaks.499seq_7to15_m0.pcm
+#   bn = File.basename(fn, '.pcm')
+#   tf_info, exp_type, _exp_info, rest_info = bn.split('@')
+#   tf_info = fix_tf_info.call(tf_info)
+#   _processing_type, dataset_name, _train_val, _processing_type_2, motif_name = rest_info.split('.')
+#   raise  unless ['AFS.IVT', 'AFS.Lys', 'AFS.GFPIVT'].include?(exp_type)
+#   raise  unless (_processing_type == 'Peaks') && (_processing_type_2 == 'peaks')
+#   raise  unless _train_val == 'Train'
+#   team_tool = 'autosome-ru.ChIPMunk'
+#   dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.pcm"
+#   rename_motif(fn, "#{results_folder}/#{dst_bn}", transpose: true)
+# }
+
+# Dir.glob('/home_local/pavelkrav/GRECO_4_iter_pcms_novel/CHS_novel/*.pcm').each{|fn|
+#   # AC008770.FL@CHS@THC_0139@Peaks.squeaky-cream-tarantula.Train.peaks.242seq_21to7_m0.pcm
+#   bn = File.basename(fn, '.pcm')
+#   tf_info, exp_type, _exp_info, rest_info = bn.split('@')
+#   tf_info = fix_tf_info.call(tf_info)
+#   _processing_type, dataset_name, _train_val, _processing_type_2, motif_name = rest_info.split('.')
+#   raise  unless exp_type == 'CHS'
+#   raise  unless (_processing_type == 'Peaks') && (_processing_type_2 == 'peaks')
+#   raise  unless _train_val == 'Train'
+#   team_tool = 'autosome-ru.ChIPMunk'
+#   dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}.pcm"
+#   rename_motif(fn, "#{results_folder}/#{dst_bn}", transpose: true)
+# }
+
+# [
+#   *Dir.glob("/home_local/mihaialbu/Motifs202206/Motifs{AFS.Peaks,CHS,SMS}/*.ppm"),
+# ].each{|fn|
+#   # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo@HughesLab@Homer@Motif1.ppm
+#   # C11orf95.FL@CHS@THC_0197@Peaks.foggy-red-dalmatian@HughesLab@GkmSVM@Motif2.txt
+#   # AHCTF1.DBD@SMS@UT380-009-2.5TAAGAGACAGCGTATGAATC.3CTGTCTCTTATACACATCTC@Reads.chummy-puce-dragon@HughesLab@Homer@Motif2.ppm
+#   bn = File.basename(fn, File.extname(fn))
+#   tf_info, exp_type, _exp_info, rest_info, team, tool, motif_name = bn.split('@')
+#   tf_info = fix_tf_info.call(tf_info)
+#   dataset_name = rest_info.split('.').drop(1).join('+')
+
+#   dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team}.#{tool}@#{motif_name}.ppm"
+#   rename_motif(fn, "#{results_folder}/#{dst_bn}")
+# }
+
+# [
+#   '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8a.2022-04-14/HTS/pcms',
+#   '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8a.2022-04-14/SMS/pcms',
+#   '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8c.2022-06-01/AFS/pcms',
+# ].each{|folder|
+#   Dir.glob("#{folder}/*").each{|fn|
+#     FileUtils.cp(fn, results_folder)
+#   }
+# }
 
 [
-  *Dir.glob("/home_local/mihaialbu/Motifs202206/Motifs{AFS.Peaks,CHS,SMS}/*.ppm"),
+  *Dir.glob('/home_local/vorontsovie/greco-bit-data-processing/arttu_motifs/MotifSet_HT-SELEXJune2022_NostartingLetter/*.ppm'),
+  *Dir.glob('/home_local/vorontsovie/greco-bit-data-processing/arttu_motifs/MotifSet_SmileSeqJune2022/*.ppm'),
 ].each{|fn|
-  # AC008770.DBD@AFS.IVT@YWH_B_AffSeq_H02_AC008770_DBD.C4.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.messy-heliotrope-armadillo@HughesLab@Homer@Motif1.ppm
-  # C11orf95.FL@CHS@THC_0197@Peaks.foggy-red-dalmatian@HughesLab@GkmSVM@Motif2.txt
-  # AHCTF1.DBD@SMS@UT380-009-2.5TAAGAGACAGCGTATGAATC.3CTGTCTCTTATACACATCTC@Reads.chummy-puce-dragon@HughesLab@Homer@Motif2.ppm
-  bn = File.basename(fn, File.extname(fn))
-  tf_info, exp_type, _exp_info, rest_info, team, tool, motif_name = bn.split('@')
+  # TIGD4.FL@HTS.IVT@YWE_A_AT40NGAGAGG.C3.5ACGACGCTCTTCCGATCTAT.3GAGAGGAGATCGGAAGAGCA@Reads.snazzy-pear-sparrow.Train@Ajolma_Autoseed_Multinom2_Onehit_Seed_NAACCCCGTTA
+  raise  unless File.extname(fn) == '.ppm'
+  bn = File.basename(fn, '.ppm')
+  tf_info, exp_type, exp_info, ds_info, motif_info = bn.split('@')
+  raise  unless motif_info.start_with?('Ajolma_Autoseed_')
   tf_info = fix_tf_info.call(tf_info)
-  dataset_name = rest_info.split('.').drop(1).join('+')
-
-  dst_bn = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team}.#{tool}@#{motif_name}.ppm"
-  rename_motif(fn, "#{results_folder}/#{dst_bn}")
-}
-
-[
-  '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8a.2022-04-14/HTS/pcms',
-  '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8a.2022-04-14/SMS/pcms',
-  '/home_local/arsen_l/greco-bit/motifs/motif_collection_release_8c.2022-06-01/AFS/pcms',
-].each{|folder|
-  Dir.glob("#{folder}/*").each{|fn|
-    FileUtils.cp(fn, results_folder)
-  }
+  motif_name = motif_info.sub(/^Ajolma_Autoseed_/, '')
+  proc_type, ds_name, slice_type = ds_info.split('.')
+  raise  unless proc_type == 'Reads' && slice_type == 'Train'
+  team_tool = 'AJolma.Autoseed'
+  dst_bn = "#{tf_info}@#{exp_type}@#{ds_name}@#{team_tool}@#{motif_name}.ppm"
+  rename_arttu_motif(fn, "#{results_folder}/#{dst_bn}")
 }
