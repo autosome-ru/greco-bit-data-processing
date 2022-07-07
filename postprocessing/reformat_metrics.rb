@@ -82,8 +82,8 @@ conversion_tasks.each do |conversion_task|
   metrics = conversion_task[:metrics]
 
   data_rows = conversion_task[:src].flat_map{|fn|
-    File.readlines(fn).map{|l|
-      ds, mot, info = l.chomp.split("\t")
+    File.readlines(fn).map(&:strip).reject(&:empty?).map{|l|
+      ds, mot, info = l.split("\t")
       metrics_values = conversion_task[:parser].call(info, metrics)
       [File.basename(ds), File.basename(mot), *metrics_values]
     }
