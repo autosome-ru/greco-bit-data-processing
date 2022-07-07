@@ -11,34 +11,31 @@ conversion_tasks = [
   # peak-based
   {
     src: [
-      'run_benchmarks_release_7/pwmeval_peaks.tsv',
-      'run_benchmarks_release_7/pwmeval_peaks_7a+7c.tsv',
-      'run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_d.tsv',
-      'run_benchmarks_release_7/pwmeval_peaks_7a+7_upd_e.tsv',
+      'benchmarks/release_8c/motif_batch_7e/pwmeval_peaks.tsv',
+      'benchmarks/release_8c/motif_batch_8c_pack_1/pwmeval_peaks.tsv',
+      'benchmarks/release_8c/motif_batch_8c_pack_2/pwmeval_peaks.tsv',
     ],
-    dst: 'run_benchmarks_release_7/formatted_peaks_pwmeval.tsv',
-    metrics: ['AUCROC'],
-    parser: ->(info, metrics){ info }
+    dst: 'benchmarks/release_8c/final_formatted/pwmeval_peaks.tsv',
+    metrics: ['roc_auc', 'pr_auc'],
+    parser: ->(info, metrics){ JSON.parse(info)["metrics"].values_at(*metrics) }
   },
   {
     src: [
-      'run_benchmarks_release_7/VIGG_peaks.tsv',
-      'run_benchmarks_release_7/VIGG_peaks_7a+7c.tsv',
-      'run_benchmarks_release_7/VIGG_peaks_7a+7_upd_d.tsv',
-      'run_benchmarks_release_7/VIGG_peaks_7a+7_upd_e.tsv',
+      'benchmarks/release_8c/motif_batch_7e/vigg_peaks.tsv',
+      'benchmarks/release_8c/motif_batch_8c_pack_1/vigg_peaks.tsv',
+      'benchmarks/release_8c/motif_batch_8c_pack_2/vigg_peaks.tsv',
     ],
-    dst: 'run_benchmarks_release_7/formatted_peaks_vigg.tsv',
+    dst: 'benchmarks/release_8c/final_formatted/vigg_peaks.tsv',
     metrics: ['roc_auc', 'logroc_auc'],
     parser: ->(info, metrics){ JSON.parse(info)["metrics"].values_at(*metrics) }
   },
   {
     src: [
-      'run_benchmarks_release_7/centrimo.tsv',
-      'run_benchmarks_release_7/centrimo_7a+7c.tsv',
-      'run_benchmarks_release_7/centrimo_7a+7_upd_d.tsv',
-      'run_benchmarks_release_7/centrimo_7a+7_upd_e.tsv',
+      'benchmarks/release_8c/motif_batch_7e/centrimo_peaks.tsv',
+      'benchmarks/release_8c/motif_batch_8c_pack_1/centrimo_peaks.tsv',
+      'benchmarks/release_8c/motif_batch_8c_pack_2/centrimo_peaks.tsv',
     ],
-    dst: 'run_benchmarks_release_7/formatted_peaks_centrimo.tsv',
+    dst: 'benchmarks/release_8c/final_formatted/centrimo_peaks.tsv',
     metrics: ['-log10(E-value)','concentration_30nt'],
     parser: ->(info, metrics){
       if !info || info.empty?
@@ -57,13 +54,11 @@ conversion_tasks = [
   # PBM-based
   {
     src: [
-      'run_benchmarks_release_7/pbm.tsv',
-      'run_benchmarks_release_7/pbm_7a+7c.tsv',
-      'run_benchmarks_release_7/pbm_7a+7_upd_d.tsv',
-      'run_benchmarks_release_7/pbm_7a+7_upd_e.tsv',
-      'run_benchmarks_release_7/pbm_7b+7_upd_e.tsv',
+      'benchmarks/release_8c/motif_batch_7e/pbm.tsv',
+      'benchmarks/release_8c/motif_batch_8c_pack_1/pbm.tsv',
+      'benchmarks/release_8c/motif_batch_8c_pack_2/pbm.tsv',
     ],
-    dst: 'run_benchmarks_release_7/formatted_pbm.tsv',
+    dst: 'benchmarks/release_8c/final_formatted/pbm.tsv',
     metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
     parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
   },
@@ -72,15 +67,13 @@ conversion_tasks = [
   *['0.1', '0.25', '0.5'].map{|fraction|
     {
       src: [
-        "run_benchmarks_release_7/reads_#{fraction}.tsv",
-        "run_benchmarks_release_7/reads_#{fraction}_7a+7c.tsv",
-        "run_benchmarks_release_7/reads_#{fraction}_7a+7c_upd.tsv",
-        "run_benchmarks_release_7/reads_#{fraction}_7a+7_upd_d.tsv",
-        "run_benchmarks_release_7/reads_#{fraction}_7a+7_upd_e.tsv",
+        "benchmarks/release_8c/motif_batch_7e/reads_#{fraction}.tsv",
+        "benchmarks/release_8c/motif_batch_8c_pack_1/reads_#{fraction}.tsv",
+        "benchmarks/release_8c/motif_batch_8c_pack_2/reads_#{fraction}.tsv",
       ],
-      dst: "run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv",
-      metrics: ['AUCROC'],
-      parser: ->(info, metrics){ info }
+      dst: "benchmarks/release_8c/final_formatted/reads_#{fraction}.tsv",
+      metrics: ['roc_auc', 'pr_auc'],
+      parser: ->(info, metrics){ JSON.parse(info)["metrics"].values_at(*metrics) }
     }
   },
 ]
