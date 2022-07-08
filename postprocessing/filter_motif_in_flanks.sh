@@ -1,8 +1,17 @@
 mkdir -p  motifs_by_modeltype/pwm/
 mkdir -p  thresholds_by_modeltype/pwm/
-find ~/greco-motifs/release_7e_motifs_2022-06-02/ -name '*.pcm' | xargs -n1 basename -s .pcm | xargs -n1 -I{} echo 'ruby postprocessing/get_pwm.rb --pcm ~/greco-motifs/release_7e_motifs_2022-06-02/{}.pcm > motifs_by_modeltype/pwm/{}.pwm' | time parallel
 
-find ~/greco-motifs/release_7e_motifs_2022-06-02/ -name '*.ppm' | xargs -n1 basename -s .ppm | xargs -n1 -I{} echo 'ruby postprocessing/get_pwm.rb --pfm ~/greco-motifs/release_7e_motifs_2022-06-02/{}.ppm > motifs_by_modeltype/pwm/{}.pwm' | time parallel
+for FOLDER in  "/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02/"  "/home_local/vorontsovie/greco-motifs/release_8c.pack_1/"  "/home_local/vorontsovie/greco-motifs/release_8c.pack_2/"; do
+  find "${FOLDER}" -name '*.pcm' \
+    | xargs -n1 -I{} basename -s .pcm {} \
+    | xargs -n1 -I{} echo \
+      "ruby postprocessing/get_pwm.rb --pcm ${FOLDER}/{}.pcm > motifs_by_modeltype/pwm/{}.pwm" ;
+
+  find "${FOLDER}" -name '*.ppm' \
+    | xargs -n1 -I{} basename -s .ppm {} \
+    | xargs -n1 -I{} echo \
+      "ruby postprocessing/get_pwm.rb --pfm ${FOLDER}/{}.ppm > motifs_by_modeltype/pwm/{}.pwm" ;
+done | time parallel
 
 find motifs_by_modeltype/pwm/ -xtype f | xargs -n1 -I{} echo java -cp ape.jar ru.autosome.ape.PrecalculateThresholds {} thresholds_by_modeltype/pwm/ --single-motif | time parallel
 
@@ -22,8 +31,8 @@ hits_in_flanks() {
         --output-scoring-mode logpvalue \
         --pvalues-file thresholds_by_modeltype/pwm/{}.thr \
         --add-flanks \
-    ' | ruby postprocessing/sarus_reformatter.rb --filter-by-experiment run_benchmarks_release_7/metadata_release_7a.json {} ' \
-  | parallel
+    ' | ruby postprocessing/sarus_reformatter.rb --filter-by-experiment metadata_release_8c.json {} ' \
+  | parallel -j 200
 }
 
 hits_in_flanks HTS_flanks.fa '*@HTS.???@*' > HTS_flanks_hits.tsv
