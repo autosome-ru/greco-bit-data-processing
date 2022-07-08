@@ -58,7 +58,7 @@ def treat_vote(vote)
   end
 end
 
-# dataset name: SCML4.DBD@PBM.ME@PBM13821.5GTGAAATTGTTATCCGCTCT@SDQN.pretty-sangria-dalmatian.Train.tsv
+# dataset name: SCML4.DBD@PBM.ME@PBM13821.5GTGAAATTGTTATCCGCTCT@SD.pretty-sangria-dalmatian.Train.tsv
 #               ZNF708.FL@HTS.Lys@AAT_A_CC40NGACATG.5ACGACGCTCTTCCGATCTCC.3GACATGAGATCGGAAGAGCA.C1+C2+C3@Reads.chummy-turquoise-cow+leaky-seashell-walrus+surly-gold-toad.Val.fastq.gz
 #               ANKZF1.FL@CHS@THC_0165@Peaks.fuzzy-orange-tapir.Train.peaks
 #               ARID2.FL@CHS@THC_0409.Rep-DIANA_0293@Peaks.snazzy-taupe-rabbit.Train.peaks
@@ -254,7 +254,7 @@ def combine_ranks(hierarchy_of_metrics, metric_path: nil)
     hierarchy_of_metrics.merge(combined: product_mean(ranks))
     # TODO:  rearrange !!!
   else
-    # {tf_1 => {...}, tf_2 => {...}} or {"PBM.HK" => {...}, "AFS.Lys" => {...}} or {"QNZS" => {...}, "SDQN" => {...}} etc
+    # {tf_1 => {...}, tf_2 => {...}} or {"PBM.HK" => {...}, "AFS.Lys" => {...}} or {"QNZS" => {...}, "SD" => {...}} etc
     # Smth like {tf_1 => {...}, tf_2 => {...}, combined: 42} is also accepted. In this case key `combined` will be recalculated
     augmented_hierarchy_of_metrics = hierarchy_of_metrics.transform_values{|subhierarchy| combine_ranks(subhierarchy) }
     ranks = augmented_hierarchy_of_metrics.map{|_, subhierarchy| subhierarchy[:combined] }.compact
@@ -268,31 +268,72 @@ end
 
 METRIC_COMBINATIONS = {
   combined: {
-    chipseq: [:chipseq_pwmeval_ROC, :chipseq_vigg_ROC, :chipseq_centrimo_neglog_evalue],
+    chipseq_peaks: {
+        chipseq_pwmeval: [:chipseq_pwmeval_ROC, :chipseq_pwmeval_PR],
+        chipseq_vigg: [:chipseq_vigg_ROC, :chipseq_vigg_PR],
+        chipseq_centrimo_neglog_evalue: [:chipseq_centrimo_neglog_evalue],
+      },
     affiseq_IVT: {
-      affiseq_IVT_peaks: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_neglog_evalue],
-      affiseq_IVT_reads: [:affiseq_10_IVT_ROC, :affiseq_25_IVT_ROC, :affiseq_50_IVT_ROC],
+      affiseq_IVT_peaks: {
+        affiseq_IVT_pwmeval: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_pwmeval_PR],
+        affiseq_IVT_vigg: [:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_PR],
+        affiseq_IVT_centrimo_neglog_evalue: [:affiseq_IVT_centrimo_neglog_evalue],
+      },
+      affiseq_IVT_reads: {
+        affiseq_10_IVT: [:affiseq_10_IVT_ROC, :affiseq_10_IVT_PR],
+        affiseq_25_IVT: [:affiseq_25_IVT_ROC, :affiseq_25_IVT_PR],
+        affiseq_50_IVT: [:affiseq_50_IVT_ROC, :affiseq_50_IVT_PR],
+      },
+    },
+    affiseq_GFPIVT: {
+      affiseq_GFPIVT_peaks: {
+        affiseq_GFPIVT_pwmeval: [:affiseq_GFPIVT_pwmeval_ROC, :affiseq_GFPIVT_pwmeval_PR],
+        affiseq_GFPIVT_vigg: [:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_PR],
+        affiseq_GFPIVT_centrimo_neglog_evalue: [:affiseq_GFPIVT_centrimo_neglog_evalue],
+      },
+      affiseq_GFPIVT_reads: {
+        affiseq_10_GFPIVT: [:affiseq_10_GFPIVT_ROC, :affiseq_10_GFPIVT_PR],
+        affiseq_25_GFPIVT: [:affiseq_25_GFPIVT_ROC, :affiseq_25_GFPIVT_PR],
+        affiseq_50_GFPIVT: [:affiseq_50_GFPIVT_ROC, :affiseq_50_GFPIVT_PR],
+      },
     },
     affiseq_Lysate: {
-      affiseq_Lysate_peaks: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_neglog_evalue],
-      affiseq_Lysate_reads: [:affiseq_10_Lysate_ROC, :affiseq_25_Lysate_ROC, :affiseq_50_Lysate_ROC],
+      affiseq_Lysate_peaks: {
+        affiseq_Lysate_pwmeval: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR],
+        affiseq_Lysate_vigg: [:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_PR],
+        affiseq_Lysate_centrimo_neglog_evalue: [:affiseq_Lysate_centrimo_neglog_evalue],
+      },
+      affiseq_Lysate_reads: {
+        affiseq_10_Lysate: [:affiseq_10_Lysate_ROC, :affiseq_10_Lysate_PR],
+        affiseq_25_Lysate: [:affiseq_25_Lysate_ROC, :affiseq_25_Lysate_PR],
+        affiseq_50_Lysate: [:affiseq_50_Lysate_ROC, :affiseq_50_Lysate_PR],
+      },
     },
-    selex_IVT: [:selex_10_IVT_ROC, :selex_25_IVT_ROC, :selex_50_IVT_ROC],
-    selex_Lysate: [:selex_10_Lysate_ROC, :selex_25_Lysate_ROC, :selex_50_Lysate_ROC],
+    selex_IVT: {
+      selex_10_IVT: [:selex_10_IVT_ROC, :selex_10_IVT_PR],
+      selex_25_IVT: [:selex_25_IVT_ROC, :selex_25_IVT_PR],
+      selex_50_IVT: [:selex_50_IVT_ROC, :selex_50_IVT_PR],
+    },
+    selex_GFPIVT: {
+      selex_10_GFPIVT: [:selex_10_GFPIVT_ROC, :selex_10_GFPIVT_PR],
+      selex_25_GFPIVT: [:selex_25_GFPIVT_ROC, :selex_25_GFPIVT_PR],
+      selex_50_GFPIVT: [:selex_50_GFPIVT_ROC, :selex_50_GFPIVT_PR],
+    },
+    selex_Lysate: {
+      selex_10_Lysate: [:selex_10_Lysate_ROC, :selex_10_Lysate_PR],
+      selex_25_Lysate: [:selex_25_Lysate_ROC, :selex_25_Lysate_PR],
+      selex_50_Lysate: [:selex_50_Lysate_ROC, :selex_50_Lysate_PR],
+    },
     pbm: {
-      pbm_sdqn: [:pbm_sdqn_roc, :pbm_sdqn_pr],
+      pbm_sd: [:pbm_sd_roc, :pbm_sd_pr],
       pbm_qnzs: [:pbm_qnzs_roc, :pbm_qnzs_pr],
     },
-    smileseq: [:smileseq_10_ROC, :smileseq_25_ROC, :smileseq_50_ROC],
+    smileseq: {
+      smileseq_10: [:smileseq_10_ROC, :smileseq_10_PR],
+      smileseq_25: [:smileseq_25_ROC, :smileseq_25_PR],
+      smileseq_50: [:smileseq_50_ROC, :smileseq_50_PR],
+    },
   },
-  # dropped: {
-  #   dropped_peak_metrics: [:chipseq_vigg_logROC, :affiseq_IVT_vigg_logROC, :affiseq_Lysate_vigg_logROC,
-  #                          :chipseq_centrimo_concentration_30nt, :affiseq_IVT_centrimo_concentration_30nt, :affiseq_Lysate_centrimo_concentration_30nt],
-  #   dropped_pbm_qnzs: [:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_mers, :pbm_qnzs_logmers],
-  #   dropped_pbm_sdqn: [:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_mers, :pbm_sdqn_logmers],
-  #   pbm_roc: [:pbm_sdqn_roc, :pbm_qnzs_roc],
-  #   pbm_pr:  [:pbm_sdqn_pr,  :pbm_qnzs_pr],
-  # }
 }
 
 METRICS_ORDER         = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
@@ -345,34 +386,39 @@ else
 end
 
 metrics_readers_configs = {
-  'run_benchmarks_release_7/formatted_peaks_pwmeval.tsv' => [
-    [[:chipseq_pwmeval_ROC], ->(x){ x.match?(/@CHS@/) }],
-    [[:affiseq_IVT_pwmeval_ROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    [[:affiseq_Lysate_pwmeval_ROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+  'benchmarks/release_8c/final_formatted/pwmeval_peaks.tsv' => [
+    [[:chipseq_pwmeval_ROC, :chipseq_pwmeval_PR], ->(x){ x.match?(/@CHS@/) }],
+    [[:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:affiseq_GFPIVT_pwmeval_ROC, :affiseq_GFPIVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
+    [[:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'run_benchmarks_release_7/formatted_peaks_vigg.tsv' => [
+  'benchmarks/release_8c/final_formatted/vigg_peaks.tsv' => [
     [[:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
     [[:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_logROC], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
     [[:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'run_benchmarks_release_7/formatted_peaks_centrimo.tsv' => [
+  'benchmarks/release_8c/final_formatted/centrimo_peaks.tsv' => [
     [[:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
     [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:affiseq_GFPIVT_centrimo_neglog_evalue, :affiseq_GFPIVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
     [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'run_benchmarks_release_7/formatted_pbm.tsv' => [
-    [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
-    [[:pbm_sdqn_asis, :pbm_sdqn_log, :pbm_sdqn_exp, :pbm_sdqn_roc, :pbm_sdqn_pr, :pbm_sdqn_mers, :pbm_sdqn_logmers], ->(x){ x.match?(/@SDQN\./) }],
+  'benchmarks/release_8c/final_formatted/pbm.tsv' => [
+    [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_roclog, :pbm_qnzs_prlog, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
+    [[:pbm_sd_asis, :pbm_sd_log, :pbm_sd_exp, :pbm_sd_roc, :pbm_sd_pr, :pbm_sd_roclog, :pbm_sd_prlog, :pbm_sd_mers, :pbm_sd_logmers], ->(x){ x.match?(/@SD\./) }],
   ],
 }
 
 [['0.1', '10'], ['0.25', '25'], ['0.5', '50']].each{|fraction, percent|
-  metrics_readers_configs["run_benchmarks_release_7/formatted_reads_pwmeval_#{fraction}.tsv"] = [
-    [[:"selex_#{percent}_IVT_ROC"], ->(x){ x.match?(/@HTS\.IVT@/) }],
-    [[:"selex_#{percent}_Lysate_ROC"], ->(x){ x.match?(/@HTS\.Lys@/) }],
-    [[:"affiseq_#{percent}_IVT_ROC"], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    [[:"affiseq_#{percent}_Lysate_ROC"], ->(x){ x.match?(/@AFS\.Lys@/) }],
-    [[:"smileseq_#{percent}_ROC"], ->(x){ x.match?(/@SMS@/) }],
+  metrics_readers_configs["benchmarks/release_8c/final_formatted/reads_#{fraction}.tsv"] = [
+    [[:"selex_#{percent}_IVT_ROC", :"selex_#{percent}_IVT_PR"], ->(x){ x.match?(/@HTS\.IVT@/) }],
+    [[:"selex_#{percent}_GFPIVT_ROC", :"selex_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@HTS\.GFPIVT@/) }],
+    [[:"selex_#{percent}_Lysate_ROC", :"selex_#{percent}_Lysate_PR"], ->(x){ x.match?(/@HTS\.Lys@/) }],
+    [[:"affiseq_#{percent}_IVT_ROC", :"affiseq_#{percent}_IVT_PR"], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    [[:"affiseq_#{percent}_GFPIVT_ROC", :"affiseq_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
+    [[:"affiseq_#{percent}_Lysate_ROC", :"affiseq_#{percent}_Lysate_PR"], ->(x){ x.match?(/@AFS\.Lys@/) }],
+    [[:"smileseq_#{percent}_ROC", :"smileseq_#{percent}_PR"], ->(x){ x.match?(/@SMS@/) }],
   ]
 }
 

@@ -59,7 +59,7 @@ conversion_tasks = [
       'benchmarks/release_8c/motif_batch_8c_pack_2/pbm.tsv',
     ],
     dst: 'benchmarks/release_8c/final_formatted/pbm.tsv',
-    metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR'],
+    metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR', 'ROCLOG', 'PRLOG', 'MERS', 'LOGMERS'],
     parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
   },
 
