@@ -47,6 +47,14 @@ def rename_arttu_motif(src_filename, dst_filename)
   write_motif(dst_filename, header, matrix)
 end
 
+# novel Oriol's motifs have unique formatting
+def rename_oriol_motif(src_filename, dst_filename)
+  new_motif_name = basename_wo_ext(dst_filename)
+  header = ">#{new_motif_name}"
+  matrix = File.readlines(src_filename).map{|l| l.strip.split(/\s+/) }
+  write_motif(dst_filename, header, matrix)
+end
+
 #############################################
 
 results_folder = File.absolute_path(ARGV[0])
@@ -140,4 +148,19 @@ fix_tf_info = ->(tf_info) {
   team_tool = 'AJolma.Autoseed'
   dst_bn = "#{tf_info}@#{exp_type}@#{ds_name}@#{team_tool}@#{motif_name}.ppm"
   rename_arttu_motif(fn, "#{results_folder}/#{dst_bn}")
+}
+
+[
+  *Dir.glob('/home_local/vorontsovie/greco-bit-data-processing/oriol_motifs/PPM/*.ppm'),
+].each{|fn|
+  # GATA3.NA@SMS@SRR3405148@stealthy-jade-skunk@OF_ExplaiNN_filter2_1.ppm
+  raise  unless File.extname(fn) == '.ppm'
+  bn = File.basename(fn, '.ppm')
+  tf_info, exp_type, exp_info, ds_name, motif_info = bn.split('@')
+  raise  unless motif_info.start_with?('OF_ExplaiNN_')
+  tf_info = fix_tf_info.call(tf_info)
+  motif_name = motif_info.sub(/^OF_ExplaiNN_/, '')
+  team_tool = 'OFornes.ExplaiNN'
+  dst_bn = "#{tf_info}@#{exp_type}@#{ds_name}@#{team_tool}@#{motif_name}.ppm"
+  rename_oriol_motif(fn, "#{results_folder}/#{dst_bn}")
 }
