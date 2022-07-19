@@ -96,4 +96,4 @@ cat source_data_meta/SMS/unpublished/SMS.tsv \
 # Check after everything is done
 find release_7/ -xtype f | xargs -n1 basename | cut -d '.' -f1 | sort -u > gene_names.txt
 cat gene_names.txt | xargs -n1 -I{} echo 'echo -ne "{}\t"; curl -s -H "Accept:application/json" http://rest.genenames.org/search/symbol/{} | jq -r ".response.docs[0].symbol"'   | bash > gene_names_canonical.tsv
-find release_7 -xtype f | fgrep -f <( cat gene_names_canonical.tsv | awktab -e '($1 != $2){ print $1 "." }' | head -3 ) | xargs -n1 basename
+find release_7 -xtype f | fgrep -f <( cat gene_names_canonical.tsv | awktab -e '($1 != $2){ print $1 "." }' ) | xargs -n1 basename
