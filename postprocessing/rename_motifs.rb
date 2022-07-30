@@ -47,6 +47,14 @@ def rename_arttu_motif(src_filename, dst_filename)
   write_motif(dst_filename, header, matrix)
 end
 
+# motifs are well formatted except a few which are denoted with scientific format of numbers
+def rename_jan_motif(src_filename, dst_filename)
+  lns = File.readlines(src_filename).map(&:chomp)
+  header = lns.first
+  matrix = lns.drop(1).map{|l| l.split("\t").map{|v| Float(v) } }
+  write_motif(dst_filename, header, matrix)
+end
+
 # novel Oriol's motifs have unique formatting
 def rename_oriol_motif(src_filename, dst_filename)
   new_motif_name = basename_wo_ext(dst_filename)
@@ -151,7 +159,7 @@ fix_tf_info = ->(tf_info) {
 }
 
 [
-  *Dir.glob('/home_local/vorontsovie/greco-bit-data-processing/oriol_motifs/PPM/*.ppm'),
+  *Dir.glob('/home_local/vorontsovie/greco-bit-data-processing/oriol_motifs/PPM_all/*.ppm'),
 ].each{|fn|
   # GATA3.NA@SMS@SRR3405148@stealthy-jade-skunk@OF_ExplaiNN_filter2_1.ppm
   raise  unless File.extname(fn) == '.ppm'
@@ -163,4 +171,10 @@ fix_tf_info = ->(tf_info) {
   team_tool = 'OFornes.ExplaiNN'
   dst_bn = "#{tf_info}@#{exp_type}@#{ds_name}@#{team_tool}@#{motif_name}.ppm"
   rename_oriol_motif(fn, "#{results_folder}/#{dst_bn}")
+}
+
+
+Dir.glob('/home_local/jangrau/models_r8/{AFS,CHS,HTS,PBM.SD,SMS}/*.ppm').each{|motif_fn|
+  bn = File.basename(motif_fn)
+  rename_jan_motif(motif_fn, "#{results_folder}/#{bn}")
 }
