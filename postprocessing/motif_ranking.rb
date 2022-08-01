@@ -99,8 +99,8 @@ def experiment_for_dataset(dataset, experiment_by_dataset_id)
 end
 
 def read_metrics(metrics_readers_configs)
-  metrics_readers_configs.flat_map{|fn, fn_parsers|
-    infos = File.readlines(fn).drop(1).map{|line|
+  metrics_readers_configs.flat_map do |fn, fn_parsers|
+    infos = File.readlines(fn).drop(1).map do |line|
       line.chomp!
       dataset, motif, *values = line.split("\t")
       dataset_tf = dataset.split('.')[0]
@@ -109,13 +109,16 @@ def read_metrics(metrics_readers_configs)
       tf = dataset_tf
       # experiment_type = experiment_fulltype(dataset)
       # experiment = experiment_id(dataset)
-      values = values.map{|val| val && Float(val) }
+      values = values.map{|val| val == '' ? nil : (val && Float(val)) }
       {
         dataset: dataset, motif: motif, tf: tf,
         # experiment_type: experiment_type, experiment: experiment,
         values: values, original_line: line, filename: File.basename(fn),
       }
-    }
+    rescue
+      $stderr.puts "read metrics failed on line `#{line}`"
+      raise
+    end
 
     fn_parsers.flat_map{|metric_names, dataset_condition|
       infos.select{|info|
@@ -127,7 +130,10 @@ def read_metrics(metrics_readers_configs)
         }
       }
     }
-  }
+  rescue
+    $stderr.puts "read of file `#{fn}` failed"
+    raise
+  end
 end
 
 def read_curation_info(filename)
@@ -386,32 +392,32 @@ else
 end
 
 metrics_readers_configs = {
-  'benchmarks/release_8c/final_formatted/pwmeval_peaks.tsv' => [
+  'benchmarks/release_8d/final_formatted/pwmeval_peaks.tsv' => [
     [[:chipseq_pwmeval_ROC, :chipseq_pwmeval_PR], ->(x){ x.match?(/@CHS@/) }],
     [[:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.IVT@/) }],
     [[:affiseq_GFPIVT_pwmeval_ROC, :affiseq_GFPIVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
     [[:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'benchmarks/release_8c/final_formatted/vigg_peaks.tsv' => [
+  'benchmarks/release_8d/final_formatted/vigg_peaks.tsv' => [
     [[:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
     [[:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
     [[:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_logROC], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
     [[:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'benchmarks/release_8c/final_formatted/centrimo_peaks.tsv' => [
+  'benchmarks/release_8d/final_formatted/centrimo_peaks.tsv' => [
     [[:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
     [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
     [[:affiseq_GFPIVT_centrimo_neglog_evalue, :affiseq_GFPIVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
     [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
   ],
-  'benchmarks/release_8c/final_formatted/pbm.tsv' => [
+  'benchmarks/release_8d/final_formatted/pbm.tsv' => [
     [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_roclog, :pbm_qnzs_prlog, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
     [[:pbm_sd_asis, :pbm_sd_log, :pbm_sd_exp, :pbm_sd_roc, :pbm_sd_pr, :pbm_sd_roclog, :pbm_sd_prlog, :pbm_sd_mers, :pbm_sd_logmers], ->(x){ x.match?(/@SD\./) }],
   ],
 }
 
 [['0.1', '10'], ['0.25', '25'], ['0.5', '50']].each{|fraction, percent|
-  metrics_readers_configs["benchmarks/release_8c/final_formatted/reads_#{fraction}.tsv"] = [
+  metrics_readers_configs["benchmarks/release_8d/final_formatted/reads_#{fraction}.tsv"] = [
     [[:"selex_#{percent}_IVT_ROC", :"selex_#{percent}_IVT_PR"], ->(x){ x.match?(/@HTS\.IVT@/) }],
     [[:"selex_#{percent}_GFPIVT_ROC", :"selex_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@HTS\.GFPIVT@/) }],
     [[:"selex_#{percent}_Lysate_ROC", :"selex_#{percent}_Lysate_PR"], ->(x){ x.match?(/@HTS\.Lys@/) }],
