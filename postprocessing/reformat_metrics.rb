@@ -97,6 +97,8 @@ conversion_tasks.each do |conversion_task|
       metrics_values = conversion_task[:parser].call(info, metrics)
       [File.basename(ds), File.basename(mot), *metrics_values]
     }
+  }.reject{|ds, mot, *rest|
+    ds.start_with?('ZNF705E.') || mot.start_with?('ZNF705E.')
   }
 
   File.open(conversion_task[:dst], 'w'){|fw|
