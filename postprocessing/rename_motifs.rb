@@ -78,6 +78,7 @@ gene_mapping = {
   'cJUN' => 'JUN',
   'ZFAT1' => 'ZFAT',
   'C11orf95' => 'ZFTA',
+  'ZNF705E' => 'ZNF705EP',
 }
 
 fix_tf_info = ->(tf_info) {
@@ -177,4 +178,14 @@ fix_tf_info = ->(tf_info) {
 Dir.glob('/home_local/jangrau/models_r8/{AFS,CHS,HTS,PBM.SD,SMS}/*.ppm').each{|motif_fn|
   bn = File.basename(motif_fn)
   rename_jan_motif(motif_fn, "#{results_folder}/#{bn}")
+}
+
+
+[
+  *Dir.glob('/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02/ZNF705E.*'),
+  *Dir.glob('/home_local/vorontsovie/greco-motifs/release_8c.pack_{1,2,3}/ZNF705E.*'),
+].each{|fn|
+  bn = File.basename(fn)
+  bn_fixed = bn.sub('ZNF705E.', 'ZNF705EP.')
+  rename_motif(fn, "/home_local/vorontsovie/greco-motifs/release_8c.pack_4/#{bn_fixed}", transpose: false)
 }
