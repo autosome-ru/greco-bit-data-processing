@@ -36,34 +36,26 @@ done
 
 ##############
 
-# ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_8/run_all_pbm_8c_on_8c_pack1.sh
-# ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_8/pwmeval_peaks_8c_on_8c_pack1/
-# ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_8/centrimo_peaks_8c_on_8c_pack1/
-# ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_8/pwmeval_peaks_8c_on_8c_pack1/
-# ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_8/reads_0.25_8c_on_8c_pack1/ --fraction 0.25
-# ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_8/reads_0.5_8c_on_8c_pack1/ --fraction 0.5
-# ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ./run_benchmarks_release_8/reads_0.1_8c_on_8c_pack1/ --fraction 0.1
+DATA_FOLDER='/home/vorontsov/greco-data/release_8d.2022-07-31/full/'
+MOTIFS_FOLDER='/home/vorontsov/greco-motifs/release_8c.pack_4/'
+BENCHMARK_FOLDER='/home/vorontsov/greco-benchmark/release_8c_for_8c_pack4'
 
-# for SUFFIX in "" "_7a+7c"  "_7a+7c_upd" "_7a+7_upd_d" "_7a+7_upd_e"; do # calculation was multistaged
-for SUFFIX in "_8c_on_8c_pack1"; do # calculation was multistaged
-  # cat run_benchmarks_release_8/run_all_pbm${SUFFIX}.sh | parallel > run_benchmarks_release_8/pbm${SUFFIX}.tsv
-  # cat run_benchmarks_release_8/run_all_VIGG_peaks${SUFFIX}.sh | parallel > run_benchmarks_release_8/VIGG_peaks${SUFFIX}.tsv
-  # cat run_benchmarks_release_8/run_all_centrimo${SUFFIX}.sh | parallel > run_benchmarks_release_8/centrimo${SUFFIX}.tsv
-  # cat run_benchmarks_release_8/run_all_pwmeval_peaks${SUFFIX}.sh | parallel > run_benchmarks_release_8/pwmeval_peaks${SUFFIX}.tsv
-  time cat run_benchmarks_release_8/reads_0.25${SUFFIX}/run_all.sh | parallel | pv -l > run_benchmarks_release_8/reads_0.25${SUFFIX}.tsv
-  time cat run_benchmarks_release_8/reads_0.5${SUFFIX}/run_all.sh  | parallel | pv -l > run_benchmarks_release_8/reads_0.5${SUFFIX}.tsv
-  time cat run_benchmarks_release_8/reads_0.1${SUFFIX}/run_all.sh  | parallel | pv -l > run_benchmarks_release_8/reads_0.1${SUFFIX}.tsv
+ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/viggpeaks
+ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/centrimo_peaks
+ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/pwmeval_peaks
+ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/pbm
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.5/ --fraction 0.5
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.25/ --fraction 0.25
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.1/ --fraction 0.1
+
+cat ${BENCHMARK_FOLDER}/pbm/prepare_all.sh | parallel -j 200
+for DATATYPE in  reads_0.1 reads_0.25 reads_0.5  viggpeaks centrimo_peaks pwmeval_peaks  pbm; do
+  cat ${BENCHMARK_FOLDER}/${DATATYPE}/run_all.sh | parallel -j 100 | pv -l > ${BENCHMARK_FOLDER}/${DATATYPE}.tsv;
 done
 
-for SUFFIX in "_7b+7_upd_e"; do
-  # cat run_benchmarks_release_8/run_all_pbm${SUFFIX}.sh | parallel >> run_benchmarks_release_8/pbm${SUFFIX}.tsv
-  cat run_benchmarks_release_8/run_all_pbm${SUFFIX}.sh | parallel > run_benchmarks_release_8/pbm${SUFFIX}.tsv
-done
 
-# rm "${MOTIFS_FOLDER_TMP}" -r
-# MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02/'
+bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 200 | pv -l > hocomoco_similarities_8c_pack4.tsv
 
-find ~/greco-motifs/release_7d_motifs_2021-12-21/ -xtype f | xargs -n1 -I{} cp {} ~/greco-motifs/release_7e_motifs_2022-06-02/
 
 ruby postprocessing/reformat_metrics.rb
 bash ./postprocessing/filter_motif_in_flanks.sh # be cautious
