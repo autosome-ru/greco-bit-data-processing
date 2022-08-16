@@ -467,8 +467,10 @@ if filter_out_pbm_motif_dataset_matches
   all_metric_infos.select!{|info|
     exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
     exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
-    # PBM experiments are used both in train and validation datasets so we should manually exclude such cases
-    if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_')
+    exp_fulltype = info[:dataset].split('@')[1]
+    mot_fulltype = info[:motif].split('@')[1]
+    # PBM experiments are used both in train and validation datasets so we should manually exclude such cases. But we allow to train on SD and validate on QNZS
+    if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_') && exp_fulltype == mot_fulltype
       info = ["discarded because motif and dataset from the same experiment", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
       $stderr.puts(info.join("\t"))
       false
