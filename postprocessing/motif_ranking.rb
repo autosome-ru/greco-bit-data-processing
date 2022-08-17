@@ -98,6 +98,13 @@ def experiment_for_dataset(dataset, experiment_by_dataset_id)
   dataset_ids_for_dataset(dataset).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
 end
 
+def processing_type_for_motif(motif, processing_type_by_dataset_id)
+  dataset_ids_for_motif(motif).map{|ds_id| processing_type_by_dataset_id[ds_id] }.uniq.take_the_only
+end
+def processing_type_for_dataset(dataset, processing_type_by_dataset_id)
+  dataset_ids_for_dataset(dataset).map{|ds_id| processing_type_by_dataset_id[ds_id] }.uniq.take_the_only
+end
+
 def read_metrics(metrics_readers_configs)
   metrics_readers_configs.flat_map do |fn, fn_parsers|
     infos = File.readlines(fn).drop(1).map do |line|
@@ -385,9 +392,13 @@ else
 end
 
 if metadata_fn
-  experiment_by_dataset_id = read_metadata(metadata_fn).index_by{|info| info['dataset_id'] }.transform_values{|info| info['experiment_id'] }
+  metadata_full = read_metadata(metadata_fn)
+  metadata_by_dataset_id = metadata_full.index_by{|info| info['dataset_id'] }
+  experiment_by_dataset_id = metadata_by_dataset_id.transform_values{|info| info['experiment_id'] }
+  processing_type_by_dataset_id = metadata_by_dataset_id.transform_values{|info| info['processing_type'] }
 else
   experiment_by_dataset_id = nil
+  processing_type_by_dataset_id = nil
   $stderr.puts('Warning: no metadata is used, thus there can be PBM motifs benchmarked on the same datasets which were used for training')
 end
 
@@ -467,10 +478,10 @@ if filter_out_pbm_motif_dataset_matches
   all_metric_infos.select!{|info|
     exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
     exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
-    exp_fulltype = info[:dataset].split('@')[1]
-    mot_fulltype = info[:motif].split('@')[1]
+    mot_processing_type   = processing_type_for_motif(info[:motif], processing_type_by_dataset_id)
+    exp_processing_type   = processing_type_for_dataset(info[:dataset], processing_type_by_dataset_id)
     # PBM experiments are used both in train and validation datasets so we should manually exclude such cases. But we allow to train on SD and validate on QNZS
-    if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_') && exp_fulltype == mot_fulltype
+    if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_') && exp_processing_type == mot_processing_type
       info = ["discarded because motif and dataset from the same experiment", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
       $stderr.puts(info.join("\t"))
       false
