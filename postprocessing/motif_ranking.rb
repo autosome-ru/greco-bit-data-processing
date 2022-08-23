@@ -359,6 +359,8 @@ filter_out_curated_datasets = false
 filter_out_pbm_motif_dataset_matches = false
 flank_threshold = 4.0
 flank_filters = []
+artifacts_folder = nil
+artifact_similarity_threshold = 2.0  # 1.0 is maximum possible similarity
 
 option_parser = OptionParser.new{|opts|
   opts.on('--curation FILE', 'Specify dataset curation file. It will bew used to filter out bad datasets'){|fn|
@@ -377,6 +379,12 @@ option_parser = OptionParser.new{|opts|
   }
   opts.on('--filter-sticky-flanks FILE', 'Add a file with a list of motif occurrences in flanks'){|fn|
     flank_filters << fn
+  }
+  opts.on('--artifact-similarities FOLDER', 'Add a folder with a list of motif similarities to artifacts'){|folder|
+    artifacts_folder = folder
+  }
+  opts.on('--artifact-similarity-threshold VALUE', 'Minimal similarity to treat motif as an artifact'){|value|
+    artifact_similarity_threshold = Float(value)
   }
 }
 
@@ -400,6 +408,21 @@ else
   experiment_by_dataset_id = nil
   processing_type_by_dataset_id = nil
   $stderr.puts('Warning: no metadata is used, thus there can be PBM motifs benchmarked on the same datasets which were used for training')
+end
+
+artifact_motifs = [].to_set
+if artifacts_folder
+  artifact_motifs = Dir.glob("#{artifacts_folder}/*").select{|motif_fn|
+    sims = File.readlines(motif_fn).map{|l|
+      artifact_motif, sim_to_artifact, *rest = l.chomp.split("\t")
+      [artifact_motif, Float(sim_to_artifact)]
+    }.map{|artifact_motif, sim|
+      sim
+    }
+    sims.max >= artifact_similarity_threshold
+  }.map{|fn|
+    File.basename(fn)
+  }.to_set
 end
 
 metrics_readers_configs = {
@@ -474,6 +497,7 @@ if filter_out_curated_datasets
   }
 end
 
+
 if filter_out_pbm_motif_dataset_matches
   all_metric_infos.select!{|info|
     exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
@@ -490,6 +514,7 @@ if filter_out_pbm_motif_dataset_matches
     end
   }
 end
+
 
 filter_out_benchmarks = flank_filters.flat_map{|filter_fn|
   File.readlines(filter_fn).map{|l|
@@ -515,6 +540,18 @@ all_metric_infos.select!{|info|
     true
   end
 }
+
+
+all_metric_infos.select!{|info|
+  if artifact_motifs.include?(info[:motif])
+    info = ["discarded motif due to high similarity with an artifact motif",  info[:motif]]
+    $stderr.puts(info.join("\t"))
+    false
+  else
+    true
+  end
+}
+
 
 all_metric_infos = all_metric_infos.map{|info|
   dataset = info[:dataset]
