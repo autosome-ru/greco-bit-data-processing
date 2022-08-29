@@ -577,11 +577,11 @@ ranked_motif_metrics = all_metric_infos.group_by{|info|
 }
 
 
-hierarchy_of_metrics = make_metrics_hierarchy(ranked_motif_metrics, [:tf, :motif, :experiment_type, :experiment, :dataset, :processing_type]){|info|
+hierarchy_of_metrics = make_metrics_hierarchy(ranked_motif_metrics, [:tf, :motif, :experiment_type, :experiment, :processing_type, :dataset]){|info|
   {metric_name: info[:metric_name], value: info[:value], rank: info[:rank]}
 }
 
-hierarchy_of_metrics_wo_ranks = make_metrics_hierarchy(ranked_motif_metrics, [:tf, :motif, :experiment_type, :experiment, :dataset, :processing_type]){|info|
+hierarchy_of_metrics_wo_ranks = make_metrics_hierarchy(ranked_motif_metrics, [:tf, :motif, :experiment_type, :experiment, :processing_type, :dataset]){|info|
   {metric_name: info[:metric_name], value: info[:value]}
 }
 
@@ -589,7 +589,7 @@ augmented_rank_hierarchy = ranked_motif_metrics.group_by{|info| info[:tf] }.tran
   tf_infos.group_by{|info|
     info[:motif]
   }.transform_values{|motif_infos|
-    motif_metrics_hierarchy = make_metrics_hierarchy(motif_infos, [:experiment_type, :experiment, :dataset, :processing_type])
+    motif_metrics_hierarchy = make_metrics_hierarchy(motif_infos, [:experiment_type, :experiment, :processing_type, :dataset])
     take_ranks(motif_metrics_hierarchy)
   }
 }.each{|_tf, motif_ranks_hierarchies|
