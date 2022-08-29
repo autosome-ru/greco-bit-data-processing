@@ -292,11 +292,11 @@ METRIC_COMBINATIONS = {
         affiseq_IVT_vigg: [:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_PR],
         affiseq_IVT_centrimo_neglog_evalue: [:affiseq_IVT_centrimo_neglog_evalue],
       },
-      affiseq_IVT_reads: {
-        affiseq_10_IVT: [:affiseq_10_IVT_ROC, :affiseq_10_IVT_PR],
-        affiseq_25_IVT: [:affiseq_25_IVT_ROC, :affiseq_25_IVT_PR],
-        affiseq_50_IVT: [:affiseq_50_IVT_ROC, :affiseq_50_IVT_PR],
-      },
+      # affiseq_IVT_reads: {
+      #   affiseq_10_IVT: [:affiseq_10_IVT_ROC, :affiseq_10_IVT_PR],
+      #   affiseq_25_IVT: [:affiseq_25_IVT_ROC, :affiseq_25_IVT_PR],
+      #   affiseq_50_IVT: [:affiseq_50_IVT_ROC, :affiseq_50_IVT_PR],
+      # },
     },
     affiseq_GFPIVT: {
       affiseq_GFPIVT_peaks: {
@@ -304,11 +304,11 @@ METRIC_COMBINATIONS = {
         affiseq_GFPIVT_vigg: [:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_PR],
         affiseq_GFPIVT_centrimo_neglog_evalue: [:affiseq_GFPIVT_centrimo_neglog_evalue],
       },
-      affiseq_GFPIVT_reads: {
-        affiseq_10_GFPIVT: [:affiseq_10_GFPIVT_ROC, :affiseq_10_GFPIVT_PR],
-        affiseq_25_GFPIVT: [:affiseq_25_GFPIVT_ROC, :affiseq_25_GFPIVT_PR],
-        affiseq_50_GFPIVT: [:affiseq_50_GFPIVT_ROC, :affiseq_50_GFPIVT_PR],
-      },
+      # affiseq_GFPIVT_reads: {
+      #   affiseq_10_GFPIVT: [:affiseq_10_GFPIVT_ROC, :affiseq_10_GFPIVT_PR],
+      #   affiseq_25_GFPIVT: [:affiseq_25_GFPIVT_ROC, :affiseq_25_GFPIVT_PR],
+      #   affiseq_50_GFPIVT: [:affiseq_50_GFPIVT_ROC, :affiseq_50_GFPIVT_PR],
+      # },
     },
     affiseq_Lysate: {
       affiseq_Lysate_peaks: {
@@ -316,11 +316,11 @@ METRIC_COMBINATIONS = {
         affiseq_Lysate_vigg: [:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_PR],
         affiseq_Lysate_centrimo_neglog_evalue: [:affiseq_Lysate_centrimo_neglog_evalue],
       },
-      affiseq_Lysate_reads: {
-        affiseq_10_Lysate: [:affiseq_10_Lysate_ROC, :affiseq_10_Lysate_PR],
-        affiseq_25_Lysate: [:affiseq_25_Lysate_ROC, :affiseq_25_Lysate_PR],
-        affiseq_50_Lysate: [:affiseq_50_Lysate_ROC, :affiseq_50_Lysate_PR],
-      },
+      # affiseq_Lysate_reads: {
+      #   affiseq_10_Lysate: [:affiseq_10_Lysate_ROC, :affiseq_10_Lysate_PR],
+      #   affiseq_25_Lysate: [:affiseq_25_Lysate_ROC, :affiseq_25_Lysate_PR],
+      #   affiseq_50_Lysate: [:affiseq_50_Lysate_ROC, :affiseq_50_Lysate_PR],
+      # },
     },
     selex_IVT: {
       selex_10_IVT: [:selex_10_IVT_ROC, :selex_10_IVT_PR],
@@ -455,9 +455,9 @@ metrics_readers_configs = {
     [[:"selex_#{percent}_IVT_ROC", :"selex_#{percent}_IVT_PR"], ->(x){ x.match?(/@HTS\.IVT@/) }],
     [[:"selex_#{percent}_GFPIVT_ROC", :"selex_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@HTS\.GFPIVT@/) }],
     [[:"selex_#{percent}_Lysate_ROC", :"selex_#{percent}_Lysate_PR"], ->(x){ x.match?(/@HTS\.Lys@/) }],
-    [[:"affiseq_#{percent}_IVT_ROC", :"affiseq_#{percent}_IVT_PR"], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    [[:"affiseq_#{percent}_GFPIVT_ROC", :"affiseq_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
-    [[:"affiseq_#{percent}_Lysate_ROC", :"affiseq_#{percent}_Lysate_PR"], ->(x){ x.match?(/@AFS\.Lys@/) }],
+    # [[:"affiseq_#{percent}_IVT_ROC", :"affiseq_#{percent}_IVT_PR"], ->(x){ x.match?(/@AFS\.IVT@/) }],
+    # [[:"affiseq_#{percent}_GFPIVT_ROC", :"affiseq_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
+    # [[:"affiseq_#{percent}_Lysate_ROC", :"affiseq_#{percent}_Lysate_PR"], ->(x){ x.match?(/@AFS\.Lys@/) }],
     [[:"smileseq_#{percent}_ROC", :"smileseq_#{percent}_PR"], ->(x){ x.match?(/@SMS@/) }],
   ]
 }
