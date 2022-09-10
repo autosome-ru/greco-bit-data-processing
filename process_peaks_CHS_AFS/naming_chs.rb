@@ -31,10 +31,10 @@ module Chipseq
     end
   end
 
-  def self.generate_name(sample_metadata, slice_type:, extension:, replica:)
+  def self.generate_name(sample_metadata, slice_type:, extension:, replica:, uuid: nil)
     basename = sample_basename(sample_metadata, replica: replica)
 
-    uuid = take_dataset_name!
+    uuid ||= take_dataset_name!
     "#{basename}.#{uuid}.#{slice_type}.#{extension}"
   end
 
@@ -72,9 +72,22 @@ module Chipseq
   def self.main
     slice_type = nil
     extension = nil
+    has_slice_type = true
+    uuid = nil
+    mode = :generate
+    folder = nil
     argparser = OptionParser.new{|o|
       o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
       o.on('--extension VAL', 'fa or peaks') {|v| extension = v }
+      o.on('--no-slice-type', 'slice type part is missing from input sample name') {|v| has_slice_type = false }
+      o.on('--uuid VALUE', 'Specify fixed string instead of random UUID') {|v| uuid = v }
+      o.on('--mode MODE', 'Specify mode: generate/find name (default: generate)') {|v|
+        mode = v.downcase.to_sym
+        raise  unless [:generate, :find].include?(mode)
+      }
+      o.on('--folder PATH', 'Specify folder to find samples (in `find` mode)') {|v|
+        folder = v
+      }
     }
 
     argparser.parse!(ARGV)
@@ -83,13 +96,16 @@ module Chipseq
     raise 'Specify extension (fa or peaks)'  unless ['fa', 'peaks'].include?(extension)
     raise 'Specify sample filename'  unless sample_fn
     raise 'Sample file not exists'  unless File.exist?(sample_fn)
+    raise 'Specify folder'  if mode == :find && !folder
+    raise "Folder #{folder} doesn't exist"  if folder && !File.exist?(folder)
+    raise "Path #{folder} is not a folder"  if !File.directory?(folder)
 
     plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
     $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
 
     metadata = Chipseq::SampleMetadata.each_in_file('source_data_meta/CHS/CHS.tsv').to_a
 
-    slice_type ||= determine_slice_type(sample_fn)
+    slice_type ||= determine_slice_type(sample_fn)  if has_slice_type
     data_file_id, replica = File.basename(sample_fn).split('.')[1].split('@')
     normalized_id = data_file_id.sub(/_L\d+(\+L\d+)?$/, "").sub(/_\d_pf(\+\d_pf)?$/,"").sub(/_[ACGT]{6}$/, "").sub(/_S\d+$/, "")
     
@@ -103,7 +119,14 @@ module Chipseq
     end
 
     if sample_metadata
-      puts self.generate_name(sample_metadata, slice_type: slice_type, extension: extension, replica: replica)
+      case mode
+      when :generate
+        puts self.generate_name(sample_metadata, slice_type: slice_type, extension: extension, replica: replica, uuid: uuid)
+      when :find
+        names = self.find_names(folder, sample_metadata, slice_type: slice_type, extension: extension, replica: replica)
+        names.each{|name| puts name }
+      else
+      end
     else
       $stderr.puts "Metadata for sample `#{sample_fn}` (normalized_id: `#{normalized_id}`) not found"
     end
