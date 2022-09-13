@@ -98,7 +98,7 @@ module Chipseq
     raise 'Sample file not exists'  unless File.exist?(sample_fn)
     raise 'Specify folder'  if mode == :find && !folder
     raise "Folder #{folder} doesn't exist"  if folder && !File.exist?(folder)
-    raise "Path #{folder} is not a folder"  if !File.directory?(folder)
+    raise "Path #{folder} is not a folder"  if folder && !File.directory?(folder)
 
     plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
     $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
