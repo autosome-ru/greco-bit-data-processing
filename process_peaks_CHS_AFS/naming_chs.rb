@@ -6,16 +6,6 @@ require_relative '../shared/lib/random_names'
 require_relative 'chipseq_metadata'
 
 module Chipseq
-  def self.gen_name(sample_metadata, slice_type:, extension:)
-    experiment_id = sample_metadata.experiment_id
-    tf = sample_metadata.gene_id
-    construct_type = sample_metadata.construct_type
-    basename = "#{tf}.#{construct_type}@CHS@#{experiment_id}@Peaks"
-
-    uuid = take_dataset_name!
-    "#{basename}.#{uuid}.#{slice_type}.#{extension}"
-  end
-
   def self.sample_basename(sample_metadata, replica:)
     experiment_id = sample_metadata.experiment_id
     tf = sample_metadata.gene_id
@@ -33,14 +23,14 @@ module Chipseq
 
   def self.generate_name(sample_metadata, slice_type:, extension:, replica:, uuid: nil)
     basename = sample_basename(sample_metadata, replica: replica)
-
     uuid ||= take_dataset_name!
     "#{basename}.#{uuid}.#{slice_type}.#{extension}"
   end
 
   def self.find_names(folder, sample_metadata, slice_type:, extension:, replica:)
     basename = sample_basename(sample_metadata, replica: replica)
-    Dir.glob(File.join(folder, "#{basename}.*.#{slice_type}.#{extension}"))
+    pattern = [basename, '*', slice_type, extension].compact.join('.')
+    Dir.glob(File.join(folder, pattern))
   end
 
   def self.find_name(folder, sample_metadata, slice_type:, extension:, replica:)
