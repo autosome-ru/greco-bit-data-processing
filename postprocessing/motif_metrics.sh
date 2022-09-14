@@ -60,21 +60,40 @@ bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_
 ruby postprocessing/reformat_metrics.rb
 bash ./postprocessing/filter_motif_in_flanks.sh # be cautious
 
+# ruby postprocessing/motif_ranking.rb \
+#     benchmarks/release_8d/metrics_7e+8c_pack_1+2+3+4.json \
+#     benchmarks/release_8d/ranks_7e+8c_pack_1+2+3+4.json \
+#     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.json \
+#     --filter-sticky-flanks  HTS_flanks_hits.tsv \
+#     --filter-sticky-flanks  AFS_flanks_hits.tsv \
+#     --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
+#     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
+#     --flank-threshold 4.0 \
+#   2> benchmarks/release_8d/ranking.log \
+#   && echo ok || echo fail
+
 ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_7e+8c_pack_1+2+3+4.json \
-    benchmarks/release_8d/ranks_7e+8c_pack_1+2+3+4.json \
+    benchmarks/release_8d/metrics_7e+8c_pack_1+2+3+4_crosspbm_artifact_no-afs-reads.json \
+    benchmarks/release_8d/ranks_7e+8c_pack_1+2+3+4_crosspbm_artifact_no-afs-reads.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
-  2> benchmarks/release_8d/ranking.log \
-  && echo ok || echo fail
+    --artifact-similarities ./artifact_sims_precise --artifact-similarity-threshold 0.15 \
+    2> benchmarks/release_8d/ranking_crosspbm_artifact_no-afs-reads.log   && echo ok || echo fail
+
+ruby postprocessing/motif_ranking.rb \
+    benchmarks/release_8d/metrics_7e+8c_pack_1+2+3+4_crosspbm_allow-artifact_no-afs-reads.json \
+    benchmarks/release_8d/ranks_7e+8c_pack_1+2+3+4_crosspbm_allow-artifact_no-afs-reads.json \
+    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.json \
+    2> benchmarks/release_8d/ranking_crosspbm_allow-artifact_no-afs-reads.log   && echo ok || echo fail
+
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_curated_7e+8c_pack_1+2+3+4.json \
-    benchmarks/release_8d/ranks_curated_7e+8c_pack_1+2+3+4.json \
+    benchmarks/release_8d/metrics_curated_7e+8c_pack_1+2+3+4_no-afs-reads.json \
+    benchmarks/release_8d/ranks_curated_7e+8c_pack_1+2+3+4_no-afs-reads.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
@@ -82,5 +101,5 @@ time ruby postprocessing/motif_ranking.rb \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
     --curation  source_data_meta/shared/curations.tsv \
-  2> benchmarks/release_8d/ranking_curated.log \
+  2> benchmarks/release_8d/ranking_curated_no-afs-reads.log \
   && echo ok || echo fail
