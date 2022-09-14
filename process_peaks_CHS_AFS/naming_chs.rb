@@ -65,7 +65,7 @@ module Chipseq
     has_slice_type = true
     uuid = nil
     mode = :generate
-    folder = nil
+    folders = []
     argparser = OptionParser.new{|o|
       o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
       o.on('--extension VAL', 'fa or peaks') {|v| extension = v }
@@ -76,7 +76,7 @@ module Chipseq
         raise  unless [:generate, :find].include?(mode)
       }
       o.on('--folder PATH', 'Specify folder to find samples (in `find` mode)') {|v|
-        folder = v
+        folders << v
       }
     }
 
@@ -86,9 +86,11 @@ module Chipseq
     raise 'Specify extension (fa or peaks)'  unless ['fa', 'peaks'].include?(extension)
     raise 'Specify sample filename'  unless sample_fn
     raise 'Sample file not exists'  unless File.exist?(sample_fn)
-    raise 'Specify folder'  if mode == :find && !folder
-    raise "Folder #{folder} doesn't exist"  if folder && !File.exist?(folder)
-    raise "Path #{folder} is not a folder"  if folder && !File.directory?(folder)
+    raise 'Specify at least one folder'  if mode == :find && folders.empty?
+    folders.each{|folder| # if folders are not specified, that's ok
+      raise "Folder #{folder} doesn't exist"  if !File.exist?(folder)
+      raise "Path #{folder} is not a folder"  if !File.directory?(folder)
+    }
 
     plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
     $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
@@ -113,7 +115,9 @@ module Chipseq
       when :generate
         puts self.generate_name(sample_metadata, slice_type: slice_type, extension: extension, replica: replica, uuid: uuid)
       when :find
-        names = self.find_names(folder, sample_metadata, slice_type: slice_type, extension: extension, replica: replica)
+        names = folders.flat_map{|folder|
+          self.find_names(folder, sample_metadata, slice_type: slice_type, extension: extension, replica: replica)
+        }
         names.each{|name| puts name }
       else
       end
