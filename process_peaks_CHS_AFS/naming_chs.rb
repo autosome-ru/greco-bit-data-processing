@@ -120,6 +120,7 @@ module Chipseq
         }
         names.each{|name| puts name }
       else
+        raise 'Unknown mode'
       end
     else
       $stderr.puts "Metadata for sample `#{sample_fn}` (normalized_id: `#{normalized_id}`) not found"

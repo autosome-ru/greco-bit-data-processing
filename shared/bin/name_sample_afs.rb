@@ -31,16 +31,25 @@ module AffiseqPeaks
     }
   end
 
-  def self.gen_name(sample_metadata, sample_fn, processing_type:, slice_type:, extension:, cycle:)
+  def self.sample_basename(sample_metadata, cycle:, processing_type:)
     experiment_id = sample_metadata.experiment_id.gsub('.', '-')
     tf = sample_metadata.gene_name
     construct_type = sample_metadata.construct_type
     flank_5 = (ADAPTER_5 + '')[-20,20] # no inner barcodes are present
     flank_3 = ('' + ADAPTER_3)[0,20]
-    basename = "#{tf}.#{construct_type}@AFS.#{sample_metadata.ivt_or_lysate}@#{experiment_id}.C#{cycle}.5#{flank_5}.3#{flank_3}"
+    "#{tf}.#{construct_type}@AFS.#{sample_metadata.ivt_or_lysate}@#{experiment_id}.C#{cycle}.5#{flank_5}.3#{flank_3}@#{processing_type}"
+  end
 
-    uuid = take_dataset_name!
-    "#{basename}@#{processing_type}.#{uuid}.#{slice_type}.#{extension}"
+  def self.generate_name(sample_metadata, sample_fn, processing_type:, slice_type:, extension:, cycle:, uuid: nil)
+    basename = sample_basename(sample_metadata, cycle:)
+    uuid ||= take_dataset_name!
+    "#{basename}.#{uuid}.#{slice_type}.#{extension}"
+  end
+
+  def self.find_names(folder, sample_metadata, processing_type:, slice_type:, extension:, cycle:)
+    basename = sample_basename(sample_metadata, cycle: cycle, processing_type: processing_type)
+    pattern = [basename, '*', slice_type, extension].compact.join('.')
+    Dir.glob(File.join(folder, pattern))
   end
 
   def self.main
@@ -48,6 +57,10 @@ module AffiseqPeaks
     extension = nil
     processing_type = nil
     qc_filenames = []  # "#{__dir__}/../../source_data_meta/AFS/metrics_by_exp.tsv"
+    has_slice_type = true
+    uuid = nil
+    mode = :generate
+    folders = []
     argparser = OptionParser.new{|o|
       o.on('--slice-type VAL', 'Train or Val') {|v| slice_type = v }
       o.on('--processing-type VAL', 'Peaks or Reads') {|v| processing_type = v }
@@ -56,16 +69,31 @@ module AffiseqPeaks
         raise "QC file #{v} not exists"  unless File.exists?(v)
         qc_filenames << v
       }
+      o.on('--no-slice-type', 'slice type part is missing from input sample name') {|v| has_slice_type = false }
+      o.on('--uuid VALUE', 'Specify fixed string instead of random UUID') {|v| uuid = v }
+      o.on('--mode MODE', 'Specify mode: generate/find name (default: generate)') {|v|
+        mode = v.downcase.to_sym
+        raise  unless [:generate, :find].include?(mode)
+      }
+      o.on('--folder PATH', 'Specify folder to find samples (in `find` mode)') {|v|
+        folders << v
+      }
     }
 
     argparser.parse!(ARGV)
     sample_fn = ARGV[0]
     raise 'Specify processing type (Peaks or Reads)'  unless ['Peaks', 'Reads'].include?(processing_type)
-    raise 'Specify slice type (Train or Val)'  unless ['Train', 'Val'].include?(slice_type)
+    raise 'Specify slice type (Train or Val)'  if has_slice_type && !['Train', 'Val'].include?(slice_type)
     raise 'Specify extension (fa or peaks or fastq.gz)'  unless ['fa', 'peaks', 'fastq.gz'].include?(extension)
     raise 'Specify sample filename'  unless sample_fn
     raise 'Sample file not exists'  unless File.exist?(sample_fn)
     raise 'QC files not specified'  if qc_filenames.empty?
+    raise 'Specify at least one folder'  if mode == :find && folders.empty?
+    folders.each{|folder| # if folders are not specified, that's ok
+      raise "Folder #{folder} doesn't exist"  if !File.exist?(folder)
+      raise "Path #{folder} is not a folder"  if !File.directory?(folder)
+    }
+
 
     plasmids_metadata = PlasmidMetadata.each_in_file('source_data_meta/shared/Plasmids.tsv').to_a
     $plasmid_by_number = plasmids_metadata.index_by(&:plasmid_number)
@@ -89,7 +117,19 @@ module AffiseqPeaks
     end
 
     if sample_metadata
-      puts self.gen_name(sample_metadata, sample_fn, processing_type: processing_type, slice_type: slice_type, extension: extension, cycle: cycle)
+      case mode
+      when :generate
+        puts self.generate_name(sample_metadata, sample_fn, processing_type: processing_type, slice_type: slice_type, extension: extension, cycle: cycle, uuid: uuid)
+      when :find
+        names = folders.flat_map{|folder|
+          self.find_names(folder, sample_metadata, slice_type: slice_type, processing_type: processing_type, extension: extension, cycle: cycle)
+        }
+        names.each{|name| puts name }
+      else
+        raise 'Unknown mode'
+      end
+    else
+      $stderr.puts "Metadata for sample `#{sample_fn}` not found"
     end
   end
 end
