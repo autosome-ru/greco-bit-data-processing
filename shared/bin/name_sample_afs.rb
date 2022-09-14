@@ -41,7 +41,7 @@ module AffiseqPeaks
   end
 
   def self.generate_name(sample_metadata, sample_fn, processing_type:, slice_type:, extension:, cycle:, uuid: nil)
-    basename = sample_basename(sample_metadata, cycle:)
+    basename = sample_basename(sample_metadata, cycle: cycle)
     uuid ||= take_dataset_name!
     "#{basename}.#{uuid}.#{slice_type}.#{extension}"
   end
