@@ -69,3 +69,28 @@ for EXP_TYPE in IVT Lysate GFPIVT; do
     done
   ) 2> affiseq_${EXP_TYPE}_renaming.log
 done
+
+for EXP_TYPE in IVT Lysate GFPIVT; do
+  INTERMEDIATE_FOLDER=./results_databox_afs_2_${EXP_TYPE}
+  for FN in $(find ${INTERMEDIATE_FOLDER}/complete_data/ -xtype f ); do
+    BN=$(basename "${FN}")
+    echo ">${BN}"
+    ruby shared/bin/name_sample_afs.rb "${FN}" --mode find --no-slice-type --extension peaks --processing-type Peaks \
+      --folder ~/greco-data/release_8d.2022-07-31/full/AFS.Peaks/Train_intervals/ \
+      --folder ~/greco-data/release_8d.2022-07-31/full/AFS.Peaks/Val_intervals/ \
+      --qc-file source_data_meta/AFS/metrics_by_exp.tsv \
+      --qc-file source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv \
+      --qc-file source_data_meta/AFS/metrics_by_exp_affseq_apr2022.tsv
+  done > ${INTERMEDIATE_FOLDER}/complete_data_mapping_${EXP_TYPE}_peaks.txt
+
+  for FN in $(find ${INTERMEDIATE_FOLDER}/complete_data/ -xtype f ); do
+    BN=$(basename "${FN}")
+    echo ">${BN}"
+    ruby shared/bin/name_sample_afs.rb "${FN}" --mode find --no-slice-type --extension fa --processing-type Peaks \
+      --folder ~/greco-data/release_8d.2022-07-31/full/AFS.Peaks/Train_sequences/ \
+      --folder ~/greco-data/release_8d.2022-07-31/full/AFS.Peaks/Val_sequences/ \
+      --qc-file source_data_meta/AFS/metrics_by_exp.tsv \
+      --qc-file source_data_meta/AFS/metrics_by_exp_affseq_jun2021.tsv \
+      --qc-file source_data_meta/AFS/metrics_by_exp_affseq_apr2022.tsv
+  done > ${INTERMEDIATE_FOLDER}/complete_data_mapping_${EXP_TYPE}_sequences.txt
+done

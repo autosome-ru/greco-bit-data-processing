@@ -78,3 +78,19 @@ mkdir -p ${RESULTS_FOLDER}/Train_sequences ${RESULTS_FOLDER}/Val_sequences
       fi
   done
 ) 2> chipseq_renaming.log
+
+for FN in $(find ${INTERMEDIATE_FOLDER}/complete_data/ -xtype f ); do
+  BN=$(basename "${FN}")
+  echo ">${BN}"
+  ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --mode find --no-slice-type --extension peaks  \
+      --folder ~/greco-data/release_8d.2022-07-31/full/CHS/Train_intervals/  \
+      --folder ~/greco-data/release_8d.2022-07-31/full/CHS/Val_intervals/
+done > ${INTERMEDIATE_FOLDER}/complete_data_mapping_peaks.txt
+
+for FN in $(find ${INTERMEDIATE_FOLDER}/complete_data/ -xtype f ); do
+  BN=$(basename "${FN}")
+  echo ">${BN}"
+  ruby ${SCRIPT_FOLDER}/name_sample_chs.rb "$FN" --mode find --no-slice-type --extension fa  \
+      --folder ~/greco-data/release_8d.2022-07-31/full/CHS/Train_sequences/  \
+      --folder ~/greco-data/release_8d.2022-07-31/full/CHS/Val_sequences/
+done > ${INTERMEDIATE_FOLDER}/complete_data_mapping_sequences.txt
