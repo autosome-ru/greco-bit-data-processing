@@ -1,11 +1,15 @@
 require 'json'
 
-def deep_keys(hsh, root: [], &block)
-  return enum_for(:deep_keys, hsh, root: root)  unless block_given?
-  if hsh.is_a?(Hash)
-  hsh.each{|k,v|
-    deep_keys(v, root: [*root, k], &block)
-  }
+def deep_keys(obj, root: [], &block)
+  return enum_for(:deep_keys, obj, root: root)  unless block_given?
+  if obj.is_a?(Hash)
+    obj.each{|k,v|
+      deep_keys(v, root: [*root, k], &block)
+    }
+  elsif obj.is_a?(Array)
+    obj.each_with_index{|v, idx|
+      deep_keys(v, root: [*root, idx], &block)
+    }
   else
     yield root
   end
@@ -20,5 +24,5 @@ end
     data_allow_artifacts.dig( *ks[0...-1] )[ ks[-1] ] = rank
   }; nil
 
-  File.write("benchmarks/release_8d/#{data_type}_7e+8c_pack_1+2+3+4_crosspbm_allow-artifact_no-afs-reads_include-dropped-motifs.json", data_allow_artifacts.to_json)
+  File.write("benchmarks/release_8d/#{data_type}_7e+8c_pack_1+2+3+4_crosspbm_disallow-artifact_no-afs-reads_include-dropped-motifs.json", data_allow_artifacts.to_json)
 end
