@@ -20,8 +20,10 @@ end
   data_disallow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1+2+3+4_crosspbm_artifact_no-afs-reads.json"));nil
 
   deep_keys(data_allow_artifacts, root: []).each{|ks|
-    rank = data_disallow_artifacts.dig(*ks) rescue nil
-    data_allow_artifacts.dig( *ks[0...-1] )[ ks[-1] ] = rank
+    if ks[-1] != 'metric_name'
+      rank = data_disallow_artifacts.dig(*ks) rescue nil
+      data_allow_artifacts.dig( *ks[0...-1] )[ ks[-1] ] = rank
+    end
   }; nil
 
   File.write("benchmarks/release_8d/#{data_type}_7e+8c_pack_1+2+3+4_crosspbm_disallow-artifact_no-afs-reads_include-dropped-motifs.json", data_allow_artifacts.to_json)
