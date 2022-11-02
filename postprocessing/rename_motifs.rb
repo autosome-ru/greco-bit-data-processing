@@ -180,6 +180,10 @@ Dir.glob('/home_local/jangrau/models_r8/{AFS,CHS,HTS,PBM.SD,SMS}/*.ppm').each{|m
   rename_jan_motif(motif_fn, "#{results_folder}/#{bn}")
 }
 
+Dir.glob('/home_local/jangrau/models_hts/*.ppm').each{|motif_fn|
+  bn = File.basename(motif_fn)
+  rename_jan_motif(motif_fn, "#{results_folder}/#{bn}")
+}
 
 [
   *Dir.glob('/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02/ZNF705E.*'),

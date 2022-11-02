@@ -16,8 +16,8 @@ def deep_keys(obj, root: [], &block)
 end
 
 ['ranks', 'metrics'].each do |data_type|
-  data_allow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1+2+3+4_crosspbm_allow-artifact_no-afs-reads.json"));nil
-  data_disallow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1+2+3+4_crosspbm_artifact_no-afs-reads.json"));nil
+  data_allow_artifacts    = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-5_allow-artifacts.json"));nil
+  data_disallow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-5_disallow-artifacts.json"));nil
 
   deep_keys(data_allow_artifacts, root: []).each{|ks|
     if ks[-1] != 'metric_name'
@@ -26,5 +26,5 @@ end
     end
   }; nil
 
-  File.write("benchmarks/release_8d/#{data_type}_7e+8c_pack_1+2+3+4_crosspbm_disallow-artifact_no-afs-reads_include-dropped-motifs.json", data_allow_artifacts.to_json)
+  File.write("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-5_disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
 end

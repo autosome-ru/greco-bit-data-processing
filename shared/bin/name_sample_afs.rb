@@ -15,7 +15,7 @@ module AffiseqPeaks
 
 
   def self.verify_sample_metadata_match!
-    samples = Dir.glob('results_databox_chs/train_intensities/*') # TODO: FIX !!!
+    # samples = Dir.glob('results_databox_chs/train_intensities/*') # TODO: FIX !!!
     metadata = Affiseq::SampleMetadata.each_in_file('source_data_meta/AFS/AFS.tsv').to_a
     sample_metadata_pairs = full_join_by(
       samples, metadata,
@@ -48,7 +48,7 @@ module AffiseqPeaks
 
   def self.find_names(folder, sample_metadata, processing_type:, slice_type:, extension:, cycle:)
     basename = sample_basename(sample_metadata, cycle: cycle, processing_type: processing_type)
-    pattern = [basename, '*', slice_type, extension].compact.join('.')
+    pattern = [basename.gsub('_', '{_,-}'), '*', slice_type, extension].compact.join('.')
     Dir.glob(File.join(folder, pattern))
   end
 

@@ -1,20 +1,20 @@
 mkdir -p  motifs_by_modeltype/pwm/
 mkdir -p  thresholds_by_modeltype/pwm/
 
-MOTIFS_FOLDER='/home/vorontsov/greco-motifs'
-for MOTIFS_RELEASE in  "release_8c.7e+8c.pack_1+2+3+4/"; do
+MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs'
+for MOTIFS_RELEASE in  "release_8c.7e+8c.pack_1+2+3+4+5/"; do
   for MOTIF_TYPE in  pcm  ppm; do
     find "${MOTIFS_FOLDER}/${MOTIFS_RELEASE}" -name "*.${MOTIF_TYPE}" \
       | xargs -n1 -I{} basename -s ".${MOTIF_TYPE}" {} \
       | xargs -n1 -I{} echo \
         "ruby postprocessing/get_pwm.rb --${MOTIF_TYPE} ${MOTIFS_FOLDER}/${MOTIFS_RELEASE}/{}.${MOTIF_TYPE} > motifs_by_modeltype/pwm/{}.pwm" ;
   done
-done | time parallel -j 200
+done | time parallel -j 35
 
 find motifs_by_modeltype/pwm/ -xtype f  \
   | xargs -n1 -I{} echo  \
       java -cp ape.jar ru.autosome.ape.PrecalculateThresholds {} thresholds_by_modeltype/pwm/ --single-motif  \
-  | time parallel -j 200
+  | time parallel -j 35
 
 ruby postprocessing/print_flanks.rb
 
