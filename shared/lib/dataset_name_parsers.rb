@@ -24,7 +24,10 @@ module DatasetNameParser
     def parse_with_metadata(dataset_fn, metadata_by_experiment_id)
       dataset_info = self.parse(dataset_fn)
       experiment_id = dataset_info[:experiment_id]
-      experiment_meta = metadata_by_experiment_id[ experiment_id ]
+      experiment_meta = metadata_by_experiment_id.fetch(experiment_id){
+        fixed_experiment_id = experiment_id.gsub('-', '_')
+        metadata_by_experiment_id[ fixed_experiment_id ]
+      }
       experiment_meta = experiment_meta.to_h.merge(_original_meta: experiment_meta)
       if experiment_meta.has_key?(:plasmid_id)
         plasmid_id = experiment_meta[:plasmid_id]
