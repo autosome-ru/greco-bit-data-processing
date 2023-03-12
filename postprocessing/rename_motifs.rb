@@ -63,6 +63,36 @@ def rename_oriol_motif(src_filename, dst_filename)
   write_motif(dst_filename, header, matrix)
 end
 
+def mihai_filename_type_1(src_filename)
+  # TIGD4.FL@AFS.Lys@YWN_B_AffSeq_E10_TIGD4.C3.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.silly-flax-jellyfish.Train.peaks.unified.139.fa_streme_minw3_maxw30@HughesLab@Streme@Motif2.ppm
+  # DACH1.FL@AFS.GFPIVT@YWM_B_AffSeq_D7_DACH1-FL.C3.5ACACGACGCTCTTCCGATCT.3AGATCGGAAGAGCACACGTC@Peaks.tacky-vermilion-owl.Train.peaks.unified.59.fa_memechip_minw3_maxw30@HughesLab@MEME@Motif2.ppm
+  basename = File.basename(src_filename)
+  tf, exp_type, exp_info, ds_info, lab, tool, motif_name_suffix = basename.split('@')
+  exp = exp_info.split('.').first
+  processing_type, dataset_name, train_or_val, peaks_or_other, unified_or_smth, motif_name_prefix = ds_info.split('.', 6)
+  raise  unless lab == 'HughesLab'
+  raise  unless train_or_val.downcase == 'train'
+  raise  unless peaks_or_other == 'peaks'
+  raise  unless unified_or_smth == 'unified'
+  motif_ext = File.extname(motif_name_suffix)
+  motif_name_suffix_wo_ext = File.basename(motif_name_suffix, motif_ext)
+  motif_name = "#{motif_name_prefix}_#{motif_name_suffix_wo_ext}".gsub('.', '_')
+  "#{tf}@#{exp_type}@#{dataset_name}@#{lab}.#{tool}@#{motif_name}#{motif_ext}"
+end
+
+def mihai_filename_type_2(src_filename)
+  # GTF2IRD2.FL@AFS.Lys@cloudy-xanthic-falcon+fuzzy-cinnabar-cichlid+lovely-pink-foxhound+nippy-cream-camel@autosome-ru.ChIPMunk@topk_cycle=C1+C2+C3+C4_k=5_top=10000@HughesLab@MEME@Motif1@min3max30.ppm
+  # TMF1.DBD@HTS.GFPIVT@clammy-magenta-vulture+gummy-buff-jaguar+seedy-myrtle-dodo@autosome-ru.ChIPMunk@topk_cycle=C1+C2+C3_k=5_top=2500@HughesLab@Streme@Motif1.ppm
+  basename = File.basename(src_filename)
+  tf, exp_type, dataset_name, old_motif_tool_lab, old_motif_name, lab, tool, *motif_name_prefix, motif_name_suffix = basename.split('@')
+  raise  unless old_motif_tool_lab == 'autosome-ru.ChIPMunk'
+  raise  unless lab == 'HughesLab'
+  motif_ext = File.extname(motif_name_suffix)
+  motif_name_suffix_wo_ext = File.basename(motif_name_suffix, motif_ext)
+  motif_name = [old_motif_name, *motif_name_prefix, motif_name_suffix_wo_ext].join('_').gsub('.', '_')
+  "#{tf}@#{exp_type}@#{dataset_name}@#{lab}.#{tool}@#{motif_name}#{motif_ext}"
+end
+
 #############################################
 
 results_folder = File.absolute_path(ARGV[0])
@@ -193,3 +223,47 @@ Dir.glob('/home_local/jangrau/models_hts/*.ppm').each{|motif_fn|
   bn_fixed = bn.sub('ZNF705E.', 'ZNF705EP.')
   rename_motif(fn, "/home_local/vorontsovie/greco-motifs/release_8c.pack_4/#{bn_fixed}", transpose: false)
 }
+
+
+
+FileUtils.mkdir_p('/home_local/vorontsovie/greco-motifs/release_8c.pack_6/')
+
+[
+  "Motifs_Streme_AFS_Peaks_min3max30",  "Motifs_MEME_AFS_Peaks_min3max30",  "Motifs_Homer_AFS_Peaks_min3max40",
+  "Motifs_Streme_CHS_Peaks_min3max30",  "Motifs_MEME_CHS_Peaks_min3max30",  "Motifs_Homer_CHS_Peaks_min3max40",
+  "Motifs_MEME_AFS_Peaks",  "Motifs_Streme_AFS_Peaks",  "Motifs_Homer_AFS_Peaks",  "Motifs_RCADE2_AFS_Peaks",
+  "Motifs_Homer_CHS_Peaks",  "Motifs_RCADE2_CHS_Peaks",  "Motifs_Streme_CHS_Peaks",  "Motifs_MEME_CHS_Peaks",
+].each{|dn|
+  Dir.glob("/home_local/mihaialbu/RescanFeb2023/#{dn}/*").each{|fn|
+    begin
+      new_bn = mihai_filename_type_1(fn)
+      tf_info, *rest = new_bn.split('@')
+      tf_info = fix_tf_info.call(tf_info)
+      new_bn_fixed = [tf_info, *rest].join('@')
+      rename_motif(fn, "/home_local/vorontsovie/greco-motifs/release_8c.pack_6/#{new_bn_fixed}")
+    rescue => e
+      $stderr.puts "Error for #{fn}"
+    end
+  }
+}
+
+[
+  "Motifs_MEME_AFS_min3max30", "Motifs_Streme_AFS_min3max30",
+  "Motifs_RCADE2_AFS", "Motifs_Homer_AFS", "Motifs_Streme_AFS", "Motifs_MEME_AFS", "Motifs_Homer_AFS_min3max40",
+  "Motifs_Streme_SMS_min3max30", "Motifs_MEME_SMS_min3max30", "Motifs_Homer_SMS_min3max40",
+  "Motifs_RCADE2_SMS", "Motifs_MEME_SMS", "Motifs_Homer_SMS", "Motifs_Streme_SMS",
+  "Motifs_Homer_HTS", "Motifs_Streme_HTS_min3max30", "Motifs_MEME_HTS", "Motifs_MEME_HTS_min3max30", "Motifs_Homer_HTS_min3max40", "Motifs_RCADE2_HTS", "Motifs_Streme_HTS",
+].each{|dn|
+  Dir.glob("/home_local/mihaialbu/RescanFeb2023/#{dn}/*").each{|fn|
+    begin
+      new_bn = mihai_filename_type_2(fn)
+      tf_info, *rest = new_bn.split('@')
+      tf_info = fix_tf_info.call(tf_info)
+      new_bn_fixed = [tf_info, *rest].join('@')
+      rename_motif(fn, "/home_local/vorontsovie/greco-motifs/release_8c.pack_6/#{new_bn_fixed}")
+    rescue => e
+      $stderr.puts "Error for #{fn}"
+    end
+  }
+}
+
