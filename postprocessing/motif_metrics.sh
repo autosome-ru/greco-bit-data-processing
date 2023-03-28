@@ -38,8 +38,8 @@
 ##############
 
 DATA_FOLDER='/home_local/vorontsovie/greco-data/release_8d.2022-07-31/full/'
-MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_8c.pack_5/'
-BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/motif_batch_8c_pack_5'
+MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_8c.pack_6_wo_bad/'
+BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/motif_batch_8c_pack_6_wo_bad'
 
 time ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/vigg_peaks
 time ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/centrimo_peaks
