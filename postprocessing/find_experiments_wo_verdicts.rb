@@ -1,8 +1,15 @@
 require 'json'
 require 'set'
 
+def exp_w_rep(d)
+  rep = d.dig('experiment_params', 'replica')
+  [d['experiment_id'], (rep && "Rep-#{rep}") ].compact.join('.')
+end
+
 metadata = File.readlines('/home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json').map{|l| JSON.parse(l) }
-exps = metadata.map{|d| rep = d.dig('experiment_params', 'replica'); [d['experiment_id'], (rep && "Rep-#{rep}") ].compact.join('.') }.uniq
+exps = metadata.map{|d| exp_w_rep(d) }.uniq
+tf_by_exp = metadata.map{|d| [exp_w_rep(d), d['tf']] }.to_h
+exp_type_by_exp = metadata.map{|d| [exp_w_rep(d), d['experiment_type']] }.to_h
 
 verdicts = File.readlines('source_data_meta/shared/experiment_verdicts.tsv').drop(1).map{|l| l.chomp.split("\t") }
 exps_w_verdicts = verdicts.map{|d| d[3] }.uniq.to_set
@@ -27,11 +34,13 @@ exps_w_train_files = dataset_fns.select{|fn| fn.match?(/\.Train\./) }.map{|fn| F
 exps_w_val_files = dataset_fns.select{|fn| fn.match?(/\.Val\./) }.map{|fn| File.basename(fn).split('@')[2].split('.')[0] }.uniq.to_set
 
 File.open('experiment_status.tsv', 'w') do |fw|
-  header = ['experiment', 'has_verdict', 'has_metrics', 'has_train_files', 'has_val_files']
+  header = ['experiment', 'tf', 'exp_type', 'has_verdict', 'has_metrics', 'has_train_files', 'has_val_files']
   fw.puts header.join("\t")
   exps.sort.each{|exp|
     fw.puts([
-      exp, 
+      exp,
+      tf_by_exp[exp],
+      exp_type_by_exp[exp],
       exps_w_verdicts.include?(exp) ? 'yes' : 'no',
       exps_w_ranks.include?(exp) ? 'yes' : 'no',
       exps_w_train_files.include?(exp) ? 'yes' : 'no',
