@@ -44,6 +44,14 @@ end
 
 container_names = []
 tfs.each{|tf|
+  tf_motifs_txt = File.absolute_path("./tmp/#{tf}.motifs.txt")
+  File.open(tf_motifs_txt, 'w') do |fw|
+    motifs_by_tf[tf].each{|motif|
+      motif_rel = motif.sub(MOTIFS_PATH, "")
+      fw.puts("/motifs/#{motif_rel}")
+    }
+  end
+
   datasets_by_tf[tf].each{|dataset|
     dataset_bn = File.basename(dataset)
     dataset_txt = File.absolute_path("./tmp/#{dataset_bn}")
@@ -53,34 +61,21 @@ tfs.each{|tf|
 
     container_name = "pwmbench_pbm.#{dataset_bn_id}"
     container_names << container_name
+
     File.open("#{CMD_FOLDER}/#{container_name}.sh", 'w') do |fw|
-      cmd_1 = [
-        "docker run --rm -d -i",  # we run /bin/sh and hangs it using `-d`, `-i` flags,
+      cmd = [
+        "cat #{tf_motifs_txt} | docker run --rm -i",  # we run /bin/sh and hangs it using `-d`, `-i` flags,
                                   # so that we can run other processes in the same container
             "--security-opt apparmor=unconfined",
             "--name #{container_name}",
             "--volume #{MOTIFS_PATH}:/motifs/:ro",
             "--volume #{dataset_txt}:/pbm_data.txt:ro",
-            "--entrypoint /bin/sh",
-            "vorontsovie/pwmbench_pbm:1.3.0",
+            "--env JAVA_OPTIONS=-Xmx2G",
+            "vorontsovie/pwmbench_pbm:1.3.1",
+            "all", "/pbm_data.txt", "-",
         " >&2", # don't print container id into stdout
       ].join(" ")
-      fw.puts(cmd_1)
-
-      motifs_by_tf[tf].each{|motif|
-        ext = File.extname(motif)
-        motif_rel = motif.sub(MOTIFS_PATH, "")
-        cmd_2 = [
-          "echo -ne '#{dataset}\t#{motif}\t'; ",
-          "docker exec #{container_name} /app/entrypoint.sh",
-            "all /pbm_data.txt /motifs/#{motif_rel}",
-          " || echo",
-        ].join(' ')
-        fw.puts cmd_2
-      }
-
-      cmd_3 = "docker stop #{container_name} >&2" # don't print container id into stdout
-      fw.puts cmd_3
+      fw.puts("#{cmd} || echo")
     end
     File.chmod(0755, "#{CMD_FOLDER}/#{container_name}.sh")
   }
