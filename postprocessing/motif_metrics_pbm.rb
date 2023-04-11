@@ -71,8 +71,8 @@ tfs.each{|tf|
             "--volume #{MOTIFS_PATH}:/motifs/:ro",
             "--volume #{dataset_txt}:/pbm_data.txt:ro",
             "--env JAVA_OPTIONS=-Xmx2G",
-            "vorontsovie/pwmbench_pbm:1.3.1",
-            "all", "/pbm_data.txt", "-",
+            "vorontsovie/pwmbench_pbm:1.3.2",
+            "ROC,PR", "/pbm_data.txt", "-",
         " >&2", # don't print container id into stdout
       ].join(" ")
       fw.puts("#{cmd} || echo")
