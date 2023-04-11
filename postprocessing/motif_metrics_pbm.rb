@@ -73,7 +73,6 @@ tfs.each{|tf|
             "--env JAVA_OPTIONS=-Xmx2G",
             "vorontsovie/pwmbench_pbm:1.3.2",
             "ROC,PR", "/pbm_data.txt", "-",
-        " >&2", # don't print container id into stdout
       ].join(" ")
       fw.puts("#{cmd} || echo")
     end
