@@ -2,7 +2,7 @@ mkdir -p  motifs_by_modeltype/pwm/
 mkdir -p  thresholds_by_modeltype/pwm/
 
 MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs'
-for MOTIFS_RELEASE in  "release_8c.7e+8c.pack_1+2+3+4+5/"; do
+for MOTIFS_RELEASE in  "release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad/"; do
   for MOTIF_TYPE in  pcm  ppm; do
     find "${MOTIFS_FOLDER}/${MOTIFS_RELEASE}" -name "*.${MOTIF_TYPE}" \
       | xargs -n1 -I{} basename -s ".${MOTIF_TYPE}" {} \
@@ -34,7 +34,7 @@ hits_in_flanks() {
         --pvalues-file thresholds_by_modeltype/pwm/{}.thr \
         --add-flanks \
     ' | ruby postprocessing/sarus_reformatter.rb --filter-by-experiment metadata_release_8c.json {} ' \
-  | parallel -j 200
+  | parallel -j 35
 }
 
 hits_in_flanks HTS_flanks.fa '*@HTS.???@*' > HTS_flanks_hits.tsv
