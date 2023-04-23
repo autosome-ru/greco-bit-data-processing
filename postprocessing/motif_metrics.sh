@@ -88,10 +88,10 @@ time ruby postprocessing/motif_ranking.rb \
     2> benchmarks/release_8d/ranking_artifact.7e+8c1-6.log   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_7e+8c_pack_1-6_allow-artifact.json \
-    benchmarks/release_8d/ranks_7e+8c_pack_1-6_allow-artifact.json \
+    benchmarks/release_8d/metrics_7e+8c_pack_1-6_allow-artifacts.json \
+    benchmarks/release_8d/ranks_7e+8c_pack_1-6_allow-artifacts.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
-    2> benchmarks/release_8d/ranking_allow-artifact.7e+8c1-6.log   && echo ok || echo fail
+    2> benchmarks/release_8d/ranking_allow-artifacts.7e+8c1-6.log   && echo ok || echo fail
 
 
 time ruby postprocessing/motif_ranking.rb \
@@ -105,6 +105,14 @@ time ruby postprocessing/motif_ranking.rb \
     --flank-threshold 4.0 \
     --curation  source_data_meta/shared/curations.tsv \
   2> benchmarks/release_8d/ranking_curated.7e+8c1-6.log \
+  && echo ok || echo fail
+
+time ruby postprocessing/motif_ranking.rb \
+    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-6_allow-artifacts.json \
+    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-6_allow-artifacts.json \
+    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
+    --curation  source_data_meta/shared/curations.tsv \
+  2> benchmarks/release_8d/ranking_curated_allow-artifacts.7e+8c1-6.log \
   && echo ok || echo fail
 
 ruby correct_ranks_and_metrics_restore_dropped_artifacts.rb

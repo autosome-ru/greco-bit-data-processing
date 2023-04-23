@@ -28,3 +28,17 @@ end
 
   File.write("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-6_disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
 end
+
+['ranks', 'metrics'].each do |data_type|
+  data_allow_artifacts    = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-6_allow-artifacts.json"));nil
+  data_disallow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-6_disallow-artifacts.json"));nil
+
+  deep_keys(data_allow_artifacts, root: []).each{|ks|
+    if ks[-1] != 'metric_name'
+      rank = data_disallow_artifacts.dig(*ks) rescue nil
+      data_allow_artifacts.dig( *ks[0...-1] )[ ks[-1] ] = rank
+    end
+  }; nil
+
+  File.write("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-6_disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
+end
