@@ -103,7 +103,7 @@ time ruby postprocessing/motif_ranking.rb \
     --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
-    --curation  source_data_meta/shared/curations.tsv \
+    --curation  source_data_meta/shared/experiment_verdicts.tsv \
   2> benchmarks/release_8d/ranking_curated.7e+8c1-6_disallow-artifacts.log \
   && echo ok || echo fail
 
@@ -111,7 +111,7 @@ time ruby postprocessing/motif_ranking.rb \
     benchmarks/release_8d/metrics_curated_7e+8c_pack_1-6_allow-artifacts.json \
     benchmarks/release_8d/ranks_curated_7e+8c_pack_1-6_allow-artifacts.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
-    --curation  source_data_meta/shared/curations.tsv \
+    --curation  source_data_meta/shared/experiment_verdicts.tsv \
   2> benchmarks/release_8d/ranking_curated_allow-artifacts.7e+8c1-6.log \
   && echo ok || echo fail
 
