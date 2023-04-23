@@ -85,7 +85,7 @@ time ruby postprocessing/motif_ranking.rb \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
     --artifact-similarities ./artifact_sims_precise --artifact-similarity-threshold 0.15 \
-    2> benchmarks/release_8d/ranking_artifact.7e+8c1-6.log   && echo ok || echo fail
+    2> benchmarks/release_8d/ranking_artifact.7e+8c1-6_disallow-artifacts.log   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
     benchmarks/release_8d/metrics_7e+8c_pack_1-6_allow-artifacts.json \
@@ -95,8 +95,8 @@ time ruby postprocessing/motif_ranking.rb \
 
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-6.json \
-    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-6.json \
+    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-6_disallow-artifacts.json \
+    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-6_disallow-artifacts.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
@@ -104,7 +104,7 @@ time ruby postprocessing/motif_ranking.rb \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
     --curation  source_data_meta/shared/curations.tsv \
-  2> benchmarks/release_8d/ranking_curated.7e+8c1-6.log \
+  2> benchmarks/release_8d/ranking_curated.7e+8c1-6_disallow-artifacts.log \
   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
