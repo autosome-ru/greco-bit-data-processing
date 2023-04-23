@@ -76,35 +76,35 @@ bash ./calculate_artifact_similarities.sh # be cautious
 #   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_7e+8c_pack_1-5_disallow-artifacts.json \
-    benchmarks/release_8d/ranks_7e+8c_pack_1-5_disallow-artifacts.json \
-    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.json \
+    benchmarks/release_8d/metrics_7e+8c_pack_1-6_disallow-artifacts.json \
+    benchmarks/release_8d/ranks_7e+8c_pack_1-6_disallow-artifacts.json \
+    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
     --artifact-similarities ./artifact_sims_precise --artifact-similarity-threshold 0.15 \
-    2> benchmarks/release_8d/ranking_artifact.7e+8c12345.log   && echo ok || echo fail
+    2> benchmarks/release_8d/ranking_artifact.7e+8c1-6.log   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_7e+8c_pack_1-5_allow-artifact.json \
-    benchmarks/release_8d/ranks_7e+8c_pack_1-5_allow-artifact.json \
-    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.json \
-    2> benchmarks/release_8d/ranking_allow-artifact.7e+8c12345.log   && echo ok || echo fail
+    benchmarks/release_8d/metrics_7e+8c_pack_1-6_allow-artifact.json \
+    benchmarks/release_8d/ranks_7e+8c_pack_1-6_allow-artifact.json \
+    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
+    2> benchmarks/release_8d/ranking_allow-artifact.7e+8c1-6.log   && echo ok || echo fail
 
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-5.json \
-    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-5.json \
-    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.json \
+    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-6.json \
+    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-6.json \
+    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
     --curation  source_data_meta/shared/curations.tsv \
-  2> benchmarks/release_8d/ranking_curated.7e+8c12345.log \
+  2> benchmarks/release_8d/ranking_curated.7e+8c1-6.log \
   && echo ok || echo fail
 
 ruby correct_ranks_and_metrics_restore_dropped_artifacts.rb
