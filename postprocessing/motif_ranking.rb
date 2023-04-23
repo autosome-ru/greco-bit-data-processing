@@ -169,6 +169,14 @@ def get_datasets_curation(curation_info)
   }.transform_values{|votes| votes.sum > 0 }
 end
 
+def get_experiment_verdicts(filename)
+  File.readlines('source_data_meta/shared/experiment_verdicts.tsv').drop(1).map{|l|
+    l.chomp.split("\t")
+  }.map{|num, tf, exp_type, exp_id, verdict|
+    [exp_id, verdict]
+  }.to_h.transform_values{|exp_id, verdict| verdict == 'good' }
+end
+
 def get_motif_ranks(motif_infos, metric_combinations)
   basic_ranks = motif_infos.map{|info|
     [info[:metric_name], info[:rank]]
@@ -393,7 +401,8 @@ raise 'Specify resulting metrics file'  unless results_metrics_fn = ARGV[0]  # '
 raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[1]  # 'results/ranks.json'
 
 if curation_fn
-  dataset_curation = get_datasets_curation(read_curation_info(curation_fn))
+  # dataset_curation = get_datasets_curation(read_curation_info(curation_fn))
+  dataset_curation = get_experiment_verdicts(curation_fn)
 else
   dataset_curation = nil
   $stderr.puts('Warning: no curation is used')
