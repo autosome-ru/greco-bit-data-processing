@@ -174,7 +174,7 @@ def get_experiment_verdicts(filename)
     l.chomp.split("\t")
   }.map{|num, tf, exp_type, exp_id, verdict|
     [exp_id, verdict]
-  }.to_h.transform_values{|exp_id, verdict| verdict == 'good' }
+  }.to_h.transform_values{|verdict| verdict == 'good' }
 end
 
 def get_motif_ranks(motif_infos, metric_combinations)
