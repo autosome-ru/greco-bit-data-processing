@@ -411,7 +411,10 @@ end
 if metadata_fn
   metadata_full = read_metadata(metadata_fn)
   metadata_by_dataset_id = metadata_full.index_by{|info| info['dataset_id'] }
-  experiment_by_dataset_id = metadata_by_dataset_id.transform_values{|info| info['experiment_id'] }
+  experiment_by_dataset_id = metadata_by_dataset_id.transform_values{|info|
+    rep = info.dig('experiment_params', 'replica')
+    [info['experiment_id'], (rep ? "Rep-#{rep}" : nil)].compact.join('.')
+  }
   processing_type_by_dataset_id = metadata_by_dataset_id.transform_values{|info| info['processing_type'] }
 else
   experiment_by_dataset_id = nil
