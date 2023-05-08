@@ -586,7 +586,7 @@ all_metric_infos.select!{|info|
   end
 }
 
-pbm_types = ['PBM.ME'.freeze, 'PBM.HK'.freeze]
+pbm_types = ['PBM.ME', 'PBM.HK'].map(&:freeze)
 all_metric_infos = all_metric_infos.map{|info|
   dataset = info[:dataset]
   exp_type = experiment_fulltype(dataset)
