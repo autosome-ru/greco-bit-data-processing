@@ -587,7 +587,7 @@ all_metric_infos.select!{|info|
 }
 
 pbm_types = ['PBM.ME', 'PBM.HK'].map(&:freeze)
-all_metric_infos = all_metric_infos.map{|info|
+all_metric_infos.each{|info|
   dataset = info[:dataset]
   exp_type = experiment_fulltype(dataset)
   exp_type = SINGLETON_STRINGS['PBM']  if pbm_types.include?(exp_type) # distinct chip types are not too different to distinguish them
@@ -596,7 +596,7 @@ all_metric_infos = all_metric_infos.map{|info|
     experiment: experiment_id(dataset),
     experiment_type: exp_type,
   }
-  info.merge(additional_info)
+  info.merge!(additional_info)
 }
 
 # what is called a dataset here is actually a validation group
@@ -606,7 +606,7 @@ ranked_motif_metrics = all_metric_infos.group_by{|info|
   tf_metrics.rank_by(order: :large_better, start_with: 1){|info|
     info[:value]
   }.map{|rank, info|
-    info.merge(rank: rank)
+    info.merge!(rank: rank)
   }
 }
 
