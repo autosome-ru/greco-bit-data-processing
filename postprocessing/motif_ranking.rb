@@ -28,8 +28,10 @@ module Enumerable
   end
 
   # analog for ruby 2.7+
-  def tally
-    self.each_with_object(Hash.new(0)){|v, hsh| hsh[v] += 1 }
+  if !method_defined?(:tally)
+    def tally
+      self.each_with_object(Hash.new(0)){|v, hsh| hsh[v] += 1 }
+    end
   end
 end
 
