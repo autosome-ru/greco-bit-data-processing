@@ -140,7 +140,7 @@ def read_metrics(metrics_readers_configs)
       }.flat_map{|info|
         common_info = info.reject{|k,v| k == :values }
         metric_names.zip(info[:values]).map{|metric_name, value|
-          common_info.merge({value: value, metric_name: metric_name})
+          common_info.merge!({value: value, metric_name: metric_name})
         }
       }
     }
@@ -279,14 +279,14 @@ def combine_ranks(hierarchy_of_metrics, metric_path: nil)
 
   if ranks.all?(Numeric)
     # {:pbm_qnzs_asis=>97, :pbm_qnzs_log=>97,:pbm_qnzs_exp=>84, :pbm_qnzs_roc=>83, :pbm_qnzs_pr=>59}
-    hierarchy_of_metrics.merge(combined: product_mean(ranks))
+    hierarchy_of_metrics.merge!(combined: product_mean(ranks))
     # TODO:  rearrange !!!
   else
     # {tf_1 => {...}, tf_2 => {...}} or {"PBM.HK" => {...}, "AFS.Lys" => {...}} or {"QNZS" => {...}, "SD" => {...}} etc
     # Smth like {tf_1 => {...}, tf_2 => {...}, combined: 42} is also accepted. In this case key `combined` will be recalculated
     augmented_hierarchy_of_metrics = hierarchy_of_metrics.transform_values{|subhierarchy| combine_ranks(subhierarchy) }
     ranks = augmented_hierarchy_of_metrics.map{|_, subhierarchy| subhierarchy[:combined] }.compact
-    augmented_hierarchy_of_metrics.merge({combined: product_mean(ranks)})
+    augmented_hierarchy_of_metrics.merge!({combined: product_mean(ranks)})
   end
 end
 
@@ -582,7 +582,7 @@ all_metric_infos = all_metric_infos.map{|info|
     experiment: experiment_id(dataset),
     experiment_type: exp_type,
   }
-  info.merge(additional_info)
+  info.merge!(additional_info)
 }
 
 # what is called a dataset here is actually a validation group
@@ -592,7 +592,7 @@ ranked_motif_metrics = all_metric_infos.group_by{|info|
   tf_metrics.rank_by(order: :large_better, start_with: 1){|info|
     info[:value]
   }.map{|rank, info|
-    info.merge(rank: rank)
+    info.merge!(rank: rank)
   }
 }
 
