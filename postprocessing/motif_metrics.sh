@@ -115,4 +115,4 @@ time ruby postprocessing/motif_ranking.rb \
   2> benchmarks/release_8d/ranking_curated_allow-artifacts.7e+8c1-6.log \
   && echo ok || echo fail
 
-ruby correct_ranks_and_metrics_restore_dropped_artifacts.rb
+time ruby correct_ranks_and_metrics_restore_dropped_artifacts.rb
