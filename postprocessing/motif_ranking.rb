@@ -35,6 +35,14 @@ module Enumerable
   end
 end
 
+class Symbol
+  if !method_defined?(:start_with?)
+    def start_with?(string_or_regexp)
+      self.to_s.start_with?(string_or_regexp)
+    end
+  end
+end
+
 def product_mean(values)
   values = values.compact
   values.size == 0 ? nil : values.inject(1.0, &:*) ** (1.0 / values.size)
@@ -67,7 +75,8 @@ end
 
 def experiment_id(dataset_fullname)
   exp_id, *rest = dataset_fullname.split('@')[2].split('.')
-  result = (rest[0] && rest[0].start_with?('Rep-')) ? "#{exp_id}.#{rest[0]}" : exp_id
+  rep = rest[0]
+  result = (rep && rep.start_with?('Rep-')) ? "#{exp_id}.#{rep}" : exp_id
   SINGLETON_STRINGS[result]
 end
 
@@ -520,15 +529,19 @@ end
 
 if filter_out_pbm_motif_dataset_matches
   all_metric_infos.select!{|info|
-    exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
-    exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
-    mot_processing_type   = processing_type_for_motif(info[:motif], processing_type_by_dataset_id)
-    exp_processing_type   = processing_type_for_dataset(info[:dataset], processing_type_by_dataset_id)
     # PBM experiments are used both in train and validation datasets so we should manually exclude such cases. But we allow to train on SD and validate on QNZS
-    if (exp_for_motif == exp_for_bench_dataset) && info[:metric_name].to_s.start_with?('pbm_') && exp_processing_type == mot_processing_type
-      info = ["discarded because motif and dataset from the same experiment", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
-      $stderr.puts(info.join("\t"))
-      false
+    if info[:metric_name].start_with?('pbm_'.freeze)
+      exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
+      exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
+      mot_processing_type   = processing_type_for_motif(info[:motif], processing_type_by_dataset_id)
+      exp_processing_type   = processing_type_for_dataset(info[:dataset], processing_type_by_dataset_id)
+      if (exp_for_motif == exp_for_bench_dataset) && (exp_processing_type == mot_processing_type)
+        info = ["discarded because motif and dataset from the same experiment", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+        $stderr.puts(info.join("\t"))
+        false
+      else
+        true
+      end
     else
       true
     end
@@ -598,10 +611,6 @@ ranked_motif_metrics = all_metric_infos.group_by{|info|
 
 
 hierarchy_of_metrics = make_metrics_hierarchy(ranked_motif_metrics, [:tf, :motif, :experiment_type, :experiment, :processing_type, :dataset]){|info|
-  {metric_name: info[:metric_name], value: info[:value], rank: info[:rank]}
-}
-
-hierarchy_of_metrics_wo_ranks = make_metrics_hierarchy(ranked_motif_metrics, [:tf, :motif, :experiment_type, :experiment, :processing_type, :dataset]){|info|
   {metric_name: info[:metric_name], value: info[:value]}
 }
 
@@ -637,5 +646,5 @@ augmented_rank_hierarchy = ranked_motif_metrics.group_by{|info| info[:tf] }.tran
 }
 
 FileUtils.mkdir_p('results')
-File.write(results_metrics_fn, hierarchy_of_metrics_wo_ranks.to_json)
+File.write(results_metrics_fn, hierarchy_of_metrics.to_json)
 File.write(results_ranks_fn, augmented_rank_hierarchy.to_json)
