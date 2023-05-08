@@ -67,15 +67,16 @@ end
 
 def experiment_id(dataset_fullname)
   exp_id, *rest = dataset_fullname.split('@')[2].split('.')
-  (rest[0] && rest[0].start_with?('Rep-')) ? "#{exp_id}.#{rest[0]}" : exp_id
+  result = (rest[0] && rest[0].start_with?('Rep-')) ? "#{exp_id}.#{rest[0]}" : exp_id
+  SINGLETON_STRINGS[result]
 end
 
 def experiment_fulltype(dataset_fullname) # PBM.HK, AFS.Lys etc
-  dataset_fullname.split('@')[1]
+  dataset_fullname.split('@')[1].then{|val| SINGLETON_STRINGS[val] }
 end
 
 def experiment_processing_type(dataset_fullname) # Peaks
-  dataset_fullname.split('@')[3].split('.')[0]
+  dataset_fullname.split('@')[3].split('.')[0].then{|val| SINGLETON_STRINGS[val] }
 end
 
 def dataset_ids_for_dataset(dataset_fullname)
@@ -89,22 +90,22 @@ def dataset_ids_for_motif(motif_fullname)
 end
 
 def motif_tf(motif)
-  motif.split('@').first.split('.').first
+  motif.split('@').first.split('.').first.then{|val| SINGLETON_STRINGS[val] }
 end
 
 
 def experiment_for_motif(motif, experiment_by_dataset_id)
-  dataset_ids_for_motif(motif).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+  dataset_ids_for_motif(motif).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only.then{|val| SINGLETON_STRINGS[val] }
 end
 def experiment_for_dataset(dataset, experiment_by_dataset_id)
-  dataset_ids_for_dataset(dataset).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only
+  dataset_ids_for_dataset(dataset).map{|ds_id| experiment_by_dataset_id[ds_id] }.uniq.take_the_only.then{|val| SINGLETON_STRINGS[val] }
 end
 
 def processing_type_for_motif(motif, processing_type_by_dataset_id)
-  dataset_ids_for_motif(motif).map{|ds_id| processing_type_by_dataset_id[ds_id] }.uniq.take_the_only
+  dataset_ids_for_motif(motif).map{|ds_id| processing_type_by_dataset_id[ds_id] }.uniq.take_the_only.then{|val| SINGLETON_STRINGS[val] }
 end
 def processing_type_for_dataset(dataset, processing_type_by_dataset_id)
-  dataset_ids_for_dataset(dataset).map{|ds_id| processing_type_by_dataset_id[ds_id] }.uniq.take_the_only
+  dataset_ids_for_dataset(dataset).map{|ds_id| processing_type_by_dataset_id[ds_id] }.uniq.take_the_only.then{|val| SINGLETON_STRINGS[val] }
 end
 
 SINGLETON_STRINGS = Hash.new{|h,k| h[k] = k }
@@ -571,11 +572,11 @@ all_metric_infos.select!{|info|
   end
 }
 
-
+pbm_types = ['PBM.ME'.freeze, 'PBM.HK'.freeze]
 all_metric_infos = all_metric_infos.map{|info|
   dataset = info[:dataset]
   exp_type = experiment_fulltype(dataset)
-  exp_type = 'PBM'  if ['PBM.ME', 'PBM.HK'].include?(exp_type) # distinct chip types are not too different to distinguish them
+  exp_type = SINGLETON_STRINGS['PBM']  if pbm_types.include?(exp_type) # distinct chip types are not too different to distinguish them
   additional_info = {
     processing_type: experiment_processing_type(dataset),
     experiment: experiment_id(dataset),
