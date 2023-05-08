@@ -563,8 +563,9 @@ filter_out_motifs = filter_out_benchmarks.map{|filter_info|
   filter_info[:motif_wo_ext]
 }.to_set
 
+possible_file_extensions = ['.pcm', '.ppm', '.pwm'].map(&:freeze)
 all_metric_infos.select!{|info|
-  motif_wo_ext = ['.pcm', '.ppm', '.pwm'].inject(info[:motif]){|fn, ext| File.basename(fn, ext) }
+  motif_wo_ext = possible_file_extensions.inject(info[:motif]){|fn, ext| File.basename(fn, ext) }
   if filter_out_motifs.include?(motif_wo_ext)
     info = ["discarded motif due to sticky flanks",  info[:motif]]
     $stderr.puts(info.join("\t"))
