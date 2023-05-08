@@ -107,27 +107,31 @@ def processing_type_for_dataset(dataset, processing_type_by_dataset_id)
   dataset_ids_for_dataset(dataset).map{|ds_id| processing_type_by_dataset_id[ds_id] }.uniq.take_the_only
 end
 
+SINGLETON_STRINGS = Hash.new{|h,k| h[k] = k }
+
 def read_metrics(metrics_readers_configs)
   metrics_readers_configs.flat_map do |fn, fn_parsers|
-    infos = File.readlines(fn).drop(1).map do |line|
-      line.chomp!
-      dataset, motif, *values = line.split("\t")
-      dataset_tf = dataset.split('.')[0]
-      motif_tf = motif.split('.')[0]
-      raise  unless dataset_tf == motif_tf
-      tf = dataset_tf
-      # experiment_type = experiment_fulltype(dataset)
-      # experiment = experiment_id(dataset)
-      values = values.map{|val| val == '' ? nil : (val && Float(val)) }
-      {
-        dataset: dataset, motif: motif, tf: tf,
-        # experiment_type: experiment_type, experiment: experiment,
-        values: values, original_line: line, filename: File.basename(fn),
-      }
-    rescue
-      $stderr.puts "read metrics failed on line `#{line}`"
-      raise
-    end
+    infos = File.open(fn){|f|
+      f.each_line.drop(1).map do |line|
+        line.chomp!
+        dataset, motif, *values = line.split("\t")
+        dataset_tf = dataset.split('.')[0]
+        motif_tf = motif.split('.')[0]
+        raise  unless dataset_tf == motif_tf
+        tf = dataset_tf
+        # experiment_type = experiment_fulltype(dataset)
+        # experiment = experiment_id(dataset)
+        values = values.map{|val| val == '' ? nil : (val && Float(val)) }
+        {
+          dataset: SINGLETON_STRINGS[dataset], motif: SINGLETON_STRINGS[motif], tf: SINGLETON_STRINGS[tf],
+          # experiment_type: experiment_type, experiment: experiment,
+          values: values,
+        }
+      rescue
+        $stderr.puts "read metrics failed on line `#{line}`"
+        raise
+      end
+    }
 
     fn_parsers.flat_map{|metric_names, dataset_condition|
       infos.select{|info|
@@ -476,7 +480,8 @@ metrics_readers_configs = {
   ]
 }
 
-all_metric_infos = read_metrics(metrics_readers_configs).select{|info| BASIC_METRICS.include?(info[:metric_name]) }
+basic_metrics_set = BASIC_METRICS.to_set
+all_metric_infos = read_metrics(metrics_readers_configs).select{|info| basic_metrics_set.include?(info[:metric_name]) }
 all_metric_infos.each{|info|
   raise unless info.has_key?(:value)
   info[:value] = info[:value]&.round(3)
