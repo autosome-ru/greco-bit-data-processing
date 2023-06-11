@@ -1,4 +1,6 @@
 require 'fileutils'
+require 'json'
+require_relative '../shared/lib/utils'
 
 def basename_wo_ext(fn)
   File.basename(fn, File.extname(fn))
@@ -93,10 +95,47 @@ def mihai_filename_type_2(src_filename)
   "#{tf}@#{exp_type}@#{dataset_name}@#{lab}.#{tool}@#{motif_name}#{motif_ext}"
 end
 
+def read_faltejsk_motifs(filename)
+  File.readlines(filename).map(&:strip).slice_before{|l|
+    l.start_with?('>')
+  }.map{|header, *rest|
+    # >UT380-028__SS_INP_Trimmed_BC5.__with_ns,corr_with_PSAM=0.7140396429651228
+    dataset, input_library, suffix = header[1..-1].split('__')
+    match = suffix.match('(?<ns_mode>with(out)?_ns),corr_with_PSAM=(?<corr>.+)')
+    raise "Unknown ns_mode for `#{header}`"  unless match[:ns_mode]
+    ns_mode = match[:ns_mode]
+    corr = Float(match[:corr])
+    matrix = rest.map{|l| l.split.map{|x| Float(x) } }
+    exp_type_mapping = {'SMS' => 'SMS', 'SS' => 'SMS', 'HTS-GFPIVT' => 'HTS.GFPIVT', 'AFS' => 'AFS'}
+    exp_type = input_library.split('_').first
+    exp_type = exp_type_mapping.fetch(exp_type, exp_type)
+    {matrix: matrix, dataset: dataset, corr: corr, input_library: input_library, exp_type: exp_type, ns_mode: ns_mode}
+  }
+end
+
+def extract_faltejsk_motifs(filename, metadata_by_exp_id, results_folder)
+  read_faltejsk_motifs(filename).each{|d|
+    matching_metadata_records = metadata_by_exp_id.fetch(d[:dataset], [])
+    raise "Can't match metadata for dataset `#{d[:dataset]}`" if matching_metadata_records.empty?
+    # matching_metadata = matching_metadata_records.first
+    dataset_name = matching_metadata_records.map{|r| r['dataset_id'] }.join('+')
+    tf = matching_metadata_records.map{|r| r['tf'] }.uniq.take_the_only
+    construction_type = matching_metadata_records.map{|r| r['construct_type'] }.uniq.take_the_only
+    tf_info = "#{tf}.#{construction_type}"
+    exp_type = matching_metadata_records.map{|r| [r['experiment_type'], r['experiment_subtype']].compact.join('.') }.uniq.take_the_only
+    ns_mode = d[:ns_mode]
+    team_tool = 'faltejsk.ProBound'
+    motif_name = "motif_#{ns_mode}"
+    name = "#{tf_info}@#{exp_type}@#{dataset_name}@#{team_tool}@#{motif_name}"
+    dst_fn = "#{results_folder}/#{name}.ppm"
+    write_motif(dst_fn, ">#{name}", d[:matrix])
+  }
+end
+
 #############################################
 
 results_folder = File.absolute_path(ARGV[0])
-# results_folder = '/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02'
+# results_folder = '/home_local/vorontsovie/greco-motifs/release_8c.pack_7'
 
 FileUtils.mkdir_p(results_folder)
 
@@ -267,3 +306,20 @@ FileUtils.mkdir_p('/home_local/vorontsovie/greco-motifs/release_8c.pack_6/')
   }
 }
 
+
+metadata = File.open('metadata_release_8d.patch1.json'){|f| f.each_line.map{|l| JSON.parse(l) } }
+metadata_by_exp_id = metadata.select{|m|
+  m['slice_type'] == 'Train'
+}.select{|m|
+  m['processing_type'] == 'Reads'
+}.group_by{|m|
+  m['experiment_id']
+}
+
+[
+  'faltejsk_motifs/SMS_all_results_290523.pfm',
+  'faltejsk_motifs/HTS_Selex_all_results_290523.pfm',
+  'faltejsk_motifs/AFS_Selex_all_results_290523.pfm',
+].each{|faltejsk_fn|
+  extract_faltejsk_motifs(faltejsk_fn, metadata_by_exp_id, results_folder)
+}
