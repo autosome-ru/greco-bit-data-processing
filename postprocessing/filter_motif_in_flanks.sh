@@ -2,7 +2,7 @@ mkdir -p  motifs_by_modeltype/pwm/
 mkdir -p  thresholds_by_modeltype/pwm/
 
 MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs'
-for MOTIFS_RELEASE in  "release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad/"; do
+for MOTIFS_RELEASE in  "release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/"; do # "release_8c.pack_7" ; do
   for MOTIF_TYPE in  pcm  ppm; do
     find "${MOTIFS_FOLDER}/${MOTIFS_RELEASE}" -name "*.${MOTIF_TYPE}" \
       | xargs -n1 -I{} basename -s ".${MOTIF_TYPE}" {} \
@@ -22,6 +22,7 @@ ruby postprocessing/print_flanks.rb
 hits_in_flanks() {
   FASTA="$1"
   MOTIF_GLOB="$2"
+  # find motifs_by_modeltype/pwm/ -xtype f -name "${MOTIF_GLOB}" | grep faltejsk \
   find motifs_by_modeltype/pwm/ -xtype f -name "${MOTIF_GLOB}" \
   | xargs -n1 basename -s .pwm \
   | xargs -n1 -I{} echo \
@@ -39,5 +40,7 @@ hits_in_flanks() {
 
 hits_in_flanks HTS_flanks.fa '*@HTS.???@*' > HTS_flanks_hits.tsv
 hits_in_flanks AFS_flanks.fa '*@AFS.???@*' > AFS_flanks_hits.tsv
+hits_in_flanks HTS_flanks.fa '*@HTS.??????@*' >> HTS_flanks_hits.tsv
+hits_in_flanks AFS_flanks.fa '*@AFS.??????@*' >> AFS_flanks_hits.tsv
 hits_in_flanks SMS_unpublished_flanks.fa '*@SMS@*' > SMS_unpublished_flanks_hits.tsv
 hits_in_flanks SMS_published_flanks.fa '*@SMS@*' > SMS_published_flanks_hits.tsv

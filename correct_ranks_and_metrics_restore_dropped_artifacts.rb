@@ -16,8 +16,8 @@ def deep_keys(obj, root: [], &block)
 end
 
 ['ranks', 'metrics'].each do |data_type|
-  data_allow_artifacts    = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-6_allow-artifacts.json"));nil
-  data_disallow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-6_disallow-artifacts.json"));nil
+  data_allow_artifacts    = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-7_allow-artifacts.json"));nil
+  data_disallow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-7_disallow-artifacts.json"));nil
 
   deep_keys(data_allow_artifacts, root: []).each{|ks|
     if ks[-1] != 'metric_name'
@@ -26,12 +26,12 @@ end
     end
   }; nil
 
-  File.write("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-6_disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
+  File.write("benchmarks/release_8d/#{data_type}_7e+8c_pack_1-7_disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
 end
 
 ['ranks', 'metrics'].each do |data_type|
-  data_allow_artifacts    = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-6_allow-artifacts.json"));nil
-  data_disallow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-6_disallow-artifacts.json"));nil
+  data_allow_artifacts    = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-7_allow-artifacts.json"));nil
+  data_disallow_artifacts = JSON.parse(File.read("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-7_disallow-artifacts.json"));nil
 
   deep_keys(data_allow_artifacts, root: []).each{|ks|
     if ks[-1] != 'metric_name'
@@ -40,5 +40,5 @@ end
     end
   }; nil
 
-  File.write("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-6_disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
+  File.write("benchmarks/release_8d/#{data_type}_curated_7e+8c_pack_1-7_disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
 end

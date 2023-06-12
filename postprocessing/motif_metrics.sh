@@ -49,14 +49,14 @@ time ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} 
 time ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.25/ --fraction 0.25
 time ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.1/ --fraction 0.1
 
-time cat ${BENCHMARK_FOLDER}/pbm/prepare_all.sh | parallel -j 200
+time cat ${BENCHMARK_FOLDER}/pbm/prepare_all.sh | parallel -j 30
 for DATATYPE in  reads_0.1 reads_0.25 reads_0.5  vigg_peaks centrimo_peaks pwmeval_peaks  pbm; do
-  time cat ${BENCHMARK_FOLDER}/${DATATYPE}/run_all.sh | parallel -j 100 | pv -l > ${BENCHMARK_FOLDER}/${DATATYPE}.tsv;
+  time cat ${BENCHMARK_FOLDER}/${DATATYPE}/run_all.sh | parallel -j 20 | pv -l > ${BENCHMARK_FOLDER}/${DATATYPE}.tsv;
 done
 
 
-bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_8c_pack6_wo_bad.tsv
-cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_bad}.tsv | grep -vw ZNF705E > hocomoco_similarities.tsv
+time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_8c_pack7.tsv
+cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_bad,7}.tsv | grep -vw ZNF705E > hocomoco_similarities.tsv
 
 
 ruby postprocessing/reformat_metrics.rb
@@ -76,8 +76,8 @@ bash ./calculate_artifact_similarities.sh # be cautious
 #   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_7e+8c_pack_1-6_disallow-artifacts.json \
-    benchmarks/release_8d/ranks_7e+8c_pack_1-6_disallow-artifacts.json \
+    benchmarks/release_8d/metrics_7e+8c_pack_1-7_disallow-artifacts.json \
+    benchmarks/release_8d/ranks_7e+8c_pack_1-7_disallow-artifacts.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
@@ -85,18 +85,18 @@ time ruby postprocessing/motif_ranking.rb \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
     --artifact-similarities ./artifact_sims_precise --artifact-similarity-threshold 0.15 \
-    2> benchmarks/release_8d/ranking_artifact.7e+8c1-6_disallow-artifacts.log   && echo ok || echo fail
+    2> benchmarks/release_8d/ranking_artifact.7e+8c1-7_disallow-artifacts.log   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_7e+8c_pack_1-6_allow-artifacts.json \
-    benchmarks/release_8d/ranks_7e+8c_pack_1-6_allow-artifacts.json \
+    benchmarks/release_8d/metrics_7e+8c_pack_1-7_allow-artifacts.json \
+    benchmarks/release_8d/ranks_7e+8c_pack_1-7_allow-artifacts.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
-    2> benchmarks/release_8d/ranking_allow-artifacts.7e+8c1-6.log   && echo ok || echo fail
+    2> benchmarks/release_8d/ranking_allow-artifacts.7e+8c1-7.log   && echo ok || echo fail
 
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-6_disallow-artifacts.json \
-    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-6_disallow-artifacts.json \
+    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-7_disallow-artifacts.json \
+    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-7_disallow-artifacts.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
     --filter-sticky-flanks  HTS_flanks_hits.tsv \
     --filter-sticky-flanks  AFS_flanks_hits.tsv \
@@ -104,15 +104,15 @@ time ruby postprocessing/motif_ranking.rb \
     --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
     --flank-threshold 4.0 \
     --curation  source_data_meta/shared/experiment_verdicts.tsv \
-  2> benchmarks/release_8d/ranking_curated.7e+8c1-6_disallow-artifacts.log \
+  2> benchmarks/release_8d/ranking_curated.7e+8c1-7_disallow-artifacts.log \
   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-6_allow-artifacts.json \
-    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-6_allow-artifacts.json \
+    benchmarks/release_8d/metrics_curated_7e+8c_pack_1-7_allow-artifacts.json \
+    benchmarks/release_8d/ranks_curated_7e+8c_pack_1-7_allow-artifacts.json \
     --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch1.json \
     --curation  source_data_meta/shared/experiment_verdicts.tsv \
-  2> benchmarks/release_8d/ranking_curated_allow-artifacts.7e+8c1-6.log \
+  2> benchmarks/release_8d/ranking_curated_allow-artifacts.7e+8c1-7.log \
   && echo ok || echo fail
 
 time ruby correct_ranks_and_metrics_restore_dropped_artifacts.rb
