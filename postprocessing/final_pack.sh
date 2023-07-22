@@ -12,9 +12,5 @@ find '/home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_
   | sort \
   > '/home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7_list.txt'
 
-
-# require 'csv'
-# motifs = File.readlines("release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7_list.txt").map(&:chomp)
-# motif_datasets = motifs.map{|m| m.split('@') }.map{|tf, exp_type, datasets, tool, name| datasets }.flat_map{|ds| ds.split("+") }.uniq
-# dataset_infos = CSV.readlines('metadata_release_7b+8d.patch1.tsv', headers: true, col_sep: "\t").map(&:to_h)
-# dataset_infos_by_id = dataset_infos.map{|h| [h["dataset_id"], h] }.to_h
+ruby postprocessing/fix_metadata_8d_patch2.rb
+ruby postprocessing/final_motif_list.rb
