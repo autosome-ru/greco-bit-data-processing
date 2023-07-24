@@ -37,7 +37,7 @@ motif_infos = motifs.map{|motif|
     fields.map{|f| [f, hsh[f]] }.to_h
   }.uniq.take_the_only
 
-  raise  unless (tf == dataset_info['tf']) && (construct_type == dataset_info['construct_type']) && (exp_type == dataset_info['experiment_type']) && (exp_subtype == dataset_info['experiment_subtype'])
+  raise  unless (tf == dataset_info['tf']) && (construct_type == dataset_info['construct_type']) && (exp_type.sub('AFS', 'GHTS') == dataset_info['experiment_type']) && (exp_subtype == dataset_info['experiment_subtype'])
 
   {
     'motif' => motif,

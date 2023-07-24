@@ -7,9 +7,14 @@ function metadata_tsv {
     echo -e 'dataset_id\tdataset_name\ttf\tconstruct_type\texperiment_type\texperiment_subtype\texperiment_id\treplicate\tprocessing_type\tslice_type\textension';
     cat "$INPUT"  \
       | jq -r '[.dataset_id, .dataset_name, .tf, .construct_type, .experiment_type, .experiment_subtype, .experiment_id, .experiment_params.replica, .processing_type, .slice_type, .extension] | @tsv' \
-  ) | ruby -e '$stdin.each_line{|l| row = l.chomp.split("\t"); row[-2] = "Test"  if row[-2] == "Val"; puts row.join("\t") }'
+  ) | ruby -e '$stdin.each_line{|l| row = l.chomp.split("\t"); row[-2] = "Test"  if row[-2] == "Val"; row[4] = "GHTS"  if row[4] == "AFS"; puts row.join("\t") }'
 }
 
+
+rm -rf  metadata_release_8d.patch2{,.freeze,.freeze_approved}.{json,tsv}
+rm -rf  motif_infos{,.freeze,.freeze_approved}.tsv
+rm -rf  /home_local/vorontsovie/greco-motifs/motifs_{freeze,freeze_approved}
+rm -rf  /home_local/vorontsovie/greco-data/datasets_{freeze,freeze_approved}
 
 ruby postprocessing/fix_metadata_8d_patch2.rb > metadata_release_8d.patch2.json
 
@@ -24,8 +29,8 @@ metadata_tsv metadata_release_8d.patch2.freeze.json > metadata_release_8d.patch2
 
 ruby postprocessing/motifs_freeze.rb  \
     source_data_meta/shared/explicit_freeze1.tsv  motif_infos.tsv \
-    '/home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/' \
-    '/home_local/vorontsovie/greco-motifs/motifs_freeze' \
+    /home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/ \
+    /home_local/vorontsovie/greco-motifs/motifs_freeze \
   > motif_infos.freeze.tsv
 
 ruby postprocessing/datasets_freeze.rb source_data_meta/shared/explicit_freeze1.tsv  /home_local/vorontsovie/greco-data/datasets_freeze

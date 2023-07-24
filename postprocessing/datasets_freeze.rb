@@ -29,11 +29,14 @@ dataset_files = [
 }
 
 files_to_copy = dataset_files.map{|fn, bn, rel_dn|
+
+  fixed_rel_dn = rel_dn.sub(/\bVal_/, 'Test_').sub(/\bAFS\b/, 'GHTS')
+
   exp = bn.split('@')[2].split('.')[0]
   rep = bn.split('@')[2].split('.')[1]
   rep = nil  unless rep && rep.start_with?('Rep-')
   exp = [exp, rep].compact.join('.')
-  [fn, bn, rel_dn, exp]
+  [fn, bn, fixed_rel_dn, exp]
 }.select{|fn, bn, rel_dn, exp|
   experiments_in_freeze.include?(exp)
 }
