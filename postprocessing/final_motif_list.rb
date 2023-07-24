@@ -12,10 +12,10 @@ gene_mapping = {
   'ZNF705E' => 'ZNF705EP',
 }
 
-raise 'Specify motifs list' unless motifs_list_fn = ARGV[0]
+raise 'Specify motifs folder' unless motifs_folder = ARGV[0]
 raise 'Specify metadata.tsv' unless metadata_tsv_fn = ARGV[1]
 
-motifs = File.readlines(motifs_list_fn).map(&:chomp)
+motifs = Dir.glob("#{motifs_folder}/*").map{|fn| File.basename(fn) }
 dataset_infos = CSV.readlines(metadata_tsv_fn, headers: true, col_sep: "\t").map(&:to_h)
 dataset_info_by_id = dataset_infos.map{|h| [h["dataset_id"], h] }.to_h
 
