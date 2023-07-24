@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
 function metadata_tsv {
   INPUT="$1"
   (
@@ -15,6 +17,8 @@ metadata_tsv metadata_release_8d.patch2.json > metadata_release_8d.patch2.tsv
 
 ruby postprocessing/final_motif_list.rb  /home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/  metadata_release_8d.patch2.tsv > motif_infos.tsv
 
+##############################
+
 ruby postprocessing/metadata_freeze.rb  source_data_meta/shared/explicit_freeze1.tsv  metadata_release_8d.patch2.json > metadata_release_8d.patch2.freeze.json
 metadata_tsv metadata_release_8d.patch2.freeze.json > metadata_release_8d.patch2.freeze.tsv
 
@@ -26,6 +30,17 @@ ruby postprocessing/motifs_freeze.rb  \
 
 ruby postprocessing/datasets_freeze.rb source_data_meta/shared/explicit_freeze1.tsv  /home_local/vorontsovie/greco-data/datasets_freeze
 
-# Dir.glob('/home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/*').select{|fn|
-#   File.basename(fn)
-# }
+##############################
+
+ruby postprocessing/metadata_freeze.rb  source_data_meta/shared/explicit_freeze1_approved.tsv  metadata_release_8d.patch2.json > metadata_release_8d.patch2.freeze_approved.json
+metadata_tsv metadata_release_8d.patch2.freeze_approved.json > metadata_release_8d.patch2.freeze_approved.tsv
+
+ruby postprocessing/motifs_freeze.rb  \
+    source_data_meta/shared/explicit_freeze1_approved.tsv  motif_infos.tsv \
+    '/home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/' \
+    '/home_local/vorontsovie/greco-motifs/motifs_freeze_approved' \
+  > motif_infos.freeze_approved.tsv
+
+ruby postprocessing/datasets_freeze.rb source_data_meta/shared/explicit_freeze1_approved.tsv  /home_local/vorontsovie/greco-data/datasets_freeze_approved
+
+##############################
