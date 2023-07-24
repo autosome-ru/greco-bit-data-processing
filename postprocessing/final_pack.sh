@@ -9,7 +9,7 @@ function metadata_tsv {
 }
 
 
-ruby postprocessing/fix_metadata_8d_patch2.rb
+ruby postprocessing/fix_metadata_8d_patch2.rb > metadata_release_8d.patch2.json
 
 metadata_tsv metadata_release_8d.patch2.json > metadata_release_8d.patch2.tsv
 
