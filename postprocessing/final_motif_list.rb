@@ -1,5 +1,5 @@
 require 'csv'
-require_relative 'shared/lib/utils'
+require_relative '../shared/lib/utils'
 
 gene_mapping = {
   'ZNF788' => 'ZNF788P',
@@ -12,9 +12,12 @@ gene_mapping = {
   'ZNF705E' => 'ZNF705EP',
 }
 
-motifs = File.readlines("release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7_list.txt").map(&:chomp)
-dataset_infos = CSV.readlines('metadata_release_8d.patch2.tsv', headers: true, col_sep: "\t").map(&:to_h)
-dataset_infos_by_id = dataset_infos.map{|h| [h["dataset_id"], h] }.to_h
+raise 'Specify motifs list' unless motifs_list_fn = ARGV[0]
+raise 'Specify metadata.tsv' unless metadata_tsv_fn = ARGV[1]
+
+motifs = File.readlines(motifs_list_fn).map(&:chomp)
+dataset_infos = CSV.readlines(metadata_tsv_fn, headers: true, col_sep: "\t").map(&:to_h)
+dataset_info_by_id = dataset_infos.map{|h| [h["dataset_id"], h] }.to_h
 
 motif_infos = motifs.map{|motif|
   tf_w_dbd, exp_type_w_subtype, datasets, tool, motif_name_w_ext  = motif.split('@')
@@ -29,7 +32,7 @@ motif_infos = motifs.map{|motif|
   ]
   
   dataset_info = datasets.map{|ds|
-    dataset_infos_by_id[ds]
+    dataset_info_by_id[ds]
   }.map{|hsh|
     fields.map{|f| [f, hsh[f]] }.to_h
   }.uniq.take_the_only
@@ -46,13 +49,11 @@ motif_infos = motifs.map{|motif|
   }
 }
 
-File.open('motif_infos.tsv', 'w'){|fw|
-  header = [
-    'motif', 'tf', 'construct_type', 'exp_type', 'exp_subtype', 'datasets', 'motif_name', 'extension',
-    'experiment_id', 'replicate', 'processing_type', 'slice_type', 'dataset_extension',
-  ]
-  fw.puts header.join("\t")
-  motif_infos.each{|info|
-    fw.puts info.values_at(*header).join("\t")
-  }
+header = [
+  'motif', 'tf', 'construct_type', 'exp_type', 'exp_subtype', 'datasets', 'motif_name', 'extension',
+  'experiment_id', 'replicate', 'processing_type', 'slice_type', 'dataset_extension',
+]
+puts header.join("\t")
+motif_infos.each{|info|
+  puts info.values_at(*header).join("\t")
 }
