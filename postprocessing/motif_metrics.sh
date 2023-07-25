@@ -38,8 +38,8 @@
 ##############
 
 DATA_FOLDER='/home_local/vorontsovie/greco-data/release_8d.2022-07-31/full/'
-MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_8c.pack_6_wo_bad/'
-BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/motif_batch_8c_pack_6_wo_bad'
+MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_8c.pack_8_fix/'
+BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/motif_batch_8c_pack_8_fix'
 
 time ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/vigg_peaks
 time ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/centrimo_peaks
@@ -55,8 +55,8 @@ for DATATYPE in  reads_0.1 reads_0.25 reads_0.5  vigg_peaks centrimo_peaks pwmev
 done
 
 
-time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_8c_pack7.tsv
-cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_bad,7}.tsv | grep -vw ZNF705E > hocomoco_similarities.tsv
+time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_8c_pack8_fix.tsv
+cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_bad,7,8_fix}.tsv | grep -vw ZNF705E > hocomoco_similarities.tsv
 
 
 ruby postprocessing/reformat_metrics.rb
