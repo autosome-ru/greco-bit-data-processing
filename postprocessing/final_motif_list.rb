@@ -24,11 +24,12 @@ motif_infos = motifs.map{|motif|
   tf, construct_type = tf_w_dbd.split('.')
   tf = gene_mapping.fetch(tf, tf)
   exp_type, exp_subtype = exp_type_w_subtype.split('.')
+  exp_type = exp_type.sub('AFS', 'GHTS')
   datasets = datasets.split('+')
   motif_name, extension = motif_name_w_ext.split('.')
   fields = [
     "tf", "construct_type", "experiment_type", "experiment_subtype",
-    "experiment_id", "replicate", "processing_type", "slice_type", "extension",
+    "experiment_id", "replicate", "processing_type", "extension",
   ]
   
   dataset_info = datasets.map{|ds|
@@ -44,14 +45,14 @@ motif_infos = motifs.map{|motif|
     'tf' => tf, 'construct_type' => construct_type, 'exp_type' => exp_type, 'exp_subtype' => exp_subtype,
     'datasets' => datasets.sort.join('+'), 'motif_name' => motif_name, 'extension' => extension,
     'experiment_id' => dataset_info['experiment_id'], 'replicate' => dataset_info['replicate'],
-    'processing_type' => dataset_info['processing_type'], 'slice_type' => dataset_info['slice_type'],
+    'processing_type' => dataset_info['processing_type'],
     'dataset_extension' => dataset_info['extension'],
   }
 }
 
 header = [
   'motif', 'tf', 'construct_type', 'exp_type', 'exp_subtype', 'datasets', 'motif_name', 'extension',
-  'experiment_id', 'replicate', 'processing_type', 'slice_type', 'dataset_extension',
+  'experiment_id', 'replicate', 'processing_type', 'dataset_extension',
 ]
 puts header.join("\t")
 motif_infos.each{|info|
