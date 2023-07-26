@@ -299,8 +299,18 @@ def combine_ranks(hierarchy_of_metrics, metric_path: nil)
   end
 end
 
-def read_metadata(metadata_fn)
-  File.readlines(metadata_fn).map{|l| JSON.parse(l.chomp) }
+def read_metadata_subset(metadata_fn)
+  File.open(metadata_fn){|f|
+    f.each_line.map{|l|
+      info = JSON.parse(l.chomp)
+      {
+        'dataset_id' => info['dataset_id'],
+        'experiment_id' => info['experiment_id'],
+        'replicate' => info.dig('experiment_params', 'replica'),
+        'processing_type' => info['processing_type'],
+      }
+    }
+  }
 end
 
 METRIC_COMBINATIONS = {
@@ -425,13 +435,13 @@ else
 end
 
 if metadata_fn
-  metadata_full = read_metadata(metadata_fn)
-  metadata_by_dataset_id = metadata_full.index_by{|info| info['dataset_id'] }
+  metadata = read_metadata_subset(metadata_fn)
+  metadata_by_dataset_id = metadata.index_by{|info| info['dataset_id'] }
   experiment_by_dataset_id = metadata_by_dataset_id.transform_values{|info|
-    rep = info.dig('experiment_params', 'replica')
-    [info['experiment_id'], (rep ? "Rep-#{rep}" : nil)].compact.join('.')
+    rep = info['replicate']
+    [info['experiment_id'], (rep ? "Rep-#{rep}" : nil)].compact.join('.').then{|val| SINGLETON_STRINGS[val] }
   }
-  processing_type_by_dataset_id = metadata_by_dataset_id.transform_values{|info| info['processing_type'] }
+  processing_type_by_dataset_id = metadata_by_dataset_id.transform_values{|info| info['processing_type'].then{|val| SINGLETON_STRINGS[val] } }
 else
   experiment_by_dataset_id = nil
   processing_type_by_dataset_id = nil
