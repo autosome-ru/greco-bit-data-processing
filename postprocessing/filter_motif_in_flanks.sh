@@ -34,7 +34,7 @@ hits_in_flanks() {
         --output-scoring-mode logpvalue \
         --pvalues-file thresholds_by_modeltype/pwm/{}.thr \
         --add-flanks \
-    ' | ruby postprocessing/sarus_reformatter.rb --filter-by-experiment metadata_release_8c.json {} ' \
+    ' | ruby postprocessing/sarus_reformatter.rb --filter-by-experiment metadata_release_8d.patch2.json {} ' \
   | parallel -j 35
 }
 

@@ -175,6 +175,7 @@ def read_curation_info(filename)
   }
 end
 
+# Was used earliest. Now use get_list_of_good_datasets instead
 def get_datasets_curation(curation_info)
   curation_info.select{|info|
     info[:exp_name] && info[:vote]
@@ -185,12 +186,28 @@ def get_datasets_curation(curation_info)
   }.transform_values{|votes| votes.sum > 0 }
 end
 
+# Was used earlier. Now use get_list_of_good_datasets instead
 def get_experiment_verdicts(filename)
   File.readlines(filename).drop(1).map{|l|
     l.chomp.split("\t")
   }.map{|num, tf, exp_type, exp_id, verdict|
     [exp_id, verdict]
   }.to_h.transform_values{|verdict| verdict == 'good' }
+end
+
+def get_list_of_good_datasets(filename)
+  File.readlines(filename).drop(1).map{|l|
+    l.chomp.split("\t")
+  }.map{|tf, exp_type, exp_id|
+    [exp_id, true]
+  }.to_h
+end
+
+def get_list_of_good_motifs(filename)
+  File.readlines(filename).drop(1).map{|l|
+    motif = l.chomp.split("\t").first
+    [motif, true]
+  }.to_h
 end
 
 def get_motif_ranks(motif_infos, metric_combinations)
@@ -469,8 +486,10 @@ DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.r
 ######################################################
 
 curation_fn = nil
+motifs_curation_fn = nil
 metadata_fn = nil
 filter_out_curated_datasets = false
+filter_out_curated_motifs = false
 filter_out_pbm_motif_dataset_matches = false
 flank_threshold = 4.0
 flank_filters = []
@@ -478,10 +497,14 @@ artifacts_folder = nil
 artifact_similarity_threshold = 2.0  # 1.0 is maximum possible similarity
 
 option_parser = OptionParser.new{|opts|
-  opts.on('--curation FILE', 'Specify dataset curation file. It will bew used to filter out bad datasets'){|fn|
-    # 'source_data_meta/shared/curations.tsv'
-    curation_fn = fn
+  # Now datasets, not experiments!
+  opts.on('--datasets-curation FILE', 'Specify dataset curation file. It will bew used to filter out bad datasets'){|fn|
+    curation_fn = fn  # 'metadata.tsv'
     filter_out_curated_datasets = true
+  }
+  opts.on('--motifs-curation FILE', 'Specify motifs curation file. It will be used to choose only relevant motifs'){|fn|
+    motifs_curation_fn = fn  # 'motif_infos.tsv'
+    filter_out_curated_motifs = true
   }
   opts.on('--metadata FILE',  'Specify dataset metadata file. It will be used to recognize experiment_id by dataset_id\n' +
                               'and to filter out PBM benchmarks where motif and dataset use the same experiment'){|fn|
@@ -511,10 +534,18 @@ raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[1]  # 'resu
 
 if curation_fn
   # dataset_curation = get_datasets_curation(read_curation_info(curation_fn))
-  dataset_curation = get_experiment_verdicts(curation_fn)
+  # dataset_curation = get_experiment_verdicts(curation_fn)
+  dataset_curation = get_list_of_good_datasets(curation_fn)
 else
   dataset_curation = nil
-  $stderr.puts('Warning: no curation is used')
+  $stderr.puts('Warning: no dataset curation is used')
+end
+
+if motifs_curation_fn
+  motifs_curation = get_list_of_good_motifs(motifs_curation_fn)
+else
+  motifs_curation = nil
+  $stderr.puts('Warning: no motifs curation is used')
 end
 
 experiment_by_dataset_id, processing_type_by_dataset_id = load_exp_id_and_processing_type_by_dataset_id(metadata_fn)
@@ -540,24 +571,30 @@ all_metric_infos.each{|info|
 
 if filter_out_curated_datasets
   all_metric_infos.select!{|info|
-    exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
-    exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
-    if dataset_curation.has_key?(exp_for_bench_dataset)
-      if dataset_curation[exp_for_bench_dataset]
-        true
-      else
-        info = ["discarded after curation", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
-        $stderr.puts(info.join("\t"))
-        false
-      end
-    else
-      info = ["discarded as non-curated", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
-      $stderr.puts(info.join("\t"))
-      false # non-curated are dropped
-    end
+    dataset_curation[ info[:dataset] ]
+    # exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
+    # exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
+    # if dataset_curation.has_key?(exp_for_bench_dataset)
+    #   if dataset_curation[exp_for_bench_dataset]
+    #     true
+    #   else
+    #     info = ["discarded after curation", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+    #     $stderr.puts(info.join("\t"))
+    #     false
+    #   end
+    # else
+    #   info = ["discarded as non-curated", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+    #   $stderr.puts(info.join("\t"))
+    #   false # non-curated are dropped
+    # end
   }
 end
 
+if filter_out_curated_motifs
+  all_metric_infos.select!{|info|
+    motifs_curation[ info[:motif] ]
+  }
+end
 
 if filter_out_pbm_motif_dataset_matches
   all_metric_infos.select!{|info|
