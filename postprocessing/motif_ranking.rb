@@ -186,7 +186,7 @@ def get_datasets_curation(curation_info)
 end
 
 def get_experiment_verdicts(filename)
-  File.readlines('source_data_meta/shared/experiment_verdicts.tsv').drop(1).map{|l|
+  File.readlines(filename).drop(1).map{|l|
     l.chomp.split("\t")
   }.map{|num, tf, exp_type, exp_id, verdict|
     [exp_id, verdict]
