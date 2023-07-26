@@ -6,6 +6,8 @@ require_relative 'tree'
 require_relative '../shared/lib/index_by'
 require_relative '../shared/lib/utils'
 
+SINGLETON_STRINGS = Hash.new{|h,k| h[k] = k }
+
 module Enumerable
   def mean
     empty? ? nil : sum(0.0) / size
@@ -116,8 +118,6 @@ end
 def processing_type_for_dataset(dataset, processing_type_by_dataset_id)
   dataset_ids_for_dataset(dataset).map{|ds_id| processing_type_by_dataset_id[ds_id] }.uniq.take_the_only.then{|val| SINGLETON_STRINGS[val] }
 end
-
-SINGLETON_STRINGS = Hash.new{|h,k| h[k] = k }
 
 def read_metrics(metrics_readers_configs)
   metrics_readers_configs.flat_map do |fn, fn_parsers|
@@ -313,6 +313,85 @@ def read_metadata_subset(metadata_fn)
   }
 end
 
+def load_exp_id_and_processing_type_by_dataset_id(metadata_fn)
+  if metadata_fn
+    metadata = read_metadata_subset(metadata_fn)
+    metadata_by_dataset_id = metadata.index_by{|info| info['dataset_id'] }
+    experiment_by_dataset_id = metadata_by_dataset_id.transform_values{|info|
+      rep = info['replicate']
+      [info['experiment_id'], (rep ? "Rep-#{rep}" : nil)].compact.join('.').then{|val| SINGLETON_STRINGS[val] }
+    }
+    processing_type_by_dataset_id = metadata_by_dataset_id.transform_values{|info| info['processing_type'].then{|val| SINGLETON_STRINGS[val] } }
+  else
+    experiment_by_dataset_id = nil
+    processing_type_by_dataset_id = nil
+    $stderr.puts('Warning: no metadata is used, thus there can be PBM motifs benchmarked on the same datasets which were used for training')
+  end
+  [experiment_by_dataset_id, processing_type_by_dataset_id]
+end
+
+def load_artifact_motifs(artifacts_folder)
+  artifact_motifs = [].to_set
+  if artifacts_folder
+    artifact_motifs = Dir.glob("#{artifacts_folder}/*").select{|motif_fn|
+      sims = File.readlines(motif_fn).map{|l|
+        artifact_motif, sim_to_artifact, *rest = l.chomp.split("\t")
+        [artifact_motif, Float(sim_to_artifact)]
+      }.map{|artifact_motif, sim|
+        sim
+      }
+      sims.max >= artifact_similarity_threshold
+    }.map{|fn|
+      File.basename(fn)
+    }.to_set
+  end
+  artifact_motifs
+end
+
+def metrics_readers_configs
+  result = {
+    'benchmarks/release_8d/final_formatted/pwmeval_peaks.tsv' => [
+      [[:chipseq_pwmeval_ROC, :chipseq_pwmeval_PR], ->(x){ x.match?(/@CHS@/) }],
+      [[:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.IVT@/) }],
+      [[:affiseq_GFPIVT_pwmeval_ROC, :affiseq_GFPIVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
+      [[:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR], ->(x){ x.match?(/@AFS\.Lys@/) }],
+    ],
+    'benchmarks/release_8d/final_formatted/vigg_peaks.tsv' => [
+      [[:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
+      [[:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
+      [[:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_logROC], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
+      [[:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
+    ],
+    'benchmarks/release_8d/final_formatted/centrimo_peaks.tsv' => [
+      [[:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
+      [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
+      [[:affiseq_GFPIVT_centrimo_neglog_evalue, :affiseq_GFPIVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
+      [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
+    ],
+    'benchmarks/release_8d/final_formatted/pbm.tsv' => [
+      [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_roclog, :pbm_qnzs_prlog, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
+      [[:pbm_sd_asis, :pbm_sd_log, :pbm_sd_exp, :pbm_sd_roc, :pbm_sd_pr, :pbm_sd_roclog, :pbm_sd_prlog, :pbm_sd_mers, :pbm_sd_logmers], ->(x){ x.match?(/@SD\./) }],
+    ],
+  }
+
+  [['0.1', '10'], ['0.25', '25'], ['0.5', '50']].each{|fraction, percent|
+    result["benchmarks/release_8d/final_formatted/reads_#{fraction}.tsv"] = [
+      [[:"selex_#{percent}_IVT_ROC", :"selex_#{percent}_IVT_PR"], ->(x){ x.match?(/@HTS\.IVT@/) }],
+      [[:"selex_#{percent}_GFPIVT_ROC", :"selex_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@HTS\.GFPIVT@/) }],
+      [[:"selex_#{percent}_Lysate_ROC", :"selex_#{percent}_Lysate_PR"], ->(x){ x.match?(/@HTS\.Lys@/) }],
+      # [[:"affiseq_#{percent}_IVT_ROC", :"affiseq_#{percent}_IVT_PR"], ->(x){ x.match?(/@AFS\.IVT@/) }],
+      # [[:"affiseq_#{percent}_GFPIVT_ROC", :"affiseq_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
+      # [[:"affiseq_#{percent}_Lysate_ROC", :"affiseq_#{percent}_Lysate_PR"], ->(x){ x.match?(/@AFS\.Lys@/) }],
+      [[:"smileseq_#{percent}_ROC", :"smileseq_#{percent}_PR"], ->(x){ x.match?(/@SMS@/) }],
+    ]
+  }
+
+  result
+end
+
+
+######################################################
+
 METRIC_COMBINATIONS = {
   combined: {
     chipseq_peaks: {
@@ -387,6 +466,8 @@ METRICS_ORDER         = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.m
 BASIC_METRICS         = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.select(&:leaf?).map(&:key).reject(&:nil?)
 DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.reject(&:leaf?).map(&:key).reject(&:nil?)
 
+######################################################
+
 curation_fn = nil
 metadata_fn = nil
 filter_out_curated_datasets = false
@@ -426,6 +507,8 @@ option_parser.parse!(ARGV)
 raise 'Specify resulting metrics file'  unless results_metrics_fn = ARGV[0]  # 'results/metrics.json'
 raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[1]  # 'results/ranks.json'
 
+######################################################
+
 if curation_fn
   # dataset_curation = get_datasets_curation(read_curation_info(curation_fn))
   dataset_curation = get_experiment_verdicts(curation_fn)
@@ -434,71 +517,10 @@ else
   $stderr.puts('Warning: no curation is used')
 end
 
-if metadata_fn
-  metadata = read_metadata_subset(metadata_fn)
-  metadata_by_dataset_id = metadata.index_by{|info| info['dataset_id'] }
-  experiment_by_dataset_id = metadata_by_dataset_id.transform_values{|info|
-    rep = info['replicate']
-    [info['experiment_id'], (rep ? "Rep-#{rep}" : nil)].compact.join('.').then{|val| SINGLETON_STRINGS[val] }
-  }
-  processing_type_by_dataset_id = metadata_by_dataset_id.transform_values{|info| info['processing_type'].then{|val| SINGLETON_STRINGS[val] } }
-else
-  experiment_by_dataset_id = nil
-  processing_type_by_dataset_id = nil
-  $stderr.puts('Warning: no metadata is used, thus there can be PBM motifs benchmarked on the same datasets which were used for training')
-end
+experiment_by_dataset_id, processing_type_by_dataset_id = load_exp_id_and_processing_type_by_dataset_id(metadata_fn)
+artifact_motifs = load_artifact_motifs(artifacts_folder)
 
-artifact_motifs = [].to_set
-if artifacts_folder
-  artifact_motifs = Dir.glob("#{artifacts_folder}/*").select{|motif_fn|
-    sims = File.readlines(motif_fn).map{|l|
-      artifact_motif, sim_to_artifact, *rest = l.chomp.split("\t")
-      [artifact_motif, Float(sim_to_artifact)]
-    }.map{|artifact_motif, sim|
-      sim
-    }
-    sims.max >= artifact_similarity_threshold
-  }.map{|fn|
-    File.basename(fn)
-  }.to_set
-end
-
-metrics_readers_configs = {
-  'benchmarks/release_8d/final_formatted/pwmeval_peaks.tsv' => [
-    [[:chipseq_pwmeval_ROC, :chipseq_pwmeval_PR], ->(x){ x.match?(/@CHS@/) }],
-    [[:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    [[:affiseq_GFPIVT_pwmeval_ROC, :affiseq_GFPIVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
-    [[:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR], ->(x){ x.match?(/@AFS\.Lys@/) }],
-  ],
-  'benchmarks/release_8d/final_formatted/vigg_peaks.tsv' => [
-    [[:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
-    [[:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    [[:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_logROC], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
-    [[:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
-  ],
-  'benchmarks/release_8d/final_formatted/centrimo_peaks.tsv' => [
-    [[:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
-    [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    [[:affiseq_GFPIVT_centrimo_neglog_evalue, :affiseq_GFPIVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
-    [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
-  ],
-  'benchmarks/release_8d/final_formatted/pbm.tsv' => [
-    [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_roclog, :pbm_qnzs_prlog, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
-    [[:pbm_sd_asis, :pbm_sd_log, :pbm_sd_exp, :pbm_sd_roc, :pbm_sd_pr, :pbm_sd_roclog, :pbm_sd_prlog, :pbm_sd_mers, :pbm_sd_logmers], ->(x){ x.match?(/@SD\./) }],
-  ],
-}
-
-[['0.1', '10'], ['0.25', '25'], ['0.5', '50']].each{|fraction, percent|
-  metrics_readers_configs["benchmarks/release_8d/final_formatted/reads_#{fraction}.tsv"] = [
-    [[:"selex_#{percent}_IVT_ROC", :"selex_#{percent}_IVT_PR"], ->(x){ x.match?(/@HTS\.IVT@/) }],
-    [[:"selex_#{percent}_GFPIVT_ROC", :"selex_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@HTS\.GFPIVT@/) }],
-    [[:"selex_#{percent}_Lysate_ROC", :"selex_#{percent}_Lysate_PR"], ->(x){ x.match?(/@HTS\.Lys@/) }],
-    # [[:"affiseq_#{percent}_IVT_ROC", :"affiseq_#{percent}_IVT_PR"], ->(x){ x.match?(/@AFS\.IVT@/) }],
-    # [[:"affiseq_#{percent}_GFPIVT_ROC", :"affiseq_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
-    # [[:"affiseq_#{percent}_Lysate_ROC", :"affiseq_#{percent}_Lysate_PR"], ->(x){ x.match?(/@AFS\.Lys@/) }],
-    [[:"smileseq_#{percent}_ROC", :"smileseq_#{percent}_PR"], ->(x){ x.match?(/@SMS@/) }],
-  ]
-}
+######################################################
 
 basic_metrics_set = BASIC_METRICS.to_set
 all_metric_infos = read_metrics(metrics_readers_configs).select{|info| basic_metrics_set.include?(info[:metric_name]) }
@@ -529,7 +551,7 @@ if filter_out_curated_datasets
         false
       end
     else
-      info = ["discarded as non-currated", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
+      info = ["discarded as non-curated", info[:dataset], exp_for_bench_dataset, info[:motif], exp_for_motif, info[:metric_name]]
       $stderr.puts(info.join("\t"))
       false # non-curated are dropped
     end
@@ -573,6 +595,7 @@ filter_out_motifs = filter_out_benchmarks.map{|filter_info|
   filter_info[:motif_wo_ext]
 }.to_set
 
+
 possible_file_extensions = ['.pcm', '.ppm', '.pwm'].map(&:freeze)
 all_metric_infos.select!{|info|
   motif_wo_ext = possible_file_extensions.inject(info[:motif]){|fn, ext| File.basename(fn, ext) }
@@ -596,6 +619,7 @@ all_metric_infos.select!{|info|
   end
 }
 
+
 pbm_types = ['PBM.ME', 'PBM.HK'].map(&:freeze)
 all_metric_infos.each{|info|
   dataset = info[:dataset]
@@ -608,6 +632,8 @@ all_metric_infos.each{|info|
   }
   info.merge!(additional_info)
 }
+
+######################################################
 
 # what is called a dataset here is actually a validation group
 ranked_motif_metrics = all_metric_infos.group_by{|info|
