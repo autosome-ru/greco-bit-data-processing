@@ -65,48 +65,73 @@ bash ./calculate_artifact_similarities.sh # be cautious
 
 ##################
 
-mkdir -p benchmarks/release_8d_prefreeze/
+METADATA_FN='/home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch2.json'
+BENCHMARK_FOLDER='benchmarks/release_8d_prefreeze/'
+FLANKS_OPTIONS='
+    --filter-sticky-flanks  HTS_flanks_hits.tsv
+    --filter-sticky-flanks  AFS_flanks_hits.tsv
+    --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv
+    --filter-sticky-flanks  SMS_published_flanks_hits.tsv
+    --flank-threshold 4.0
+'
+ARTIFACTS_OPTIONS='--artifact-similarities ./artifact_sims_precise  --artifact-similarity-threshold 0.15'
+
+FREEZE_OPTIONS='
+    --datasets-curation  prefreeze/metadata_release_8d.patch2.freeze.tsv
+    --motifs-curation  prefreeze/motif_infos.freeze.tsv
+'
+APPROVED_FREEZE_OPTIONS='
+    --datasets-curation  prefreeze/metadata_release_8d.patch2.freeze_approved.tsv
+    --motifs-curation  prefreeze/motif_infos.freeze_approved.tsv
+'
+PREFIX='7e+8c_pack_1-8'
+
+mkdir -p ${BENCHMARK_FOLDER}
+
+#################
+
+NAME="${PREFIX}.freeze"
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d_prefreeze/metrics_7e+8c_pack_1-8_disallow-artifacts.json \
-    benchmarks/release_8d_prefreeze/ranks_7e+8c_pack_1-8_disallow-artifacts.json \
-    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch2.json \
-    --filter-sticky-flanks  HTS_flanks_hits.tsv \
-    --filter-sticky-flanks  AFS_flanks_hits.tsv \
-    --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
-    --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
-    --flank-threshold 4.0 \
-    --artifact-similarities ./artifact_sims_precise --artifact-similarity-threshold 0.15 \
-    2> benchmarks/release_8d_prefreeze/ranking_artifact.7e+8c1-8_disallow-artifacts.log   && echo ok || echo fail
-
-time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d_prefreeze/metrics_7e+8c_pack_1-8_allow-artifacts.json \
-    benchmarks/release_8d_prefreeze/ranks_7e+8c_pack_1-8_allow-artifacts.json \
-    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch2.json \
-    2> benchmarks/release_8d_prefreeze/ranking_allow-artifacts.7e+8c1-8.log   && echo ok || echo fail
-
-
-time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d_prefreeze/metrics_curated_7e+8c_pack_1-8_disallow-artifacts.freeze.json \
-    benchmarks/release_8d_prefreeze/ranks_curated_7e+8c_pack_1-8_disallow-artifacts.freeze.json \
-    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch2.json \
-    --filter-sticky-flanks  HTS_flanks_hits.tsv \
-    --filter-sticky-flanks  AFS_flanks_hits.tsv \
-    --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv \
-    --filter-sticky-flanks  SMS_published_flanks_hits.tsv \
-    --flank-threshold 4.0 \
-    --datasets-curation  prefreeze/metadata_release_8d.patch2.freeze.tsv \
-    --motifs-curation  prefreeze/motif_infos.freeze.tsv \
-  2> benchmarks/release_8d_prefreeze/ranking_curated.7e+8c1-8_disallow-artifacts.freeze.log \
+    ${BENCHMARK_FOLDER}/metrics@${NAME}@allow-artifacts.json \
+    ${BENCHMARK_FOLDER}/ranks@${NAME}@allow-artifacts.json \
+    --metadata  ${METADATA_FN} \
+    ${FREEZE_OPTIONS}
+  2> ${BENCHMARK_FOLDER}/${NAME}@allow-artifacts.log \
   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    benchmarks/release_8d_prefreeze/metrics_curated_7e+8c_pack_1-8_allow-artifacts.freeze.json \
-    benchmarks/release_8d_prefreeze/ranks_curated_7e+8c_pack_1-8_allow-artifacts.freeze.json \
-    --metadata  /home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch2.json \
-    --datasets-curation  prefreeze/metadata_release_8d.patch2.freeze.tsv \
-    --motifs-curation  prefreeze/motif_infos.freeze.tsv \
-  2> benchmarks/release_8d_prefreeze/ranking_curated_allow-artifacts.7e+8c1-8.freeze.log \
+    ${BENCHMARK_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
+    ${BENCHMARK_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
+    --metadata  ${METADATA_FN} \
+    ${FREEZE_OPTIONS} \
+    ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
+  2> ${BENCHMARK_FOLDER}/${NAME}@disallow-artifacts.log \
   && echo ok || echo fail
 
-time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb
+time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_FOLDER}  ${NAME}
+
+#################
+
+NAME="${PREFIX}.freeze-approved"
+
+time ruby postprocessing/motif_ranking.rb \
+    ${BENCHMARK_FOLDER}/metrics@${NAME}@allow-artifacts.json \
+    ${BENCHMARK_FOLDER}/ranks@${NAME}@allow-artifacts.json \
+    --metadata  ${METADATA_FN} \
+    ${APPROVED_FREEZE_OPTIONS}
+  2> ${BENCHMARK_FOLDER}/${NAME}@allow-artifacts.log \
+  && echo ok || echo fail
+
+time ruby postprocessing/motif_ranking.rb \
+    ${BENCHMARK_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
+    ${BENCHMARK_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
+    --metadata  ${METADATA_FN} \
+    ${APPROVED_FREEZE_OPTIONS} \
+    ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
+  2> ${BENCHMARK_FOLDER}/${NAME}@disallow-artifacts.log \
+  && echo ok || echo fail
+
+time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_FOLDER}  ${NAME}
+
+#################
