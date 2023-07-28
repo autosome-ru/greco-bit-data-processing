@@ -98,16 +98,16 @@ mkdir -p ${BENCHMARK_RANKS_FOLDER}
 NAME="${PREFIX}.freeze"
 
 time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER}
+    ${BENCHMARK_FORMATTED_FOLDER} \
     ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@allow-artifacts.json \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@allow-artifacts.json \
     --metadata  ${METADATA_FN} \
-    ${FREEZE_OPTIONS}
+    ${FREEZE_OPTIONS} \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@allow-artifacts.log \
   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER}
+    ${BENCHMARK_FORMATTED_FOLDER} \
     ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
     --metadata  ${METADATA_FN} \
@@ -123,16 +123,16 @@ time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb 
 NAME="${PREFIX}.freeze-approved"
 
 time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER}
+    ${BENCHMARK_FORMATTED_FOLDER} \
     ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@allow-artifacts.json \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@allow-artifacts.json \
     --metadata  ${METADATA_FN} \
-    ${APPROVED_FREEZE_OPTIONS}
+    ${APPROVED_FREEZE_OPTIONS} \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@allow-artifacts.log \
   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER}
+    ${BENCHMARK_FORMATTED_FOLDER} \
     ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
     --metadata  ${METADATA_FN} \
