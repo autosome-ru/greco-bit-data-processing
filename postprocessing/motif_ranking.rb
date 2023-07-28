@@ -365,34 +365,34 @@ def load_artifact_motifs(artifacts_folder)
   artifact_motifs
 end
 
-def metrics_readers_configs
+def metrics_readers_configs(folder)
   result = {
-    'benchmarks/release_8d/final_formatted/pwmeval_peaks.tsv' => [
+    "#{folder}/pwmeval_peaks.tsv" => [
       [[:chipseq_pwmeval_ROC, :chipseq_pwmeval_PR], ->(x){ x.match?(/@CHS@/) }],
       [[:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.IVT@/) }],
       [[:affiseq_GFPIVT_pwmeval_ROC, :affiseq_GFPIVT_pwmeval_PR], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
       [[:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR], ->(x){ x.match?(/@AFS\.Lys@/) }],
     ],
-    'benchmarks/release_8d/final_formatted/vigg_peaks.tsv' => [
+    "#{folder}/vigg_peaks.tsv" => [
       [[:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
       [[:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
       [[:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_logROC], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
       [[:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
     ],
-    'benchmarks/release_8d/final_formatted/centrimo_peaks.tsv' => [
+    "#{folder}/centrimo_peaks.tsv" => [
       [[:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
       [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
       [[:affiseq_GFPIVT_centrimo_neglog_evalue, :affiseq_GFPIVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
       [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
     ],
-    'benchmarks/release_8d/final_formatted/pbm.tsv' => [
+    "#{folder}/pbm.tsv" => [
       [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_roclog, :pbm_qnzs_prlog, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
       [[:pbm_sd_asis, :pbm_sd_log, :pbm_sd_exp, :pbm_sd_roc, :pbm_sd_pr, :pbm_sd_roclog, :pbm_sd_prlog, :pbm_sd_mers, :pbm_sd_logmers], ->(x){ x.match?(/@SD\./) }],
     ],
   }
 
   [['0.1', '10'], ['0.25', '25'], ['0.5', '50']].each{|fraction, percent|
-    result["benchmarks/release_8d/final_formatted/reads_#{fraction}.tsv"] = [
+    result["#{folder}/reads_#{fraction}.tsv"] = [
       [[:"selex_#{percent}_IVT_ROC", :"selex_#{percent}_IVT_PR"], ->(x){ x.match?(/@HTS\.IVT@/) }],
       [[:"selex_#{percent}_GFPIVT_ROC", :"selex_#{percent}_GFPIVT_PR"], ->(x){ x.match?(/@HTS\.GFPIVT@/) }],
       [[:"selex_#{percent}_Lysate_ROC", :"selex_#{percent}_Lysate_PR"], ->(x){ x.match?(/@HTS\.Lys@/) }],
@@ -527,8 +527,9 @@ option_parser = OptionParser.new{|opts|
 }
 
 option_parser.parse!(ARGV)
-raise 'Specify resulting metrics file'  unless results_metrics_fn = ARGV[0]  # 'results/metrics.json'
-raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[1]  # 'results/ranks.json'
+raise 'Specify benchmarks folder'  unless benchmarks_folder = ARGV[0]  # 'benchmarks/release_8d/final_formatted/'
+raise 'Specify resulting metrics file'  unless results_metrics_fn = ARGV[1]  # 'results/metrics.json'
+raise 'Specify resulting ranks file'  unless results_ranks_fn = ARGV[2]  # 'results/ranks.json'
 
 ######################################################
 
@@ -556,7 +557,7 @@ artifact_motifs = load_artifact_motifs(artifacts_folder)
 ######################################################
 
 basic_metrics_set = BASIC_METRICS.to_set
-all_metric_infos = read_metrics(metrics_readers_configs).select{|info| basic_metrics_set.include?(info[:metric_name]) }
+all_metric_infos = read_metrics(metrics_readers_configs(benchmarks_folder)).select{|info| basic_metrics_set.include?(info[:metric_name]) }
 
 all_metric_infos.each{|info|
   raise unless info.has_key?(:value)

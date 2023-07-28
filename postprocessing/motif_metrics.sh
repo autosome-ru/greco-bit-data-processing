@@ -40,6 +40,7 @@
 DATA_FOLDER='/home_local/vorontsovie/greco-data/release_8d.2022-07-31/full/'
 MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_8c.pack_8_fix/'
 BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/motif_batch_8c_pack_8_fix'
+BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/final_formatted'
 
 time ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/vigg_peaks
 time ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/centrimo_peaks
@@ -59,14 +60,18 @@ time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomo
 cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_bad,7,8_fix}.tsv | grep -vw ZNF705E > hocomoco_similarities.tsv
 
 
+# FOLDERS ARE HARDCODED!!!
+# takes motifs from 'benchmarks/release_8d/motif_batch_8c_pack_8_fix'
+# outputs them into 'benchmarks/release_8d/final_formatted'
 ruby postprocessing/reformat_metrics.rb
+
 bash ./postprocessing/filter_motif_in_flanks.sh # be cautious
 bash ./calculate_artifact_similarities.sh # be cautious
 
 ##################
 
 METADATA_FN='/home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch2.json'
-BENCHMARK_FOLDER='benchmarks/release_8d_prefreeze/'
+BENCHMARK_RANKS_FOLDER='benchmarks/release_8d_prefreeze/'
 FLANKS_OPTIONS='
     --filter-sticky-flanks  HTS_flanks_hits.tsv
     --filter-sticky-flanks  AFS_flanks_hits.tsv
@@ -86,52 +91,56 @@ APPROVED_FREEZE_OPTIONS='
 '
 PREFIX='7e+8c_pack_1-8'
 
-mkdir -p ${BENCHMARK_FOLDER}
+mkdir -p ${BENCHMARK_RANKS_FOLDER}
 
 #################
 
 NAME="${PREFIX}.freeze"
 
 time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FOLDER}/metrics@${NAME}@allow-artifacts.json \
-    ${BENCHMARK_FOLDER}/ranks@${NAME}@allow-artifacts.json \
+    ${BENCHMARK_FORMATTED_FOLDER}
+    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@allow-artifacts.json \
+    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@allow-artifacts.json \
     --metadata  ${METADATA_FN} \
     ${FREEZE_OPTIONS}
-  2> ${BENCHMARK_FOLDER}/${NAME}@allow-artifacts.log \
+  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@allow-artifacts.log \
   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
-    ${BENCHMARK_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
+    ${BENCHMARK_FORMATTED_FOLDER}
+    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
+    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
     --metadata  ${METADATA_FN} \
     ${FREEZE_OPTIONS} \
     ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
-  2> ${BENCHMARK_FOLDER}/${NAME}@disallow-artifacts.log \
+  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
   && echo ok || echo fail
 
-time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_FOLDER}  ${NAME}
+time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
 
 #################
 
 NAME="${PREFIX}.freeze-approved"
 
 time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FOLDER}/metrics@${NAME}@allow-artifacts.json \
-    ${BENCHMARK_FOLDER}/ranks@${NAME}@allow-artifacts.json \
+    ${BENCHMARK_FORMATTED_FOLDER}
+    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@allow-artifacts.json \
+    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@allow-artifacts.json \
     --metadata  ${METADATA_FN} \
     ${APPROVED_FREEZE_OPTIONS}
-  2> ${BENCHMARK_FOLDER}/${NAME}@allow-artifacts.log \
+  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@allow-artifacts.log \
   && echo ok || echo fail
 
 time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
-    ${BENCHMARK_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
+    ${BENCHMARK_FORMATTED_FOLDER}
+    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
+    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
     --metadata  ${METADATA_FN} \
     ${APPROVED_FREEZE_OPTIONS} \
     ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
-  2> ${BENCHMARK_FOLDER}/${NAME}@disallow-artifacts.log \
+  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
   && echo ok || echo fail
 
-time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_FOLDER}  ${NAME}
+time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
 
 #################
