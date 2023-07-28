@@ -198,8 +198,8 @@ end
 def get_list_of_good_datasets(filename)
   File.readlines(filename).drop(1).map{|l|
     l.chomp.split("\t")
-  }.map{|tf, exp_type, exp_id|
-    [exp_id, true]
+  }.map{|dataset_id, *rest|
+    [dataset_id, true]
   }.to_h
 end
 
@@ -548,6 +548,8 @@ else
   $stderr.puts('Warning: no motifs curation is used')
 end
 
+puts "datasets curation #{dataset_curation.size}; motifs curation #{motifs_curation.size};"
+
 experiment_by_dataset_id, processing_type_by_dataset_id = load_exp_id_and_processing_type_by_dataset_id(metadata_fn)
 artifact_motifs = load_artifact_motifs(artifacts_folder)
 
@@ -555,6 +557,7 @@ artifact_motifs = load_artifact_motifs(artifacts_folder)
 
 basic_metrics_set = BASIC_METRICS.to_set
 all_metric_infos = read_metrics(metrics_readers_configs).select{|info| basic_metrics_set.include?(info[:metric_name]) }
+
 all_metric_infos.each{|info|
   raise unless info.has_key?(:value)
   info[:value] = info[:value]&.round(3)
@@ -569,9 +572,11 @@ all_metric_infos.each{|info|
   end
 }
 
+puts "initial size: #{all_metric_infos.size}"
+
 if filter_out_curated_datasets
   all_metric_infos.select!{|info|
-    dataset_curation[ info[:dataset] ]
+    dataset_ids_for_dataset(info[:dataset]).any?{|ds_id| dataset_curation[ds_id] }
     # exp_for_motif         = experiment_for_motif(info[:motif], experiment_by_dataset_id)
     # exp_for_bench_dataset = experiment_for_dataset(info[:dataset], experiment_by_dataset_id)
     # if dataset_curation.has_key?(exp_for_bench_dataset)
@@ -590,11 +595,15 @@ if filter_out_curated_datasets
   }
 end
 
+puts "after filtered curated datasets: #{all_metric_infos.size}"
+
 if filter_out_curated_motifs
   all_metric_infos.select!{|info|
     motifs_curation[ info[:motif] ]
   }
 end
+
+puts "after filtered curated motifs: #{all_metric_infos.size}"
 
 if filter_out_pbm_motif_dataset_matches
   all_metric_infos.select!{|info|
@@ -617,6 +626,7 @@ if filter_out_pbm_motif_dataset_matches
   }
 end
 
+puts "after filtered out PBMs: #{all_metric_infos.size}"
 
 filter_out_benchmarks = flank_filters.flat_map{|filter_fn|
   File.readlines(filter_fn).map{|l|
@@ -645,6 +655,8 @@ all_metric_infos.select!{|info|
   end
 }
 
+puts "after filtered sticky flanks: #{all_metric_infos.size}"
+
 
 all_metric_infos.select!{|info|
   if artifact_motifs.include?(info[:motif])
@@ -656,6 +668,7 @@ all_metric_infos.select!{|info|
   end
 }
 
+puts "after filtered out artifacts: #{all_metric_infos.size}"
 
 pbm_types = ['PBM.ME', 'PBM.HK'].map(&:freeze)
 all_metric_infos.each{|info|
