@@ -31,3 +31,14 @@ raise 'Specify basename' unless name = ARGV[1] # '7e+8c_pack_1-7'
 
   File.write("#{folder}/#{data_type}@#{name}@disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
 end
+
+['ranks', 'metrics'].each do |data_type|
+  data_disallow_artifacts = JSON.parse(File.read("#{folder}/#{data_type}@#{name}@disallow-artifacts.json"));nil
+  data_disallow_artifacts_ETS_only = JSON.parse(File.read("#{folder}/#{data_type}@#{name}@disallow-artifacts_ETS-only.json"));nil
+
+  data_disallow_artifacts_ETS_only.each{|tf, info|
+    data_disallow_artifacts[tf] = info
+  }
+
+  File.write("#{folder}/#{data_type}@#{name}@disallow-artifacts_ETS-refined.json", data_disallow_artifacts.to_json)
+end
