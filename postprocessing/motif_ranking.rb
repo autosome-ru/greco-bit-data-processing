@@ -347,7 +347,7 @@ def load_exp_id_and_processing_type_by_dataset_id(metadata_fn)
   [experiment_by_dataset_id, processing_type_by_dataset_id]
 end
 
-def load_artifact_motifs(artifacts_folder)
+def load_artifact_motifs(artifacts_folder, artifact_similarity_threshold)
   artifact_motifs = [].to_set
   if artifacts_folder
     artifact_motifs = Dir.glob("#{artifacts_folder}/*").select{|motif_fn|
@@ -552,7 +552,7 @@ end
 puts "datasets curation #{dataset_curation.size}; motifs curation #{motifs_curation.size};"
 
 experiment_by_dataset_id, processing_type_by_dataset_id = load_exp_id_and_processing_type_by_dataset_id(metadata_fn)
-artifact_motifs = load_artifact_motifs(artifacts_folder)
+artifact_motifs = load_artifact_motifs(artifacts_folder, artifact_similarity_threshold)
 
 ######################################################
 
