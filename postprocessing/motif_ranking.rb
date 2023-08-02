@@ -495,6 +495,8 @@ flank_threshold = 4.0
 flank_filters = []
 artifacts_folder = nil
 artifact_similarity_threshold = 2.0  # 1.0 is maximum possible similarity
+filter_by_tf = false
+tf_list = nil
 
 option_parser = OptionParser.new{|opts|
   # Now datasets, not experiments!
@@ -523,6 +525,10 @@ option_parser = OptionParser.new{|opts|
   }
   opts.on('--artifact-similarity-threshold VALUE', 'Minimal similarity to treat motif as an artifact'){|value|
     artifact_similarity_threshold = Float(value)
+  }
+  opts.on('--selected-tfs LIST', 'Calculate metrics only for TFs from a list. Separate TFs with commas.'){|value|
+    filter_by_tf = true
+    tf_list = value.split(',')
   }
 }
 
@@ -574,6 +580,14 @@ all_metric_infos.each{|info|
 }
 
 puts "initial size: #{all_metric_infos.size}"
+
+if filter_by_tf
+  all_metric_infos.select!{|info|
+    tf_list.include?(info[:tf])
+  }
+end
+
+puts "after filtered by TF list: #{all_metric_infos.size}"
 
 if filter_out_curated_datasets
   all_metric_infos.select!{|info|
