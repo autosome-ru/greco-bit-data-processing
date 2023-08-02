@@ -347,13 +347,15 @@ def load_exp_id_and_processing_type_by_dataset_id(metadata_fn)
   [experiment_by_dataset_id, processing_type_by_dataset_id]
 end
 
-def load_artifact_motifs(artifacts_folder, artifact_similarity_threshold)
+def load_artifact_motifs(artifacts_folder, artifact_similarity_threshold, ignore_motifs: [])
   artifact_motifs = [].to_set
   if artifacts_folder
     artifact_motifs = Dir.glob("#{artifacts_folder}/*").select{|motif_fn|
       sims = File.readlines(motif_fn).map{|l|
         artifact_motif, sim_to_artifact, *rest = l.chomp.split("\t")
         [artifact_motif, Float(sim_to_artifact)]
+      }.reject{|artifact_motif, sim|
+        ignore_motifs.include?(artifact_motif)
       }.map{|artifact_motif, sim|
         sim
       }
@@ -497,6 +499,7 @@ artifacts_folder = nil
 artifact_similarity_threshold = 2.0  # 1.0 is maximum possible similarity
 filter_by_tf = false
 tf_list = nil
+ignore_artifact_motifs = []
 
 option_parser = OptionParser.new{|opts|
   # Now datasets, not experiments!
@@ -530,6 +533,9 @@ option_parser = OptionParser.new{|opts|
     filter_by_tf = true
     tf_list = value.split(',')
   }
+  opts.on('--ignore-artifact-motifs LIST', "Don't take specified artfact motifs into account. Separate motifs with commas") {|value|
+    ignore_artifact_motifs = value.split(',')
+  }
 }
 
 option_parser.parse!(ARGV)
@@ -558,7 +564,7 @@ end
 puts "datasets curation #{dataset_curation.size}; motifs curation #{motifs_curation.size};"
 
 experiment_by_dataset_id, processing_type_by_dataset_id = load_exp_id_and_processing_type_by_dataset_id(metadata_fn)
-artifact_motifs = load_artifact_motifs(artifacts_folder, artifact_similarity_threshold)
+artifact_motifs = load_artifact_motifs(artifacts_folder, artifact_similarity_threshold, ignore_motifs: ignore_artifact_motifs)
 
 ######################################################
 
