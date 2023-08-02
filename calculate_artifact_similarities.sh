@@ -18,8 +18,8 @@ time for ARTIFACT_MOTIF_TYPE in pcm ppm ; do
     done
 done
 
-mv heatmaps_weightedTau+cross-PBM+allow-artifacts_no-afs-reads heatmaps_weightedTau+cross-PBM+allow-artifacts_no-afs-reads_old
-mv heatmaps_weightedTau+cross-PBM+dropped-artifacts_no-afs-reads heatmaps_weightedTau+cross-PBM+dropped-artifacts_no-afs-reads_old
+mv  heatmaps_weightedTau+cross-PBM+allow-artifacts_no-afs-reads  heatmaps_weightedTau+cross-PBM+allow-artifacts_no-afs-reads_old
+mv  heatmaps_weightedTau+cross-PBM+dropped-artifacts_no-afs-reads  heatmaps_weightedTau+cross-PBM+dropped-artifacts_no-afs-reads_old
 time python3 generate_heatmaps.py  heatmaps_weightedTau+cross-PBM+allow-artifacts_no-afs-reads  benchmarks/release_8d/ranks_7e+8c_pack_1-6_wo_bad_crosspbm_allow-artifact_no-afs-reads.json
 time python3 generate_heatmaps.py  heatmaps_weightedTau+cross-PBM+dropped-artifacts_no-afs-reads  benchmarks/release_8d/ranks_7e+8c_pack_1-6_wo_bad_crosspbm_artifact_no-afs-reads.json
 

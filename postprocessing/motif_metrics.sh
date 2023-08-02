@@ -116,7 +116,20 @@ time ruby postprocessing/motif_ranking.rb \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
   && echo ok || echo fail
 
+time ruby postprocessing/motif_ranking.rb \
+    ${BENCHMARK_FORMATTED_FOLDER} \
+    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts_ETS-only.json \
+    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-only.json \
+    --metadata  ${METADATA_FN} \
+    ${FREEZE_OPTIONS} \
+    ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
+    --selected-tfs ELF3,FLI1,GABPA --ignore-artifact-motifs ZNF827.FL@CHS@whiny-puce-turkey@HughesLab.Homer@Motif1.ppm,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.Streme@Motif3.ppm,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.MEME@Motif2.ppm \
+  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
+  && echo ok || echo fail
+
+# combines @allow-artifacts and @disallow-artifacts into @disallow-artifacts_include-dropped-motifs
 time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
+time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_include-dropped-motifs/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_include-dropped-motifs.json
 
 #################
 
@@ -141,6 +154,19 @@ time ruby postprocessing/motif_ranking.rb \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
   && echo ok || echo fail
 
+time ruby postprocessing/motif_ranking.rb \
+    ${BENCHMARK_FORMATTED_FOLDER} \
+    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts_ETS-only.json \
+    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-only.json \
+    --metadata  ${METADATA_FN} \
+    ${APPROVED_FREEZE_OPTIONS} \
+    ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
+    --selected-tfs ELF3,FLI1,GABPA --ignore-artifact-motifs ZNF827.FL@CHS@whiny-puce-turkey@HughesLab.Homer@Motif1.ppm,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.Streme@Motif3.ppm,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.MEME@Motif2.ppm \
+  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
+  && echo ok || echo fail
+
 time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
+time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json
 
 #################
+
