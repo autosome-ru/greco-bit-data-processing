@@ -100,11 +100,13 @@ def read_faltejsk_motifs(filename)
     l.start_with?('>')
   }.map{|header, *rest|
     # >UT380-028__SS_INP_Trimmed_BC5.__with_ns,corr_with_PSAM=0.7140396429651228
+    # >UT380-028__SS_INP_Trimmed_BC5.__with_ns
+    # >YWL_A_GG40NTAGTTT__HTS-GFPIVT_background_subsampled__without_ns
     dataset, input_library, suffix = header[1..-1].split('__')
-    match = suffix.match('(?<ns_mode>with(out)?_ns),corr_with_PSAM=(?<corr>.+)')
+    match = suffix.match('(?<ns_mode>with(out)?_ns)(,corr_with_PSAM=(?<corr>.+))?')
     raise "Unknown ns_mode for `#{header}`"  unless match[:ns_mode]
     ns_mode = match[:ns_mode]
-    corr = Float(match[:corr])
+    corr = match[:corr] ? Float(match[:corr]) : nil
     matrix = rest.map{|l| l.split.map{|x| Float(x) } }
     exp_type_mapping = {'SMS' => 'SMS', 'SS' => 'SMS', 'HTS-GFPIVT' => 'HTS.GFPIVT', 'AFS' => 'AFS'}
     exp_type = input_library.split('_').first
@@ -317,9 +319,10 @@ metadata_by_exp_id = metadata.select{|m|
 }
 
 [
-  'faltejsk_motifs/SMS_all_results_290523.pfm',
-  'faltejsk_motifs/HTS_Selex_all_results_290523.pfm',
-  'faltejsk_motifs/AFS_Selex_all_results_290523.pfm',
+  # 'faltejsk_motifs/SMS_all_results_290523.pfm',
+  # 'faltejsk_motifs/HTS_Selex_all_results_290523.pfm',
+  # 'faltejsk_motifs/AFS_Selex_all_results_290523.pfm',
+  'faltejsk_motifs/PFM_from_dgg_probound_0823.pfm',
 ].each{|faltejsk_fn|
   extract_faltejsk_motifs(faltejsk_fn, metadata_by_exp_id, results_folder)
 }
