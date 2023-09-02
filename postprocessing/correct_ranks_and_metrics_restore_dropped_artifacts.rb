@@ -19,20 +19,6 @@ raise 'Specify file folder' unless folder = ARGV[0] # 'benchmarks/release_8d/'
 raise 'Specify basename' unless name = ARGV[1] # '7e+8c_pack_1-7'
 
 ['ranks', 'metrics'].each do |data_type|
-  data_allow_artifacts    = JSON.parse(File.read("#{folder}/#{data_type}@#{name}@allow-artifacts.json"));nil
-  data_disallow_artifacts = JSON.parse(File.read("#{folder}/#{data_type}@#{name}@disallow-artifacts.json"));nil
-
-  deep_keys(data_allow_artifacts, root: []).each{|ks|
-    if ks[-1] != 'metric_name'
-      rank = data_disallow_artifacts.dig(*ks) rescue nil
-      data_allow_artifacts.dig( *ks[0...-1] )[ ks[-1] ] = rank
-    end
-  }; nil
-
-  File.write("#{folder}/#{data_type}@#{name}@disallow-artifacts_include-dropped-motifs.json", data_allow_artifacts.to_json)
-end
-
-['ranks', 'metrics'].each do |data_type|
   data_disallow_artifacts = JSON.parse(File.read("#{folder}/#{data_type}@#{name}@disallow-artifacts.json"));nil
   data_disallow_artifacts_ETS_only = JSON.parse(File.read("#{folder}/#{data_type}@#{name}@disallow-artifacts_ETS-only.json"));nil
 

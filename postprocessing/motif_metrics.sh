@@ -59,6 +59,10 @@ done
 time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_8c_pack9.tsv
 cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_bad,8_fix,9}.tsv | grep -vw ZNF705E > hocomoco_similarities.tsv
 
+# TODO: add 8_fix to a common folder
+# filter_motifs_in_flanks
+# calculate_artifact_similarities
+
 
 # FOLDERS ARE HARDCODED!!!
 # takes motifs from 'benchmarks/release_8d/motif_batch_8c_pack_8_fix'
@@ -80,6 +84,8 @@ FLANKS_OPTIONS='
     --flank-threshold 4.0
 '
 ARTIFACTS_OPTIONS='--artifact-similarities ./artifact_sims_precise  --artifact-similarity-threshold 0.15'
+ETS_ONLY='--selected-tfs ELF3,FLI1,GABPA'
+ALLOW_ETS_ARTIFACTS='--ignore-artifact-motifs ZNF827.FL@CHS@whiny-puce-turkey@HughesLab.Homer@Motif1,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.Streme@Motif3,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.MEME@Motif2'
 
 FREEZE_OPTIONS='
     --datasets-curation  prefreeze/metadata_release_8d.patch2.freeze.tsv
@@ -99,15 +105,6 @@ NAME="${PREFIX}.freeze"
 
 time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_FORMATTED_FOLDER} \
-    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@allow-artifacts.json \
-    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@allow-artifacts.json \
-    --metadata  ${METADATA_FN} \
-    ${FREEZE_OPTIONS} \
-  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@allow-artifacts.log \
-  && echo ok || echo fail
-
-time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER} \
     ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
     --metadata  ${METADATA_FN} \
@@ -123,13 +120,12 @@ time ruby postprocessing/motif_ranking.rb \
     --metadata  ${METADATA_FN} \
     ${FREEZE_OPTIONS} \
     ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
-    --selected-tfs ELF3,FLI1,GABPA --ignore-artifact-motifs ZNF827.FL@CHS@whiny-puce-turkey@HughesLab.Homer@Motif1,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.Streme@Motif3,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.MEME@Motif2 \
+    ${ETS_ONLY} ${ALLOW_ETS_ARTIFACTS} \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
   && echo ok || echo fail
 
 # combines @allow-artifacts and @disallow-artifacts into @disallow-artifacts_include-dropped-motifs
 time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
-time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_include-dropped-motifs/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_include-dropped-motifs.json
 time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_ETS-refined/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-refined.json
 
 #################
@@ -138,15 +134,6 @@ NAME="${PREFIX}.freeze-approved"
 
 time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_FORMATTED_FOLDER} \
-    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@allow-artifacts.json \
-    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@allow-artifacts.json \
-    --metadata  ${METADATA_FN} \
-    ${APPROVED_FREEZE_OPTIONS} \
-  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@allow-artifacts.log \
-  && echo ok || echo fail
-
-time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER} \
     ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
     --metadata  ${METADATA_FN} \
@@ -155,6 +142,7 @@ time ruby postprocessing/motif_ranking.rb \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
   && echo ok || echo fail
 
+
 time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_FORMATTED_FOLDER} \
     ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts_ETS-only.json \
@@ -162,12 +150,11 @@ time ruby postprocessing/motif_ranking.rb \
     --metadata  ${METADATA_FN} \
     ${APPROVED_FREEZE_OPTIONS} \
     ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
-    --selected-tfs ELF3,FLI1,GABPA --ignore-artifact-motifs ZNF827.FL@CHS@whiny-puce-turkey@HughesLab.Homer@Motif1,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.Streme@Motif3,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.MEME@Motif2 \
+    ${ETS_ONLY} ${ALLOW_ETS_ARTIFACTS} \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
   && echo ok || echo fail
 
 time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
-time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json
 time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_ETS-refined/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-refined.json
 
 #################

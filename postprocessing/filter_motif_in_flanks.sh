@@ -2,7 +2,7 @@ mkdir -p  motifs_by_modeltype/pwm/
 mkdir -p  thresholds_by_modeltype/pwm/
 
 MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs'
-for MOTIFS_RELEASE in  "release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/"; do # "release_8c.pack_7" ; do
+for MOTIFS_RELEASE in  "release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+8_fix+9/"; do # "release_8c.pack_7" ; do
   for MOTIF_TYPE in  pcm  ppm; do
     find "${MOTIFS_FOLDER}/${MOTIFS_RELEASE}" -name "*.${MOTIF_TYPE}" \
       | xargs -n1 -I{} basename -s ".${MOTIF_TYPE}" {} \
