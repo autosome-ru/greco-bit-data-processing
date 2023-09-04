@@ -41,6 +41,7 @@ motif_artifact_types = motif_artifact_similarities.transform_values{|sims_by_art
   sims_by_artifact.select{|artifact_type, sim| sim >= similarity_threshold }.keys
 }; nil
 
+# If I remember it right, we drop them not to have motifs, which are not greco-generated, for which we don't have origin etc. Those are the only hocomoco motifs
 motifs_by_artifact_type = artifact_baseline_motifs.map{|k,v| [k, v.reject{|k,v| k.match?(/NFI.*\.H11MO\.\d\.[ABCD]/) }.to_set] }.to_h; nil
 motif_artifact_types.each{|motif, artifact_types|
   artifact_types.each{|artifact_type|
@@ -69,7 +70,7 @@ motifs_in_flanks = flank_hits_fns.flat_map{|fn|
 motifs_by_artifact_type['Artifact-11_In-Flank'] = Set.new
 motifs_in_flanks.each{|motif|
   motifs_by_artifact_type['Artifact-11_In-Flank'] << motif
-}
+}; nil
 
 motifs_by_artifact_type = motifs_by_artifact_type.transform_values(&:to_a); nil
 
@@ -96,7 +97,7 @@ artifact_infos_full = motifs_by_artifact_type.flat_map{|artifact_type, artifact_
   artifact_motifs_infos.map{|ds_info|
     [artifact_type, *ds_info]
   }
-}
+}; nil
 
 dataset_artifact_metrics_min_quantile = artifact_infos_full.group_by{|artifact_type, dataset, dataset_rank, num_motifs, dataset_quantile|
   dataset

@@ -95,7 +95,7 @@ APPROVED_FREEZE_OPTIONS='
     --datasets-curation  prefreeze/metadata_release_8d.patch2.freeze_approved.tsv
     --motifs-curation  prefreeze/motif_infos.freeze_approved.tsv
 '
-PREFIX='7e+8c_pack_1-8'
+PREFIX='7e+8c_pack_1-9'
 
 mkdir -p ${BENCHMARK_RANKS_FOLDER}
 

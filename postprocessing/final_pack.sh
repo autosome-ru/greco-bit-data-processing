@@ -20,7 +20,7 @@ ruby postprocessing/fix_metadata_8d_patch2.rb > metadata_release_8d.patch2.json
 
 metadata_tsv metadata_release_8d.patch2.json > metadata_release_8d.patch2.tsv
 
-ruby postprocessing/final_motif_list.rb  /home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/  metadata_release_8d.patch2.tsv > motif_infos.tsv
+ruby postprocessing/final_motif_list.rb  /home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+8_fix+9/  metadata_release_8d.patch2.tsv > motif_infos.tsv
 
 ##############################
 
@@ -29,7 +29,7 @@ metadata_tsv metadata_release_8d.patch2.freeze.json > metadata_release_8d.patch2
 
 ruby postprocessing/motifs_freeze.rb  \
     source_data_meta/shared/explicit_freeze1.tsv  motif_infos.tsv \
-    /home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/ \
+    /home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+8_fix+9/ \
     /home_local/vorontsovie/greco-motifs/motifs_freeze \
   > motif_infos.freeze.tsv
 
@@ -42,10 +42,46 @@ metadata_tsv metadata_release_8d.patch2.freeze_approved.json > metadata_release_
 
 ruby postprocessing/motifs_freeze.rb  \
     source_data_meta/shared/explicit_freeze1_approved.tsv  motif_infos.tsv \
-    '/home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+7/' \
+    '/home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+8_fix+9/' \
     '/home_local/vorontsovie/greco-motifs/motifs_freeze_approved' \
   > motif_infos.freeze_approved.tsv
 
 ruby postprocessing/datasets_freeze.rb source_data_meta/shared/explicit_freeze1_approved.tsv  /home_local/vorontsovie/greco-data/datasets_freeze_approved
 
 ##############################
+time ruby postprocessing/make_artifacts_annotation.rb \
+                freeze/motif_artifacts_annotation.freeze.tsv \
+                freeze/motif_infos.freeze.tsv \
+                freeze/benchmarks/ranks.freeze.json
+
+
+# # Error: ↓ here we should use full ranks file (with artifacts retained)
+# time ruby postprocessing/mark_artifact_datasets.rb \
+#                   freeze/benchmarks/dataset_artifact_metrics_min_quantile.freeze.json \
+#                   freeze/benchmarks/dataset_artifact_metrics_num_in_q25.freeze.json \
+#                   freeze/benchmarks/ranks.freeze.json
+
+# # # Error: ↓ here we should use full ranks file (with artifacts retained)
+# time ruby postprocessing/mark_artifact_datasets.rb \
+#                   freeze/benchmarks/dataset_artifact_metrics_min_quantile.freeze-approved.json \
+#                   freeze/benchmarks/dataset_artifact_metrics_num_in_q25.freeze-approved.json \
+#                   freeze/benchmarks/ranks.freeze-approved.json
+
+# time ruby dataset_pvalues_new.rb
+
+##############################
+rm freeze/benchmarks/*.log
+rm freeze/benchmarks/*@disallow-artifacts.json
+rm freeze/benchmarks/*@disallow-artifacts_ETS-only.json
+mv freeze/benchmarks/metrics@7e+8c_pack_1-9.freeze-approved@disallow-artifacts_ETS-refined.json freeze/benchmarks/metrics.freeze-approved.json
+mv freeze/benchmarks/metrics@7e+8c_pack_1-9.freeze@disallow-artifacts_ETS-refined.json freeze/benchmarks/metrics.freeze.json
+mv freeze/benchmarks/ranks@7e+8c_pack_1-9.freeze-approved@disallow-artifacts_ETS-refined.json freeze/benchmarks/ranks.freeze-approved.json
+mv freeze/benchmarks/ranks@7e+8c_pack_1-9.freeze@disallow-artifacts_ETS-refined.json freeze/benchmarks/ranks.freeze.json
+mv /home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/final_formatted/heatmaps@7e+8c_pack_1-8.freeze-approved@disallow-artifacts_ETS-refined/  /home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/final_formatted/heatmaps.freeze-approved/
+mv /home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/final_formatted/heatmaps@7e+8c_pack_1-8.freeze@disallow-artifacts_ETS-refined/  /home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/final_formatted/heatmaps.freeze/
+mv freeze/metadata_release_8d.patch2.freeze.json freeze/datasets_metadata.freeze.json
+mv freeze/metadata_release_8d.patch2.freeze_approved.json freeze/datasets_metadata.freeze-approved.json
+mv freeze/metadata_release_8d.patch2.freeze.tsv freeze/datasets_metadata.freeze.tsv
+mv freeze/metadata_release_8d.patch2.freeze_approved.tsv freeze/datasets_metadata.freeze-approved.tsv
+mv freeze/metadata_release_8d.patch2.json freeze/datasets_metadata.full.json
+mv freeze/metadata_release_8d.patch2.tsv freeze/datasets_metadata.full.tsv
