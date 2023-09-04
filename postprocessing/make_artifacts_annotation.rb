@@ -10,15 +10,10 @@ artifacts_json_fn = 'artifacts/artifacts.json'
 artifacts_folder = 'artifacts'
 artifact_similarities_folder = 'artifact_sims_precise'
 flank_hits_fns = ['HTS_flanks_hits.tsv', 'AFS_flanks_hits.tsv', 'SMS_unpublished_flanks_hits.tsv', 'SMS_published_flanks_hits.tsv']
-flank_threshold = 4.0
-
-similarity_threshold = 0.15
-rank_quantile_threshold = 0.05
 
 artifact_baseline_motifs = JSON.parse(File.read(artifacts_json_fn)); nil
 artifact_motif_extfns = Dir.glob("#{artifacts_folder}/*.{ppm,pcm}").map{|fn| ext = File.extname(fn); [File.basename(fn, ext), ext] }.to_h; nil
 motif_extfns = Dir.glob("#{artifact_similarities_folder}/*.{ppm,pcm}").map{|fn| ext = File.extname(fn); [File.basename(fn, ext), ext] }.to_h; nil
-invert_artifact_baseline_motifs = artifact_baseline_motifs.flat_map{|k,vs| vs.map{|v| [v, k] } }.to_h; nil
 
 artifact_sims = Dir.glob("#{artifact_similarities_folder}/*").map{|motif_fn|
   motif_sims = File.readlines(motif_fn).map{|l|
@@ -75,80 +70,3 @@ File.open(results_fn, 'w'){|fw|
   }
 }; nil
 
-# motif_artifact_types = motif_artifact_similarities.transform_values{|sims_by_artifact|
-#   sims_by_artifact.select{|artifact_type, sim| sim >= similarity_threshold }.keys
-# }; nil
-
-# # If I remember it right, we drop them not to have motifs, which are not greco-generated, for which we don't have origin etc. Those are the only hocomoco motifs
-# motifs_by_artifact_type = artifact_baseline_motifs.map{|k,v| [k, v.reject{|k,v| k.match?(/NFI.*\.H11MO\.\d\.[ABCD]/) }.to_set] }.to_h; nil
-# motif_artifact_types.each{|motif, artifact_types|
-#   artifact_types.each{|artifact_type|
-#     motifs_by_artifact_type[artifact_type] << motif
-#   }
-# }; nil
-
-# # artifact_motifs = artifact_sims.select{|motif_fn, motif_sims|
-# #   ! motif_sims.select{|artifact_motif, sim| sim >= similarity_threshold }.empty?
-# # }.keys.map{|fn| File.basename(fn) }; nil
-
-
-# motifs_by_artifact_type['Artifact-11_In-Flank'] = Set.new
-# motifs_in_flanks.each{|motif|
-#   motifs_by_artifact_type['Artifact-11_In-Flank'] << motif
-# }; nil
-
-# motifs_by_artifact_type = motifs_by_artifact_type.transform_values(&:to_a); nil
-
-# artifact_infos_full = motifs_by_artifact_type.flat_map{|artifact_type, artifact_motifs|
-#   # artifact_motifs_infos = artifact_motifs.reject{|motif_fn| motifs_in_flanks.include?(File.basename(motif_fn, File.extname(motif_fn))) }.map{|motif_fn|
-#   artifact_motifs_infos = artifact_motifs.map{|motif_fn|
-#     tf = motif_fn.split('.').first
-#     [motif_fn, tf]
-#   }.select{|motif_fn, tf|
-#     ranks[tf] && ranks[tf].has_key?(motif_fn)
-#   }.flat_map{|motif_fn, tf|
-#     num_motifs = ranks[tf].size
-#     all_dataset_ranks = ranks[tf][motif_fn].reject{|data_type, v| data_type == 'combined' }.flat_map{|data_type, datatype_ranks|
-#       datatype_ranks.reject{|dataset, v| dataset == 'combined' }.map{|dataset, dataset_ranks|
-#         dataset_rank = dataset_ranks['combined']
-#         [dataset, dataset_rank, num_motifs, dataset_rank.to_f / num_motifs]
-#       }
-#     }
-#     all_dataset_ranks
-#   }
-
-#   artifact_motifs_infos.map{|ds_info|
-#     [artifact_type, *ds_info]
-#   }
-# }; nil
-
-# dataset_artifact_metrics_min_quantile = artifact_infos_full.group_by{|artifact_type, dataset, dataset_rank, num_motifs, dataset_quantile|
-#   dataset
-# }.transform_values{|ds_grp|
-#   ds_grp.group_by{|artifact_type, dataset, dataset_rank, num_motifs, dataset_quantile|
-#     artifact_type
-#   }.transform_values{|art_grp|
-#     art_grp.map{|artifact_type, dataset, dataset_rank, num_motifs, dataset_quantile|
-#       dataset_quantile
-#     }.min
-#   }
-# }
-
-# File.write(result_min_quantile_fn, dataset_artifact_metrics_min_quantile.to_json)
-
-# dataset_artifact_metrics_num_in_q25 = artifact_infos_full.group_by{|artifact_type, dataset, dataset_rank, num_motifs, dataset_quantile|
-#   dataset
-# }.transform_values{|ds_grp|
-#   ds_grp.group_by{|artifact_type, dataset, dataset_rank, num_motifs, dataset_quantile|
-#     artifact_type
-#   }.transform_values{|art_grp|
-#     art_grp.count{|artifact_type, dataset, dataset_rank, num_motifs, dataset_quantile|
-#       dataset_quantile < 0.25
-#     }
-#   }
-# }
-
-# File.write(result_num_in_q25_fn, dataset_artifact_metrics_num_in_q25.to_json)
-
-# # artifact_datasets = artifact_motifs_infos.select{|ds, *rest, pval| pval < rank_quantile_threshold }.map(&:first).uniq; nil
-# # File.write('artifact_datasets.json', artifact_datasets.to_json)
