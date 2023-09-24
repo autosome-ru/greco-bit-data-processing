@@ -376,12 +376,14 @@ def metrics_readers_configs(folder)
       [[:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR], ->(x){ x.match?(/@AFS\.Lys@/) }],
     ],
     "#{folder}/vigg_peaks.tsv" => [
+      # logRoc not actually used
       [[:chipseq_vigg_ROC, :chipseq_vigg_logROC], ->(x){ x.match?(/@CHS@/) }],
       [[:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_logROC], ->(x){ x.match?(/@AFS\.IVT@/) }],
       [[:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_logROC], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
       [[:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_logROC], ->(x){ x.match?(/@AFS\.Lys@/) }],
     ],
     "#{folder}/centrimo_peaks.tsv" => [
+      # concentration not actually used
       [[:chipseq_centrimo_neglog_evalue, :chipseq_centrimo_concentration_30nt], ->(x){ x.match?(/@CHS@/) }],
       [[:affiseq_IVT_centrimo_neglog_evalue, :affiseq_IVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.IVT@/) }],
       [[:affiseq_GFPIVT_centrimo_neglog_evalue, :affiseq_GFPIVT_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.GFPIVT@/) }],
@@ -415,13 +417,13 @@ METRIC_COMBINATIONS = {
   combined: {
     chipseq_peaks: {
         chipseq_pwmeval: [:chipseq_pwmeval_ROC, :chipseq_pwmeval_PR],
-        chipseq_vigg: [:chipseq_vigg_ROC, :chipseq_vigg_PR],
+        chipseq_vigg: [:chipseq_vigg_ROC],
         chipseq_centrimo_neglog_evalue: [:chipseq_centrimo_neglog_evalue],
       },
     affiseq_IVT: {
       affiseq_IVT_peaks: {
         affiseq_IVT_pwmeval: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_pwmeval_PR],
-        affiseq_IVT_vigg: [:affiseq_IVT_vigg_ROC, :affiseq_IVT_vigg_PR],
+        affiseq_IVT_vigg: [:affiseq_IVT_vigg_ROC],
         affiseq_IVT_centrimo_neglog_evalue: [:affiseq_IVT_centrimo_neglog_evalue],
       },
       # affiseq_IVT_reads: {
@@ -433,7 +435,7 @@ METRIC_COMBINATIONS = {
     affiseq_GFPIVT: {
       affiseq_GFPIVT_peaks: {
         affiseq_GFPIVT_pwmeval: [:affiseq_GFPIVT_pwmeval_ROC, :affiseq_GFPIVT_pwmeval_PR],
-        affiseq_GFPIVT_vigg: [:affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_vigg_PR],
+        affiseq_GFPIVT_vigg: [:affiseq_GFPIVT_vigg_ROC],
         affiseq_GFPIVT_centrimo_neglog_evalue: [:affiseq_GFPIVT_centrimo_neglog_evalue],
       },
       # affiseq_GFPIVT_reads: {
@@ -445,7 +447,7 @@ METRIC_COMBINATIONS = {
     affiseq_Lysate: {
       affiseq_Lysate_peaks: {
         affiseq_Lysate_pwmeval: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR],
-        affiseq_Lysate_vigg: [:affiseq_Lysate_vigg_ROC, :affiseq_Lysate_vigg_PR],
+        affiseq_Lysate_vigg: [:affiseq_Lysate_vigg_ROC],
         affiseq_Lysate_centrimo_neglog_evalue: [:affiseq_Lysate_centrimo_neglog_evalue],
       },
       # affiseq_Lysate_reads: {
