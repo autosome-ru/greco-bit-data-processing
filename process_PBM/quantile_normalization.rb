@@ -27,7 +27,7 @@ def values_with_ranks(values)
 end
 
 # [[sample 1 values], [sample 2 values], ...] -> {rank => average_value}
-def average_values_by_rank(samples)
+def average_value_by_rank(samples)
   total_values_sum_by_rank = Hash.new(0)
   samples.each{|sample|
     values_with_ranks(sample).each{|val, ranks|
