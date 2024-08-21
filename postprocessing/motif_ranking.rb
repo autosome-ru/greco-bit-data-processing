@@ -2,7 +2,6 @@ require 'fileutils'
 require 'json'
 require 'set'
 require 'optparse'
-require_relative 'tree'
 require_relative '../shared/lib/index_by'
 require_relative '../shared/lib/utils'
 
@@ -210,43 +209,6 @@ def get_list_of_good_motifs(filename)
   }.to_h
 end
 
-def get_motif_ranks(motif_infos, metric_combinations)
-  basic_ranks = motif_infos.map{|info|
-    [info[:metric_name], info[:rank]]
-  }.to_h
-
-  ranks_tree = Node.construct_tree(metric_combinations)
-  ranks_tree.each_node_upwards do |node|
-    metric_name = node.key
-    if node.leaf?
-      node.value = basic_ranks[metric_name]
-    else
-      children_ranks = node.children.map{|k, child| child.value }
-      node.value = product_mean(children_ranks.compact)
-    end
-  end
-  ranks_tree.each_node.reject(&:root?).map{|node| [node.key, node.value] }.to_h
-end
-
-def get_motif_values(motif_infos, metric_combinations)
-  basic_values = motif_infos.map{|info|
-    [info[:metric_name], info[:rank_infos].map{|rank_info| rank_info[:value] }]
-  }.to_h
-
-  values_tree = Node.construct_tree(metric_combinations)
-  values_tree.each_node_upwards do |node|
-    metric_name = node.key
-    if node.leaf?
-      node.value = basic_values[metric_name]
-    else
-      children_values = node.children.map{|k, child| child.value }
-      node.value = children_values.flatten.compact
-    end
-  end
-
-  values_tree.each_node.map{|node| [node.key, node.value] }.to_h
-end
-
 def make_metrics_hierarchy(infos, grouping_vars, &block)
   if grouping_vars.empty?
     block_given? ? infos.map(&block) : infos
@@ -410,83 +372,6 @@ def metrics_readers_configs(folder)
   result
 end
 
-
-######################################################
-
-METRIC_COMBINATIONS = {
-  combined: {
-    chipseq_peaks: {
-        chipseq_pwmeval: [:chipseq_pwmeval_ROC, :chipseq_pwmeval_PR],
-        chipseq_vigg: [:chipseq_vigg_ROC],
-        chipseq_centrimo_neglog_evalue: [:chipseq_centrimo_neglog_evalue],
-      },
-    affiseq_IVT: {
-      affiseq_IVT_peaks: {
-        affiseq_IVT_pwmeval: [:affiseq_IVT_pwmeval_ROC, :affiseq_IVT_pwmeval_PR],
-        affiseq_IVT_vigg: [:affiseq_IVT_vigg_ROC],
-        affiseq_IVT_centrimo_neglog_evalue: [:affiseq_IVT_centrimo_neglog_evalue],
-      },
-      # affiseq_IVT_reads: {
-      #   affiseq_10_IVT: [:affiseq_10_IVT_ROC, :affiseq_10_IVT_PR],
-      #   affiseq_25_IVT: [:affiseq_25_IVT_ROC, :affiseq_25_IVT_PR],
-      #   affiseq_50_IVT: [:affiseq_50_IVT_ROC, :affiseq_50_IVT_PR],
-      # },
-    },
-    affiseq_GFPIVT: {
-      affiseq_GFPIVT_peaks: {
-        affiseq_GFPIVT_pwmeval: [:affiseq_GFPIVT_pwmeval_ROC, :affiseq_GFPIVT_pwmeval_PR],
-        affiseq_GFPIVT_vigg: [:affiseq_GFPIVT_vigg_ROC],
-        affiseq_GFPIVT_centrimo_neglog_evalue: [:affiseq_GFPIVT_centrimo_neglog_evalue],
-      },
-      # affiseq_GFPIVT_reads: {
-      #   affiseq_10_GFPIVT: [:affiseq_10_GFPIVT_ROC, :affiseq_10_GFPIVT_PR],
-      #   affiseq_25_GFPIVT: [:affiseq_25_GFPIVT_ROC, :affiseq_25_GFPIVT_PR],
-      #   affiseq_50_GFPIVT: [:affiseq_50_GFPIVT_ROC, :affiseq_50_GFPIVT_PR],
-      # },
-    },
-    affiseq_Lysate: {
-      affiseq_Lysate_peaks: {
-        affiseq_Lysate_pwmeval: [:affiseq_Lysate_pwmeval_ROC, :affiseq_Lysate_pwmeval_PR],
-        affiseq_Lysate_vigg: [:affiseq_Lysate_vigg_ROC],
-        affiseq_Lysate_centrimo_neglog_evalue: [:affiseq_Lysate_centrimo_neglog_evalue],
-      },
-      # affiseq_Lysate_reads: {
-      #   affiseq_10_Lysate: [:affiseq_10_Lysate_ROC, :affiseq_10_Lysate_PR],
-      #   affiseq_25_Lysate: [:affiseq_25_Lysate_ROC, :affiseq_25_Lysate_PR],
-      #   affiseq_50_Lysate: [:affiseq_50_Lysate_ROC, :affiseq_50_Lysate_PR],
-      # },
-    },
-    selex_IVT: {
-      selex_10_IVT: [:selex_10_IVT_ROC, :selex_10_IVT_PR],
-      selex_25_IVT: [:selex_25_IVT_ROC, :selex_25_IVT_PR],
-      selex_50_IVT: [:selex_50_IVT_ROC, :selex_50_IVT_PR],
-    },
-    selex_GFPIVT: {
-      selex_10_GFPIVT: [:selex_10_GFPIVT_ROC, :selex_10_GFPIVT_PR],
-      selex_25_GFPIVT: [:selex_25_GFPIVT_ROC, :selex_25_GFPIVT_PR],
-      selex_50_GFPIVT: [:selex_50_GFPIVT_ROC, :selex_50_GFPIVT_PR],
-    },
-    selex_Lysate: {
-      selex_10_Lysate: [:selex_10_Lysate_ROC, :selex_10_Lysate_PR],
-      selex_25_Lysate: [:selex_25_Lysate_ROC, :selex_25_Lysate_PR],
-      selex_50_Lysate: [:selex_50_Lysate_ROC, :selex_50_Lysate_PR],
-    },
-    pbm: {
-      pbm_sd: [:pbm_sd_roc, :pbm_sd_pr],
-      pbm_qnzs: [:pbm_qnzs_roc, :pbm_qnzs_pr],
-    },
-    smileseq: {
-      smileseq_10: [:smileseq_10_ROC, :smileseq_10_PR],
-      smileseq_25: [:smileseq_25_ROC, :smileseq_25_PR],
-      smileseq_50: [:smileseq_50_ROC, :smileseq_50_PR],
-    },
-  },
-}
-
-METRICS_ORDER         = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.map(&:key).reject(&:nil?)
-BASIC_METRICS         = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.select(&:leaf?).map(&:key).reject(&:nil?)
-DERIVED_METRICS_ORDER = Node.construct_tree(METRIC_COMBINATIONS).each_node_bfs.reject(&:leaf?).map(&:key).reject(&:nil?)
-
 ######################################################
 
 curation_fn = nil
@@ -570,7 +455,17 @@ artifact_motifs = load_artifact_motifs(artifacts_folder, artifact_similarity_thr
 
 ######################################################
 
-basic_metrics_set = BASIC_METRICS.to_set
+basic_metrics_set = [
+  :chipseq_pwmeval_ROC, :chipseq_pwmeval_PR, :chipseq_vigg_ROC, :chipseq_centrimo_neglog_evalue,
+  :selex_10_IVT_ROC, :selex_10_IVT_PR, :selex_25_IVT_ROC, :selex_25_IVT_PR, :selex_50_IVT_ROC, :selex_50_IVT_PR, :selex_10_GFPIVT_ROC,
+  :selex_10_GFPIVT_PR, :selex_25_GFPIVT_ROC, :selex_25_GFPIVT_PR, :selex_50_GFPIVT_ROC, :selex_50_GFPIVT_PR, :selex_10_Lysate_ROC,
+  :selex_10_Lysate_PR, :selex_25_Lysate_ROC, :selex_25_Lysate_PR, :selex_50_Lysate_ROC, :selex_50_Lysate_PR, :pbm_sd_roc,
+  :pbm_sd_pr, :pbm_qnzs_roc, :pbm_qnzs_pr, :smileseq_10_ROC,
+  :smileseq_10_PR, :smileseq_25_ROC, :smileseq_25_PR, :smileseq_50_ROC, :smileseq_50_PR, :affiseq_IVT_pwmeval_ROC,
+  :affiseq_IVT_pwmeval_PR, :affiseq_IVT_vigg_ROC, :affiseq_IVT_centrimo_neglog_evalue, :affiseq_GFPIVT_pwmeval_ROC,
+  :affiseq_GFPIVT_pwmeval_PR, :affiseq_GFPIVT_vigg_ROC, :affiseq_GFPIVT_centrimo_neglog_evalue,   :affiseq_Lysate_pwmeval_ROC,
+  :affiseq_Lysate_pwmeval_PR, :affiseq_Lysate_vigg_ROC, :affiseq_Lysate_centrimo_neglog_evalue
+].to_set
 all_metric_infos = read_metrics(metrics_readers_configs(benchmarks_folder)).select{|info| basic_metrics_set.include?(info[:metric_name]) }
 
 all_metric_infos.each{|info|
