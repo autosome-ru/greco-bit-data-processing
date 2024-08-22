@@ -262,22 +262,6 @@ def possible_inner_paths(motif_ranks_hierarchies)
   }.map{|info| info[:path] }.sort_by(&:size).reverse
 end
 
-def combine_ranks(hierarchy_of_metrics, metric_path: nil)
-  ranks = hierarchy_of_metrics.reject{|k,v| k == :combined }.values.compact
-
-  if ranks.all?(Numeric)
-    # {:pbm_qnzs_asis=>97, :pbm_qnzs_log=>97,:pbm_qnzs_exp=>84, :pbm_qnzs_roc=>83, :pbm_qnzs_pr=>59}
-    hierarchy_of_metrics.merge(combined: product_mean(ranks))
-    # TODO:  rearrange !!!
-  else
-    # {tf_1 => {...}, tf_2 => {...}} or {"PBM.HK" => {...}, "AFS.Lys" => {...}} or {"QNZS" => {...}, "SD" => {...}} etc
-    # Smth like {tf_1 => {...}, tf_2 => {...}, combined: 42} is also accepted. In this case key `combined` will be recalculated
-    augmented_hierarchy_of_metrics = hierarchy_of_metrics.transform_values{|subhierarchy| combine_ranks(subhierarchy) }
-    ranks = augmented_hierarchy_of_metrics.map{|_, subhierarchy| subhierarchy[:combined] }.compact
-    augmented_hierarchy_of_metrics.merge({combined: product_mean(ranks)})
-  end
-end
-
 def read_metadata_subset(metadata_fn)
   File.open(metadata_fn){|f|
     f.each_line.map{|l|
