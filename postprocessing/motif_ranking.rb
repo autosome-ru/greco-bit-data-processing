@@ -364,12 +364,14 @@ metadata_fn = nil
 filter_out_curated_datasets = false
 filter_out_curated_motifs = false
 filter_out_pbm_motif_dataset_matches = false
+filter_by_dataset_datatypes = false
 flank_threshold = 4.0
 flank_filters = []
 artifacts_folder = nil
 artifact_similarity_threshold = 2.0  # 1.0 is maximum possible similarity
 filter_by_tf = false
 tf_list = nil
+acceptable_dataset_datatypes = nil
 ignore_artifact_motifs = []
 
 option_parser = OptionParser.new{|opts|
