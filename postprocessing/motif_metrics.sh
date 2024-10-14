@@ -119,6 +119,7 @@ time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
     --metadata  ${METADATA_FN} \
     ${FREEZE_OPTIONS} \
+    ${DATATYPES_OPTIONS} \
     ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
   && echo ok || echo fail
@@ -129,6 +130,7 @@ time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-only.json \
     --metadata  ${METADATA_FN} \
     ${FREEZE_OPTIONS} \
+    ${DATATYPES_OPTIONS} \
     ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
     ${ETS_ONLY} ${ALLOW_ETS_ARTIFACTS} \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
@@ -148,6 +150,7 @@ time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
     --metadata  ${METADATA_FN} \
     ${APPROVED_FREEZE_OPTIONS} \
+    ${DATATYPES_OPTIONS} \
     ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
   && echo ok || echo fail
@@ -159,6 +162,7 @@ time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-only.json \
     --metadata  ${METADATA_FN} \
     ${APPROVED_FREEZE_OPTIONS} \
+    ${DATATYPES_OPTIONS} \
     ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
     ${ETS_ONLY} ${ALLOW_ETS_ARTIFACTS} \
   2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
