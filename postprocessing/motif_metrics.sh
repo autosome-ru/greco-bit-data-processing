@@ -88,12 +88,12 @@ ETS_ONLY='--selected-tfs ELF3,FLI1,GABPA'
 ALLOW_ETS_ARTIFACTS='--ignore-artifact-motifs ZNF827.FL@CHS@whiny-puce-turkey@HughesLab.Homer@Motif1,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.Streme@Motif3,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.MEME@Motif2'
 
 FREEZE_OPTIONS='
-    --datasets-curation  prefreeze/metadata_release_8d.patch2.freeze.tsv
-    --motifs-curation  prefreeze/motif_infos.freeze.tsv
+    --datasets-curation  ./metadata_release_8d.patch2.freeze.tsv
+    --motifs-curation  ./motif_infos.freeze.tsv
 '
 APPROVED_FREEZE_OPTIONS='
-    --datasets-curation  prefreeze/metadata_release_8d.patch2.freeze_approved.tsv
-    --motifs-curation  prefreeze/motif_infos.freeze_approved.tsv
+    --datasets-curation  ./metadata_release_8d.patch2.freeze_approved.tsv
+    --motifs-curation  ./motif_infos.freeze_approved.tsv
 '
 PREFIX='7e+8c_pack_1-9'
 
