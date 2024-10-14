@@ -404,6 +404,10 @@ option_parser = OptionParser.new{|opts|
     filter_by_tf = true
     tf_list = value.split(',')
   }
+  opts.on('--dataset-types LIST', 'Calculate metrics only for datasets of given datatypes (SMS, CHS, HTS.Lys, HTS.IVT, HTS.GFPIVT, AFS.Lys, AFS.IVT, AFS.GFPIVT, PBM.ME, PBM.HK). Separate datatypes with commas.'){|value|
+    filter_by_dataset_datatypes = true
+    acceptable_dataset_datatypes = value.split(',')
+  }
   opts.on('--ignore-artifact-motifs LIST', "Don't take specified artfact motifs into account. Separate motifs with commas") {|value|
     ignore_artifact_motifs = value.split(',')
   }
@@ -467,6 +471,15 @@ all_metric_infos.each{|info|
 }
 
 puts "initial size: #{all_metric_infos.size}"
+
+if filter_by_dataset_datatypes
+  all_metric_infos.select!{|info|
+    dataset_datatype = info[:dataset].split('@')[1]
+    acceptable_dataset_datatypes.include?(dataset_datatype)
+  }
+end
+
+puts "after filtered by dataset datatypes: #{all_metric_infos.size}"
 
 if filter_by_tf
   all_metric_infos.select!{|info|

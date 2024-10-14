@@ -100,8 +100,18 @@ PREFIX='7e+8c_pack_1-9'
 mkdir -p ${BENCHMARK_RANKS_FOLDER}
 
 #################
+SECOND_PREFIX=''
+DATATYPES_OPTIONS=''
 
-NAME="${PREFIX}.freeze"
+SECOND_PREFIX='.invivo'
+DATATYPES_OPTIONS='--dataset-types CHS'
+
+SECOND_PREFIX='.invitro'
+DATATYPES_OPTIONS='--dataset-types HTS.Lys,HTS.IVT,HTS.GFPIVT,AFS.Lys,AFS.IVT,AFS.GFPIVT,SMS,PBM.ME,PBM.HK'
+
+#################
+
+NAME="${PREFIX}${SECOND_PREFIX}.freeze"
 
 time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_FORMATTED_FOLDER} \
@@ -130,7 +140,7 @@ time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME
 
 #################
 
-NAME="${PREFIX}.freeze-approved"
+NAME="${PREFIX}${SECOND_PREFIX}.freeze-approved"
 
 time ruby postprocessing/motif_ranking.rb \
     ${BENCHMARK_FORMATTED_FOLDER} \
