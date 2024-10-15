@@ -104,7 +104,9 @@ make_ranks() {
 
   # combines @allow-artifacts and @disallow-artifacts into @disallow-artifacts_include-dropped-motifs
   time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
+  source .venv/bin/activate
   time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_ETS-refined/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-refined.json
+  deactivate
 }
 
 #################
