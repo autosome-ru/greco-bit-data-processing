@@ -100,76 +100,44 @@ PREFIX='7e+8c_pack_1-9'
 mkdir -p ${BENCHMARK_RANKS_FOLDER}
 
 #################
-SECOND_PREFIX=''
-DATATYPES_OPTIONS=''
 
-SECOND_PREFIX='.invivo'
-DATATYPES_OPTIONS='--dataset-types CHS'
+make_ranks() {
+  NAME="$1"
+  shift
+  # $@ will be expanded to all the rest options
+  time ruby postprocessing/motif_ranking.rb \
+      ${BENCHMARK_FORMATTED_FOLDER} \
+      ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
+      ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
+      --metadata  ${METADATA_FN} \
+      ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
+      "$@" \
+    2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
+    && echo ok || echo fail
 
-SECOND_PREFIX='.invitro'
-DATATYPES_OPTIONS='--dataset-types HTS.Lys,HTS.IVT,HTS.GFPIVT,AFS.Lys,AFS.IVT,AFS.GFPIVT,SMS,PBM.ME,PBM.HK'
+  time ruby postprocessing/motif_ranking.rb \
+      ${BENCHMARK_FORMATTED_FOLDER} \
+      ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts_ETS-only.json \
+      ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-only.json \
+      --metadata  ${METADATA_FN} \
+      ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
+      ${ETS_ONLY} ${ALLOW_ETS_ARTIFACTS} \
+      "$@" \
+    2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
+    && echo ok || echo fail
 
-#################
-
-NAME="${PREFIX}${SECOND_PREFIX}.freeze"
-
-time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER} \
-    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
-    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
-    --metadata  ${METADATA_FN} \
-    ${FREEZE_OPTIONS} \
-    ${DATATYPES_OPTIONS} \
-    ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
-  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
-  && echo ok || echo fail
-
-time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER} \
-    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts_ETS-only.json \
-    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-only.json \
-    --metadata  ${METADATA_FN} \
-    ${FREEZE_OPTIONS} \
-    ${DATATYPES_OPTIONS} \
-    ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
-    ${ETS_ONLY} ${ALLOW_ETS_ARTIFACTS} \
-  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
-  && echo ok || echo fail
-
-# combines @allow-artifacts and @disallow-artifacts into @disallow-artifacts_include-dropped-motifs
-time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
-time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_ETS-refined/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-refined.json
+  # combines @allow-artifacts and @disallow-artifacts into @disallow-artifacts_include-dropped-motifs
+  time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
+  time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_ETS-refined/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-refined.json
+}
 
 #################
 
-NAME="${PREFIX}${SECOND_PREFIX}.freeze-approved"
+make_ranks  "${PREFIX}.freeze"  "${FREEZE_OPTIONS}"
+make_ranks  "${PREFIX}.freeze-approved"  "${APPROVED_FREEZE_OPTIONS}"
 
-time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER} \
-    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts.json \
-    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts.json \
-    --metadata  ${METADATA_FN} \
-    ${APPROVED_FREEZE_OPTIONS} \
-    ${DATATYPES_OPTIONS} \
-    ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
-  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts.log \
-  && echo ok || echo fail
+make_ranks  "${PREFIX}.invivo.freeze"  "${FREEZE_OPTIONS}"  --dataset-types CHS
+make_ranks  "${PREFIX}.invivo.freeze-approved"  "${APPROVED_FREEZE_OPTIONS}"  --dataset-types CHS
 
-
-time ruby postprocessing/motif_ranking.rb \
-    ${BENCHMARK_FORMATTED_FOLDER} \
-    ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@disallow-artifacts_ETS-only.json \
-    ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-only.json \
-    --metadata  ${METADATA_FN} \
-    ${APPROVED_FREEZE_OPTIONS} \
-    ${DATATYPES_OPTIONS} \
-    ${FLANKS_OPTIONS} ${ARTIFACTS_OPTIONS} \
-    ${ETS_ONLY} ${ALLOW_ETS_ARTIFACTS} \
-  2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
-  && echo ok || echo fail
-
-time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
-time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_ETS-refined/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-refined.json
-
-#################
-
+make_ranks  "${PREFIX}.invitro.freeze"  "${FREEZE_OPTIONS}"  --dataset-types HTS.Lys,HTS.IVT,HTS.GFPIVT,AFS.Lys,AFS.IVT,AFS.GFPIVT,SMS,PBM.ME,PBM.HK
+make_ranks  "${PREFIX}.invitro.freeze-approved"  "${APPROVED_FREEZE_OPTIONS}"  --dataset-types HTS.Lys,HTS.IVT,HTS.GFPIVT,AFS.Lys,AFS.IVT,AFS.GFPIVT,SMS,PBM.ME,PBM.HK
