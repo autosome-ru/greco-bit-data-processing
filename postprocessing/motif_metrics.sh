@@ -111,11 +111,11 @@ make_ranks() {
 
 #################
 
-make_ranks  "${PREFIX}.freeze"  "${FREEZE_OPTIONS}"
-make_ranks  "${PREFIX}.freeze-approved"  "${APPROVED_FREEZE_OPTIONS}"
+make_ranks  "${PREFIX}.freeze"  ${FREEZE_OPTIONS}
+make_ranks  "${PREFIX}.freeze-approved"  ${APPROVED_FREEZE_OPTIONS}
 
-make_ranks  "${PREFIX}.invivo.freeze"  "${FREEZE_OPTIONS}"  --dataset-types CHS
-make_ranks  "${PREFIX}.invivo.freeze-approved"  "${APPROVED_FREEZE_OPTIONS}"  --dataset-types CHS
+make_ranks  "${PREFIX}.invivo.freeze"  ${FREEZE_OPTIONS}  --dataset-types CHS
+make_ranks  "${PREFIX}.invivo.freeze-approved"  ${APPROVED_FREEZE_OPTIONS}  --dataset-types CHS
 
-make_ranks  "${PREFIX}.invitro.freeze"  "${FREEZE_OPTIONS}"  --dataset-types HTS.Lys,HTS.IVT,HTS.GFPIVT,AFS.Lys,AFS.IVT,AFS.GFPIVT,SMS,PBM.ME,PBM.HK
-make_ranks  "${PREFIX}.invitro.freeze-approved"  "${APPROVED_FREEZE_OPTIONS}"  --dataset-types HTS.Lys,HTS.IVT,HTS.GFPIVT,AFS.Lys,AFS.IVT,AFS.GFPIVT,SMS,PBM.ME,PBM.HK
+make_ranks  "${PREFIX}.invitro.freeze"  ${FREEZE_OPTIONS}  --dataset-types HTS.Lys,HTS.IVT,HTS.GFPIVT,AFS.Lys,AFS.IVT,AFS.GFPIVT,SMS,PBM.ME,PBM.HK
+make_ranks  "${PREFIX}.invitro.freeze-approved"  ${APPROVED_FREEZE_OPTIONS}  --dataset-types HTS.Lys,HTS.IVT,HTS.GFPIVT,AFS.Lys,AFS.IVT,AFS.GFPIVT,SMS,PBM.ME,PBM.HK
