@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# mkdir -p results
-
-# MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_7e_motifs_2022-06-02/'
-# DATA_FOLDER='/home_local/vorontsovie/greco-data/release_8c.2022-06-01/full/'
-
-# ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} > run_benchmarks_release_8/run_all_pbm_7b+7e.sh
 
 # # run on new motifs only
 # # MOTIFS_FOLDER_TMP='./motifs_tmp/7d_minus_7c'
@@ -16,24 +10,6 @@
 # #     "/home_local/vorontsovie/greco-motifs/release_7d_motifs_2021-12-21" \
 # #   | xargs -n1 -I{} cp {} $MOTIFS_FOLDER_TMP/
 # # MOTIFS_FOLDER="${MOTIFS_FOLDER_TMP}" # Attention!!!
-
-# ##############
-# ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ~/greco-benchmark/release_8c_for_8c_pack2/reads_0.1/ --fraction 0.1
-# ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ~/greco-benchmark/release_8c_for_8c_pack2/reads_0.25/ --fraction 0.25
-# ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ~/greco-benchmark/release_8c_for_8c_pack2/reads_0.5/ --fraction 0.5
-
-# ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ~/greco-benchmark/release_8c_for_8c_pack2/vigg_peaks
-# ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ~/greco-benchmark/release_8c_for_8c_pack2/centrimo_peaks/
-# ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ~/greco-benchmark/release_8c_for_8c_pack2/pwmeval_peaks/
-
-# ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ~/greco-benchmark/release_8c_for_8c_pack2/pbm/
-# cat ~/greco-benchmark/release_8c_for_8c_pack2/pbm/prepare_all.sh | parallel -j 100
-# ##############
-# for DATATYPE in  reads_0.1 reads_0.25 reads_0.5  vigg_peaks centrimo_peaks pwmeval_peaks  pbm; do
-#   echo $DATATYPE
-#   date
-#   time cat ~/greco-benchmark/release_8c_for_8c_pack2/${DATATYPE}/run_all.sh | parallel -j 100 | pv -l > ~/greco-benchmark/release_8c_for_8c_pack2/${DATATYPE}.tsv
-# done
 
 ##############
 
