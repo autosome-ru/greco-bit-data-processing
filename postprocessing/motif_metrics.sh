@@ -111,8 +111,8 @@ make_ranks() {
 
 #################
 
-make_ranks  "${PREFIX}.freeze"  ${FREEZE_OPTIONS}
-make_ranks  "${PREFIX}.freeze-approved"  ${APPROVED_FREEZE_OPTIONS}
+make_ranks  "${PREFIX}.core.freeze"  ${FREEZE_OPTIONS}
+make_ranks  "${PREFIX}.core.freeze-approved"  ${APPROVED_FREEZE_OPTIONS}
 
 make_ranks  "${PREFIX}.invivo.freeze"  ${FREEZE_OPTIONS}  --dataset-types CHS
 make_ranks  "${PREFIX}.invivo.freeze-approved"  ${APPROVED_FREEZE_OPTIONS}  --dataset-types CHS
