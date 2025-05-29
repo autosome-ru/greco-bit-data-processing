@@ -85,3 +85,14 @@ mv freeze/metadata_release_8d.patch2.freeze.tsv freeze/datasets_metadata.freeze.
 mv freeze/metadata_release_8d.patch2.freeze_approved.tsv freeze/datasets_metadata.freeze-approved.tsv
 mv freeze/metadata_release_8d.patch2.json freeze/datasets_metadata.full.json
 mv freeze/metadata_release_8d.patch2.tsv freeze/datasets_metadata.full.tsv
+
+##############################
+
+ln --no-target-directory -s /home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+8_fix+9/ freeze/all_motifs
+ruby postprocessing/fix_tf_names_codebook_bug.rb
+metadata_tsv freeze_recalc/datasets_metadata.full.json > freeze_recalc/datasets_metadata.full.tsv
+metadata_tsv freeze_recalc/datasets_metadata.freeze.json > freeze_recalc/datasets_metadata.freeze.tsv
+metadata_tsv freeze_recalc/datasets_metadata.freeze-approved.json > freeze_recalc/datasets_metadata.freeze-approved.tsv
+ruby postprocessing/final_motif_list.rb  freeze_recalc/all_motifs  freeze_recalc/datasets_metadata.full.tsv > freeze_recalc/motif_infos.tsv
+ruby postprocessing/final_motif_list.rb  freeze_recalc/all_motifs  freeze_recalc/datasets_metadata.freeze.tsv > freeze_recalc/motif_infos.freeze.tsv
+ruby postprocessing/final_motif_list.rb  freeze_recalc/all_motifs  freeze_recalc/datasets_metadata.freeze-approved.tsv > freeze_recalc/motif_infos.freeze_approved.tsv
