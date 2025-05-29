@@ -208,6 +208,12 @@ datasets_approved_addition = datasets.map{|dataset_info|
 datasets_approved_renamed += datasets_approved_addition
 
 
+datasets_approved_renamed.map{|dataset_info|
+  dataset_folder(dataset_info, "freeze_recalc/datasets_freeze_approved")
+}.uniq.each{|folder|
+  FileUtils.mkdir_p(folder)
+}
+
 datasets_approved_renamed.select{|dataset_info|
   affected_tfs.include?( dataset_info['tf'] )
 }.each{|dataset_info|
