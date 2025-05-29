@@ -118,6 +118,7 @@ def dataset_ids_by_motif(motif_fn)
   motif_fn.split('@')[2].split('+')
 end
 
+FileUtils.rm_rf('freeze_recalc')
 
 renames = CSV.foreach('source_data_meta/fixes/CODEGATE_DatasetsSwap.txt', col_sep: "\t", headers: true).map(&:to_h).map{|row|
   #  "THC_0361.Rep-DIANA_0293,THC_0361.Rep-MICHELLE_0314" → THC_0361
