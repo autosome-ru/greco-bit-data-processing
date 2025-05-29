@@ -71,7 +71,7 @@ def rename_dataset(dataset_info, rename_info, approved_only: false)
   if new_filename != old_filename
     raise "#{old_filename} not exists" if !File.exist?(old_filename)
     raise "#{new_filename} already exists" if File.exist?(new_filename)
-    puts("mv #{old_filename} #{new_filename}")
+    FileUtils.mv(old_filename, new_filename)
   end
 
   dataset_info
@@ -88,7 +88,7 @@ def rename_motif(motif_fn, rename_info)
   if new_motif_fn != motif_fn
     raise "#{motif_fn} not exists" if !File.exist?(motif_fn)
     raise "#{new_motif_fn} already exists" if File.exist?(new_motif_fn)
-    puts("mv #{motif_fn} #{new_motif_fn}")
+    FileUtils.mv(motif_fn, new_motif_fn)
   end
 end
 
@@ -150,8 +150,7 @@ rename_pairs = []
 
 rename_pairs.map{|old_fn, new_fn| File.dirname(new_fn) }.uniq.each{|dn| FileUtils.mkdir_p(dn) }
 rename_pairs.each{|old_fn, new_fn|
-  puts "cp #{old_fn} #{new_fn}"
-  # FileUtils.cp(old_fn, new_fn)
+  FileUtils.cp(old_fn, new_fn)
 }
 
 datasets          = File.readlines('freeze/datasets_metadata.freeze.json').map{|l| JSON.parse(l) }
