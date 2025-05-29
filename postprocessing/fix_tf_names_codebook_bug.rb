@@ -192,7 +192,7 @@ datasets_approved_addition = datasets.map{|dataset_info|
 datasets_approved_renamed += datasets_approved_addition
 
 
-datasets_approved_renamed.each{|fn|
+datasets_approved_renamed.each{|dataset_info|
   dataset_name = dataset_info['dataset_name']
   folder = dataset_folder(dataset_info, "freeze_recalc/datasets_freeze")
   new_folder = dataset_folder(dataset_info, "freeze_recalc/datasets_freeze_approved")
