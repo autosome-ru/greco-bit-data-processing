@@ -72,10 +72,10 @@ def rename_dataset(dataset_info, rename_info, move_files: false, base_folder: )
   old_filename = "#{folder}/#{old_dataset_name}"
   new_filename = "#{folder}/#{new_dataset_name}"
 
-  if new_filename != old_filename
+  if move_files && (new_filename != old_filename)
     raise "#{old_filename} not exists" if !File.exist?(old_filename)
     raise "#{new_filename} already exists" if File.exist?(new_filename)
-    FileUtils.mv(old_filename, new_filename)  if move_files
+    FileUtils.mv(old_filename, new_filename)
   end
 
   dataset_info
