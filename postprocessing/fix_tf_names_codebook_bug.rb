@@ -48,7 +48,7 @@ def dataset_and_experiment_type(dataset_info)
   [dataset_type, exp_type]
 end
 
-def rename_dataset(dataset_info, rename_info, approved_only: false)
+def rename_dataset(dataset_info, rename_info, base_folder: )
   dataset_info = deep_copy(dataset_info)
   dataset_info['experiment_meta']['plasmid'] = nil
   dataset_info['experiment_meta']['plasmid_id'] = 'unknown'
@@ -63,7 +63,6 @@ def rename_dataset(dataset_info, rename_info, approved_only: false)
   
   dataset_type, exp_type = dataset_and_experiment_type(dataset_info)
 
-  base_folder = approved_only ? "freeze_recalc/datasets_freeze_approved" : "freeze_recalc/datasets_freeze"
   folder = "#{base_folder}/#{exp_type}/#{slice_type}_#{dataset_type}"
   old_filename = "#{folder}/#{old_dataset_name}"
   new_filename = "#{folder}/#{new_dataset_name}"
@@ -162,7 +161,7 @@ datasets_renamed = datasets.map{|dataset_info|
   if !rename_info
     dataset_info
   else
-    rename_dataset(dataset_info, rename_info)
+    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze")
   end
 }
 
@@ -174,7 +173,7 @@ datasets_approved_renamed = datasets_approved.map{|dataset_info|
   elsif rename_info['NEW CURATION'] == 'Not approved'
     nil
   else
-    rename_dataset(dataset_info, rename_info)
+    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze_approved")
   end
 }.compact
 
