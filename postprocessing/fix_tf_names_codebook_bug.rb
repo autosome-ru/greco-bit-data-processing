@@ -180,7 +180,7 @@ datasets_approved_renamed = datasets_approved.map{|dataset_info|
 datasets_approved_addition = datasets.map{|dataset_info|
   rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
   if rename_info && (rename_info['OLD CURATION'] == 'Not approved') && (rename_info['NEW CURATION'] == 'Approved')
-    rename_dataset(dataset_info, rename_info)
+    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze_approved")
   else
     nil
   end
