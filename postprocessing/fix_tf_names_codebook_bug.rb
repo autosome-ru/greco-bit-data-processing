@@ -22,25 +22,41 @@ end
 def dataset_and_experiment_type(dataset_info)
   exp_type = dataset_info['experiment_type']
   extension = dataset_info['extension']
-  if exp_type == 'CHS'
-    if extension == 'peaks'
+  processing_type = dataset_info['processing_type']
+  case exp_type
+  when 'CHS'
+    case extension
+    when 'peaks'
       dataset_type = 'intervals'
-    elsif extension == 'fa'
+    when 'fa'
       dataset_type = 'sequences'
     else
       raise "Unknown extension #{extension}"
     end
-  elsif exp_type == 'AFS'
-    processing_type = dataset_info['processing_type']
+  when 'AFS'
     exp_type = "GHTS.#{processing_type}"
-    if extension == 'peaks'
+    case extension
+    when 'peaks'
       dataset_type = 'intervals'
-    elsif extension == 'fa' || extension == 'fastq'
+    when 'fa', 'fastq'
       dataset_type = 'sequences'
     else
       raise "Unknown extension #{extension}"
     end
-  elsif exp_type == 'HTS'
+  when 'HTS'
+    dataset_type = 'reads'
+  when 'PBM'
+    exp_type = "PBM.#{processing_type}"
+    case extension
+    when 'tsv'
+      dataset_type = 'intensities'
+    when 'fa'
+      dataset_type = 'sequences'
+    else
+      raise "Unknown extension #{extension}"
+    end
+  when 'SMS'
+    exp_type = dataset_info['source_files'][0]['filename'].match?('/old_smlseq_raw/') ? 'SMS.published' : 'SMS'
     dataset_type = 'reads'
   else
     raise "Unknown exp_type #{exp_type}"
@@ -192,7 +208,9 @@ datasets_approved_addition = datasets.map{|dataset_info|
 datasets_approved_renamed += datasets_approved_addition
 
 
-datasets_approved_renamed.each{|dataset_info|
+datasets_approved_renamed.select{|dataset_info|
+  affected_tfs.include?( dataset_info['tf'] )
+}.each{|dataset_info|
   dataset_name = dataset_info['dataset_name']
   folder = dataset_folder(dataset_info, "freeze_recalc/datasets_freeze")
   new_folder = dataset_folder(dataset_info, "freeze_recalc/datasets_freeze_approved")
