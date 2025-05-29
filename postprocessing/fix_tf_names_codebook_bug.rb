@@ -48,10 +48,18 @@ def dataset_and_experiment_type(dataset_info)
   [dataset_type, exp_type]
 end
 
-def rename_dataset(dataset_info, rename_info, base_folder: )
+def dataset_folder(dataset_info, base_folder)
+  slice_type = dataset_info['slice_type'].then{|v| (v == 'Val') ? 'Test' : v }
+  dataset_type, exp_type = dataset_and_experiment_type(dataset_info)
+  "#{base_folder}/#{exp_type}/#{slice_type}_#{dataset_type}"
+end
+
+def rename_dataset(dataset_info, rename_info, move_files: false, base_folder: )
   dataset_info = deep_copy(dataset_info)
+
   dataset_info['experiment_meta']['plasmid'] = nil
   dataset_info['experiment_meta']['plasmid_id'] = 'unknown'
+
   old_dataset_name = dataset_info['dataset_name']
   old_tf, rest_name = old_dataset_name.split('.', 2)
   raise 'Old TF name mismatch'  unless rename_info['Original TF label'] == old_tf
@@ -59,18 +67,15 @@ def rename_dataset(dataset_info, rename_info, base_folder: )
   new_dataset_name = "#{new_tf}.#{rest_name}"
   dataset_info['dataset_name'] = new_dataset_name
   dataset_info['tf'] = new_tf
-  slice_type = dataset_info['slice_type'].then{|v| (v == 'Val') ? 'Test' : v }
-  
-  dataset_type, exp_type = dataset_and_experiment_type(dataset_info)
 
-  folder = "#{base_folder}/#{exp_type}/#{slice_type}_#{dataset_type}"
+  folder = dataset_folder(dataset_info, base_folder)
   old_filename = "#{folder}/#{old_dataset_name}"
   new_filename = "#{folder}/#{new_dataset_name}"
 
   if new_filename != old_filename
     raise "#{old_filename} not exists" if !File.exist?(old_filename)
     raise "#{new_filename} already exists" if File.exist?(new_filename)
-    FileUtils.mv(old_filename, new_filename)
+    FileUtils.mv(old_filename, new_filename)  if move_files
   end
 
   dataset_info
@@ -130,25 +135,23 @@ affected_tfs = renames.flat_map{|exp_id, rename_info| rename_info.values_at('Ori
 # copy files freeze → freeze_recalc
 
 rename_pairs = []
-['', '_approved'].each{|approved_suffix|
-  rename_pairs += affected_tfs.flat_map{|tf|
-    fns = Dir.glob("freeze/datasets_freeze#{approved_suffix}/*/*/#{tf}.*")
-    fns.map{|fn|
-      new_fn = fn.sub(/^freeze/, 'freeze_recalc')
-      [fn, new_fn]
-    }
+rename_pairs += affected_tfs.flat_map{|tf|
+  fns = Dir.glob("freeze/datasets_freeze/*/*/#{tf}.*")
+  fns.map{|fn|
+    new_fn = fn.sub(/^freeze/, 'freeze_recalc')
+    [fn, new_fn]
   }
-
-  rename_pairs += affected_tfs.flat_map{|tf|
-    fns = Dir.glob("freeze/motifs_freeze#{approved_suffix}/#{tf}.*")
-    fns.map{|fn|
-      new_fn = fn.sub(/^freeze/, 'freeze_recalc')
-      [fn, new_fn]
-    }
+}
+rename_pairs += affected_tfs.flat_map{|tf|
+  fns = Dir.glob("freeze/motifs_freeze/#{tf}.*")
+  fns.map{|fn|
+    new_fn = fn.sub(/^freeze/, 'freeze_recalc')
+    [fn, new_fn]
   }
-}; nil
+}
 
 rename_pairs.map{|old_fn, new_fn| File.dirname(new_fn) }.uniq.each{|dn| FileUtils.mkdir_p(dn) }
+
 rename_pairs.each{|old_fn, new_fn|
   FileUtils.cp(old_fn, new_fn)
 }
@@ -161,7 +164,7 @@ datasets_renamed = datasets.map{|dataset_info|
   if !rename_info
     dataset_info
   else
-    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze")
+    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze", move_files: true)
   end
 }
 
@@ -173,20 +176,31 @@ datasets_approved_renamed = datasets_approved.map{|dataset_info|
   elsif rename_info['NEW CURATION'] == 'Not approved'
     nil
   else
-    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze_approved")
+    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze_approved", move_files: false)
   end
 }.compact
 
 datasets_approved_addition = datasets.map{|dataset_info|
   rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
   if rename_info && (rename_info['OLD CURATION'] == 'Not approved') && (rename_info['NEW CURATION'] == 'Approved')
-    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze_approved")
+    rename_dataset(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze_approved", move_files: false)
   else
     nil
   end
 }.compact
 
 datasets_approved_renamed += datasets_approved_addition
+
+
+datasets_approved_renamed.each{|fn|
+  dataset_name = dataset_info['dataset_name']
+  folder = dataset_folder(dataset_info, "freeze_recalc/datasets_freeze")
+  new_folder = dataset_folder(dataset_info, "freeze_recalc/datasets_freeze_approved")
+  filename = "#{folder}/#{dataset_name}"
+  new_filename = "#{new_folder}/#{dataset_name}"
+  FileUtils.cp(filename, new_filename)
+}
+
 
 approved_ids = datasets_approved_renamed.map{|dataset_info| dataset_info['dataset_id'] }.to_set
 
@@ -197,6 +211,7 @@ datasets_approved_renamed.each{|dataset_info|
 datasets_renamed.each{|dataset_info|
   dataset_info['approved'] = approved_ids.include?(dataset_info['dataset_id'])
 }
+
 
 File.open('freeze_recalc/datasets_metadata.freeze.json', 'w'){|fw|
   datasets_renamed.each{|dataset_info|
@@ -210,5 +225,5 @@ File.open('freeze_recalc/datasets_metadata.freeze-approved.json', 'w'){|fw|
   }
 }
 
-motif_pack_rename('freeze_recalc/motifs_freeze', datasets, renames)
-motif_pack_rename('freeze_recalc/motifs_freeze_approved', datasets_approved, renames)
+# motif_pack_rename('freeze_recalc/motifs_freeze', datasets, renames)
+# motif_pack_rename('freeze_recalc/motifs_freeze_approved', datasets_approved, renames)
