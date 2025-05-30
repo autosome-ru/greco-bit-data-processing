@@ -19,6 +19,10 @@ def deep_copy(obj)
   Marshal.load(Marshal.dump(obj))
 end
 
+def tf_by_filename(fn)
+  File.basename(fn).split('.', 2).first
+end
+
 def dataset_and_experiment_type(dataset_info)
   exp_type = dataset_info['experiment_type']
   extension = dataset_info['extension']
@@ -70,7 +74,7 @@ def dataset_folder(dataset_info, base_folder)
   "#{base_folder}/#{exp_type}/#{slice_type}_#{dataset_type}"
 end
 
-def dataset_renamed(dataset_info, rename_info, move_files: false, base_folder: )
+def dataset_renamed(dataset_info, rename_info, move_files: false, base_folder: nil)
   dataset_info = deep_copy(dataset_info)
 
   dataset_info['experiment_meta']['plasmid'] = nil
@@ -99,6 +103,32 @@ def dataset_renamed(dataset_info, rename_info, move_files: false, base_folder: )
   dataset_info
 end
 
+def multiple_datasets_renamed(datasets, renames, move_files: false, base_folder: nil, skip_not_approved: false)
+  datasets.map{|dataset_info|
+    rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
+    if !rename_info
+      dataset_info
+    else
+      if skip_not_approved && rename_info['NEW CURATION'] == 'Not approved'
+        nil
+      else
+        dataset_renamed(dataset_info, rename_info, move_files: move_files, base_folder: base_folder)
+      end
+    end
+  }.compact
+end
+
+def multiple_datasets_renamed_reapproved(datasets, renames)
+  datasets.map{|dataset_info|
+    rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
+    if rename_info && (rename_info['OLD CURATION'] == 'Not approved') && (rename_info['NEW CURATION'] == 'Approved')
+      dataset_renamed(dataset_info, rename_info)
+    else
+      nil
+    end
+  }.compact
+end
+
 def rename_motif(motif_fn, rename_info)
   folder = File.dirname(motif_fn)
   motif_bn = File.basename(motif_fn)
@@ -114,6 +144,7 @@ def rename_motif(motif_fn, rename_info)
   end
 end
 
+# It doesn't matter if datasets is original or renamed (because we take TF name from renames, not from datasets)
 def motif_pack_rename(motif_folder, datasets, renames)
   dataset_ids_renames = datasets.map{|dataset_info|
     rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
@@ -140,7 +171,66 @@ def dataset_ids_by_motif(motif_fn)
   motif_fn.split('@')[2].split('+')
 end
 
+def store_jsonl(filename, records)
+  File.open(filename, 'w'){|fw| records.each{|record| fw.puts(record.to_json) } }
+end
+
+def copy_files(rename_pairs, symlink: false)
+  rename_pairs.map{|old_fn, new_fn| File.dirname(new_fn) }.uniq.each{|dn| FileUtils.mkdir_p(dn) }
+
+  rename_pairs.each{|old_fn, new_fn|
+    if symlink
+      FileUtils.ln_s(old_fn, new_fn)
+    else
+      FileUtils.cp(old_fn, new_fn)
+    end
+  }
+end
+
+# info to copy files freeze → freeze_recalc
+def rename_pairs_to_recalc(affected_tfs)
+  rename_pairs = []
+  rename_pairs += affected_tfs.flat_map{|tf|
+    fns = Dir.glob("freeze/datasets_freeze/*/*/#{tf}.*")
+    fns.map{|fn|
+      new_fn = fn.sub(/^freeze/, 'freeze_recalc')
+      [fn, new_fn]
+    }
+  }
+  rename_pairs += affected_tfs.flat_map{|tf|
+    fns = Dir.glob("freeze/all_motifs/#{tf}.*")
+    fns.map{|fn|
+      new_fn = fn.sub(/^freeze/, 'freeze_recalc')
+      [fn, new_fn]
+    }
+  }
+end
+
+def recalc_integration_rename_pairs(affected_tfs)
+  dataset_fns = Dir.glob("freeze/datasets_freeze/*/*/*")
+  motif_fns = Dir.glob("freeze/all_motifs/*")
+  fns = dataset_fns + motif_fns
+  all_tfs = fns.map{|fn| tf_by_filename(fn) }.uniq
+
+  rename_pairs = all_tfs.flat_map{|tf|
+    base_folder = affected_tfs.include?(tf) ? 'freeze_recalc' : 'freeze'
+    [
+      *Dir.glob("#{base_folder}/datasets_freeze/*/*/#{tf}.*"),
+      *Dir.glob("#{base_folder}/datasets_freeze_approved/*/*/#{tf}.*"),
+      *Dir.glob("#{base_folder}/all_motifs/#{tf}.*"),
+    ].map{|orig_fn|
+      new_fn = orig_fn.sub(/^#{base_folder}/, 'freeze_recalc_integrated')
+      [orig_fn, new_fn]
+    }
+  }
+  rename_pairs
+end
+
+
 FileUtils.rm_rf('freeze_recalc')
+FileUtils.rm_rf('freeze_recalc_integrated')
+FileUtils.mkdir_p('freeze_recalc')
+FileUtils.mkdir_p('freeze_recalc_integrated')
 
 renames = CSV.foreach('source_data_meta/fixes/CODEGATE_DatasetsSwap.txt', col_sep: "\t", headers: true).map(&:to_h).map{|row|
   #  "THC_0361.Rep-DIANA_0293,THC_0361.Rep-MICHELLE_0314" → THC_0361
@@ -148,130 +238,54 @@ renames = CSV.foreach('source_data_meta/fixes/CODEGATE_DatasetsSwap.txt', col_se
   [id, row]
 }.to_h_safe
 
-
 affected_tfs = renames.flat_map{|exp_id, rename_info| rename_info.values_at('Original TF label', 'NEW TF label') }.uniq
-# copy files freeze → freeze_recalc
 
-rename_pairs = []
-rename_pairs += affected_tfs.flat_map{|tf|
-  fns = Dir.glob("freeze/datasets_freeze/*/*/#{tf}.*")
-  fns.map{|fn|
-    new_fn = fn.sub(/^freeze/, 'freeze_recalc')
-    [fn, new_fn]
-  }
-}
-rename_pairs += affected_tfs.flat_map{|tf|
-  fns = Dir.glob("freeze/all_motifs/#{tf}.*")
-  fns.map{|fn|
-    new_fn = fn.sub(/^freeze/, 'freeze_recalc')
-    [fn, new_fn]
-  }
-}
+# copy affected TF-related files from `datasets_freeze` and `all_motifs` into corresponding folders in `freeze_recalc`
+copy_files(rename_pairs_to_recalc(affected_tfs))
 
-rename_pairs.map{|old_fn, new_fn| File.dirname(new_fn) }.uniq.each{|dn| FileUtils.mkdir_p(dn) }
-
-rename_pairs.each{|old_fn, new_fn|
-  FileUtils.cp(old_fn, new_fn)
-}
-
-datasets          = File.readlines('freeze/datasets_metadata.freeze.json').map{|l| JSON.parse(l) }
+datasets_freeze   = File.readlines('freeze/datasets_metadata.freeze.json').map{|l| JSON.parse(l) }
 datasets_full     = File.readlines('freeze/datasets_metadata.full.json').map{|l| JSON.parse(l) }
 datasets_approved = File.readlines('freeze/datasets_metadata.freeze-approved.json').map{|l| JSON.parse(l) }
 
-datasets_renamed = datasets.map{|dataset_info|
-  rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
-  if !rename_info
-    dataset_info
-  else
-    dataset_renamed(dataset_info, rename_info, base_folder: "freeze_recalc/datasets_freeze", move_files: true)
-  end
-}
+# inside freeze_recalc folder move datasets with wrong TF names (they will reside in the same folder)
+datasets_freeze_renamed = multiple_datasets_renamed(datasets_freeze, renames, move_files: true, base_folder: "freeze_recalc/datasets_freeze")
 
-datasets_full_renamed = datasets_full.map{|dataset_info|
-  rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
-  if !rename_info
-    dataset_info
-  else
-    dataset_renamed(dataset_info, rename_info, base_folder: nil, move_files: false)
-  end
-}
+# we don't collect files for non-freeze datasets, only metadata, so no copying
+datasets_full_renamed = multiple_datasets_renamed(datasets_full, renames)
 
-datasets_approved_renamed = datasets_approved.map{|dataset_info|
-  rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
-  if !rename_info
-    dataset_info
-  elsif rename_info['NEW CURATION'] == 'Not approved'
-    nil
-  else
-    dataset_renamed(dataset_info, rename_info, base_folder: nil, move_files: false)
-  end
-}.compact
+# we collect files for new `freeze-approved` by copying from new `freeze` folder
+# (not from old `freeze-approved` because some datasets were re-approved)
+datasets_approved_renamed = [
+  *multiple_datasets_renamed(datasets_approved, renames, skip_not_approved: true),
+  *multiple_datasets_renamed_reapproved(datasets_freeze, renames),
+]
 
-datasets_approved_addition = datasets.map{|dataset_info|
-  rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
-  if rename_info && (rename_info['OLD CURATION'] == 'Not approved') && (rename_info['NEW CURATION'] == 'Approved')
-    dataset_renamed(dataset_info, rename_info, base_folder: nil, move_files: false)
-  else
-    nil
-  end
-}.compact
-
-datasets_approved_renamed += datasets_approved_addition
-
-
-datasets_approved_renamed.map{|dataset_info|
-  dataset_folder(dataset_info, "freeze_recalc/datasets_freeze_approved")
-}.uniq.each{|folder|
-  FileUtils.mkdir_p(folder)
-}
-
-datasets_approved_renamed.select{|dataset_info|
+approved_datasets_rename_pairs = datasets_approved_renamed.select{|dataset_info|
   affected_tfs.include?( dataset_info['tf'] )
-}.each{|dataset_info|
-  dataset_name = dataset_info['dataset_name']
+}.map{|dataset_info|
   folder = dataset_folder(dataset_info, "freeze_recalc/datasets_freeze")
   new_folder = dataset_folder(dataset_info, "freeze_recalc/datasets_freeze_approved")
-  filename = "#{folder}/#{dataset_name}"
-  new_filename = "#{new_folder}/#{dataset_name}"
-  FileUtils.cp(filename, new_filename)
+  dataset_name = dataset_info['dataset_name']
+  [File.join(folder, dataset_name), File.join(new_folder, dataset_name)]
 }
 
+copy_files(approved_datasets_rename_pairs)
 
+# Finalize metadata
 in_freeze_ids = datasets_full_renamed.map{|dataset_info| dataset_info['dataset_id'] }.to_set
 approved_ids = datasets_approved_renamed.map{|dataset_info| dataset_info['dataset_id'] }.to_set
 
-datasets_approved_renamed.each{|dataset_info|
-  raise "Shouldn't be here"  unless approved_ids.include?(dataset_info['dataset_id'])
-  dataset_info['in_freeze'] = true
-  dataset_info['approved'] = true
-}
-datasets_renamed.each{|dataset_info|
-  dataset_info['in_freeze'] = true
-  dataset_info['approved'] = approved_ids.include?(dataset_info['dataset_id'])
-}
-
-datasets_full_renamed.each{|dataset_info|
+[*datasets_approved_renamed, *datasets_freeze_renamed, *datasets_full_renamed].each do |dataset_info|
   dataset_info['in_freeze'] = in_freeze_ids.include?(dataset_info['dataset_id'])
   dataset_info['approved'] = approved_ids.include?(dataset_info['dataset_id'])
-}
+end
 
+store_jsonl('freeze_recalc_integrated/datasets_metadata.freeze.json', datasets_freeze_renamed)
+store_jsonl('freeze_recalc_integrated/datasets_metadata.freeze-approved.json', datasets_approved_renamed)
+store_jsonl('freeze_recalc_integrated/datasets_metadata.full.json', datasets_full_renamed)
 
-File.open('freeze_recalc/datasets_metadata.freeze.json', 'w'){|fw|
-  datasets_renamed.each{|dataset_info|
-    fw.puts(dataset_info.to_json)
-  }
-}
+# Rename motifs in freeze_recalc
+motif_pack_rename('freeze_recalc/all_motifs', datasets_freeze, renames) # freeze and freeze_approved motifs will be generated later
 
-File.open('freeze_recalc/datasets_metadata.freeze-approved.json', 'w'){|fw|
-  datasets_approved_renamed.each{|dataset_info|
-    fw.puts(dataset_info.to_json)
-  }
-}
-
-File.open('freeze_recalc/datasets_metadata.full.json', 'w'){|fw|
-  datasets_full_renamed.each{|dataset_info|
-    fw.puts(dataset_info.to_json)
-  }
-}
-
-motif_pack_rename('freeze_recalc/all_motifs', datasets, renames) # freeze and freeze_approved will be generated later
+# Integrate datasets and motifs from freeze and freeze_recalc folders into freeze_recalc_integrated
+copy_files(recalc_integration_rename_pairs(affected_tfs), symlink: true)
