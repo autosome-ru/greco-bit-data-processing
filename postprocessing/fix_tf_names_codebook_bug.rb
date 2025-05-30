@@ -180,7 +180,8 @@ def copy_files(rename_pairs, symlink: false)
 
   rename_pairs.each{|old_fn, new_fn|
     if symlink
-      FileUtils.ln_s(old_fn, new_fn)
+      old_fn_resolved = (File.symlink?(old_fn) ? File.readlink(old_fn) : old_fn).then{|fn| File.realpath(fn) }
+      FileUtils.ln_s(old_fn_resolved, new_fn)
     else
       FileUtils.cp(old_fn, new_fn)
     end
