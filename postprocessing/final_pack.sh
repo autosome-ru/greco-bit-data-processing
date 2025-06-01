@@ -98,9 +98,9 @@ ln -s ../freeze_recalc/all_motifs freeze_recalc_for_benchmark/all_motifs
 mkdir -p freeze_recalc_for_benchmark/datasets_freeze
 for DATATYPE in CHS GHTS.Peaks GHTS.Reads HTS PBM.QNZS PBM.SD PBM.SDQN SMS; do
   DATATYPE_FOR_BENCHMARK=${DATATYPE/GHTS/AFS}
-  for SLICE in $(find freeze_recalc/datasets_freeze/GHTS.Peaks/ -maxdepth 1 -mindepth 1 -xtype d -print0 | xargs -0 -n1 basename ); do
+  mkdir -p freeze_recalc_for_benchmark/datasets_freeze/${DATATYPE_FOR_BENCHMARK}
+  for SLICE in $(find freeze_recalc/datasets_freeze/${DATATYPE}/ -maxdepth 1 -mindepth 1 -xtype d -print0 | xargs -0 -n1 basename ); do
     SLICE_FOR_BENCHMARK=${SLICE/Test_/Val_}
-    mkdir -p freeze_recalc_for_benchmark/datasets_freeze/${DATATYPE_FOR_BENCHMARK}
     ln -s ../../../freeze_recalc/datasets_freeze/${DATATYPE}/${SLICE} freeze_recalc_for_benchmark/datasets_freeze/${DATATYPE_FOR_BENCHMARK}/${SLICE_FOR_BENCHMARK}
   done
 done
