@@ -18,6 +18,11 @@ MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_8c.pack_8_fix/'
 BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/motif_batch_8c_pack_8_fix'
 BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/final_formatted'
 
+# DATA_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/datasets_freeze/'
+# MOTIFS_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/all_motifs/'
+# BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/benchmarks/'
+# BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/benchmarks_formatted/'
+
 time ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/vigg_peaks
 time ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/centrimo_peaks
 time ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/pwmeval_peaks
