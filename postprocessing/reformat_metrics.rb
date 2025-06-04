@@ -21,8 +21,9 @@ conversion_tasks = [
       # 'benchmarks/release_8c/motif_batch_8c_pack_7/pwmeval_peaks.tsv',
       'benchmarks/release_8c/motif_batch_8c_pack_8_fix/pwmeval_peaks.tsv',
       'benchmarks/release_8c/motif_batch_8c_pack_9/pwmeval_peaks.tsv',
+      'freeze_recalc_for_benchmark/benchmarks/pwmeval_peaks.tsv',
     ],
-    dst: 'benchmarks/release_8c/final_formatted/pwmeval_peaks.tsv',
+    dst: 'freeze_recalc_integrated/benchmarks_formatted/pwmeval_peaks.tsv',
     metrics: ['roc_auc', 'pr_auc'],
     parser: ->(info, metrics){ JSON.parse(info)["metrics"].values_at(*metrics) }
   },
@@ -38,8 +39,9 @@ conversion_tasks = [
       # 'benchmarks/release_8c/motif_batch_8c_pack_7/vigg_peaks.tsv',
       'benchmarks/release_8c/motif_batch_8c_pack_8_fix/vigg_peaks.tsv',
       'benchmarks/release_8c/motif_batch_8c_pack_9/vigg_peaks.tsv',
+      'freeze_recalc_for_benchmark/benchmarks/vigg_peaks.tsv',
     ],
-    dst: 'benchmarks/release_8c/final_formatted/vigg_peaks.tsv',
+    dst: 'freeze_recalc_integrated/benchmarks_formatted/vigg_peaks.tsv',
     metrics: ['roc_auc', 'logroc_auc'],
     parser: ->(info, metrics){ JSON.parse(info)["metrics"].values_at(*metrics) }
   },
@@ -55,8 +57,9 @@ conversion_tasks = [
       # 'benchmarks/release_8c/motif_batch_8c_pack_7/centrimo_peaks.tsv',
       'benchmarks/release_8c/motif_batch_8c_pack_8_fix/centrimo_peaks.tsv',
       'benchmarks/release_8c/motif_batch_8c_pack_9/centrimo_peaks.tsv',
+      'freeze_recalc_for_benchmark/benchmarks/centrimo_peaks.tsv',
     ],
-    dst: 'benchmarks/release_8c/final_formatted/centrimo_peaks.tsv',
+    dst: 'freeze_recalc_integrated/benchmarks_formatted/centrimo_peaks.tsv',
     metrics: ['-log10(E-value)','concentration_30nt'],
     parser: ->(info, metrics){
       if !info || info.empty?
@@ -85,8 +88,9 @@ conversion_tasks = [
       # 'benchmarks/release_8c/motif_batch_8c_pack_7/pbm.tsv',
       'benchmarks/release_8c/motif_batch_8c_pack_8_fix/pbm.tsv',
       'benchmarks/release_8c/motif_batch_8c_pack_9/pbm.tsv',
+      'freeze_recalc_for_benchmark/benchmarks/pbm.tsv',
     ],
-    dst: 'benchmarks/release_8c/final_formatted/pbm.tsv',
+    dst: 'freeze_recalc_integrated/benchmarks_formatted/pbm.tsv',
     metrics: ['ASIS', 'LOG', 'EXP', 'ROC', 'PR', 'ROCLOG', 'PRLOG', 'MERS', 'LOGMERS'],
     parser: ->(info, metrics){ JSON.parse(info).values_at(*metrics) }
   },
@@ -105,8 +109,9 @@ conversion_tasks = [
         # "benchmarks/release_8c/motif_batch_8c_pack_7/reads_#{fraction}.tsv",
         "benchmarks/release_8c/motif_batch_8c_pack_8_fix/reads_#{fraction}.tsv",
         "benchmarks/release_8c/motif_batch_8c_pack_9/reads_#{fraction}.tsv",
+        "freeze_recalc_for_benchmark/benchmarks/reads_#{fraction}.tsv",
       ],
-      dst: "benchmarks/release_8c/final_formatted/reads_#{fraction}.tsv",
+      dst: "freeze_recalc_integrated/benchmarks_formatted/reads_#{fraction}.tsv",
       metrics: ['roc_auc', 'pr_auc'],
       parser: ->(info, metrics){ JSON.parse(info)["metrics"].values_at(*metrics) }
     }
