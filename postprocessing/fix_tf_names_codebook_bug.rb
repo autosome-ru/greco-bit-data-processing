@@ -19,6 +19,35 @@ def deep_copy(obj)
   Marshal.load(Marshal.dump(obj))
 end
 
+def basename_wo_ext(fn)
+  File.basename(fn, File.extname(fn))
+end
+
+def rename_motif(src_filename, dst_filename, transpose: false)
+  new_motif_name = basename_wo_ext(dst_filename)
+  lines = File.readlines(src_filename).map(&:chomp)
+  if lines[0].start_with?('>')
+    old_header = lines[0]
+    lines.shift
+    old_name, additional_info = old_header[1..-1].strip.split(/\s+/, 2)
+    header = ">#{new_motif_name} #{additional_info}"
+  else
+    header = ">#{new_motif_name}"
+  end
+
+  matrix = lines.map{|l| l.strip.split(/\s+/) }
+  matrix = matrix.transpose  if transpose
+
+  write_motif(dst_filename, header, matrix)
+end
+
+def write_motif(dst_filename, header, matrix)
+  File.open(dst_filename, 'w') {|fw|
+    fw.puts header
+    fw.puts matrix.map{|row| row.map{|x| Float(x) }.map{|x| '%.16f' % x }.join("\t") }.join("\n")
+  }
+end
+
 def tf_by_filename(fn)
   File.basename(fn).split('.', 2).first
 end
@@ -81,10 +110,11 @@ def dataset_renamed(dataset_info, rename_info, move_files: false, base_folder: n
   dataset_info['experiment_meta']['plasmid_id'] = 'unknown'
 
   old_dataset_name = dataset_info['dataset_name']
-  old_tf, rest_name = old_dataset_name.split('.', 2)
+  old_tf_construct, rest_name = old_dataset_name.split('@', 2)
+  old_tf, old_construct = old_tf_construct.split('.', 2)
   raise 'Old TF name mismatch'  unless rename_info['Original TF label'] == old_tf
   new_tf = rename_info['NEW TF label']
-  new_dataset_name = "#{new_tf}.#{rest_name}"
+  new_dataset_name = "#{new_tf}.NA@#{rest_name}"
   dataset_info['dataset_name'] = new_dataset_name
   dataset_info['tf'] = new_tf
 
@@ -105,7 +135,7 @@ end
 
 def multiple_datasets_renamed(datasets, renames, move_files: false, base_folder: nil, skip_not_approved: false)
   datasets.map{|dataset_info|
-    rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
+    rename_info = renames[ dataset_info['experiment_id'] ]
     if !rename_info
       dataset_info
     else
@@ -120,7 +150,7 @@ end
 
 def multiple_datasets_renamed_reapproved(datasets, renames)
   datasets.map{|dataset_info|
-    rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
+    rename_info = renames[ dataset_info['experiment_id'] ]
     if rename_info && (rename_info['OLD CURATION'] == 'Not approved') && (rename_info['NEW CURATION'] == 'Approved')
       dataset_renamed(dataset_info, rename_info)
     else
@@ -129,25 +159,27 @@ def multiple_datasets_renamed_reapproved(datasets, renames)
   }.compact
 end
 
-def rename_motif(motif_fn, rename_info)
+def rename_motif_by_info(motif_fn, rename_info)
   folder = File.dirname(motif_fn)
   motif_bn = File.basename(motif_fn)
-  old_tf, rest_name = motif_bn.split('.', 2)
+  old_tf_construct, rest_name = motif_bn.split('@', 2)
+  old_tf, old_construct = old_tf_construct.split('.', 2)
   raise 'TF name mismatch'  unless old_tf == rename_info['Original TF label']
   new_tf = rename_info['NEW TF label']
-  new_motif_bn = "#{new_tf}.#{rest_name}"
+  new_motif_bn = "#{new_tf}.NA@#{rest_name}"
   new_motif_fn = File.join(folder, new_motif_bn)
   if new_motif_fn != motif_fn
     raise "#{motif_fn} not exists" if !File.exist?(motif_fn)
     raise "#{new_motif_fn} already exists" if File.exist?(new_motif_fn)
-    FileUtils.mv(motif_fn, new_motif_fn)
+    rename_motif(motif_fn, new_motif_fn)
+    FileUtils.rm(motif_fn)
   end
 end
 
 # It doesn't matter if datasets is original or renamed (because we take TF name from renames, not from datasets)
 def motif_pack_rename(motif_folder, datasets, renames)
   dataset_ids_renames = datasets.map{|dataset_info|
-    rename_info = renames[ dataset_info['experiment_meta']['experiment_id'] ]
+    rename_info = renames[ dataset_info['experiment_id'] ]
     [dataset_info['dataset_id'], rename_info]
   }.select{|dataset_id, rename_info|
     rename_info
@@ -164,7 +196,7 @@ def motif_pack_rename(motif_folder, datasets, renames)
     end
   }.compact
 
-  motif_renames.each{|motif_fn, rename_info| rename_motif(motif_fn, rename_info) }
+  motif_renames.each{|motif_fn, rename_info| rename_motif_by_info(motif_fn, rename_info) }
 end
 
 def dataset_ids_by_motif(motif_fn)
