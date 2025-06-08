@@ -34,6 +34,10 @@ def dataset_ids_by_motif_fn(motif_fn)
   File.basename(motif_fn).split('@')[2].split('+')
 end
 
+def tf_by_filename(fn)
+  File.basename(fn).split('@')[0].split('.').first
+end
+
 motif_tf_construct_by_ds_fn = Dir.glob('freeze_recalc/all_motifs/*').flat_map{|fn|
   tf_construct = File.basename(fn).split('@', 2).first
   dataset_ids_by_motif_fn(fn).map{|dataset_id|
@@ -49,6 +53,8 @@ dataset_tf_construct_by_ds_fn = Dir.glob('freeze_recalc/datasets_freeze/*/*/*').
   }
 }.to_h_safe
 
+
+tfs_to_skip = ['TIGD4', 'TIGD5']
 experiments_to_skip = ['YWN_B_AffSeq_F11_TIGD5-FL', 'YWO_B_AffSeq_F11_TIGD5-FL']
 datasets_to_skip = File.open('freeze_recalc_integrated/datasets_metadata.full.json').each_line.lazy.map{|l|
   JSON.parse(l)
@@ -72,6 +78,11 @@ Dir.glob('freeze_recalc_backups/freeze_recalc_for_benchmark/benchmarks/*.tsv').e
       dataset_ids_by_motif_fn(fn)
     }
     [new_dataset_fn, new_motif_fn, metrics]
+  }.reject{|dataset_fn, motif_fn, metrics|
+    dataset_tf = tf_by_filename(dataset_fn)
+    motif_tf = tf_by_filename(motif_fn)
+    raise "TF mismatch between motif/dataset"  unless dataset_tf == motif_tf
+    tfs_to_skip.include?(dataset_tf)
   }
   new_fn = File.join('freeze_recalc_for_benchmark/benchmarks/', File.basename(fn))
   File.open(new_fn, 'w'){|fw|
