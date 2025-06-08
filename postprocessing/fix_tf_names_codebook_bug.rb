@@ -109,6 +109,7 @@ def dataset_renamed(dataset_info, rename_info, move_files: false, base_folder: n
 
   dataset_info['experiment_meta']['plasmid'] = nil
   dataset_info['experiment_meta']['plasmid_id'] = 'unknown'
+  dataset_info['construct_type'] = 'NA'
 
   # sometimes .experiment_meta.gene_name and .experiment_info.tf not specified
   # in these cases, we prefer not to set them
