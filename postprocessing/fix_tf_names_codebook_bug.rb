@@ -192,7 +192,7 @@ def motif_pack_rename(motif_folder, datasets, renames)
   }.to_h_safe
 
   motif_renames = Dir.glob("#{motif_folder}/*").map{|fn|
-    renames_for_motif = dataset_ids_by_motif(fn).map{|dataset_id| dataset_ids_renames[dataset_id] }.compact.uniq
+    renames_for_motif = dataset_ids_by_motif_fn(fn).map{|dataset_id| dataset_ids_renames[dataset_id] }.compact.uniq
     if renames_for_motif.size > 1
       raise "Mismatch in motif renames"
     elsif renames_for_motif.size == 0
@@ -205,8 +205,8 @@ def motif_pack_rename(motif_folder, datasets, renames)
   motif_renames.each{|motif_fn, rename_info| rename_motif_by_info(motif_fn, rename_info) }
 end
 
-def dataset_ids_by_motif(motif_fn)
-  motif_fn.split('@')[2].split('+')
+def dataset_ids_by_motif_fn(motif_fn)
+  File.basename(motif_fn).split('@')[2].split('+')
 end
 
 def store_jsonl(filename, records)

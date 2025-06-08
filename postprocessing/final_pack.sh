@@ -105,6 +105,9 @@ for DATATYPE in CHS GHTS.Peaks GHTS.Reads HTS PBM.QNZS PBM.SD PBM.SDQN SMS; do
   done
 done
 
+mkdir -p freeze_recalc_for_benchmark/benchmarks
+ruby postprocessing/fix_tf_names_codebook_bug-stage-2.rb
+
 metadata_tsv freeze_recalc_integrated/datasets_metadata.full.json > freeze_recalc_integrated/datasets_metadata.full.tsv
 metadata_tsv freeze_recalc_integrated/datasets_metadata.freeze.json > freeze_recalc_integrated/datasets_metadata.freeze.tsv
 metadata_tsv freeze_recalc_integrated/datasets_metadata.freeze-approved.json > freeze_recalc_integrated/datasets_metadata.freeze-approved.tsv
