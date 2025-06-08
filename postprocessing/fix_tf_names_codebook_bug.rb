@@ -105,15 +105,21 @@ end
 
 def dataset_renamed(dataset_info, rename_info, move_files: false, base_folder: nil)
   dataset_info = deep_copy(dataset_info)
+  new_tf = rename_info['NEW TF label']
 
   dataset_info['experiment_meta']['plasmid'] = nil
   dataset_info['experiment_meta']['plasmid_id'] = 'unknown'
+
+  # sometimes .experiment_meta.gene_name and .experiment_info.tf not specified
+  # in these cases, we prefer not to set them
+  dataset_info['experiment_meta']['gene_name'] = new_tf  if dataset_info.dig('experiment_meta', 'gene_name')
+  dataset_info['experiment_info']['tf'] = new_tf  if dataset_info.dig('experiment_info', 'tf')
 
   old_dataset_name = dataset_info['dataset_name']
   old_tf_construct, rest_name = old_dataset_name.split('@', 2)
   old_tf, old_construct = old_tf_construct.split('.', 2)
   raise 'Old TF name mismatch'  unless rename_info['Original TF label'] == old_tf
-  new_tf = rename_info['NEW TF label']
+
   new_dataset_name = "#{new_tf}.NA@#{rest_name}"
   dataset_info['dataset_name'] = new_dataset_name
   dataset_info['tf'] = new_tf
