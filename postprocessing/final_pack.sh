@@ -92,8 +92,12 @@ ln --no-target-directory -s /home_local/vorontsovie/greco-motifs/release_8c.7e+8
 
 ruby postprocessing/fix_tf_names_codebook_bug.rb
 
-mkdir -p freeze_recalc_for_benchmark
-ln -s ../freeze_recalc/all_motifs freeze_recalc_for_benchmark/all_motifs
+mkdir -p freeze_recalc_for_benchmark/all_motifs
+for TF in TIGD4 TIGD5; do
+  for FN in $(find freeze_recalc/all_motifs -xtype f -name "${TF}.*"); do
+    ln -s $(readlink -m $FN) freeze_recalc_for_benchmark/all_motifs/
+  done
+done
 
 mkdir -p freeze_recalc_for_benchmark/datasets_freeze
 for DATATYPE in CHS GHTS.Peaks GHTS.Reads HTS PBM.QNZS PBM.SD PBM.SDQN SMS; do
@@ -101,12 +105,25 @@ for DATATYPE in CHS GHTS.Peaks GHTS.Reads HTS PBM.QNZS PBM.SD PBM.SDQN SMS; do
   mkdir -p freeze_recalc_for_benchmark/datasets_freeze/${DATATYPE_FOR_BENCHMARK}
   for SLICE in $(find freeze_recalc/datasets_freeze/${DATATYPE}/ -maxdepth 1 -mindepth 1 -xtype d -print0 | xargs -0 -n1 basename ); do
     SLICE_FOR_BENCHMARK=${SLICE/Test_/Val_}
-    ln -s ../../../freeze_recalc/datasets_freeze/${DATATYPE}/${SLICE} freeze_recalc_for_benchmark/datasets_freeze/${DATATYPE_FOR_BENCHMARK}/${SLICE_FOR_BENCHMARK}
+    mkdir -p freeze_recalc_for_benchmark/datasets_freeze/${DATATYPE_FOR_BENCHMARK}/${SLICE_FOR_BENCHMARK}
+    for TF in TIGD4 TIGD5; do
+      for FN in $(find freeze_recalc/datasets_freeze/${DATATYPE}/${SLICE} -xtype f -name "${TF}.*"); do
+        ln -s $(readlink -m $FN) freeze_recalc_for_benchmark/datasets_freeze/${DATATYPE_FOR_BENCHMARK}/${SLICE_FOR_BENCHMARK}
+      done
+    done
   done
 done
 
 mkdir -p freeze_recalc_for_benchmark/benchmarks
-ruby postprocessing/fix_tf_names_codebook_bug-stage-2.rb
+# here one should run benchmarks for missing datasets (see motif_metrics.sh)
+mv freeze_recalc_for_benchmark/benchmarks freeze_recalc_for_benchmark/benchmarks_1
+
+mkdir -p freeze_recalc_for_benchmark/benchmarks
+ruby postprocessing/fix_tf_names_codebook_bug-stage-2.rb  # rename motifs/datasets in benchmark + collect TFs to recalc once again
+# here one should run benchmarks for the rest of the missing datasets (see motif_metrics.sh)
+mv freeze_recalc_for_benchmark/benchmarks freeze_recalc_for_benchmark/benchmarks_2
+
+# here one can run reformat_metrics and so on (see motif_metrics.sh)
 
 metadata_tsv freeze_recalc_integrated/datasets_metadata.full.json > freeze_recalc_integrated/datasets_metadata.full.tsv
 metadata_tsv freeze_recalc_integrated/datasets_metadata.freeze.json > freeze_recalc_integrated/datasets_metadata.freeze.tsv
