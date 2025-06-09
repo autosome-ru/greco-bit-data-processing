@@ -2,7 +2,7 @@ require 'csv'
 require 'json'
 require 'fileutils'
 require 'set'
-require_relative 'postprocessing/fix_tf_names_codebook_bug_utils.rb'
+require_relative 'fix_tf_names_codebook_bug_utils.rb'
 
 def motif_similarity_rename_pairs(datasets, renames)
   dataset_ids_renames = get_dataset_ids_renames(datasets, renames)
