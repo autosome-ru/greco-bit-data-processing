@@ -46,6 +46,6 @@ hocomoco_similarities_renamed = File.readlines('hocomoco_similarities.tsv').map{
 
 File.open('hocomoco_similarities_recalc.tsv', 'w'){|fw|
   hocomoco_similarities_renamed.each{|row|
-    fw.puts(row.join("\t")
+    fw.puts(row.join("\t"))
   }
 }
