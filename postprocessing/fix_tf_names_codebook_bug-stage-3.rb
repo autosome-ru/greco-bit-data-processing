@@ -36,7 +36,7 @@ renames = CSV.foreach('source_data_meta/fixes/CODEGATE_DatasetsSwap.txt', col_se
 
 datasets_full = File.readlines('freeze/datasets_metadata.full.json').map{|l| JSON.parse(l) }
 
-dataset_ids_renames = get_dataset_ids_renames(datasets, renames)
+dataset_ids_renames = get_dataset_ids_renames(datasets_full, renames)
 # copy/copy-and-rename motif-related files from `artifact_sims_precise` to `artifact_sims_precise_recalc`
 copy_files(motif_similarity_rename_pairs(dataset_ids_renames), symlink: true)
 
