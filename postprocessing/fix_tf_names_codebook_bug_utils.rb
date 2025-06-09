@@ -184,14 +184,18 @@ def rename_motif_by_info(motif_fn, rename_info)
   end
 end
 
-# It doesn't matter if datasets is original or renamed (because we take TF name from renames, not from datasets)
-def motif_pack_rename(motif_folder, datasets, renames)
-  dataset_ids_renames = datasets.map{|dataset_info|
+def get_dataset_ids_renames(datasets, renames)
+  datasets.map{|dataset_info|
     rename_info = renames[ dataset_info['experiment_id'] ]
     [dataset_info['dataset_id'], rename_info]
   }.select{|dataset_id, rename_info|
     rename_info
   }.to_h_safe
+end
+
+# It doesn't matter if datasets is original or renamed (because we take TF name from renames, not from datasets)
+def motif_pack_rename(motif_folder, datasets, renames)
+  dataset_ids_renames = get_dataset_ids_renames(datasets, renames)
 
   motif_renames = Dir.glob("#{motif_folder}/*").map{|fn|
     renames_for_motif = dataset_ids_by_motif_fn(fn).map{|dataset_id| dataset_ids_renames[dataset_id] }.compact.uniq
