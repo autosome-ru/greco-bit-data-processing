@@ -48,7 +48,7 @@ save_tsv('hocomoco_similarities_recalc.tsv', hocomoco_similarities_renamed)
 
 Dir.glob('*_flanks_hits.tsv').each{|fn|
   flanks_hits_data = File.readlines(fn).map{|l| l.chomp.split("\t") }.map{|row|
-    motif_wo_ext, tf, *rest = l.chomp.split("\t")
+    motif_wo_ext, tf, *rest = row
     new_motif_wo_ext = renamed_motif_basename(motif_wo_ext, dataset_ids_renames)
     new_tf = new_motif_wo_ext.split(".")[0]
     [new_motif_wo_ext, new_tf, *rest]
