@@ -44,8 +44,11 @@ hocomoco_similarities_renamed = File.readlines('hocomoco_similarities.tsv').map{
   [renamed_motif_basename(row[0], dataset_ids_renames), *row[1..-1]]
 }
 
-File.open('hocomoco_similarities_recalc.tsv', 'w'){|fw|
-  hocomoco_similarities_renamed.each{|row|
-    fw.puts(row.join("\t"))
+save_tsv('hocomoco_similarities_recalc.tsv', hocomoco_similarities_renamed)
+
+Dir.glob('*_flanks_hits.tsv').each{|fn|
+  flanks_hits_data = File.readlines(fn).map{|l| l.chomp.split("\t") }.map{|row|
+    [renamed_motif_basename(row[0], dataset_ids_renames), *row[1..-1]]
   }
+  save_tsv(fn.sub(/.tsv$/, '_recalc.tsv'), flanks_hits_data)
 }

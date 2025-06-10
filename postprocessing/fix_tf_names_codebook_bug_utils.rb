@@ -270,3 +270,11 @@ def recalc_integration_rename_pairs(affected_tfs)
   }
   rename_pairs
 end
+
+def save_tsv(filename, data)
+  File.open(filename, 'w'){|fw|
+    data.each{|row|
+      fw.puts(row.join("\t"))
+    }
+  }
+end
