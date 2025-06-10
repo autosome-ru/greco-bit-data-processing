@@ -13,15 +13,15 @@
 
 ##############
 
-DATA_FOLDER='/home_local/vorontsovie/greco-data/release_8d.2022-07-31/full/'
-MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_8c.pack_8_fix/'
-BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/motif_batch_8c_pack_8_fix'
-BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/final_formatted'
+# DATA_FOLDER='/home_local/vorontsovie/greco-data/release_8d.2022-07-31/full/'
+# MOTIFS_FOLDER='/home_local/vorontsovie/greco-motifs/release_8c.pack_8_fix/'
+# BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/motif_batch_8c_pack_8_fix'
+# BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/benchmarks/release_8d/final_formatted'
 
-# DATA_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/datasets_freeze/'
-# MOTIFS_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/all_motifs/'
-# BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/benchmarks/'
-# BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/benchmarks_formatted/'
+DATA_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/datasets_freeze/'
+MOTIFS_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/all_motifs/'
+BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/benchmarks/'
+BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_integrated/benchmarks_formatted/'
 
 ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/vigg_peaks
 ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/centrimo_peaks
@@ -64,7 +64,7 @@ ruby postprocessing/fix_tf_names_codebook_bug-stage-3.rb
 ##################
 
 METADATA_FN='freeze_recalc_integrated/datasets_metadata.full.json'
-BENCHMARK_RANKS_FOLDER='benchmarks/release_8d_prefreeze/'
+BENCHMARK_RANKS_FOLDER='benchmarks/prerelease_recalc/'
 FLANKS_OPTIONS='
     --filter-sticky-flanks  HTS_flanks_hits_recalc.tsv
     --filter-sticky-flanks  AFS_flanks_hits_recalc.tsv
@@ -81,10 +81,10 @@ FREEZE_OPTIONS='
     --motifs-curation  freeze_recalc_integrated/motif_infos.freeze.tsv
 '
 APPROVED_FREEZE_OPTIONS='
-    --datasets-curation  freeze_recalc_integrated/datasets_metadata.freeze_approved.tsv
+    --datasets-curation  freeze_recalc_integrated/datasets_metadata.freeze-approved.tsv
     --motifs-curation  freeze_recalc_integrated/motif_infos.freeze_approved.tsv
 '
-PREFIX='7e+8c_pack_1-9'
+PREFIX='prerelease_recalc'
 
 mkdir -p ${BENCHMARK_RANKS_FOLDER}
 
