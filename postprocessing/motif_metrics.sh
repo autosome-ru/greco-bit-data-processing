@@ -23,13 +23,13 @@ BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/be
 # BENCHMARK_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/benchmarks/'
 # BENCHMARK_FORMATTED_FOLDER='/home_local/vorontsovie/greco-bit-data-processing/freeze_recalc_for_benchmark/benchmarks_formatted/'
 
-time ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/vigg_peaks
-time ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/centrimo_peaks
-time ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/pwmeval_peaks
-time ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/pbm
-time ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.5/ --fraction 0.5
-time ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.25/ --fraction 0.25
-time ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.1/ --fraction 0.1
+ruby postprocessing/motif_metrics_peaks_VIGG.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/vigg_peaks
+ruby postprocessing/motif_metrics_peaks_centrimo.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/centrimo_peaks
+ruby postprocessing/motif_metrics_peaks.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/pwmeval_peaks
+ruby postprocessing/motif_metrics_pbm.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/pbm
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.5/ --fraction 0.5
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.25/ --fraction 0.25
+ruby postprocessing/motif_metrics_reads.rb ${DATA_FOLDER} ${MOTIFS_FOLDER} ${BENCHMARK_FOLDER}/reads_0.1/ --fraction 0.1
 
 time cat ${BENCHMARK_FOLDER}/pbm/prepare_all.sh | parallel -j 30
 for DATATYPE in  reads_0.1 reads_0.25 reads_0.5  vigg_peaks centrimo_peaks pwmeval_peaks  pbm; do
@@ -38,43 +38,51 @@ done
 
 
 time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_8c_pack9.tsv
-cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_bad,8_fix,9}.tsv | grep -vw ZNF705E > hocomoco_similarities.tsv
+cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_bad,8_fix,9}.tsv  \
+  | grep -vw ZNF705E  \
+  | grep -vPe $( cat source_data_meta/fixes/CODEGATE_DatasetsSwap.txt | tail -n+2 | cut -d $'\t' -f1,4 | tr $'\t' '\n' | sort -u | tr '\n' '|' | sed -re 's/^(.+)\|$/^(\1)\\./' )  \
+  > hocomoco_similarities.tsv
 
-# TODO: add 8_fix to a common folder
-# filter_motifs_in_flanks
-# calculate_artifact_similarities
-
+# MOTIFS_FOLDER here is recalc folder
+time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_recalc.tsv
+cat hocomoco_similarities_recalc.tsv >> hocomoco_similarities.tsv
 
 # FOLDERS ARE HARDCODED!!!
 # takes motifs from 'benchmarks/release_8d/motif_batch_8c_pack_8_fix'
 # outputs them into 'benchmarks/release_8d/final_formatted'
+mkdir -p freeze_recalc_integrated/benchmarks_formatted
 ruby postprocessing/reformat_metrics.rb
 
 bash ./postprocessing/filter_motif_in_flanks.sh # be cautious
 bash ./calculate_artifact_similarities.sh # be cautious
 
+# hocomoco_similarities.tsv → hocomoco_similarities_recalc.tsv
+# artifact_sims_precise → artifact_sims_precise_recalc
+# {AFS,HTS,SMS_[un]published}_flanks_hits.tsv → *_flanks_hits_recalc.tsv
+ruby postprocessing/fix_tf_names_codebook_bug-stage-3.rb
+
 ##################
 
-METADATA_FN='/home_local/vorontsovie/greco-data/release_8d.2022-07-31/metadata_release_8d.patch2.json'
+METADATA_FN='freeze_recalc_integrated/datasets_metadata.full.json'
 BENCHMARK_RANKS_FOLDER='benchmarks/release_8d_prefreeze/'
 FLANKS_OPTIONS='
-    --filter-sticky-flanks  HTS_flanks_hits.tsv
-    --filter-sticky-flanks  AFS_flanks_hits.tsv
-    --filter-sticky-flanks  SMS_unpublished_flanks_hits.tsv
-    --filter-sticky-flanks  SMS_published_flanks_hits.tsv
+    --filter-sticky-flanks  HTS_flanks_hits_recalc.tsv
+    --filter-sticky-flanks  AFS_flanks_hits_recalc.tsv
+    --filter-sticky-flanks  SMS_unpublished_flanks_hits_recalc.tsv
+    --filter-sticky-flanks  SMS_published_flanks_hits_recalc.tsv
     --flank-threshold 4.0
 '
-ARTIFACTS_OPTIONS='--artifact-similarities ./artifact_sims_precise  --artifact-similarity-threshold 0.15'
+ARTIFACTS_OPTIONS='--artifact-similarities ./artifact_sims_precise_recalc  --artifact-similarity-threshold 0.15'
 ETS_ONLY='--selected-tfs ELF3,FLI1,GABPA'
 ALLOW_ETS_ARTIFACTS='--ignore-artifact-motifs ZNF827.FL@CHS@whiny-puce-turkey@HughesLab.Homer@Motif1,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.Streme@Motif3,ZNF827.FL@CHS@stuffy-mustard-rat@HughesLab.MEME@Motif2'
 
 FREEZE_OPTIONS='
-    --datasets-curation  ./metadata_release_8d.patch2.freeze.tsv
-    --motifs-curation  ./motif_infos.freeze.tsv
+    --datasets-curation  freeze_recalc_integrated/datasets_metadata.freeze.tsv
+    --motifs-curation  freeze_recalc_integrated/motif_infos.freeze.tsv
 '
 APPROVED_FREEZE_OPTIONS='
-    --datasets-curation  ./metadata_release_8d.patch2.freeze_approved.tsv
-    --motifs-curation  ./motif_infos.freeze_approved.tsv
+    --datasets-curation  freeze_recalc_integrated/datasets_metadata.freeze_approved.tsv
+    --motifs-curation  freeze_recalc_integrated/motif_infos.freeze_approved.tsv
 '
 PREFIX='7e+8c_pack_1-9'
 

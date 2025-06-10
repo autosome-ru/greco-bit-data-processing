@@ -7,7 +7,7 @@ ranks_fn = ARGV[2] # 'benchmarks/release_8d/ranks_7e+8c_pack_1+2+3+4.json'
 artifacts_json_fn = 'artifacts/artifacts.json'
 artifacts_folder = 'artifacts'
 artifact_similarities_folder = 'artifact_sims_precise'
-flank_hits_fns = ['HTS_flanks_hits.tsv', 'AFS_flanks_hits.tsv', 'SMS_unpublished_flanks_hits.tsv', 'SMS_published_flanks_hits.tsv']
+flank_hits_fns = ['HTS_flanks_hits_recalc.tsv', 'AFS_flanks_hits_recalc.tsv', 'SMS_unpublished_flanks_hits_recalc.tsv', 'SMS_published_flanks_hits_recalc.tsv']
 flank_threshold = 4.0
 
 similarity_threshold = 0.15

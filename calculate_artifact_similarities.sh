@@ -19,6 +19,8 @@ time for ARTIFACT_MOTIF_TYPE in pcm ppm ; do
     done
 done
 
+# It's reasonable to run fix_tf_names_codebook_bug-stage-3.rb before this point
+
 mv  heatmaps_weightedTau+cross-PBM+allow-artifacts_no-afs-reads  heatmaps_weightedTau+cross-PBM+allow-artifacts_no-afs-reads_old_p8
 mv  heatmaps_weightedTau+cross-PBM+dropped-artifacts_no-afs-reads  heatmaps_weightedTau+cross-PBM+dropped-artifacts_no-afs-reads_old_p8
 time python3 generate_heatmaps.py  heatmaps_weightedTau+cross-PBM+allow-artifacts_no-afs-reads  benchmarks/release_8d/ranks_7e+8c_pack_1-6_wo_bad_crosspbm_allow-artifact_no-afs-reads.json

@@ -49,27 +49,6 @@ ruby postprocessing/motifs_freeze.rb  \
 ruby postprocessing/datasets_freeze.rb source_data_meta/shared/explicit_freeze1_approved.tsv  /home_local/vorontsovie/greco-data/datasets_freeze_approved
 
 ##############################
-time ruby postprocessing/make_artifacts_annotation.rb \
-                freeze/motif_artifacts_annotation.freeze.tsv \
-                freeze/motif_infos.freeze.tsv \
-                freeze/benchmarks/ranks.freeze.json
-
-
-# # Error: ↓ here we should use full ranks file (with artifacts retained)
-# time ruby postprocessing/mark_artifact_datasets.rb \
-#                   freeze/benchmarks/dataset_artifact_metrics_min_quantile.freeze.json \
-#                   freeze/benchmarks/dataset_artifact_metrics_num_in_q25.freeze.json \
-#                   freeze/benchmarks/ranks.freeze.json
-
-# # # Error: ↓ here we should use full ranks file (with artifacts retained)
-# time ruby postprocessing/mark_artifact_datasets.rb \
-#                   freeze/benchmarks/dataset_artifact_metrics_min_quantile.freeze-approved.json \
-#                   freeze/benchmarks/dataset_artifact_metrics_num_in_q25.freeze-approved.json \
-#                   freeze/benchmarks/ranks.freeze-approved.json
-
-# time ruby dataset_pvalues_new.rb
-
-##############################
 rm freeze/benchmarks/*.log
 rm freeze/benchmarks/*@disallow-artifacts.json
 rm freeze/benchmarks/*@disallow-artifacts_ETS-only.json
@@ -91,6 +70,9 @@ mv freeze/metadata_release_8d.patch2.tsv freeze/datasets_metadata.full.tsv
 ln --no-target-directory -s /home_local/vorontsovie/greco-motifs/release_8c.7e+8c.pack_1+2+3+4+5+6_wo_bad+8_fix+9/ freeze/all_motifs
 
 ruby postprocessing/fix_tf_names_codebook_bug.rb
+
+# mkdir -p freeze_recalc_backups/
+# mv freeze_recalc/ freeze_recalc_for_benchmark freeze_recalc_integrated/ freeze_recalc_backups/
 
 mkdir -p freeze_recalc_for_benchmark/all_motifs
 for TF in TIGD4 TIGD5; do
@@ -123,7 +105,11 @@ ruby postprocessing/fix_tf_names_codebook_bug-stage-2.rb  # rename motifs/datase
 # here one should run benchmarks for the rest of the missing datasets (see motif_metrics.sh)
 mv freeze_recalc_for_benchmark/benchmarks freeze_recalc_for_benchmark/benchmarks_2
 
-# here one can run reformat_metrics and so on (see motif_metrics.sh)
+###
+
+# here one can (and should) run reformat_metrics and so on (see motif_metrics.sh)
+
+##############################
 
 metadata_tsv freeze_recalc_integrated/datasets_metadata.full.json > freeze_recalc_integrated/datasets_metadata.full.tsv
 metadata_tsv freeze_recalc_integrated/datasets_metadata.freeze.json > freeze_recalc_integrated/datasets_metadata.freeze.tsv
@@ -147,3 +133,24 @@ ruby postprocessing/motifs_freeze.rb  \
     freeze_recalc_integrated/all_motifs/ \
     freeze_recalc_integrated/motifs_freeze_approved/ \
   > freeze_recalc_integrated/motif_infos.freeze_approved.tsv
+
+##############################
+time ruby postprocessing/make_artifacts_annotation.rb \
+                freeze_recalc_integrated/motif_artifacts_annotation.freeze.tsv \
+                freeze_recalc_integrated/motif_infos.freeze.tsv \
+                freeze_recalc_integrated/benchmarks/ranks.freeze.json
+
+
+# # Error: ↓ here we should use full ranks file (with artifacts retained)
+# time ruby postprocessing/mark_artifact_datasets.rb \
+#                   freeze/benchmarks/dataset_artifact_metrics_min_quantile.freeze.json \
+#                   freeze/benchmarks/dataset_artifact_metrics_num_in_q25.freeze.json \
+#                   freeze/benchmarks/ranks.freeze.json
+
+# # # Error: ↓ here we should use full ranks file (with artifacts retained)
+# time ruby postprocessing/mark_artifact_datasets.rb \
+#                   freeze/benchmarks/dataset_artifact_metrics_min_quantile.freeze-approved.json \
+#                   freeze/benchmarks/dataset_artifact_metrics_num_in_q25.freeze-approved.json \
+#                   freeze/benchmarks/ranks.freeze-approved.json
+
+# time ruby dataset_pvalues_new.rb

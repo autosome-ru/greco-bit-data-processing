@@ -291,7 +291,7 @@ heatmaps_folder = sys.argv[2] # ./heatmaps
 os.makedirs(results_folder, exist_ok=True)
 
 
-# flank_filter_fns = ['HTS_flanks_hits.tsv', 'AFS_flanks_hits.tsv', 'SMS_unpublished_flanks_hits.tsv', 'SMS_published_flanks_hits.tsv']
+# flank_filter_fns = ['HTS_flanks_hits_recalc.tsv', 'AFS_flanks_hits_recalc.tsv', 'SMS_unpublished_flanks_hits_recalc.tsv', 'SMS_published_flanks_hits_recalc.tsv']
 # flank_threshold = 4.0
 
 # motifs_in_flanks = set()

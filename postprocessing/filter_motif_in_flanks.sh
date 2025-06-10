@@ -25,7 +25,7 @@ hits_in_flanks() {
   # find motifs_by_modeltype/pwm/ -xtype f -name "${MOTIF_GLOB}" | grep faltejsk \
   find motifs_by_modeltype/pwm/ -xtype f -name "${MOTIF_GLOB}" \
   | xargs -n1 basename -s .pwm \
-  | xargs -n1 -I{} echo \
+  | xargs -I{} echo \
     java -cp sarus-2.0.2.jar  \
       ru.autosome.SARUS \
         "${FASTA}" \

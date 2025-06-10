@@ -8,8 +8,8 @@ motif_metadata_fn = ARGV[1] # 'freeze/motif_infos.freeze.tsv'
 ranks_fn = ARGV[2] # 'freeze/benchmarks/ranks.freeze.json'
 artifacts_json_fn = 'artifacts/artifacts.json'
 artifacts_folder = 'artifacts'
-artifact_similarities_folder = 'artifact_sims_precise'
-flank_hits_fns = ['HTS_flanks_hits.tsv', 'AFS_flanks_hits.tsv', 'SMS_unpublished_flanks_hits.tsv', 'SMS_published_flanks_hits.tsv']
+artifact_similarities_folder = 'artifact_sims_precise_recalc'
+flank_hits_fns = ['HTS_flanks_hits_recalc.tsv', 'AFS_flanks_hits_recalc.tsv', 'SMS_unpublished_flanks_hits_recalc.tsv', 'SMS_published_flanks_hits_recalc.tsv']
 
 artifact_baseline_motifs = JSON.parse(File.read(artifacts_json_fn)); nil
 artifact_motif_extfns = Dir.glob("#{artifacts_folder}/*.{ppm,pcm}").map{|fn| ext = File.extname(fn); [File.basename(fn, ext), ext] }.to_h; nil
