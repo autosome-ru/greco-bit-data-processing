@@ -134,12 +134,11 @@ conversion_tasks.each do |conversion_task|
     }
   }.reject{|ds, mot, *rest|
     ds.start_with?('ZNF705E.') || mot.start_with?('ZNF705E.')
-  }.uniq
-  # .group_by{|ds, mot, *rest|
-  #   [ds, mot]
-  # }.map{|(ds, mot), ds_mot_rest_grp|
-  #   ds_mot_rest_grp.last # if some metric was reevaluated, take only the last value
-  # }
+  }.group_by{|ds, mot, *rest|
+    [ds, mot]
+  }.map{|(ds, mot), ds_mot_rest_grp|
+    ds_mot_rest_grp.last # if some metric was reevaluated, take only the last value
+  }
 
   File.open(conversion_task[:dst], 'w'){|fw|
     header = ["dataset", "motif", *metrics]
