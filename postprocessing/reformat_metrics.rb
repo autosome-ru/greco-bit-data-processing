@@ -134,7 +134,7 @@ conversion_tasks.each do |conversion_task|
     }
   }.reject{|ds, mot, *rest|
     ds.start_with?('ZNF705E.') || mot.start_with?('ZNF705E.')
-  }
+  }.uniq
 
   File.open(conversion_task[:dst], 'w'){|fw|
     header = ["dataset", "motif", *metrics]
