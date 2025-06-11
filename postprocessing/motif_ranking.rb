@@ -336,8 +336,8 @@ def metrics_readers_configs(folder)
       [[:affiseq_Lysate_centrimo_neglog_evalue, :affiseq_Lysate_centrimo_concentration_30nt], ->(x){ x.match?(/@AFS\.Lys@/) }],
     ],
     "#{folder}/pbm.tsv" => [
-      [[:pbm_qnzs_asis, :pbm_qnzs_log, :pbm_qnzs_exp, :pbm_qnzs_roc, :pbm_qnzs_pr, :pbm_qnzs_roclog, :pbm_qnzs_prlog, :pbm_qnzs_mers,  :pbm_qnzs_logmers], ->(x){ x.match?(/@QNZS\./) }],
-      [[:pbm_sd_asis, :pbm_sd_log, :pbm_sd_exp, :pbm_sd_roc, :pbm_sd_pr, :pbm_sd_roclog, :pbm_sd_prlog, :pbm_sd_mers, :pbm_sd_logmers], ->(x){ x.match?(/@SD\./) }],
+      [[:pbm_qnzs_roc, :pbm_qnzs_pr], ->(x){ x.match?(/@QNZS\./) }],
+      [[:pbm_sd_roc, :pbm_sd_pr], ->(x){ x.match?(/@SD\./) }],
     ],
   }
 
