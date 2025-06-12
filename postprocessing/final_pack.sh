@@ -138,7 +138,7 @@ ruby postprocessing/motifs_freeze.rb  \
 time ruby postprocessing/make_artifacts_annotation.rb \
                 freeze_recalc_integrated/motif_artifacts_annotation.freeze.tsv \
                 freeze_recalc_integrated/motif_infos.freeze.tsv \
-                freeze_recalc_integrated/benchmarks/ranks.freeze.json
+                benchmarks/prerelease_recalc/ranks@prerelease_recalc.core.freeze@disallow-artifacts_ETS-refined.json
 
 
 # # Error: ↓ here we should use full ranks file (with artifacts retained)
@@ -154,3 +154,26 @@ time ruby postprocessing/make_artifacts_annotation.rb \
 #                   freeze/benchmarks/ranks.freeze-approved.json
 
 # time ruby dataset_pvalues_new.rb
+
+######################################
+
+rm -r freeze_recalc_final/
+mkdir -p freeze_recalc_final/{metadata,ranks,metrics,benchmarks_formatted,heatmaps,heatmap_precursors}
+ln -s $(readlink -m freeze_recalc_integrated/*.{tsv,json}) --target-directory freeze_recalc_final/metadata/
+ln -s $(readlink -m freeze_recalc_integrated/{all_motifs,motifs_freeze,motifs_freeze_approved}) --target-directory freeze_recalc_final/
+ln -s $(readlink -m freeze_recalc_integrated/{datasets_freeze,datasets_freeze_approved}) --target-directory freeze_recalc_final/
+ln -s $(readlink -m hocomoco_similarities_recalc.tsv) --target-directory freeze_recalc_final/
+ln -s $(readlink -m freeze_recalc_integrated/motif_artifacts_annotation.freeze.tsv) --target-directory freeze_recalc_final/
+
+ln -s $(readlink -m freeze_recalc_integrated/benchmarks_formatted/heatmaps*) --target-directory freeze_recalc_final/heatmap_precursors/
+ln -s /home_local/ivavlakul/mexrebuild2025/heatmaps.{freeze,freeze-approved} --target-directory freeze_recalc_final/heatmaps/
+
+ln -s $(readlink -m freeze_recalc_integrated/benchmarks_formatted/*.tsv) --target-directory freeze_recalc_final/benchmarks_formatted/
+
+ln -s $(readlink -m benchmarks/prerelease_recalc/ranks*.json) --target-directory freeze_recalc_final/ranks/
+ln -s $(readlink -m benchmarks/prerelease_recalc/metrics*.json) --target-directory freeze_recalc_final/metrics/
+
+ln -s metrics/metrics@prerelease_recalc.core.freeze-approved@disallow-artifacts_ETS-refined.json freeze_recalc_final/metrics.freeze-approved.json
+ln -s metrics/metrics@prerelease_recalc.core.freeze@disallow-artifacts_ETS-refined.json freeze_recalc_final/metrics.freeze.json
+ln -s ranks/ranks@prerelease_recalc.core.freeze-approved@disallow-artifacts_ETS-refined.json freeze_recalc_final/ranks.freeze-approved.json
+ln -s ranks/ranks@prerelease_recalc.core.freeze@disallow-artifacts_ETS-refined.json freeze_recalc_final/ranks.freeze.json

@@ -43,8 +43,8 @@ cat hocomoco_similarities_7e.tsv hocomoco_similarities_8c_pack{1,2,3,4,5,6_wo_ba
   | grep -vPe $( cat source_data_meta/fixes/CODEGATE_DatasetsSwap.txt | tail -n+2 | cut -d $'\t' -f1,4 | tr $'\t' '\n' | sort -u | tr '\n' '|' | sed -re 's/^(.+)\|$/^(\1)\\./' )  \
   > hocomoco_similarities.tsv
 
-# MOTIFS_FOLDER here is recalc folder
-time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_recalc.tsv
+# # MOTIFS_FOLDER here is recalc folder
+# time bash calc_motif_similarities_pack.sh ${MOTIFS_FOLDER} ~/greco-motifs/hocomoco11_core_human_pwm | parallel -j 30 | pv -l > hocomoco_similarities_recalc.tsv
 cat hocomoco_similarities_recalc.tsv >> hocomoco_similarities.tsv
 
 # FOLDERS ARE HARDCODED!!!
@@ -115,10 +115,22 @@ make_ranks() {
     2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@disallow-artifacts_ETS-only.log \
     && echo ok || echo fail
 
-  # combines @allow-artifacts and @disallow-artifacts into @disallow-artifacts_include-dropped-motifs
+  # combines @disallow-artifacts and @disallow-artifacts_ETS-only (ETS artifacts in ETS are allowed; other TFs not recalculated)
+  #   into @disallow-artifacts_include-dropped-motifs
   time ruby postprocessing/correct_ranks_and_metrics_restore_dropped_artifacts.rb  ${BENCHMARK_RANKS_FOLDER}  ${NAME}
+
+  time ruby postprocessing/motif_ranking.rb \
+      ${BENCHMARK_FORMATTED_FOLDER} \
+      ${BENCHMARK_RANKS_FOLDER}/metrics@${NAME}@allow-artifacts.json \
+      ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@allow-artifacts.json \
+      --metadata  ${METADATA_FN} \
+      "$@" \
+    2> ${BENCHMARK_RANKS_FOLDER}/${NAME}@allow-artifacts.log \
+    && echo ok || echo fail
+
   source .venv/bin/activate
   time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@disallow-artifacts_ETS-refined/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@disallow-artifacts_ETS-refined.json
+  time python3 generate_heatmaps.py  ${BENCHMARK_FORMATTED_FOLDER}/heatmaps@${NAME}@allow-artifacts/  ${BENCHMARK_RANKS_FOLDER}/ranks@${NAME}@allow-artifacts.json
   deactivate
 }
 
