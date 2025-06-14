@@ -1,5 +1,6 @@
 require 'json'
 require 'csv'
+require_relative 'fix_tf_names_codebook_bug_utils.rb'
 
 def log10_str(str)
   pattern = /^(?<significand>\d+(\.\d*)?)([eE](?<exponent>[-+]?\d+))?$/
