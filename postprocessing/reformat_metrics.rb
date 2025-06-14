@@ -235,7 +235,6 @@ conversion_tasks_recalc.each do |conversion_task|
   }
 
   File.open(conversion_task[:dst], 'a'){|fw|
-    fw.puts header.join("\t")
     data_rows.each{|row|
       fw.puts(row.join("\t"))
     }
