@@ -20,7 +20,7 @@ puts(header.join("\t"))
 
 [
   *Dir.glob("#{motifs_folder}/*.pcm"),
-  *Dir.glob("#{motifs_folder}/*.pfm"),
+  *Dir.glob("#{motifs_folder}/*.ppm"),
 ].sort.each{|fn|
   matrix = File.readlines(fn).reject{|l| l.start_with?('>') }.map{|l| l.chomp.split("\t").map{|v| Float(v) } }
   name = File.basename(fn, File.extname(fn))
