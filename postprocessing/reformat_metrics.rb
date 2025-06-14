@@ -1,4 +1,5 @@
 require 'json'
+require 'csv'
 
 def log10_str(str)
   pattern = /^(?<significand>\d+(\.\d*)?)([eE](?<exponent>[-+]?\d+))?$/
