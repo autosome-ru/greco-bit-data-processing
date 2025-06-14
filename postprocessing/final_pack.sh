@@ -155,6 +155,8 @@ time ruby postprocessing/make_artifacts_annotation.rb \
 
 # time ruby dataset_pvalues_new.rb
 
+ruby postprocessing/motif_basic_stats.rb freeze_recalc_integrated/motifs_freeze > freeze_recalc_integrated/motif_stats.tsv
+
 ######################################
 
 rm -r freeze_recalc_final/
