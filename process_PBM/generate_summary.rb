@@ -3,19 +3,16 @@ require 'optparse'
 seq_zscore_folder = nil
 html_dest = nil
 tsv_dest  = nil
-web_sources_url = nil
 option_parser = OptionParser.new{|opts|
   opts.on('--sequences-source FOLDER'){|folder| seq_zscore_folder = folder }
   opts.on('--html-destination FILE'){|file| html_dest = file }
   opts.on('--tsv-destination FILE'){|file| tsv_dest = file }
-  opts.on('--web-sources-url URL') {|url| web_sources_url = url}
 }
 option_parser.parse!(ARGV)
 
 raise "Specify sequences source folder" unless seq_zscore_folder
 raise "Specify html destination file" unless html_dest
 raise "Specify tsv destination file" unless tsv_dest
-raise "Specify web sources url" unless web_sources_url
 
 # standard normal distribution quantiles
 quantiles = {0.05 => 1.64, 0.01 => 2.34, 0.005 => 2.57, 0.001 => 3.08}
@@ -43,10 +40,10 @@ chip_infos = Dir.glob(File.join(seq_zscore_folder, '*.tsv')).map{|fn|
 File.open(html_dest, 'w'){|fw|
   fw.puts <<-EOS
     <html><head>
-    <link rel="stylesheet" href="#{web_sources_url}/theme.default.css">
-    <script type="text/javascript" src="#{web_sources_url}/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="#{web_sources_url}/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="#{web_sources_url}/jquery.tablesorter.widgets.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.default.min.css" integrity="sha512-wghhOJkjQX0Lh3NSWvNKeZ0ZpNn+SPVXX1Qyc9OCaogADktxrBiBdKGDoqVUOyhStvMBmJQ8ZdMHiR3wuEq8+w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js" integrity="sha512-WNLxfP/8cVYL9sj8Jnp6et0BkubLP31jhTG9vhL/F5uEZmg5wEzKoXp1kJslzPQWwPT1eyMiSxlKCgzHLOTOTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.js" integrity="sha512-5pW5mEMfVgzkFnOev2vr5P3CHDUB4K6okfAaJHXINoYVfynbiwJhU/OdeaVNjr1a5chNH0prZubh/VZoIqWRHw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.widgets.js" integrity="sha512-Rte4zWBBJ2qG37s6kTUiz0hvWgS2Mz9FnD8diPGhsaYNpE7zN9vvMu2DCLKGoHEfTpQdi9YF3HuqnzdpeIWmCQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </head><body>
   EOS
 

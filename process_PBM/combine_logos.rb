@@ -47,15 +47,14 @@ metrics = [
   }
 }
 
-web_sources_url = 'websrc'
 File.open('results/compilation.html', 'w') do |fw|
   fw.puts <<-EOS
     <html><head>
-    <link rel="stylesheet" href="#{web_sources_url}/theme.default.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.default.min.css" integrity="sha512-wghhOJkjQX0Lh3NSWvNKeZ0ZpNn+SPVXX1Qyc9OCaogADktxrBiBdKGDoqVUOyhStvMBmJQ8ZdMHiR3wuEq8+w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/widget.grouping.min.css">
-    <script type="text/javascript" src="#{web_sources_url}/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="#{web_sources_url}/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="#{web_sources_url}/jquery.tablesorter.widgets.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js" integrity="sha512-WNLxfP/8cVYL9sj8Jnp6et0BkubLP31jhTG9vhL/F5uEZmg5wEzKoXp1kJslzPQWwPT1eyMiSxlKCgzHLOTOTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.js" integrity="sha512-5pW5mEMfVgzkFnOev2vr5P3CHDUB4K6okfAaJHXINoYVfynbiwJhU/OdeaVNjr1a5chNH0prZubh/VZoIqWRHw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.widgets.js" integrity="sha512-Rte4zWBBJ2qG37s6kTUiz0hvWgS2Mz9FnD8diPGhsaYNpE7zN9vvMu2DCLKGoHEfTpQdi9YF3HuqnzdpeIWmCQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/widgets/widget-grouping.min.js"></script>
     <style>
 

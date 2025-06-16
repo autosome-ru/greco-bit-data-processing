@@ -158,7 +158,6 @@ done | parallel -j ${NUM_THREADS}
 # It will recreate existing docs with correlations appended
 ruby generate_summary.rb  --sequences-source  ${RESULTS_FOLDER}/zscored_seqs \
                           --html-destination ${RESULTS_FOLDER}/zscore_quantiles.html \
-                          --tsv-destination ${RESULTS_FOLDER}/zscore_quantiles.tsv \
-                          --web-sources-url ../websrc
+                          --tsv-destination ${RESULTS_FOLDER}/zscore_quantiles.tsv
 
 ruby organize_results.rb --chips-source ${RESULTS_FOLDER}/raw_chips/ --results-source ${RESULTS_FOLDER} --destination ${RESULTS_FOLDER}/factors
